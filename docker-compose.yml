@@ -1,0 +1,14 @@
+services:
+  marz-front:
+    build:
+      context: .
+      target: runner
+    container_name: marz-front
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+      VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:8080/ws}
+      VITE_APP_TITLE: ${VITE_APP_TITLE:-Marz}
+    restart: unless-stopped
