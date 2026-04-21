@@ -28,7 +28,6 @@ Trigger final del onboarding brand — B14 botón "Empezar" dispara `useComplete
 - [ ] Analytics fire.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
