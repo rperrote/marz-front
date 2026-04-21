@@ -1,0 +1,13 @@
+{
+  "branch_name": "feat/001-auth-onboarding",
+  "created_at": "2026-04-21T01:01:53.618742Z",
+  "depends_on_epics": [],
+  "id": "fn-1",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-1.md",
+  "status": "open",
+  "title": "FEAT-001 Signup/Signin + Onboarding (frontend, mocked backend)",
+  "updated_at": "2026-04-21T01:20:18.989792Z"
+}

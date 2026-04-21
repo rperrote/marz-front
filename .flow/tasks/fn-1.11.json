@@ -1,0 +1,17 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-21T01:08:24.843285Z",
+  "depends_on": [
+    "fn-1.8",
+    "fn-1.5"
+  ],
+  "epic": "fn-1",
+  "id": "fn-1.11",
+  "priority": 11,
+  "spec_path": ".flow/tasks/fn-1.11.md",
+  "status": "todo",
+  "title": "F.8 \u2014 Ruta /auth/callback (verify + navigate)",
+  "updated_at": "2026-04-21T01:09:58.693854Z"
+}
