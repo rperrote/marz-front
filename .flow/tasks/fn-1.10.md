@@ -18,7 +18,6 @@ Ruta `/auth/link-invalid` + componente `MagicExpiredScreen` — landing cuando C
 - [ ] Axe-core clean.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
