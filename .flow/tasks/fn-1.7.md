@@ -28,7 +28,6 @@ El solution doc §10.5 lista los eventos que cada pantalla/flow debe emitir. El 
 - [ ] En prod (sin `VITE_ENABLE_MSW` equivalent — ver si usar `import.meta.env.DEV`), el wrapper no rompe ni fuga info.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
