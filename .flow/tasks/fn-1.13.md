@@ -63,7 +63,6 @@ Array de objetos `{ id: 'identity'|'vertical'|...|'confirmation', component, val
 - [ ] F5 en `/onboarding/brand/vertical` con data previa: tras hidratación el store tiene la data persistida (el `rehydrate()` client-side funciona).
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
