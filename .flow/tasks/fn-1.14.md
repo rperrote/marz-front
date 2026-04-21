@@ -46,7 +46,6 @@ Reglas:
 - [ ] Strings extraídos en catálogo Lingui (`pnpm i18n:extract` sin cambios no-trackeados).
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
