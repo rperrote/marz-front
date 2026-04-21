@@ -28,7 +28,6 @@ Guard:
 - [ ] F5 preserva data tras `rehydrate()` client-side.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
