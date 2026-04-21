@@ -25,7 +25,6 @@ Trigger final del onboarding creator — C20 botón "Empezar" dispara `useComple
 - [ ] Analytics `onboarding_completed` fire.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:

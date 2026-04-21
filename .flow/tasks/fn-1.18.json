@@ -1,17 +1,18 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-21T02:34:13.584090Z",
   "created_at": "2026-04-21T01:08:33.930720Z",
   "depends_on": [
     "fn-1.17",
     "fn-1.2"
   ],
   "epic": "fn-1",
+  "evidence": {},
   "id": "fn-1.18",
   "priority": 18,
   "spec_path": ".flow/tasks/fn-1.18.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.15 \u2014 Trigger final creator (useCompleteCreatorOnboarding)",
-  "updated_at": "2026-04-21T01:10:00.202657Z"
+  "updated_at": "2026-04-21T02:34:23.352164Z"
 }
