@@ -1,16 +1,17 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-21T02:29:48.963994Z",
   "created_at": "2026-04-21T01:08:15.567524Z",
   "depends_on": [
     "fn-1.1"
   ],
   "epic": "fn-1",
+  "evidence": {},
   "id": "fn-1.2",
   "priority": 2,
   "spec_path": ".flow/tasks/fn-1.2.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.0b \u2014 Setup MSW + handlers + fixtures",
-  "updated_at": "2026-04-21T01:09:56.805311Z"
+  "updated_at": "2026-04-21T02:31:03.876424Z"
 }

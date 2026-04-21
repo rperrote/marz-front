@@ -66,7 +66,6 @@ http.post(`${API}/v1/me/kind`, ...);
 - [ ] Handler de `:complete` creator usa el schema Zod compartido (§D6) — verificado importando desde `src/features/identity/onboarding/creator/schema.ts`.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
