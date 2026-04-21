@@ -33,7 +33,6 @@ Conectar el mutator de Orval con el token de Clerk + implementar retry-on-401.
 - [ ] Typecheck OK.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
