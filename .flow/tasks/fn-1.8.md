@@ -31,7 +31,6 @@ Guards:
 - [ ] Axe-core clean.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
