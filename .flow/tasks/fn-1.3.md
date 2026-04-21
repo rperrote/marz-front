@@ -40,7 +40,6 @@ Si difiere del asumido: actualizar esta task y las `fn-1.8`, `fn-1.9`, `fn-1.11`
 - [ ] `Done summary` documenta la firma real verificada de Clerk SDK (§D2).
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
