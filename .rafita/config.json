@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "projectType": "generic",
+  "provider": "github",
+  "branchMode": "new",
+  "branchPrefix": "feature/claude/",
+  "maxReviewRounds": 5,
+  "workerTimeout": 1800,
+  "yolo": true,
+  "claudeBin": "claude",
+  "claudeModel": "",
+  "debug": 1,
+  "flowctl": ".flow/bin/flowctl",
+  "ui": true
+}
