@@ -34,7 +34,6 @@ Ubicación: `src/features/identity/onboarding/shared/components/`.
 - [ ] No hay strings hardcoded; los labels vienen por props.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
