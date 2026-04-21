@@ -19,7 +19,6 @@ Eliminar residuos placeholder pre-Clerk:
 - [ ] Typecheck + lint limpios.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
