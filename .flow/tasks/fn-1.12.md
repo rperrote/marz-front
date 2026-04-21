@@ -32,7 +32,6 @@ Ruta `/auth/kind` + componente `KindSelector` — selección de brand o creator.
 - [ ] Axe-core clean.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
