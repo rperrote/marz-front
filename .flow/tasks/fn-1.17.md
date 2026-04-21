@@ -100,7 +100,6 @@ export const CreatorOnboardingPayloadSchema = /* Orval-generated base schema */
 - [ ] Lingui strings extraídas.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
