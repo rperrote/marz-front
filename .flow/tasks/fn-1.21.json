@@ -1,17 +1,18 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-21T02:34:50.231851Z",
   "created_at": "2026-04-21T01:08:34.249073Z",
   "depends_on": [
     "fn-1.19",
     "fn-1.7"
   ],
   "epic": "fn-1",
+  "evidence": {},
   "id": "fn-1.21",
   "priority": 21,
   "spec_path": ".flow/tasks/fn-1.21.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.18 \u2014 Sign out desde shells",
-  "updated_at": "2026-04-21T01:10:00.871963Z"
+  "updated_at": "2026-04-21T02:35:00.402751Z"
 }

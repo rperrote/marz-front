@@ -22,7 +22,6 @@ Sign out desde shells brand/creator.
 - [ ] Analytics fire.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
