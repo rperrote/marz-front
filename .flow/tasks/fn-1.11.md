@@ -25,7 +25,6 @@ Ruta `/auth/callback` — pantalla transitoria que ejecuta la verificación del 
 - [ ] Loading state visible mientras procesa.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
