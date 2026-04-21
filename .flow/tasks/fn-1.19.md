@@ -23,7 +23,6 @@ Guards reales en `_brand.tsx` y `_creator.tsx` basados en `useMe`. Reemplazar cu
 - [ ] Typecheck OK.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
