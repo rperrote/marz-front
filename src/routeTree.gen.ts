@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HealthRouteImport } from './routes/health'
+import { Route as DsRouteImport } from './routes/ds'
 import { Route as CreatorRouteImport } from './routes/_creator'
 import { Route as BrandRouteImport } from './routes/_brand'
 import { Route as IndexRouteImport } from './routes/index'
@@ -25,6 +26,11 @@ const LoginRoute = LoginRouteImport.update({
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DsRoute = DsRouteImport.update({
+  id: '/ds',
+  path: '/ds',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreatorRoute = CreatorRouteImport.update({
@@ -53,6 +59,7 @@ const BrandCampaignsRoute = BrandCampaignsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ds': typeof DsRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ds': typeof DsRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_brand': typeof BrandRouteWithChildren
   '/_creator': typeof CreatorRouteWithChildren
+  '/ds': typeof DsRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/_brand/campaigns': typeof BrandCampaignsRoute
@@ -77,14 +86,15 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/health' | '/login' | '/campaigns' | '/offers'
+  fullPaths: '/' | '/ds' | '/health' | '/login' | '/campaigns' | '/offers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/health' | '/login' | '/campaigns' | '/offers'
+  to: '/' | '/ds' | '/health' | '/login' | '/campaigns' | '/offers'
   id:
     | '__root__'
     | '/'
     | '/_brand'
     | '/_creator'
+    | '/ds'
     | '/health'
     | '/login'
     | '/_brand/campaigns'
@@ -95,6 +105,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrandRoute: typeof BrandRouteWithChildren
   CreatorRoute: typeof CreatorRouteWithChildren
+  DsRoute: typeof DsRoute
   HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
 }
@@ -113,6 +124,13 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/health'
       preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ds': {
+      id: '/ds'
+      path: '/ds'
+      fullPath: '/ds'
+      preLoaderRoute: typeof DsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_creator': {
@@ -178,6 +196,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRouteWithChildren,
   CreatorRoute: CreatorRouteWithChildren,
+  DsRoute: DsRoute,
   HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
 }
