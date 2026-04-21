@@ -1,14 +1,15 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-21T02:24:18.170762Z",
   "created_at": "2026-04-21T01:08:15.463018Z",
   "depends_on": [],
   "epic": "fn-1",
+  "evidence": {},
   "id": "fn-1.1",
   "priority": 1,
   "spec_path": ".flow/tasks/fn-1.1.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.0a \u2014 OpenAPI spec.json escrito a mano (base Orval)",
-  "updated_at": "2026-04-21T01:09:56.594380Z"
+  "updated_at": "2026-04-21T02:29:46.614620Z"
 }

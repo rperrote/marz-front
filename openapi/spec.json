@@ -1,0 +1,921 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Marz API",
+    "version": "0.1.0",
+    "description": "Contrato REST Marz. Base para Orval (tipos + hooks React Query + schemas Zod). El backend real (`marz-api`) puede no existir todavía; este spec se escribe a mano según `03-solution.md §4.1-§4.3` y se regenera con `pnpm api:sync` una vez disponible."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Dev local"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "identity",
+      "description": "Account, kind, session."
+    },
+    {
+      "name": "onboarding",
+      "description": "Onboarding brand + creator."
+    },
+    {
+      "name": "uploads",
+      "description": "Presigned URLs para S3."
+    }
+  ],
+  "paths": {
+    "/v1/me": {
+      "get": {
+        "tags": ["identity"],
+        "operationId": "me",
+        "summary": "Self-healing account lookup",
+        "description": "Devuelve el account del bearer token. Si no existe localmente, lo crea idempotente con `onboarding_status=kind_pending`.",
+        "responses": {
+          "200": {
+            "description": "Account state con hint de routing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        }
+      }
+    },
+    "/v1/me/kind": {
+      "post": {
+        "tags": ["identity"],
+        "operationId": "setMeKind",
+        "summary": "Elegir kind del account",
+        "description": "Setea `kind` y transiciona `onboarding_status` a `onboarding_pending`. Solo válido en `kind_pending`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KindSelectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MeResponse actualizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/v1/onboarding/brand:complete": {
+      "post": {
+        "tags": ["onboarding"],
+        "operationId": "completeBrandOnboarding",
+        "summary": "Completa atómicamente el onboarding brand",
+        "description": "Endpoint transaccional único: valida, crea BrandWorkspace + BrandOnboardingProfile, marca onboarded, emite eventos. Todo o nada.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandOnboardingPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MeResponse con `onboarding_status=onboarded`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/v1/onboarding/creator:complete": {
+      "post": {
+        "tags": ["onboarding"],
+        "operationId": "completeCreatorOnboarding",
+        "summary": "Completa atómicamente el onboarding creator",
+        "description": "Endpoint transaccional único: valida, crea CreatorProfile + CreatorSocialAccounts + CreatorChannelRates + CreatorOnboardingProfile, marca onboarded, emite eventos. Todo o nada.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatorOnboardingPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MeResponse con `onboarding_status=onboarded`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/v1/onboarding/brand/enrichment": {
+      "get": {
+        "tags": ["onboarding"],
+        "operationId": "brandEnrichment",
+        "summary": "Proxy Brandfetch",
+        "description": "Devuelve logo + colores + raw para una URL. Oculta la API key de Brandfetch al frontend. Cache in-memory 1h por URL normalizada.",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "description": "URL de la marca a enriquecer.",
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BrandEnrichment con datos de Brandfetch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandEnrichment"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Brandfetch no devolvió datos para esa URL. El cliente continúa con placeholders."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        }
+      }
+    },
+    "/v1/uploads/avatar:presign": {
+      "post": {
+        "tags": ["uploads"],
+        "operationId": "presignAvatar",
+        "summary": "Presigned URL para subir avatar a S3",
+        "description": "Devuelve URL PUT de S3 + s3_key destino. TTL 5 min. El cliente referencia `s3_key` al completar el onboarding.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvatarPresignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "AvatarPresignResponse con upload_url + s3_key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvatarPresignResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Bearer token emitido por Clerk (verificado server-side con JWKS)."
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Request malformada o parámetros inválidos.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Token ausente, inválido o expirado.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Estado incompatible con la operación.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UnprocessableEntity": {
+        "description": "Validación falló. Ver `details.field_errors`.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Rate limit activo.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ServiceUnavailable": {
+        "description": "Dependencia externa caída (Clerk, Brandfetch, S3).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "OnboardingStatus": {
+        "type": "string",
+        "enum": ["kind_pending", "onboarding_pending", "onboarded"],
+        "description": "Estado del onboarding del account."
+      },
+      "AccountKind": {
+        "type": "string",
+        "enum": ["brand", "creator"],
+        "description": "Tipo de account. Nullable en MeResponse cuando `onboarding_status=kind_pending`."
+      },
+      "Account": {
+        "type": "object",
+        "required": [
+          "id",
+          "clerk_user_id",
+          "email",
+          "kind",
+          "full_name",
+          "verified_at",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID v7."
+          },
+          "clerk_user_id": {
+            "type": "string",
+            "example": "user_2abc..."
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "kind": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AccountKind"
+              }
+            ]
+          },
+          "full_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MeResponse": {
+        "type": "object",
+        "required": ["account", "onboarding_status", "redirect_to"],
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "onboarding_status": {
+            "$ref": "#/components/schemas/OnboardingStatus"
+          },
+          "redirect_to": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hint para el router del front. `/auth/kind`, `/onboarding/brand`, `/onboarding/creator`, o null si onboarded."
+          }
+        }
+      },
+      "KindSelectionRequest": {
+        "type": "object",
+        "required": ["kind"],
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/AccountKind"
+          }
+        }
+      },
+      "BrandVertical": {
+        "type": "string",
+        "enum": [
+          "fintech",
+          "tech",
+          "ecommerce",
+          "education",
+          "food",
+          "fitness",
+          "health",
+          "entertainment",
+          "beauty",
+          "gaming",
+          "travel",
+          "fashion",
+          "mobile_apps",
+          "crypto",
+          "ai_tech",
+          "other"
+        ]
+      },
+      "MarketingObjective": {
+        "type": "string",
+        "enum": ["awareness", "performance", "launch", "community"]
+      },
+      "CreatorExperience": {
+        "type": "string",
+        "enum": ["never", "scaling", "tried_without_results"]
+      },
+      "MonthlyBudgetRange": {
+        "type": "string",
+        "enum": ["zero", "under_10k", "10k_to_25k", "25k_to_50k", "50k_plus"]
+      },
+      "Timing": {
+        "type": "string",
+        "enum": ["launch_now", "one_to_two_weeks", "this_month", "exploring"]
+      },
+      "AttributionSource": {
+        "type": "string",
+        "enum": [
+          "instagram",
+          "twitter_x",
+          "tiktok",
+          "linkedin",
+          "reddit",
+          "referral",
+          "search",
+          "other"
+        ]
+      },
+      "Attribution": {
+        "type": "object",
+        "required": ["source", "referral_text"],
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/AttributionSource"
+          },
+          "referral_text": {
+            "type": "string",
+            "nullable": true,
+            "description": "Requerido si source=referral."
+          }
+        }
+      },
+      "BrandfetchSnapshot": {
+        "type": "object",
+        "required": ["logo_url", "primary_color_hex", "secondary_color_hex", "raw"],
+        "properties": {
+          "logo_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "primary_color_hex": {
+            "type": "string",
+            "nullable": true,
+            "example": "#ff3366"
+          },
+          "secondary_color_hex": {
+            "type": "string",
+            "nullable": true
+          },
+          "raw": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Respuesta cruda de Brandfetch para auditoría."
+          }
+        }
+      },
+      "BrandOnboardingPayload": {
+        "type": "object",
+        "required": [
+          "brand_name",
+          "website_url",
+          "brandfetch_snapshot",
+          "vertical",
+          "marketing_objective",
+          "creator_experience",
+          "creator_sourcing_history",
+          "monthly_budget_range",
+          "timing",
+          "contact_name",
+          "contact_title",
+          "contact_whatsapp_e164",
+          "attribution"
+        ],
+        "properties": {
+          "brand_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "website_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "brandfetch_snapshot": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BrandfetchSnapshot"
+              }
+            ]
+          },
+          "vertical": {
+            "$ref": "#/components/schemas/BrandVertical"
+          },
+          "marketing_objective": {
+            "$ref": "#/components/schemas/MarketingObjective"
+          },
+          "creator_experience": {
+            "$ref": "#/components/schemas/CreatorExperience"
+          },
+          "creator_sourcing_history": {
+            "type": "string"
+          },
+          "monthly_budget_range": {
+            "$ref": "#/components/schemas/MonthlyBudgetRange"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/Timing"
+          },
+          "contact_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contact_title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contact_whatsapp_e164": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{1,14}$",
+            "example": "+5491112345678"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          }
+        }
+      },
+      "CreatorTier": {
+        "type": "string",
+        "enum": ["emergent", "growing", "consolidated", "reference", "massive", "celebrity"]
+      },
+      "CreatorExperienceLevel": {
+        "type": "string",
+        "enum": ["none", "1_to_5", "6_to_20", "20_plus_primary"]
+      },
+      "CreatorNiche": {
+        "type": "string",
+        "enum": [
+          "fintech",
+          "tech",
+          "gaming",
+          "comedy",
+          "lifestyle",
+          "business",
+          "productivity",
+          "fitness",
+          "personal_finance",
+          "crypto",
+          "food",
+          "travel",
+          "beauty",
+          "fashion",
+          "parenting"
+        ]
+      },
+      "CreatorContentType": {
+        "type": "string",
+        "enum": [
+          "unboxing",
+          "reviews",
+          "product_demos",
+          "lifestyle",
+          "storytelling",
+          "video_ads",
+          "faceless_clipping",
+          "tutorials",
+          "interviews",
+          "humor_sketches",
+          "day_in_life",
+          "behind_scenes"
+        ]
+      },
+      "CreatorGender": {
+        "type": "string",
+        "enum": ["male", "female", "non_binary", "prefer_not_say"]
+      },
+      "CreatorPlatform": {
+        "type": "string",
+        "enum": ["instagram", "tiktok", "youtube"]
+      },
+      "CreatorContentFormat": {
+        "type": "string",
+        "enum": [
+          "ig_reel",
+          "ig_story",
+          "ig_post",
+          "tiktok_post",
+          "yt_short",
+          "yt_long",
+          "yt_podcast"
+        ]
+      },
+      "CreatorRateCard": {
+        "type": "object",
+        "required": ["format", "amount", "currency"],
+        "properties": {
+          "format": {
+            "$ref": "#/components/schemas/CreatorContentFormat"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "description": "Decimal con 2 decimales."
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 4217.",
+            "example": "USD"
+          }
+        }
+      },
+      "CreatorChannel": {
+        "type": "object",
+        "required": ["platform", "handle", "is_primary", "rate_cards"],
+        "properties": {
+          "platform": {
+            "$ref": "#/components/schemas/CreatorPlatform"
+          },
+          "handle": {
+            "type": "string",
+            "minLength": 1
+          },
+          "is_primary": {
+            "type": "boolean",
+            "description": "Exactamente uno de los canales debe tener true."
+          },
+          "rate_cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatorRateCard"
+            }
+          }
+        }
+      },
+      "CreatorBestVideoKind": {
+        "type": "string",
+        "enum": ["organic", "branded"]
+      },
+      "CreatorBestVideo": {
+        "type": "object",
+        "required": ["url", "kind"],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CreatorBestVideoKind"
+          }
+        }
+      },
+      "CreatorOnboardingPayload": {
+        "type": "object",
+        "required": [
+          "display_name",
+          "handle",
+          "experience_level",
+          "tier",
+          "niches",
+          "content_types",
+          "channels",
+          "best_videos",
+          "birthday",
+          "gender",
+          "country",
+          "city",
+          "whatsapp_e164",
+          "referral_text",
+          "avatar_s3_key"
+        ],
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handle": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique case-insensitive."
+          },
+          "experience_level": {
+            "$ref": "#/components/schemas/CreatorExperienceLevel"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/CreatorTier"
+          },
+          "niches": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/CreatorNiche"
+            }
+          },
+          "content_types": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/CreatorContentType"
+            }
+          },
+          "channels": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/CreatorChannel"
+            }
+          },
+          "best_videos": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "$ref": "#/components/schemas/CreatorBestVideo"
+            }
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO date YYYY-MM-DD. Backend computa edad."
+          },
+          "gender": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreatorGender"
+              }
+            ]
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2.",
+            "example": "AR"
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1
+          },
+          "whatsapp_e164": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{1,14}$"
+          },
+          "referral_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "avatar_s3_key": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Devuelto por `POST /v1/uploads/avatar:presign`."
+          }
+        }
+      },
+      "BrandEnrichment": {
+        "type": "object",
+        "required": ["logo_url", "primary_color_hex", "secondary_color_hex", "raw"],
+        "properties": {
+          "logo_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "primary_color_hex": {
+            "type": "string",
+            "nullable": true
+          },
+          "secondary_color_hex": {
+            "type": "string",
+            "nullable": true
+          },
+          "raw": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Respuesta cruda de Brandfetch; el front la pasa tal cual al `:complete`."
+          }
+        }
+      },
+      "AvatarPresignRequest": {
+        "type": "object",
+        "required": ["content_type", "content_length"],
+        "properties": {
+          "content_type": {
+            "type": "string",
+            "pattern": "^image/",
+            "description": "MIME type del archivo a subir. Restringido a `image/*`.",
+            "example": "image/png"
+          },
+          "content_length": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 5242880,
+            "description": "Bytes del archivo. Máximo 5 MiB."
+          }
+        }
+      },
+      "AvatarPresignResponse": {
+        "type": "object",
+        "required": ["upload_url", "s3_key", "expires_at"],
+        "properties": {
+          "upload_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL PUT directa a S3 con firma V4."
+          },
+          "s3_key": {
+            "type": "string",
+            "description": "Clave dentro del bucket. El cliente la manda en `creator:complete`."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Instante absoluto de expiración de la firma."
+          }
+        }
+      },
+      "ErrorFieldErrors": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        },
+        "description": "Mapa `field_path -> error_code`. Ej. `channels[0].rate_cards[2].amount: must_be_positive`."
+      },
+      "ErrorDetails": {
+        "type": "object",
+        "properties": {
+          "field_errors": {
+            "$ref": "#/components/schemas/ErrorFieldErrors"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ErrorBody": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Código estable para branching en cliente. Ver §4.1.9."
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensaje humano. No usar para branching."
+          },
+          "details": {
+            "$ref": "#/components/schemas/ErrorDetails"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        }
+      }
+    }
+  }
+}

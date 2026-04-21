@@ -27,7 +27,6 @@ Correr `pnpm api:generate` para validar que Orval parsea sin error.
 - [ ] `src/shared/api/generated/` está committeado con `.gitattributes` marcándolo `linguist-generated=true` (si falta, agregar la línea).
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
