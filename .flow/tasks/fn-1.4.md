@@ -22,7 +22,6 @@ Tipos Orval regenerados localmente desde `openapi/spec.json` (que viene de F.0-o
 El solution doc dice "F.2 depende de B.11 mergeado en dev". En este epic esa dependencia se reemplaza por F.0-openapi (spec local).
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
