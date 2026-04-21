@@ -40,7 +40,6 @@ Detección mobile + ruta `/desktop-only`.
 - [ ] Mobile real: flicker de `/auth` visible por <100ms antes del redirect — **aceptado** (§D7); documentado en `Done summary`.
 
 ## Done summary
-TBD
 
 ## Evidence
 - Commits:
