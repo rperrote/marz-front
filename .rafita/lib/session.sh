@@ -6,7 +6,8 @@
 
 session::_file() {
   local task_id="$1"
-  printf '%s/sessions/%s.json' "${RAFITA_DIR:-.rafita}" "$task_id"
+  local run_dir="${RAFITA_RUN_DIR:-${RAFITA_DIR:-.rafita}/runs/default}"
+  printf '%s/sessions/%s.json' "$run_dir" "$task_id"
 }
 
 # Run a python snippet that needs args, capturing stdout to a variable.
@@ -34,16 +35,20 @@ session::task_init() {
   local rev_p; rev_p=$(worker::_provider_for_role reviewer)
 
   if [[ -f "$f" ]]; then
-    # File exists: update _run_id but preserve existing session IDs.
-    # Only generate new IDs for empty roles.
+    # File exists: if run_id changed, regenerate all IDs (new run = new sessions).
+    # If same run_id, preserve existing IDs (resume within the same run).
     session::_pyrun _unused '
 import json,sys,uuid
 f,run_id,dev_p,rev_p=sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]
 with open(f) as fp: d=json.load(fp)
+same_run = (d.get("_run_id","") == run_id and bool(run_id))
 d["_run_id"]=run_id
 for role,provider in [("dev",dev_p),("reviewer",rev_p)]:
     v=d.get(role,{})
-    if not isinstance(v,dict) or not v.get("id"):
+    has_id = isinstance(v,dict) and bool(v.get("id"))
+    if same_run and has_id:
+        pass  # preserve session for resume within same run
+    else:
         if provider=="claude":
             d[role]={"provider":"claude","id":str(uuid.uuid4()),"used":0}
         else:
