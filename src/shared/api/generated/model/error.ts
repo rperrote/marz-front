@@ -7,8 +7,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { ErrorError } from './errorError'
+import type { ErrorError } from './errorError';
 
 export interface Error {
-  error: ErrorError
+  error: ErrorError;
 }

@@ -7,17 +7,26 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import { useMutation } from '@tanstack/react-query'
+import {
+  useMutation
+} from '@tanstack/react-query';
 import type {
   MutationFunction,
   QueryClient,
   UseMutationOptions,
-  UseMutationResult,
-} from '@tanstack/react-query'
+  UseMutationResult
+} from '@tanstack/react-query';
 
-import type { ClerkWebhook200, ClerkWebhookBody, Error } from '../model'
+import type {
+  ClerkWebhook200,
+  ClerkWebhookBody,
+  Error
+} from '../model';
 
-import { customFetch } from '../../mutator'
+import { customFetch } from '../../mutator';
+
+
+
 
 export type clerkWebhookResponse200 = {
   data: ClerkWebhook200
@@ -44,96 +53,76 @@ export type clerkWebhookResponse500 = {
   status: 500
 }
 
-export type clerkWebhookResponseSuccess = clerkWebhookResponse200 & {
-  headers: Headers
-}
-export type clerkWebhookResponseError = (
-  | clerkWebhookResponse400
-  | clerkWebhookResponse401
-  | clerkWebhookResponse429
-  | clerkWebhookResponse500
-) & {
-  headers: Headers
-}
+export type clerkWebhookResponseSuccess = (clerkWebhookResponse200) & {
+  headers: Headers;
+};
+export type clerkWebhookResponseError = (clerkWebhookResponse400 | clerkWebhookResponse401 | clerkWebhookResponse429 | clerkWebhookResponse500) & {
+  headers: Headers;
+};
 
-export type clerkWebhookResponse =
-  | clerkWebhookResponseSuccess
-  | clerkWebhookResponseError
+export type clerkWebhookResponse = (clerkWebhookResponseSuccess | clerkWebhookResponseError)
 
 export const getClerkWebhookUrl = () => {
+
+
+
+
   return `/v1/webhooks/clerk`
 }
 
-export const clerkWebhook = async (
-  clerkWebhookBody: ClerkWebhookBody,
-  options?: RequestInit,
-): Promise<clerkWebhookResponse> => {
-  return customFetch<clerkWebhookResponse>(getClerkWebhookUrl(), {
+export const clerkWebhook = async (clerkWebhookBody: ClerkWebhookBody, options?: RequestInit): Promise<clerkWebhookResponse> => {
+
+  return customFetch<clerkWebhookResponse>(getClerkWebhookUrl(),
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(clerkWebhookBody),
-  })
-}
-
-export const getClerkWebhookMutationOptions = <
-  TError = Error,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof clerkWebhook>>,
-    TError,
-    { data: ClerkWebhookBody },
-    TContext
-  >
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof clerkWebhook>>,
-  TError,
-  { data: ClerkWebhookBody },
-  TContext
-> => {
-  const mutationKey = ['clerkWebhook']
-  const { mutation: mutationOptions } = options
-    ? options.mutation &&
-      'mutationKey' in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
-
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof clerkWebhook>>,
-    { data: ClerkWebhookBody }
-  > = (props) => {
-    const { data } = props ?? {}
-
-    return clerkWebhook(data)
+    body: JSON.stringify(
+      clerkWebhookBody,)
   }
+);}
 
-  return { mutationFn, ...mutationOptions }
-}
 
-export type ClerkWebhookMutationResult = NonNullable<
-  Awaited<ReturnType<typeof clerkWebhook>>
->
-export type ClerkWebhookMutationBody = ClerkWebhookBody
-export type ClerkWebhookMutationError = Error
 
-export const useClerkWebhook = <TError = Error, TContext = unknown>(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof clerkWebhook>>,
-      TError,
-      { data: ClerkWebhookBody },
-      TContext
-    >
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof clerkWebhook>>,
-  TError,
-  { data: ClerkWebhookBody },
-  TContext
-> => {
-  return useMutation(getClerkWebhookMutationOptions(options), queryClient)
-}
+
+export const getClerkWebhookMutationOptions = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clerkWebhook>>, TError,{data: ClerkWebhookBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof clerkWebhook>>, TError,{data: ClerkWebhookBody}, TContext> => {
+
+const mutationKey = ['clerkWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof clerkWebhook>>, {data: ClerkWebhookBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  clerkWebhook(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ClerkWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof clerkWebhook>>>
+    export type ClerkWebhookMutationBody = ClerkWebhookBody
+    export type ClerkWebhookMutationError = Error
+
+    export const useClerkWebhook = <TError = Error,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof clerkWebhook>>, TError,{data: ClerkWebhookBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof clerkWebhook>>,
+        TError,
+        {data: ClerkWebhookBody},
+        TContext
+      > => {
+      return useMutation(getClerkWebhookMutationOptions(options), queryClient);
+    }

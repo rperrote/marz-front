@@ -11,13 +11,12 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 /**
  * @nullable
  */
-export type CreatorOnboardingPayloadGender =
-  | (typeof CreatorOnboardingPayloadGender)[keyof typeof CreatorOnboardingPayloadGender]
-  | null
+export type CreatorOnboardingPayloadGender = typeof CreatorOnboardingPayloadGender[keyof typeof CreatorOnboardingPayloadGender] | null;
+
 
 export const CreatorOnboardingPayloadGender = {
   male: 'male',
   female: 'female',
   non_binary: 'non_binary',
   prefer_not_say: 'prefer_not_say',
-} as const
+} as const;

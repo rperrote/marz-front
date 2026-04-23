@@ -7,8 +7,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { AccountKind } from './accountKind'
+import type { AccountKind } from './accountKind';
 
 export interface KindSelectionRequest {
-  kind: AccountKind
+  kind: AccountKind;
 }

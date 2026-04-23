@@ -8,12 +8,12 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type CreatorSourcingHistory =
-  (typeof CreatorSourcingHistory)[keyof typeof CreatorSourcingHistory]
+export type CreatorSourcingHistory = typeof CreatorSourcingHistory[keyof typeof CreatorSourcingHistory];
+
 
 export const CreatorSourcingHistory = {
   none: 'none',
   small_scale: 'small_scale',
   large_scale: 'large_scale',
   agency: 'agency',
-} as const
+} as const;

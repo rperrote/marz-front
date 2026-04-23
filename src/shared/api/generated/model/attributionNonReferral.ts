@@ -7,8 +7,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { AttributionNonReferralSource } from './attributionNonReferralSource'
+import type { AttributionNonReferralSource } from './attributionNonReferralSource';
 
 export interface AttributionNonReferral {
-  source: AttributionNonReferralSource
+  source: AttributionNonReferralSource;
 }

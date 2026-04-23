@@ -11,4 +11,4 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 /**
  * Headers que el cliente debe incluir en el PUT a S3
  */
-export type AvatarPresignResponseRequiredHeaders = { [key: string]: string }
+export type AvatarPresignResponseRequiredHeaders = {[key: string]: string};

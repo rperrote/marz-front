@@ -9,6 +9,6 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  */
 
 export type ErrorError = {
-  code: string
-  message: string
-}
+  code: string;
+  message: string;
+};

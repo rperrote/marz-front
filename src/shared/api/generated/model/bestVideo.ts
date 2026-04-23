@@ -7,10 +7,10 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { BestVideoKind } from './bestVideoKind'
+import type { BestVideoKind } from './bestVideoKind';
 
 export interface BestVideo {
   /** @maxLength 500 */
-  url: string
-  kind: BestVideoKind
+  url: string;
+  kind: BestVideoKind;
 }

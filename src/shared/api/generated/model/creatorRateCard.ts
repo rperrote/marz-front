@@ -10,9 +10,9 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
 export interface CreatorRateCard {
   /** @maxLength 200 */
-  format: string
+  format: string;
   /** @maxLength 50 */
-  rate_amount: string
+  rate_amount: string;
   /** @maxLength 3 */
-  rate_currency: string
+  rate_currency: string;
 }

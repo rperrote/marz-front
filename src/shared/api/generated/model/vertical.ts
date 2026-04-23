@@ -8,7 +8,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type Vertical = (typeof Vertical)[keyof typeof Vertical]
+export type Vertical = typeof Vertical[keyof typeof Vertical];
+
 
 export const Vertical = {
   fintech: 'fintech',
@@ -27,4 +28,4 @@ export const Vertical = {
   crypto: 'crypto',
   ai_tech: 'ai_tech',
   other: 'other',
-} as const
+} as const;

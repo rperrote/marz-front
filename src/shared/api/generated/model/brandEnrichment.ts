@@ -7,14 +7,14 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { BrandEnrichmentRaw } from './brandEnrichmentRaw'
+import type { BrandEnrichmentRaw } from './brandEnrichmentRaw';
 
 export interface BrandEnrichment {
   /** @maxLength 500 */
-  logo_url: string
+  logo_url: string;
   /** @pattern ^#[0-9A-Fa-f]{6}$ */
-  primary_color_hex: string
+  primary_color_hex: string;
   /** @pattern ^#[0-9A-Fa-f]{6}$ */
-  secondary_color_hex: string
-  raw: BrandEnrichmentRaw
+  secondary_color_hex: string;
+  raw: BrandEnrichmentRaw;
 }

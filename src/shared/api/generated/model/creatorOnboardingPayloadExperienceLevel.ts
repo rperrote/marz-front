@@ -8,12 +8,12 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type CreatorOnboardingPayloadExperienceLevel =
-  (typeof CreatorOnboardingPayloadExperienceLevel)[keyof typeof CreatorOnboardingPayloadExperienceLevel]
+export type CreatorOnboardingPayloadExperienceLevel = typeof CreatorOnboardingPayloadExperienceLevel[keyof typeof CreatorOnboardingPayloadExperienceLevel];
+
 
 export const CreatorOnboardingPayloadExperienceLevel = {
   none: 'none',
   '1_to_5': '1_to_5',
   '6_to_20': '6_to_20',
   '20_plus_primary': '20_plus_primary',
-} as const
+} as const;

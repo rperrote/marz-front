@@ -11,8 +11,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 /**
  * Tier declarado por el creator en paso C4
  */
-export type CreatorOnboardingPayloadTier =
-  (typeof CreatorOnboardingPayloadTier)[keyof typeof CreatorOnboardingPayloadTier]
+export type CreatorOnboardingPayloadTier = typeof CreatorOnboardingPayloadTier[keyof typeof CreatorOnboardingPayloadTier];
+
 
 export const CreatorOnboardingPayloadTier = {
   emergent: 'emergent',
@@ -21,4 +21,4 @@ export const CreatorOnboardingPayloadTier = {
   reference: 'reference',
   massive: 'massive',
   celebrity: 'celebrity',
-} as const
+} as const;

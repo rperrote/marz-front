@@ -7,8 +7,10 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from 'zod'
+import * as zod from 'zod';
+
 
 export const HealthResponse = zod.object({
-  status: zod.string(),
+  "status": zod.string()
 })
+

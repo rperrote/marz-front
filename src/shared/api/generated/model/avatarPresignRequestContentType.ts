@@ -8,11 +8,11 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type AvatarPresignRequestContentType =
-  (typeof AvatarPresignRequestContentType)[keyof typeof AvatarPresignRequestContentType]
+export type AvatarPresignRequestContentType = typeof AvatarPresignRequestContentType[keyof typeof AvatarPresignRequestContentType];
+
 
 export const AvatarPresignRequestContentType = {
   'image/jpeg': 'image/jpeg',
   'image/png': 'image/png',
   'image/webp': 'image/webp',
-} as const
+} as const;

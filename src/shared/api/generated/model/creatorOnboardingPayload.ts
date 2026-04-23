@@ -7,57 +7,57 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { BestVideo } from './bestVideo'
-import type { CreatorChannel } from './creatorChannel'
-import type { CreatorOnboardingPayloadExperienceLevel } from './creatorOnboardingPayloadExperienceLevel'
-import type { CreatorOnboardingPayloadGender } from './creatorOnboardingPayloadGender'
-import type { CreatorOnboardingPayloadTier } from './creatorOnboardingPayloadTier'
+import type { BestVideo } from './bestVideo';
+import type { CreatorChannel } from './creatorChannel';
+import type { CreatorOnboardingPayloadExperienceLevel } from './creatorOnboardingPayloadExperienceLevel';
+import type { CreatorOnboardingPayloadGender } from './creatorOnboardingPayloadGender';
+import type { CreatorOnboardingPayloadTier } from './creatorOnboardingPayloadTier';
 
 export interface CreatorOnboardingPayload {
   /** @maxLength 200 */
-  handle: string
+  handle: string;
   /** @maxLength 200 */
-  display_name: string
+  display_name: string;
   /**
-   * @maxLength 2000
-   * @nullable
-   */
-  bio?: string | null
+     * @maxLength 2000
+     * @nullable
+     */
+  bio?: string | null;
   /**
-   * @minItems 1
-   * @maxItems 5
-   */
-  niches: string[]
+     * @minItems 1
+     * @maxItems 5
+     */
+  niches: string[];
   /** @minItems 1 */
-  content_types: string[]
+  content_types: string[];
   /** @pattern ^[A-Z]{2}$ */
-  country: string
+  country: string;
   /**
-   * Ciudad del creator (paso C13), opcional
-   * @maxLength 200
-   * @nullable
-   */
-  city?: string | null
+     * Ciudad del creator (paso C13), opcional
+     * @maxLength 200
+     * @nullable
+     */
+  city?: string | null;
   /** @maxLength 500 */
-  avatar_s3_key: string
-  birthday: string
+  avatar_s3_key: string;
+  birthday: string;
   /** @pattern ^\+[1-9]\d{1,14}$ */
-  whatsapp_e164: string
+  whatsapp_e164: string;
   /** @nullable */
-  gender?: CreatorOnboardingPayloadGender
-  experience_level: CreatorOnboardingPayloadExperienceLevel
+  gender?: CreatorOnboardingPayloadGender;
+  experience_level: CreatorOnboardingPayloadExperienceLevel;
   /** @minItems 1 */
-  channels: CreatorChannel[]
+  channels: CreatorChannel[];
   /**
-   * @minItems 3
-   * @maxItems 3
-   */
-  best_videos: BestVideo[]
+     * @minItems 3
+     * @maxItems 3
+     */
+  best_videos: BestVideo[];
   /**
-   * @maxLength 2000
-   * @nullable
-   */
-  referral_text?: string | null
+     * @maxLength 2000
+     * @nullable
+     */
+  referral_text?: string | null;
   /** Tier declarado por el creator en paso C4 */
-  tier: CreatorOnboardingPayloadTier
+  tier: CreatorOnboardingPayloadTier;
 }

@@ -7,436 +7,247 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from 'zod'
+import * as zod from 'zod';
 
-export const completeBrandOnboardingBodyNameMax = 200
 
-export const completeBrandOnboardingBodyWebsiteUrlMax = 500
+export const completeBrandOnboardingBodyNameMax = 200;
 
-export const completeBrandOnboardingBodyPrimaryColorHexRegExp = new RegExp(
-  '^#[0-9A-Fa-f]{6}$',
-)
-export const completeBrandOnboardingBodySecondaryColorHexRegExp = new RegExp(
-  '^#[0-9A-Fa-f]{6}$',
-)
-export const completeBrandOnboardingBodyAttributionOneReferralTextMax = 2000
+export const completeBrandOnboardingBodyWebsiteUrlMax = 500;
 
-export const completeBrandOnboardingBodyContactNameMax = 200
+export const completeBrandOnboardingBodyPrimaryColorHexRegExp = new RegExp('^#[0-9A-Fa-f]{6}$');
+export const completeBrandOnboardingBodySecondaryColorHexRegExp = new RegExp('^#[0-9A-Fa-f]{6}$');
+export const completeBrandOnboardingBodyAttributionOneReferralTextMax = 2000;
 
-export const completeBrandOnboardingBodyContactTitleMax = 200
+export const completeBrandOnboardingBodyContactNameMax = 200;
 
-export const completeBrandOnboardingBodyContactWhatsappE164RegExp = new RegExp(
-  '^\\+[1-9]\\d{1,14}$',
-)
+export const completeBrandOnboardingBodyContactTitleMax = 200;
+
+export const completeBrandOnboardingBodyContactWhatsappE164RegExp = new RegExp('^\\+[1-9]\\d{1,14}$');
+
 
 export const CompleteBrandOnboardingBody = zod.object({
-  name: zod.string().max(completeBrandOnboardingBodyNameMax),
-  website_url: zod
-    .url()
-    .max(completeBrandOnboardingBodyWebsiteUrlMax)
-    .nullish(),
-  primary_color_hex: zod
-    .string()
-    .regex(completeBrandOnboardingBodyPrimaryColorHexRegExp)
-    .nullish(),
-  secondary_color_hex: zod
-    .string()
-    .regex(completeBrandOnboardingBodySecondaryColorHexRegExp)
-    .nullish(),
-  brandfetch_snapshot: zod.record(zod.string(), zod.unknown()).nullish(),
-  vertical: zod.enum([
-    'fintech',
-    'tech',
-    'ecommerce',
-    'education',
-    'food',
-    'fitness',
-    'health',
-    'entertainment',
-    'beauty',
-    'gaming',
-    'travel',
-    'fashion',
-    'mobile_apps',
-    'crypto',
-    'ai_tech',
-    'other',
-  ]),
-  marketing_objective: zod.enum([
-    'awareness',
-    'performance',
-    'launch',
-    'community',
-  ]),
-  creator_experience: zod.enum(['never', 'scaling', 'tried_without_results']),
-  creator_sourcing_history: zod.enum([
-    'none',
-    'small_scale',
-    'large_scale',
-    'agency',
-  ]),
-  monthly_budget_range: zod.enum([
-    'under_10k',
-    '10k_to_25k',
-    '25k_to_50k',
-    '50k_plus',
-    'zero',
-  ]),
-  timing: zod.enum([
-    'launch_now',
-    'one_to_two_weeks',
-    'this_month',
-    'exploring',
-  ]),
-  attribution: zod.union([
-    zod.object({
-      source: zod.enum(['referral']),
-      referral_text: zod
-        .string()
-        .max(completeBrandOnboardingBodyAttributionOneReferralTextMax),
-    }),
-    zod.object({
-      source: zod.enum([
-        'instagram',
-        'twitter_x',
-        'tiktok',
-        'linkedin',
-        'reddit',
-        'search',
-        'other',
-      ]),
-    }),
-  ]),
-  contact_name: zod.string().max(completeBrandOnboardingBodyContactNameMax),
-  contact_title: zod.string().max(completeBrandOnboardingBodyContactTitleMax),
-  contact_whatsapp_e164: zod
-    .string()
-    .regex(completeBrandOnboardingBodyContactWhatsappE164RegExp),
+  "name": zod.string().max(completeBrandOnboardingBodyNameMax),
+  "website_url": zod.url().max(completeBrandOnboardingBodyWebsiteUrlMax).nullish(),
+  "primary_color_hex": zod.string().regex(completeBrandOnboardingBodyPrimaryColorHexRegExp).nullish(),
+  "secondary_color_hex": zod.string().regex(completeBrandOnboardingBodySecondaryColorHexRegExp).nullish(),
+  "brandfetch_snapshot": zod.record(zod.string(), zod.unknown()).nullish(),
+  "vertical": zod.enum(['fintech', 'tech', 'ecommerce', 'education', 'food', 'fitness', 'health', 'entertainment', 'beauty', 'gaming', 'travel', 'fashion', 'mobile_apps', 'crypto', 'ai_tech', 'other']),
+  "marketing_objective": zod.enum(['awareness', 'performance', 'launch', 'community']),
+  "creator_experience": zod.enum(['never', 'scaling', 'tried_without_results']),
+  "creator_sourcing_history": zod.enum(['none', 'small_scale', 'large_scale', 'agency']),
+  "monthly_budget_range": zod.enum(['under_10k', '10k_to_25k', '25k_to_50k', '50k_plus', 'zero']),
+  "timing": zod.enum(['launch_now', 'one_to_two_weeks', 'this_month', 'exploring']),
+  "attribution": zod.union([zod.object({
+  "source": zod.enum(['referral']),
+  "referral_text": zod.string().max(completeBrandOnboardingBodyAttributionOneReferralTextMax)
+}),zod.object({
+  "source": zod.enum(['instagram', 'twitter_x', 'tiktok', 'linkedin', 'reddit', 'search', 'other'])
+})]),
+  "contact_name": zod.string().max(completeBrandOnboardingBodyContactNameMax),
+  "contact_title": zod.string().max(completeBrandOnboardingBodyContactTitleMax),
+  "contact_whatsapp_e164": zod.string().regex(completeBrandOnboardingBodyContactWhatsappE164RegExp)
 })
 
-export const completeBrandOnboardingResponseFullNameMax = 200
+export const completeBrandOnboardingResponseFullNameMax = 200;
 
-export const completeBrandOnboardingResponseCreatorProfileHandleMax = 200
+export const completeBrandOnboardingResponseCreatorProfileHandleMax = 200;
 
-export const completeBrandOnboardingResponseCreatorProfileDisplayNameMax = 200
+export const completeBrandOnboardingResponseCreatorProfileDisplayNameMax = 200;
 
-export const completeBrandOnboardingResponseCreatorProfileBioMax = 2000
+export const completeBrandOnboardingResponseCreatorProfileBioMax = 2000;
 
-export const completeBrandOnboardingResponseCreatorProfileNichesItemMax = 200
+export const completeBrandOnboardingResponseCreatorProfileNichesItemMax = 200;
 
-export const completeBrandOnboardingResponseCreatorProfileContentTypesItemMax = 200
+export const completeBrandOnboardingResponseCreatorProfileContentTypesItemMax = 200;
 
-export const completeBrandOnboardingResponseCreatorProfileCityMax = 200
+export const completeBrandOnboardingResponseCreatorProfileCityMax = 200;
+
+
 
 export const CompleteBrandOnboardingResponse = zod.object({
-  id: zod.uuid(),
-  email: zod.email(),
-  kind: zod.enum(['brand', 'creator']).nullish(),
-  full_name: zod.string().max(completeBrandOnboardingResponseFullNameMax),
-  verified_at: zod.iso.datetime({}).nullish(),
-  created_at: zod.iso.datetime({}),
-  redirect_to: zod.string().nullable(),
-  onboarding_status: zod.enum([
-    'kind_pending',
-    'onboarding_pending',
-    'onboarded',
-  ]),
-  creator_profile: zod
-    .object({
-      handle: zod
-        .string()
-        .max(completeBrandOnboardingResponseCreatorProfileHandleMax)
-        .optional(),
-      display_name: zod
-        .string()
-        .max(completeBrandOnboardingResponseCreatorProfileDisplayNameMax)
-        .optional(),
-      bio: zod
-        .string()
-        .max(completeBrandOnboardingResponseCreatorProfileBioMax)
-        .nullish(),
-      tier: zod.string().nullish(),
-      niches: zod
-        .array(
-          zod
-            .string()
-            .max(completeBrandOnboardingResponseCreatorProfileNichesItemMax),
-        )
-        .optional(),
-      content_types: zod
-        .array(
-          zod
-            .string()
-            .max(
-              completeBrandOnboardingResponseCreatorProfileContentTypesItemMax,
-            ),
-        )
-        .optional(),
-      country: zod.string().nullish(),
-      city: zod
-        .string()
-        .max(completeBrandOnboardingResponseCreatorProfileCityMax)
-        .nullish(),
-      avatar_url: zod.string().nullish(),
-      experience_level: zod.string().nullish(),
-      gender: zod.string().nullish(),
-      birthday: zod.iso.date().nullish(),
-      whatsapp_e164: zod.string().nullish(),
-      referral_text: zod.string().nullish(),
-      best_videos: zod
-        .array(zod.record(zod.string(), zod.unknown()))
-        .optional(),
-      onboarded_at: zod.iso.datetime({}).nullish(),
-    })
-    .nullish(),
+  "id": zod.uuid(),
+  "email": zod.email(),
+  "kind": zod.enum(['brand', 'creator']).nullish(),
+  "full_name": zod.string().max(completeBrandOnboardingResponseFullNameMax),
+  "verified_at": zod.iso.datetime({}).nullish(),
+  "created_at": zod.iso.datetime({}),
+  "redirect_to": zod.string().nullable(),
+  "onboarding_status": zod.enum(['kind_pending', 'onboarding_pending', 'onboarded']),
+  "creator_profile": zod.object({
+  "handle": zod.string().max(completeBrandOnboardingResponseCreatorProfileHandleMax).optional(),
+  "display_name": zod.string().max(completeBrandOnboardingResponseCreatorProfileDisplayNameMax).optional(),
+  "bio": zod.string().max(completeBrandOnboardingResponseCreatorProfileBioMax).nullish(),
+  "tier": zod.string().nullish(),
+  "niches": zod.array(zod.string().max(completeBrandOnboardingResponseCreatorProfileNichesItemMax)).optional(),
+  "content_types": zod.array(zod.string().max(completeBrandOnboardingResponseCreatorProfileContentTypesItemMax)).optional(),
+  "country": zod.string().nullish(),
+  "city": zod.string().max(completeBrandOnboardingResponseCreatorProfileCityMax).nullish(),
+  "avatar_url": zod.string().nullish(),
+  "experience_level": zod.string().nullish(),
+  "gender": zod.string().nullish(),
+  "birthday": zod.iso.date().nullish(),
+  "whatsapp_e164": zod.string().nullish(),
+  "referral_text": zod.string().nullish(),
+  "best_videos": zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  "onboarded_at": zod.iso.datetime({}).nullish()
+}).nullish()
 })
 
-export const completeCreatorOnboardingBodyHandleMax = 200
+export const completeCreatorOnboardingBodyHandleMax = 200;
 
-export const completeCreatorOnboardingBodyDisplayNameMax = 200
+export const completeCreatorOnboardingBodyDisplayNameMax = 200;
 
-export const completeCreatorOnboardingBodyBioMax = 2000
+export const completeCreatorOnboardingBodyBioMax = 2000;
 
-export const completeCreatorOnboardingBodyNichesItemMax = 200
+export const completeCreatorOnboardingBodyNichesItemMax = 200;
 
-export const completeCreatorOnboardingBodyNichesMax = 5
+export const completeCreatorOnboardingBodyNichesMax = 5;
 
-export const completeCreatorOnboardingBodyContentTypesItemMax = 200
+export const completeCreatorOnboardingBodyContentTypesItemMax = 200;
 
-export const completeCreatorOnboardingBodyCountryRegExp = new RegExp(
-  '^[A-Z]{2}$',
-)
-export const completeCreatorOnboardingBodyCityMax = 200
 
-export const completeCreatorOnboardingBodyAvatarS3KeyMax = 500
+export const completeCreatorOnboardingBodyCountryRegExp = new RegExp('^[A-Z]{2}$');
+export const completeCreatorOnboardingBodyCityMax = 200;
 
-export const completeCreatorOnboardingBodyWhatsappE164RegExp = new RegExp(
-  '^\\+[1-9]\\d{1,14}$',
-)
-export const completeCreatorOnboardingBodyChannelsItemPlatformMax = 200
+export const completeCreatorOnboardingBodyAvatarS3KeyMax = 500;
 
-export const completeCreatorOnboardingBodyChannelsItemExternalHandleMax = 200
+export const completeCreatorOnboardingBodyWhatsappE164RegExp = new RegExp('^\\+[1-9]\\d{1,14}$');
+export const completeCreatorOnboardingBodyChannelsItemPlatformMax = 200;
 
-export const completeCreatorOnboardingBodyChannelsItemExternalUrlMax = 500
+export const completeCreatorOnboardingBodyChannelsItemExternalHandleMax = 200;
 
-export const completeCreatorOnboardingBodyChannelsItemRateCardsItemFormatMax = 200
+export const completeCreatorOnboardingBodyChannelsItemExternalUrlMax = 500;
 
-export const completeCreatorOnboardingBodyChannelsItemRateCardsItemRateAmountMax = 50
+export const completeCreatorOnboardingBodyChannelsItemRateCardsItemFormatMax = 200;
 
-export const completeCreatorOnboardingBodyChannelsItemRateCardsItemRateCurrencyMax = 3
+export const completeCreatorOnboardingBodyChannelsItemRateCardsItemRateAmountMax = 50;
 
-export const completeCreatorOnboardingBodyBestVideosItemUrlMax = 500
+export const completeCreatorOnboardingBodyChannelsItemRateCardsItemRateCurrencyMax = 3;
 
-export const completeCreatorOnboardingBodyBestVideosMin = 3
-export const completeCreatorOnboardingBodyBestVideosMax = 3
 
-export const completeCreatorOnboardingBodyReferralTextMax = 2000
+export const completeCreatorOnboardingBodyBestVideosItemUrlMax = 500;
+
+export const completeCreatorOnboardingBodyBestVideosMin = 3;
+export const completeCreatorOnboardingBodyBestVideosMax = 3;
+
+export const completeCreatorOnboardingBodyReferralTextMax = 2000;
+
+
 
 export const CompleteCreatorOnboardingBody = zod.object({
-  handle: zod.string().max(completeCreatorOnboardingBodyHandleMax),
-  display_name: zod.string().max(completeCreatorOnboardingBodyDisplayNameMax),
-  bio: zod.string().max(completeCreatorOnboardingBodyBioMax).nullish(),
-  niches: zod
-    .array(zod.string().max(completeCreatorOnboardingBodyNichesItemMax))
-    .min(1)
-    .max(completeCreatorOnboardingBodyNichesMax),
-  content_types: zod
-    .array(zod.string().max(completeCreatorOnboardingBodyContentTypesItemMax))
-    .min(1),
-  country: zod.string().regex(completeCreatorOnboardingBodyCountryRegExp),
-  city: zod
-    .string()
-    .max(completeCreatorOnboardingBodyCityMax)
-    .nullish()
-    .describe('Ciudad del creator (paso C13), opcional'),
-  avatar_s3_key: zod.string().max(completeCreatorOnboardingBodyAvatarS3KeyMax),
-  birthday: zod.iso.date(),
-  whatsapp_e164: zod
-    .string()
-    .regex(completeCreatorOnboardingBodyWhatsappE164RegExp),
-  gender: zod
-    .enum(['male', 'female', 'non_binary', 'prefer_not_say'])
-    .nullish(),
-  experience_level: zod.enum(['none', '1_to_5', '6_to_20', '20_plus_primary']),
-  channels: zod
-    .array(
-      zod.object({
-        platform: zod
-          .string()
-          .max(completeCreatorOnboardingBodyChannelsItemPlatformMax),
-        external_handle: zod
-          .string()
-          .max(completeCreatorOnboardingBodyChannelsItemExternalHandleMax),
-        external_url: zod
-          .url()
-          .max(completeCreatorOnboardingBodyChannelsItemExternalUrlMax)
-          .nullish(),
-        followers: zod.number().nullish(),
-        verified: zod.boolean(),
-        is_primary: zod.boolean(),
-        rate_cards: zod.array(
-          zod.object({
-            format: zod
-              .string()
-              .max(
-                completeCreatorOnboardingBodyChannelsItemRateCardsItemFormatMax,
-              ),
-            rate_amount: zod
-              .string()
-              .max(
-                completeCreatorOnboardingBodyChannelsItemRateCardsItemRateAmountMax,
-              ),
-            rate_currency: zod
-              .string()
-              .max(
-                completeCreatorOnboardingBodyChannelsItemRateCardsItemRateCurrencyMax,
-              ),
-          }),
-        ),
-      }),
-    )
-    .min(1),
-  best_videos: zod
-    .array(
-      zod.object({
-        url: zod.url().max(completeCreatorOnboardingBodyBestVideosItemUrlMax),
-        kind: zod.enum(['organic', 'branded']),
-      }),
-    )
-    .min(completeCreatorOnboardingBodyBestVideosMin)
-    .max(completeCreatorOnboardingBodyBestVideosMax),
-  referral_text: zod
-    .string()
-    .max(completeCreatorOnboardingBodyReferralTextMax)
-    .nullish(),
-  tier: zod
-    .enum([
-      'emergent',
-      'growing',
-      'consolidated',
-      'reference',
-      'massive',
-      'celebrity',
-    ])
-    .describe('Tier declarado por el creator en paso C4'),
+  "handle": zod.string().max(completeCreatorOnboardingBodyHandleMax),
+  "display_name": zod.string().max(completeCreatorOnboardingBodyDisplayNameMax),
+  "bio": zod.string().max(completeCreatorOnboardingBodyBioMax).nullish(),
+  "niches": zod.array(zod.string().max(completeCreatorOnboardingBodyNichesItemMax)).min(1).max(completeCreatorOnboardingBodyNichesMax),
+  "content_types": zod.array(zod.string().max(completeCreatorOnboardingBodyContentTypesItemMax)).min(1),
+  "country": zod.string().regex(completeCreatorOnboardingBodyCountryRegExp),
+  "city": zod.string().max(completeCreatorOnboardingBodyCityMax).nullish().describe('Ciudad del creator (paso C13), opcional'),
+  "avatar_s3_key": zod.string().max(completeCreatorOnboardingBodyAvatarS3KeyMax),
+  "birthday": zod.iso.date(),
+  "whatsapp_e164": zod.string().regex(completeCreatorOnboardingBodyWhatsappE164RegExp),
+  "gender": zod.enum(['male', 'female', 'non_binary', 'prefer_not_say']).nullish(),
+  "experience_level": zod.enum(['none', '1_to_5', '6_to_20', '20_plus_primary']),
+  "channels": zod.array(zod.object({
+  "platform": zod.string().max(completeCreatorOnboardingBodyChannelsItemPlatformMax),
+  "external_handle": zod.string().max(completeCreatorOnboardingBodyChannelsItemExternalHandleMax),
+  "external_url": zod.url().max(completeCreatorOnboardingBodyChannelsItemExternalUrlMax).nullish(),
+  "followers": zod.number().nullish(),
+  "verified": zod.boolean(),
+  "is_primary": zod.boolean(),
+  "rate_cards": zod.array(zod.object({
+  "format": zod.string().max(completeCreatorOnboardingBodyChannelsItemRateCardsItemFormatMax),
+  "rate_amount": zod.string().max(completeCreatorOnboardingBodyChannelsItemRateCardsItemRateAmountMax),
+  "rate_currency": zod.string().max(completeCreatorOnboardingBodyChannelsItemRateCardsItemRateCurrencyMax)
+}))
+})).min(1),
+  "best_videos": zod.array(zod.object({
+  "url": zod.url().max(completeCreatorOnboardingBodyBestVideosItemUrlMax),
+  "kind": zod.enum(['organic', 'branded'])
+})).min(completeCreatorOnboardingBodyBestVideosMin).max(completeCreatorOnboardingBodyBestVideosMax),
+  "referral_text": zod.string().max(completeCreatorOnboardingBodyReferralTextMax).nullish(),
+  "tier": zod.enum(['emergent', 'growing', 'consolidated', 'reference', 'massive', 'celebrity']).describe('Tier declarado por el creator en paso C4')
 })
 
-export const completeCreatorOnboardingResponseFullNameMax = 200
+export const completeCreatorOnboardingResponseFullNameMax = 200;
 
-export const completeCreatorOnboardingResponseCreatorProfileHandleMax = 200
+export const completeCreatorOnboardingResponseCreatorProfileHandleMax = 200;
 
-export const completeCreatorOnboardingResponseCreatorProfileDisplayNameMax = 200
+export const completeCreatorOnboardingResponseCreatorProfileDisplayNameMax = 200;
 
-export const completeCreatorOnboardingResponseCreatorProfileBioMax = 2000
+export const completeCreatorOnboardingResponseCreatorProfileBioMax = 2000;
 
-export const completeCreatorOnboardingResponseCreatorProfileNichesItemMax = 200
+export const completeCreatorOnboardingResponseCreatorProfileNichesItemMax = 200;
 
-export const completeCreatorOnboardingResponseCreatorProfileContentTypesItemMax = 200
+export const completeCreatorOnboardingResponseCreatorProfileContentTypesItemMax = 200;
 
-export const completeCreatorOnboardingResponseCreatorProfileCityMax = 200
+export const completeCreatorOnboardingResponseCreatorProfileCityMax = 200;
+
+
 
 export const CompleteCreatorOnboardingResponse = zod.object({
-  id: zod.uuid(),
-  email: zod.email(),
-  kind: zod.enum(['brand', 'creator']).nullish(),
-  full_name: zod.string().max(completeCreatorOnboardingResponseFullNameMax),
-  verified_at: zod.iso.datetime({}).nullish(),
-  created_at: zod.iso.datetime({}),
-  redirect_to: zod.string().nullable(),
-  onboarding_status: zod.enum([
-    'kind_pending',
-    'onboarding_pending',
-    'onboarded',
-  ]),
-  creator_profile: zod
-    .object({
-      handle: zod
-        .string()
-        .max(completeCreatorOnboardingResponseCreatorProfileHandleMax)
-        .optional(),
-      display_name: zod
-        .string()
-        .max(completeCreatorOnboardingResponseCreatorProfileDisplayNameMax)
-        .optional(),
-      bio: zod
-        .string()
-        .max(completeCreatorOnboardingResponseCreatorProfileBioMax)
-        .nullish(),
-      tier: zod.string().nullish(),
-      niches: zod
-        .array(
-          zod
-            .string()
-            .max(completeCreatorOnboardingResponseCreatorProfileNichesItemMax),
-        )
-        .optional(),
-      content_types: zod
-        .array(
-          zod
-            .string()
-            .max(
-              completeCreatorOnboardingResponseCreatorProfileContentTypesItemMax,
-            ),
-        )
-        .optional(),
-      country: zod.string().nullish(),
-      city: zod
-        .string()
-        .max(completeCreatorOnboardingResponseCreatorProfileCityMax)
-        .nullish(),
-      avatar_url: zod.string().nullish(),
-      experience_level: zod.string().nullish(),
-      gender: zod.string().nullish(),
-      birthday: zod.iso.date().nullish(),
-      whatsapp_e164: zod.string().nullish(),
-      referral_text: zod.string().nullish(),
-      best_videos: zod
-        .array(zod.record(zod.string(), zod.unknown()))
-        .optional(),
-      onboarded_at: zod.iso.datetime({}).nullish(),
-    })
-    .nullish(),
+  "id": zod.uuid(),
+  "email": zod.email(),
+  "kind": zod.enum(['brand', 'creator']).nullish(),
+  "full_name": zod.string().max(completeCreatorOnboardingResponseFullNameMax),
+  "verified_at": zod.iso.datetime({}).nullish(),
+  "created_at": zod.iso.datetime({}),
+  "redirect_to": zod.string().nullable(),
+  "onboarding_status": zod.enum(['kind_pending', 'onboarding_pending', 'onboarded']),
+  "creator_profile": zod.object({
+  "handle": zod.string().max(completeCreatorOnboardingResponseCreatorProfileHandleMax).optional(),
+  "display_name": zod.string().max(completeCreatorOnboardingResponseCreatorProfileDisplayNameMax).optional(),
+  "bio": zod.string().max(completeCreatorOnboardingResponseCreatorProfileBioMax).nullish(),
+  "tier": zod.string().nullish(),
+  "niches": zod.array(zod.string().max(completeCreatorOnboardingResponseCreatorProfileNichesItemMax)).optional(),
+  "content_types": zod.array(zod.string().max(completeCreatorOnboardingResponseCreatorProfileContentTypesItemMax)).optional(),
+  "country": zod.string().nullish(),
+  "city": zod.string().max(completeCreatorOnboardingResponseCreatorProfileCityMax).nullish(),
+  "avatar_url": zod.string().nullish(),
+  "experience_level": zod.string().nullish(),
+  "gender": zod.string().nullish(),
+  "birthday": zod.iso.date().nullish(),
+  "whatsapp_e164": zod.string().nullish(),
+  "referral_text": zod.string().nullish(),
+  "best_videos": zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  "onboarded_at": zod.iso.datetime({}).nullish()
+}).nullish()
 })
 
-export const brandEnrichmentQueryUrlMax = 500
+export const brandEnrichmentQueryUrlMax = 500;
+
+
 
 export const BrandEnrichmentQueryParams = zod.object({
-  url: zod.url().max(brandEnrichmentQueryUrlMax),
+  "url": zod.url().max(brandEnrichmentQueryUrlMax)
 })
 
-export const brandEnrichmentResponseLogoUrlMax = 500
+export const brandEnrichmentResponseLogoUrlMax = 500;
 
-export const brandEnrichmentResponsePrimaryColorHexRegExp = new RegExp(
-  '^#[0-9A-Fa-f]{6}$',
-)
-export const brandEnrichmentResponseSecondaryColorHexRegExp = new RegExp(
-  '^#[0-9A-Fa-f]{6}$',
-)
+export const brandEnrichmentResponsePrimaryColorHexRegExp = new RegExp('^#[0-9A-Fa-f]{6}$');
+export const brandEnrichmentResponseSecondaryColorHexRegExp = new RegExp('^#[0-9A-Fa-f]{6}$');
+
 
 export const BrandEnrichmentResponse = zod.object({
-  logo_url: zod.url().max(brandEnrichmentResponseLogoUrlMax),
-  primary_color_hex: zod
-    .string()
-    .regex(brandEnrichmentResponsePrimaryColorHexRegExp),
-  secondary_color_hex: zod
-    .string()
-    .regex(brandEnrichmentResponseSecondaryColorHexRegExp),
-  raw: zod.record(zod.string(), zod.unknown()),
+  "logo_url": zod.url().max(brandEnrichmentResponseLogoUrlMax),
+  "primary_color_hex": zod.string().regex(brandEnrichmentResponsePrimaryColorHexRegExp),
+  "secondary_color_hex": zod.string().regex(brandEnrichmentResponseSecondaryColorHexRegExp),
+  "raw": zod.record(zod.string(), zod.unknown())
 })
 
-export const presignCreatorAvatarBodyFilenameMax = 200
+export const presignCreatorAvatarBodyFilenameMax = 200;
+
+
 
 export const PresignCreatorAvatarBody = zod.object({
-  filename: zod.string().max(presignCreatorAvatarBodyFilenameMax).nullish(),
-  content_type: zod.enum(['image/jpeg', 'image/png', 'image/webp']),
+  "filename": zod.string().max(presignCreatorAvatarBodyFilenameMax).nullish(),
+  "content_type": zod.enum(['image/jpeg', 'image/png', 'image/webp'])
 })
 
 export const PresignCreatorAvatarResponse = zod.object({
-  upload_url: zod.url(),
-  s3_key: zod.string(),
-  expires_in: zod.number(),
-  required_headers: zod
-    .record(zod.string(), zod.string())
-    .describe('Headers que el cliente debe incluir en el PUT a S3'),
-  max_bytes: zod.number().describe('Tamaño máximo del archivo en bytes'),
+  "upload_url": zod.url(),
+  "s3_key": zod.string(),
+  "expires_in": zod.number(),
+  "required_headers": zod.record(zod.string(), zod.string()).describe('Headers que el cliente debe incluir en el PUT a S3'),
+  "max_bytes": zod.number().describe('Tamaño máximo del archivo en bytes')
 })
+

@@ -8,8 +8,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type AttributionNonReferralSource =
-  (typeof AttributionNonReferralSource)[keyof typeof AttributionNonReferralSource]
+export type AttributionNonReferralSource = typeof AttributionNonReferralSource[keyof typeof AttributionNonReferralSource];
+
 
 export const AttributionNonReferralSource = {
   instagram: 'instagram',
@@ -19,4 +19,4 @@ export const AttributionNonReferralSource = {
   reddit: 'reddit',
   search: 'search',
   other: 'other',
-} as const
+} as const;

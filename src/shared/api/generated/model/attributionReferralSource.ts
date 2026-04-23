@@ -8,9 +8,9 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type AttributionReferralSource =
-  (typeof AttributionReferralSource)[keyof typeof AttributionReferralSource]
+export type AttributionReferralSource = typeof AttributionReferralSource[keyof typeof AttributionReferralSource];
+
 
 export const AttributionReferralSource = {
   referral: 'referral',
-} as const
+} as const;

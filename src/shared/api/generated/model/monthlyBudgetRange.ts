@@ -8,8 +8,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type MonthlyBudgetRange =
-  (typeof MonthlyBudgetRange)[keyof typeof MonthlyBudgetRange]
+export type MonthlyBudgetRange = typeof MonthlyBudgetRange[keyof typeof MonthlyBudgetRange];
+
 
 export const MonthlyBudgetRange = {
   under_10k: 'under_10k',
@@ -17,4 +17,4 @@ export const MonthlyBudgetRange = {
   '25k_to_50k': '25k_to_50k',
   '50k_plus': '50k_plus',
   zero: 'zero',
-} as const
+} as const;

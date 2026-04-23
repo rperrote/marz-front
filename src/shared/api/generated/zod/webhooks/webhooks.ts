@@ -7,10 +7,12 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from 'zod'
+import * as zod from 'zod';
+
 
 export const ClerkWebhookBody = zod.record(zod.string(), zod.unknown())
 
 export const ClerkWebhookResponse = zod.object({
-  ok: zod.boolean().optional(),
+  "ok": zod.boolean().optional()
 })
+

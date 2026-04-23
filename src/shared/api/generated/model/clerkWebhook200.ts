@@ -9,5 +9,5 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  */
 
 export type ClerkWebhook200 = {
-  ok?: boolean
-}
+  ok?: boolean;
+};
