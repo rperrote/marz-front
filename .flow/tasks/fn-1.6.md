@@ -1,6 +1,7 @@
 # fn-1.6 F.3 — Token provider + mutator + retry-on-401
 
 ## Description
+
 Conectar el mutator de Orval con el token de Clerk + implementar retry-on-401.
 
 - `src/features/identity/hooks/useClerkTokenProvider.ts`:
@@ -17,7 +18,9 @@ Conectar el mutator de Orval con el token de Clerk + implementar retry-on-401.
     - Si ese retry vuelve 401: `clerk.signOut()` + `navigate('/auth')` + throw ApiError.
   - 503 `auth_provider_unavailable`: propagar error sin cerrar session.
   - AbortSignal passthrough.
+
 ## Acceptance
+
 - [ ] Unit test `src/shared/api/mutator.test.ts` (con `vi.mock` de fetch):
   - 200 → payload deserializado.
   - 401 una vez + 200 segunda → retorna payload, refresh del token llamado una vez.
@@ -27,10 +30,13 @@ Conectar el mutator de Orval con el token de Clerk + implementar retry-on-401.
   - 400/422 → throw ApiError con `details.field_errors` si aplica.
 - [ ] Todos los hooks de Orval usan este mutator (verificar `orval.config.ts`).
 - [ ] Typecheck OK.
+
 ## Done summary
+
 TBD
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

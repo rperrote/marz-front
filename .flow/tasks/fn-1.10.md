@@ -1,6 +1,7 @@
 # fn-1.10 F.7 — Ruta /auth/link-invalid + MagicExpiredScreen
 
 ## Description
+
 Ruta `/auth/link-invalid` + componente `MagicExpiredScreen`.
 
 - Archivo: `src/routes/auth/link-invalid.tsx`.
@@ -8,14 +9,19 @@ Ruta `/auth/link-invalid` + componente `MagicExpiredScreen`.
 - Visual: `P-MagicExpired` (duxRv) del pencil.
 - CTA "Pedí un nuevo link" → redirect a `/auth` con clear state.
 - Analytics: emitir `magic_link_failed` en mount.
+
 ## Acceptance
+
 - [ ] Renderiza pantalla con CTA que navega a `/auth`.
 - [ ] Analytics `magic_link_failed` fire al mount.
 - [ ] Axe-core clean.
+
 ## Done summary
+
 TBD
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

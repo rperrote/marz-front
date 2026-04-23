@@ -1,6 +1,7 @@
 # fn-1.16 F.13 — Layout /onboarding/creator + store Zustand + máquina de pasos
 
 ## Description
+
 Análogo a fn-1.13 pero para creator. 20 pasos.
 
 - `src/routes/onboarding/creator.tsx` — layout.
@@ -13,8 +14,11 @@ Steps:
 C1 `name-handle`, C2 `experience`, C3 `priming-brands-waiting`, C4 `tier`, C5 `niches`, C6 `content-types`, C7 `channels`, C8 `priming-testimonials`, C8b `priming-benchmark`, C9 `priming-benchmark-2`, C10 `best-videos`, C11 `birthday`, C12 `gender`, C13 `location`, C14 `priming-numbers`, C15 `whatsapp`, C16 `referral`, C17 `avatar`, C18 `priming-earnings`, C19 `priming-social-proof`, C20 `confirmation`.
 
 Guard:
+
 - Session + `kind === 'creator'` + `onboarding_status === 'onboarding_pending'`.
+
 ## Acceptance
+
 - [ ] Back/Next navega entre los 20 pasos.
 - [ ] Refresh preserva estado.
 - [ ] Cerrar tab limpia sessionStorage.
@@ -22,10 +26,13 @@ Guard:
 - [ ] URL refleja paso.
 - [ ] SSR (`pnpm build && pnpm start`) no crashea en `/onboarding/creator/*`.
 - [ ] F5 preserva data tras `rehydrate()` client-side.
+
 ## Done summary
+
 TBD
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

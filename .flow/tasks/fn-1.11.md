@@ -1,6 +1,7 @@
 # fn-1.11 F.8 — Ruta /auth/callback (verify + navigate)
 
 ## Description
+
 Ruta `/auth/callback` — pantalla transitoria que ejecuta la verificación del magic link.
 
 - Archivo: `src/routes/auth/callback.tsx`.
@@ -13,16 +14,21 @@ Ruta `/auth/callback` — pantalla transitoria que ejecuta la verificación del 
 - Analytics:
   - `magic_link_succeeded` en éxito.
   - `sign_in_succeeded` con payload `{ onboarding_status, kind }` inmediatamente después.
+
 ## Acceptance
+
 - [ ] Mount dispara el método de verificación (confirmado en fn-1.3).
 - [ ] Success → fetch `/v1/me` → navegar a `redirect_to`.
 - [ ] Error → navegar a `/auth/link-invalid`.
 - [ ] Analytics eventos disparados en los momentos correctos.
 - [ ] Loading state visible mientras procesa.
+
 ## Done summary
+
 TBD
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

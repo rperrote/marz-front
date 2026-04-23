@@ -1,6 +1,7 @@
 # fn-1.7 F.4 — Componentes reusables onboarding (shell/topbar/footer/progress/field/chips/cards)
 
 ## Description
+
 Implementar los componentes reusables de onboarding, mapeados 1:1 al pencil DS.
 
 Ubicación: `src/features/identity/onboarding/shared/components/`.
@@ -17,21 +18,27 @@ Ubicación: `src/features/identity/onboarding/shared/components/`.
 - `OnboardingSectionTitle` ← `OnbSectionTitle` (oty0b).
 
 Reglas:
+
 - Usar tokens del `styles.css` (no hardcodear colores/radios/spacing).
 - Props minimal; sin acoplamiento a dominio brand/creator.
 - Chips/cards son `role="radio"` o `role="checkbox"` según multi-select.
 - axe-core clean.
+
 ## Acceptance
+
 - [ ] Los 10 componentes existen con tests (render + interacción básica).
 - [ ] Ruta dev `/ds-onboarding` opcional que renderiza todos en una grid (ver `src/routes/ds.tsx` como patrón).
 - [ ] Validación visual vs pencil ≥95% (screenshots comparados con `get_screenshot` de los IDs del DS).
 - [ ] `pnpm test` verde.
 - [ ] Navegación por teclado: Tab + Space en chips/cards.
 - [ ] No hay strings hardcoded; los labels vienen por props.
+
 ## Done summary
+
 TBD
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

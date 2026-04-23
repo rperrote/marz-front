@@ -3,10 +3,7 @@
   "claim_note": "",
   "claimed_at": null,
   "created_at": "2026-04-22T19:14:29.682518Z",
-  "depends_on": [
-    "fn-1.8",
-    "fn-1.6"
-  ],
+  "depends_on": ["fn-1.8", "fn-1.6"],
   "epic": "fn-1",
   "id": "fn-1.11",
   "priority": null,

@@ -1,6 +1,7 @@
-# fn-1.19 F.16 — Guards reales en _brand y _creator
+# fn-1.19 F.16 — Guards reales en \_brand y \_creator
 
 ## Description
+
 Guards reales en `_brand.tsx` y `_creator.tsx` basados en `useMe`. Reemplazar stubs previos.
 
 - En `beforeLoad` de ambas pathless routes:
@@ -11,7 +12,9 @@ Guards reales en `_brand.tsx` y `_creator.tsx` basados en `useMe`. Reemplazar st
 - Eliminar `src/shared/auth/session.ts` stub si ya nadie lo importa. Si otro código lo consume, migrar antes.
 - `src/routes/index.tsx`: reescribir fan-out. Sin session → `/auth`. Con session + onboarded → home según kind. Con session + no onboarded → `redirect_to`.
 - Analytics: `onboarding_redirect_enforced` fire cada vez que un guard dispara navigate.
+
 ## Acceptance
+
 - [ ] Sin session → redirect a `/auth` al entrar a `/_brand/*` o `/_creator/*`.
 - [ ] Session pero onboarding incompleto → redirect a paso correcto.
 - [ ] Brand intenta abrir `/_creator/offers` → redirect a home brand.
@@ -20,10 +23,13 @@ Guards reales en `_brand.tsx` y `_creator.tsx` basados en `useMe`. Reemplazar st
 - [ ] Analytics `onboarding_redirect_enforced` fire.
 - [ ] `index.tsx` redirige correcto en los 3 casos.
 - [ ] Typecheck OK.
+
 ## Done summary
+
 TBD
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
