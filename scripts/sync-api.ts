@@ -1,10 +1,23 @@
 import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse as parseYaml } from 'yaml'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+
+// load .env.local if present
+try {
+  const envLocal = readFileSync(resolve(root, '.env.local'), 'utf-8')
+  for (const line of envLocal.split('\n')) {
+    const match = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/)
+    if (match) process.env[match[1]] ??= match[2].replace(/^['"]|['"]$/g, '')
+  }
+} catch {
+  // no .env.local, continue
+}
+
 const specPath = resolve(root, 'openapi/spec.json')
 
 const apiUrl = process.env.API_URL ?? process.env.VITE_API_URL
