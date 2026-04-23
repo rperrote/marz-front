@@ -1,0 +1,1333 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Marz API",
+    "version": "0.1.0",
+    "description": "Backend de Marz. Fuente de verdad del contrato HTTP entre marz-api y marz-front.\nSe consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` (client).\n"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "tags": [
+          "system"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "me",
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable. Possible codes: auth_provider_unavailable, me_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/kind": {
+      "post": {
+        "operationId": "selectKind",
+        "tags": [
+          "accounts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KindSelectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body, invalid_kind. Note: kind=agency also produces 400 (enum validation). See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Possible codes: kind_already_set. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: select_kind_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/brand:complete": {
+      "post": {
+        "operationId": "completeBrandOnboarding",
+        "tags": [
+          "onboarding"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrandOnboardingPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Possible codes: invalid_state. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: validation_failed (with field_errors). See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: onboarding_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/creator:complete": {
+      "post": {
+        "operationId": "completeCreatorOnboarding",
+        "tags": [
+          "onboarding"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatorOnboardingPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Possible codes: invalid_state, handle_taken. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: avatar_not_found, validation_failed (with field_errors). See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: onboarding_failed, lookup_account. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/brand/enrichment": {
+      "get": {
+        "operationId": "brandEnrichment",
+        "tags": [
+          "onboarding"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandEnrichment"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content — brand not found."
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: url_required, url_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests. Possible codes: rate_limited. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: enrichment_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable. Possible codes: enrichment_unavailable. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/creator/avatar:presign": {
+      "post": {
+        "operationId": "presignCreatorAvatar",
+        "tags": [
+          "onboarding"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvatarPresignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvatarPresignResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body, body_too_large, content_type_required. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: not_creator. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. Possible codes: account_not_found. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: unsupported_content_type. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: presign_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhooks/clerk": {
+      "post": {
+        "operationId": "clerkWebhook",
+        "tags": [
+          "webhooks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: validation_error. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: invalid_signature. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests. Possible codes: rate_limited. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: read_body, verify_error. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Health": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "AccountKind": {
+        "type": "string",
+        "enum": [
+          "brand",
+          "creator"
+        ]
+      },
+      "OnboardingStatus": {
+        "type": "string",
+        "enum": [
+          "kind_pending",
+          "onboarding_pending",
+          "onboarded"
+        ]
+      },
+      "CreatorProfile": {
+        "type": "object",
+        "properties": {
+          "handle": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true
+          },
+          "tier": {
+            "type": "string",
+            "nullable": true
+          },
+          "niches": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "content_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 200,
+            "nullable": true
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "experience_level": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "whatsapp_e164": {
+            "type": "string",
+            "nullable": true
+          },
+          "referral_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "best_videos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "onboarded_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "required": [
+          "id",
+          "clerk_user_id",
+          "email",
+          "kind",
+          "full_name",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "clerk_user_id": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/AccountKind"
+          },
+          "full_name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MeResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "created_at",
+          "redirect_to",
+          "onboarding_status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/AccountKind",
+            "nullable": true
+          },
+          "full_name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "redirect_to": {
+            "type": "string",
+            "nullable": true
+          },
+          "onboarding_status": {
+            "$ref": "#/components/schemas/OnboardingStatus"
+          },
+          "creator_profile": {
+            "$ref": "#/components/schemas/CreatorProfile",
+            "nullable": true
+          }
+        }
+      },
+      "KindSelectionRequest": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/AccountKind"
+          }
+        }
+      },
+      "BrandOnboardingPayload": {
+        "type": "object",
+        "required": [
+          "name",
+          "vertical",
+          "marketing_objective",
+          "creator_experience",
+          "creator_sourcing_history",
+          "monthly_budget_range",
+          "timing",
+          "attribution",
+          "contact_name",
+          "contact_title",
+          "contact_whatsapp_e164"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "website_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 500,
+            "nullable": true
+          },
+          "primary_color_hex": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "nullable": true
+          },
+          "secondary_color_hex": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "nullable": true
+          },
+          "brandfetch_snapshot": {
+            "$ref": "#/components/schemas/BrandfetchSnapshot"
+          },
+          "vertical": {
+            "$ref": "#/components/schemas/Vertical"
+          },
+          "marketing_objective": {
+            "$ref": "#/components/schemas/MarketingObjective"
+          },
+          "creator_experience": {
+            "$ref": "#/components/schemas/CreatorExperience"
+          },
+          "creator_sourcing_history": {
+            "$ref": "#/components/schemas/CreatorSourcingHistory"
+          },
+          "monthly_budget_range": {
+            "$ref": "#/components/schemas/MonthlyBudgetRange"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/Timing"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          },
+          "contact_name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "contact_title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "contact_whatsapp_e164": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{1,14}$"
+          }
+        }
+      },
+      "Vertical": {
+        "type": "string",
+        "enum": [
+          "fintech",
+          "tech",
+          "ecommerce",
+          "education",
+          "food",
+          "fitness",
+          "health",
+          "entertainment",
+          "beauty",
+          "gaming",
+          "travel",
+          "fashion",
+          "mobile_apps",
+          "crypto",
+          "ai_tech",
+          "other"
+        ]
+      },
+      "MarketingObjective": {
+        "type": "string",
+        "enum": [
+          "awareness",
+          "performance",
+          "launch",
+          "community"
+        ]
+      },
+      "CreatorExperience": {
+        "type": "string",
+        "enum": [
+          "never",
+          "scaling",
+          "tried_without_results"
+        ]
+      },
+      "CreatorSourcingHistory": {
+        "type": "string",
+        "enum": [
+          "none",
+          "small_scale",
+          "large_scale",
+          "agency"
+        ]
+      },
+      "MonthlyBudgetRange": {
+        "type": "string",
+        "enum": [
+          "under_10k",
+          "10k_to_25k",
+          "25k_to_50k",
+          "50k_plus",
+          "zero"
+        ]
+      },
+      "Timing": {
+        "type": "string",
+        "enum": [
+          "launch_now",
+          "one_to_two_weeks",
+          "this_month",
+          "exploring"
+        ]
+      },
+      "Attribution": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AttributionReferral"
+          },
+          {
+            "$ref": "#/components/schemas/AttributionNonReferral"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "source",
+          "mapping": {
+            "referral": "#/components/schemas/AttributionReferral",
+            "instagram": "#/components/schemas/AttributionNonReferral",
+            "twitter_x": "#/components/schemas/AttributionNonReferral",
+            "tiktok": "#/components/schemas/AttributionNonReferral",
+            "linkedin": "#/components/schemas/AttributionNonReferral",
+            "reddit": "#/components/schemas/AttributionNonReferral",
+            "search": "#/components/schemas/AttributionNonReferral",
+            "other": "#/components/schemas/AttributionNonReferral"
+          }
+        }
+      },
+      "AttributionReferral": {
+        "type": "object",
+        "required": [
+          "source",
+          "referral_text"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "referral"
+            ]
+          },
+          "referral_text": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      },
+      "AttributionNonReferral": {
+        "type": "object",
+        "required": [
+          "source"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "twitter_x",
+              "tiktok",
+              "linkedin",
+              "reddit",
+              "search",
+              "other"
+            ]
+          }
+        }
+      },
+      "BrandfetchSnapshot": {
+        "type": "object",
+        "additionalProperties": true,
+        "nullable": true
+      },
+      "CreatorOnboardingPayload": {
+        "type": "object",
+        "required": [
+          "handle",
+          "display_name",
+          "niches",
+          "content_types",
+          "country",
+          "avatar_s3_key",
+          "birthday",
+          "whatsapp_e164",
+          "experience_level",
+          "channels",
+          "best_videos",
+          "tier"
+        ],
+        "properties": {
+          "handle": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true
+          },
+          "niches": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "content_types": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "country": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 200,
+            "nullable": true,
+            "description": "Ciudad del creator (paso C13), opcional"
+          },
+          "avatar_s3_key": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date"
+          },
+          "whatsapp_e164": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{1,14}$"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female",
+              "non_binary",
+              "prefer_not_say"
+            ],
+            "nullable": true
+          },
+          "experience_level": {
+            "type": "string",
+            "enum": [
+              "none",
+              "1_to_5",
+              "6_to_20",
+              "20_plus_primary"
+            ]
+          },
+          "channels": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/CreatorChannel"
+            }
+          },
+          "best_videos": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "$ref": "#/components/schemas/BestVideo"
+            }
+          },
+          "referral_text": {
+            "type": "string",
+            "maxLength": 2000,
+            "nullable": true
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "emergent",
+              "growing",
+              "consolidated",
+              "reference",
+              "massive",
+              "celebrity"
+            ],
+            "description": "Tier declarado por el creator en paso C4"
+          }
+        }
+      },
+      "CreatorChannel": {
+        "type": "object",
+        "required": [
+          "platform",
+          "external_handle",
+          "verified",
+          "is_primary",
+          "rate_cards"
+        ],
+        "properties": {
+          "platform": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "external_handle": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "external_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 500,
+            "nullable": true
+          },
+          "followers": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "is_primary": {
+            "type": "boolean"
+          },
+          "rate_cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatorRateCard"
+            }
+          }
+        }
+      },
+      "CreatorRateCard": {
+        "type": "object",
+        "required": [
+          "format",
+          "rate_amount",
+          "rate_currency"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "rate_amount": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "rate_currency": {
+            "type": "string",
+            "maxLength": 3
+          }
+        }
+      },
+      "BestVideo": {
+        "type": "object",
+        "required": [
+          "url",
+          "kind"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 500
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "organic",
+              "branded"
+            ]
+          }
+        }
+      },
+      "BrandEnrichment": {
+        "type": "object",
+        "required": [
+          "logo_url",
+          "primary_color_hex",
+          "secondary_color_hex",
+          "raw"
+        ],
+        "properties": {
+          "logo_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 500
+          },
+          "primary_color_hex": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          },
+          "secondary_color_hex": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          },
+          "raw": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "AvatarPresignRequest": {
+        "type": "object",
+        "required": [
+          "content_type"
+        ],
+        "properties": {
+          "filename": {
+            "type": "string",
+            "maxLength": 200,
+            "nullable": true
+          },
+          "content_type": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ]
+          }
+        }
+      },
+      "AvatarPresignResponse": {
+        "type": "object",
+        "required": [
+          "upload_url",
+          "s3_key",
+          "expires_in",
+          "required_headers",
+          "max_bytes"
+        ],
+        "properties": {
+          "upload_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "s3_key": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer"
+          },
+          "required_headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Headers que el cliente debe incluir en el PUT a S3",
+            "example": {
+              "Content-Type": "image/jpeg"
+            }
+          },
+          "max_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Tamaño máximo del archivo en bytes",
+            "example": 5242880
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
