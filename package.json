@@ -26,6 +26,7 @@
     "i18n:compile": "lingui compile"
   },
   "dependencies": {
+    "@clerk/tanstack-react-start": "^1.1.5",
     "@fontsource/geist-mono": "^5.1.0",
     "@fontsource/geist-sans": "^5.1.0",
     "@lingui/core": "^5.9.5",
