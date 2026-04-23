@@ -12,7 +12,8 @@ try {
   const envLocal = readFileSync(resolve(root, '.env.local'), 'utf-8')
   for (const line of envLocal.split('\n')) {
     const match = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/)
-    if (match) process.env[match[1]] ??= match[2].replace(/^['"]|['"]$/g, '')
+    if (match?.[1] && match[2] !== undefined)
+      process.env[match[1]] ??= match[2].replace(/^['"]|['"]$/g, '')
   }
 } catch {
   // no .env.local, continue
