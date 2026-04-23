@@ -8,7 +8,7 @@
   "id": "fn-1.4",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.4.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.2 \u2014 Generar tipos Orval (api:generate local)",
   "updated_at": "2026-04-22T20:59:40.728621Z"
 }
