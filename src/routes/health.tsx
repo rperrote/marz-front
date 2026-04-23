@@ -14,8 +14,6 @@ export const Route = createFileRoute('/health')({
 function HealthPage() {
   const data = Route.useLoaderData()
   return (
-    <pre className="p-4 font-mono text-sm">
-      {JSON.stringify(data, null, 2)}
-    </pre>
+    <pre className="p-4 font-mono text-sm">{JSON.stringify(data, null, 2)}</pre>
   )
 }

@@ -4,10 +4,7 @@ import type { LucideIcon } from 'lucide-react'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { IconButton } from '#/shared/ui/IconButton'
-import {
-  StatTile,
-  SystemEventCard,
-} from '#/shared/ui/SystemEventCard'
+import { StatTile, SystemEventCard } from '#/shared/ui/SystemEventCard'
 
 /**
  * Platform icon map — matches the .pen palette (YouTube, Instagram). Extend as
@@ -78,7 +75,11 @@ export function OfferCard(props: OfferCardProps) {
             <Button className="flex-1" onClick={props.onAccept}>
               Accept Offer
             </Button>
-            <Button variant="outline" className="flex-1" onClick={props.onReject}>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={props.onReject}
+            >
               Reject
             </Button>
           </div>
@@ -102,7 +103,10 @@ interface OfferCardCollapsedProps {
 
 const statusBadge: Record<
   OfferCardCollapsedProps['status'],
-  { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
+  {
+    label: string
+    variant: 'default' | 'secondary' | 'destructive' | 'outline'
+  }
 > = {
   draft: { label: 'Draft', variant: 'outline' },
   sent: { label: 'Sent', variant: 'secondary' },
@@ -122,11 +126,18 @@ export function OfferCardCollapsed({
   return (
     <div className="flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2.5">
       <span className="text-sm font-semibold text-foreground">{label}</span>
-      <span className="font-mono text-xs text-muted-foreground">#{offerId}</span>
+      <span className="font-mono text-xs text-muted-foreground">
+        #{offerId}
+      </span>
       <Badge variant={badge.variant} className="ml-auto">
         {badge.label}
       </Badge>
-      <IconButton size="sm" shape="circle" aria-label="Expand offer" onClick={onExpand}>
+      <IconButton
+        size="sm"
+        shape="circle"
+        aria-label="Expand offer"
+        onClick={onExpand}
+      >
         <ChevronDown />
       </IconButton>
     </div>

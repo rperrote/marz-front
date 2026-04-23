@@ -90,10 +90,16 @@ export function MobileChatHeader({
       <div className="min-w-0 flex-1">
         <div className="truncate font-semibold text-foreground">{name}</div>
         {subtitle ? (
-          <div className="truncate text-sm text-muted-foreground">{subtitle}</div>
+          <div className="truncate text-sm text-muted-foreground">
+            {subtitle}
+          </div>
         ) : null}
       </div>
-      <IconButton shape="circle" aria-label="Conversation info" onClick={onInfo}>
+      <IconButton
+        shape="circle"
+        aria-label="Conversation info"
+        onClick={onInfo}
+      >
         <Info />
       </IconButton>
     </header>

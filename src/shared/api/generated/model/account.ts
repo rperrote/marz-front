@@ -7,17 +7,17 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { AccountKind } from './accountKind';
+import type { AccountKind } from './accountKind'
 
 export interface Account {
-  id: string;
+  id: string
   /** @maxLength 200 */
-  clerk_user_id: string;
-  email: string;
-  kind: AccountKind;
+  clerk_user_id: string
+  email: string
+  kind: AccountKind
   /** @maxLength 200 */
-  full_name: string;
+  full_name: string
   /** @nullable */
-  verified_at?: string | null;
-  created_at: string;
+  verified_at?: string | null
+  created_at: string
 }

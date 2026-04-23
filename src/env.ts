@@ -11,7 +11,9 @@ export const env = createEnv({
   clientPrefix: 'VITE_',
   client: {
     VITE_API_URL: z.string().url(),
-    VITE_WS_URL: z.string().regex(/^wss?:\/\//, 'Must start with ws:// or wss://'),
+    VITE_WS_URL: z
+      .string()
+      .regex(/^wss?:\/\//, 'Must start with ws:// or wss://'),
     VITE_APP_TITLE: z.string().min(1).default('Marz'),
   },
   server: {},

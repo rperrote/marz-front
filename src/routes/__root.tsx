@@ -8,7 +8,6 @@ import {
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { useEffect } from 'react'
 
-
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
@@ -61,9 +60,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
         <ClerkProvider>
-          <AppI18nProvider initialLocale={locale}>
-            {children}
-          </AppI18nProvider>
+          <AppI18nProvider initialLocale={locale}>{children}</AppI18nProvider>
         </ClerkProvider>
         {import.meta.env.DEV ? (
           <TanStackDevtools

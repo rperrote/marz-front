@@ -8,12 +8,11 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type Timing = typeof Timing[keyof typeof Timing];
-
+export type Timing = (typeof Timing)[keyof typeof Timing]
 
 export const Timing = {
   launch_now: 'launch_now',
   one_to_two_weeks: 'one_to_two_weeks',
   this_month: 'this_month',
   exploring: 'exploring',
-} as const;
+} as const

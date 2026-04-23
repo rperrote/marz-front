@@ -13,7 +13,10 @@ export type DeliverableStatus =
   | 'link_approved'
   | 'completed'
 
-const statusBadge: Record<DeliverableStatus, { label: string; tone: 'info' | 'success' | 'destructive' | 'neutral' }> = {
+const statusBadge: Record<
+  DeliverableStatus,
+  { label: string; tone: 'info' | 'success' | 'destructive' | 'neutral' }
+> = {
   pending: { label: 'Pending', tone: 'neutral' },
   draft_submitted: { label: 'In review', tone: 'info' },
   changes_requested: { label: 'Changes requested', tone: 'destructive' },
@@ -122,14 +125,18 @@ function DraftRow({ draft }: { draft: DraftEntry }) {
   )
 }
 
-function StatusBadge({ label, tone }: { label: string; tone: 'info' | 'success' | 'destructive' | 'neutral' }) {
+function StatusBadge({
+  label,
+  tone,
+}: {
+  label: string
+  tone: 'info' | 'success' | 'destructive' | 'neutral'
+}) {
   const toneClass: Record<typeof tone, string> = {
     info: 'bg-info text-info-foreground',
     success: 'bg-success text-success-foreground',
     destructive: 'bg-destructive text-destructive-foreground',
     neutral: 'bg-muted text-foreground',
   }
-  return (
-    <Badge className={cn('rounded-full', toneClass[tone])}>{label}</Badge>
-  )
+  return <Badge className={cn('rounded-full', toneClass[tone])}>{label}</Badge>
 }

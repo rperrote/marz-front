@@ -7,42 +7,42 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { CreatorProfileBestVideosItem } from './creatorProfileBestVideosItem';
+import type { CreatorProfileBestVideosItem } from './creatorProfileBestVideosItem'
 
 export interface CreatorProfile {
   /** @maxLength 200 */
-  handle?: string;
+  handle?: string
   /** @maxLength 200 */
-  display_name?: string;
+  display_name?: string
   /**
-     * @maxLength 2000
-     * @nullable
-     */
-  bio?: string | null;
+   * @maxLength 2000
+   * @nullable
+   */
+  bio?: string | null
   /** @nullable */
-  tier?: string | null;
-  niches?: string[];
-  content_types?: string[];
+  tier?: string | null
+  niches?: string[]
+  content_types?: string[]
   /** @nullable */
-  country?: string | null;
+  country?: string | null
   /**
-     * @maxLength 200
-     * @nullable
-     */
-  city?: string | null;
+   * @maxLength 200
+   * @nullable
+   */
+  city?: string | null
   /** @nullable */
-  avatar_url?: string | null;
+  avatar_url?: string | null
   /** @nullable */
-  experience_level?: string | null;
+  experience_level?: string | null
   /** @nullable */
-  gender?: string | null;
+  gender?: string | null
   /** @nullable */
-  birthday?: string | null;
+  birthday?: string | null
   /** @nullable */
-  whatsapp_e164?: string | null;
+  whatsapp_e164?: string | null
   /** @nullable */
-  referral_text?: string | null;
-  best_videos?: CreatorProfileBestVideosItem[];
+  referral_text?: string | null
+  best_videos?: CreatorProfileBestVideosItem[]
   /** @nullable */
-  onboarded_at?: string | null;
+  onboarded_at?: string | null
 }

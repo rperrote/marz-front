@@ -42,7 +42,9 @@ export function OfferTypeChooser({ value, onChange }: OfferTypeChooserProps) {
                 checked ? 'border-primary' : 'border-border',
               )}
             >
-              {checked ? <span className="size-2 rounded-full bg-primary" /> : null}
+              {checked ? (
+                <span className="size-2 rounded-full bg-primary" />
+              ) : null}
             </span>
             {option.label}
           </button>

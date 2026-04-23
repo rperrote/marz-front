@@ -1,16 +1,10 @@
 import { I18nProvider } from '@lingui/react'
-import { useEffect, useState, createContext, useContext  } from 'react'
+import { useEffect, useState, createContext, useContext } from 'react'
 
-import {
-  DEFAULT_LOCALE,
-  LOCALE_STORAGE_KEY,
-  
-  isLocale
-} from './config'
-import type {Locale} from './config';
+import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, isLocale } from './config'
+import type { Locale } from './config'
 import { i18n, loadCatalog } from './setup'
 import { persistLocale } from './server'
-
 
 type I18nContextValue = {
   locale: Locale

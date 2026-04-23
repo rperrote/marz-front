@@ -42,11 +42,19 @@ export function ChatRailItem({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className={cn('truncate text-sm', unread ? 'font-semibold' : 'font-medium')}>
+          <span
+            className={cn(
+              'truncate text-sm',
+              unread ? 'font-semibold' : 'font-medium',
+            )}
+          >
             {name}
           </span>
           {unread ? (
-            <span aria-hidden className="size-2 shrink-0 rounded-full bg-primary" />
+            <span
+              aria-hidden
+              className="size-2 shrink-0 rounded-full bg-primary"
+            />
           ) : null}
         </div>
         <p className="truncate text-xs text-muted-foreground">{preview}</p>

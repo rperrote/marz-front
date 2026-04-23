@@ -1,9 +1,6 @@
 import { Check, Film } from 'lucide-react'
 
-import {
-  SystemEventCard,
-  VideoPlaceholder,
-} from '#/shared/ui/SystemEventCard'
+import { SystemEventCard, VideoPlaceholder } from '#/shared/ui/SystemEventCard'
 
 interface DraftApprovedCardProps {
   message: string

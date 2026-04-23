@@ -1,5 +1,5 @@
-import { cva  } from 'class-variance-authority'
-import type {VariantProps} from 'class-variance-authority';
+import { cva } from 'class-variance-authority'
+import type { VariantProps } from 'class-variance-authority'
 import { forwardRef } from 'react'
 import type { ComponentPropsWithoutRef } from 'react'
 

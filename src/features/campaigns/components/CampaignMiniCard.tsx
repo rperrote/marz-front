@@ -33,13 +33,16 @@ export function CampaignMiniCard({
   platforms,
 }: CampaignMiniCardProps) {
   const badge = statusMeta[status]
-  const pct = videos.total > 0 ? Math.round((videos.done / videos.total) * 100) : 0
+  const pct =
+    videos.total > 0 ? Math.round((videos.done / videos.total) * 100) : 0
 
   return (
     <article className="rounded-2xl border border-border bg-card p-4">
       <header className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-base font-semibold text-foreground">{name}</h3>
+          <h3 className="truncate text-base font-semibold text-foreground">
+            {name}
+          </h3>
           <div className="mt-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             {startDate}
           </div>
@@ -52,7 +55,11 @@ export function CampaignMiniCard({
       <dl className="mt-4 grid grid-cols-3 gap-3 text-sm">
         <Stat label="Creators" value={String(creators)} />
         <Stat label="Budget" value={budget} />
-        <Stat label="Videos" value={`${videos.done}/${videos.total}`} align="right" />
+        <Stat
+          label="Videos"
+          value={`${videos.done}/${videos.total}`}
+          align="right"
+        />
       </dl>
 
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">

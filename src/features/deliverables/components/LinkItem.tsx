@@ -8,7 +8,10 @@ interface LinkItemProps {
   href?: string
 }
 
-const badgeByStatus: Record<NonNullable<LinkItemProps['status']>, { label: string; variant: 'default' | 'secondary' | 'destructive' }> = {
+const badgeByStatus: Record<
+  NonNullable<LinkItemProps['status']>,
+  { label: string; variant: 'default' | 'secondary' | 'destructive' }
+> = {
   pending: { label: 'Pending', variant: 'default' },
   approved: { label: 'Approved', variant: 'secondary' },
   rejected: { label: 'Rejected', variant: 'destructive' },

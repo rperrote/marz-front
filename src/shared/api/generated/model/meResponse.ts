@@ -7,21 +7,21 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { AccountKind } from './accountKind';
-import type { CreatorProfile } from './creatorProfile';
-import type { OnboardingStatus } from './onboardingStatus';
+import type { AccountKind } from './accountKind'
+import type { CreatorProfile } from './creatorProfile'
+import type { OnboardingStatus } from './onboardingStatus'
 
 export interface MeResponse {
-  id: string;
-  email: string;
-  kind?: AccountKind | null;
+  id: string
+  email: string
+  kind?: AccountKind | null
   /** @maxLength 200 */
-  full_name: string;
+  full_name: string
   /** @nullable */
-  verified_at?: string | null;
-  created_at: string;
+  verified_at?: string | null
+  created_at: string
   /** @nullable */
-  redirect_to: string | null;
-  onboarding_status: OnboardingStatus;
-  creator_profile?: CreatorProfile | null;
+  redirect_to: string | null
+  onboarding_status: OnboardingStatus
+  creator_profile?: CreatorProfile | null
 }

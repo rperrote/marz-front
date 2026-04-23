@@ -1,7 +1,7 @@
 import { i18n } from '@lingui/core'
 
-import { DEFAULT_LOCALE,  isLocale } from './config'
-import type {Locale} from './config';
+import { DEFAULT_LOCALE, isLocale } from './config'
+import type { Locale } from './config'
 
 type Messages = Record<string, string>
 

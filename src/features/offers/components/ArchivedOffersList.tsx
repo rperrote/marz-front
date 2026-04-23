@@ -13,7 +13,13 @@ interface ArchivedOffersListProps {
   offers: Array<ArchivedOffer>
 }
 
-const badgeByStatus: Record<ArchivedOffer['status'], { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+const badgeByStatus: Record<
+  ArchivedOffer['status'],
+  {
+    label: string
+    variant: 'default' | 'secondary' | 'destructive' | 'outline'
+  }
+> = {
   paid: { label: 'Paid', variant: 'default' },
   rejected: { label: 'Rejected', variant: 'destructive' },
   cancelled: { label: 'Cancelled', variant: 'outline' },

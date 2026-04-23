@@ -7,14 +7,14 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { AvatarPresignResponseRequiredHeaders } from './avatarPresignResponseRequiredHeaders';
+import type { AvatarPresignResponseRequiredHeaders } from './avatarPresignResponseRequiredHeaders'
 
 export interface AvatarPresignResponse {
-  upload_url: string;
-  s3_key: string;
-  expires_in: number;
+  upload_url: string
+  s3_key: string
+  expires_in: number
   /** Headers que el cliente debe incluir en el PUT a S3 */
-  required_headers: AvatarPresignResponseRequiredHeaders;
+  required_headers: AvatarPresignResponseRequiredHeaders
   /** Tamaño máximo del archivo en bytes */
-  max_bytes: number;
+  max_bytes: number
 }

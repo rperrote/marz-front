@@ -44,7 +44,15 @@ function buildUrl(path: string, params?: Record<string, unknown>): string {
 }
 
 export async function customFetch<T>(options: FetcherOptions): Promise<T> {
-  const { url, method, params, data, headers, signal, responseType = 'json' } = options
+  const {
+    url,
+    method,
+    params,
+    data,
+    headers,
+    signal,
+    responseType = 'json',
+  } = options
 
   const finalHeaders: Record<string, string> = {
     Accept: 'application/json',
@@ -56,7 +64,11 @@ export async function customFetch<T>(options: FetcherOptions): Promise<T> {
 
   let body: BodyInit | undefined
   if (data !== undefined && data !== null) {
-    if (data instanceof FormData || data instanceof Blob || typeof data === 'string') {
+    if (
+      data instanceof FormData ||
+      data instanceof Blob ||
+      typeof data === 'string'
+    ) {
       body = data as BodyInit
     } else {
       finalHeaders['Content-Type'] ??= 'application/json'
@@ -77,7 +89,10 @@ export async function customFetch<T>(options: FetcherOptions): Promise<T> {
   return parsed as T
 }
 
-async function parseBody(res: Response, responseType: FetcherOptions['responseType']) {
+async function parseBody(
+  res: Response,
+  responseType: FetcherOptions['responseType'],
+) {
   if (res.status === 204) return undefined
   switch (responseType) {
     case 'text':

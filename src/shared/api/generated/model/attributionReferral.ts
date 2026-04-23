@@ -7,10 +7,10 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { AttributionReferralSource } from './attributionReferralSource';
+import type { AttributionReferralSource } from './attributionReferralSource'
 
 export interface AttributionReferral {
-  source: AttributionReferralSource;
+  source: AttributionReferralSource
   /** @maxLength 2000 */
-  referral_text: string;
+  referral_text: string
 }

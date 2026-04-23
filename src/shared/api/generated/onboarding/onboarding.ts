@@ -7,10 +7,7 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -23,8 +20,8 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
+  UseQueryResult,
+} from '@tanstack/react-query'
 
 import type {
   AvatarPresignRequest,
@@ -34,13 +31,10 @@ import type {
   BrandOnboardingPayload,
   CreatorOnboardingPayload,
   Error,
-  MeResponse
-} from '../model';
+  MeResponse,
+} from '../model'
 
-import { customFetch } from '../../mutator';
-
-
-
+import { customFetch } from '../../mutator'
 
 export type completeBrandOnboardingResponse200 = {
   data: MeResponse
@@ -72,80 +66,108 @@ export type completeBrandOnboardingResponse500 = {
   status: 500
 }
 
-export type completeBrandOnboardingResponseSuccess = (completeBrandOnboardingResponse200) & {
-  headers: Headers;
-};
-export type completeBrandOnboardingResponseError = (completeBrandOnboardingResponse400 | completeBrandOnboardingResponse401 | completeBrandOnboardingResponse409 | completeBrandOnboardingResponse422 | completeBrandOnboardingResponse500) & {
-  headers: Headers;
-};
+export type completeBrandOnboardingResponseSuccess =
+  completeBrandOnboardingResponse200 & {
+    headers: Headers
+  }
+export type completeBrandOnboardingResponseError = (
+  | completeBrandOnboardingResponse400
+  | completeBrandOnboardingResponse401
+  | completeBrandOnboardingResponse409
+  | completeBrandOnboardingResponse422
+  | completeBrandOnboardingResponse500
+) & {
+  headers: Headers
+}
 
-export type completeBrandOnboardingResponse = (completeBrandOnboardingResponseSuccess | completeBrandOnboardingResponseError)
+export type completeBrandOnboardingResponse =
+  | completeBrandOnboardingResponseSuccess
+  | completeBrandOnboardingResponseError
 
 export const getCompleteBrandOnboardingUrl = () => {
-
-
-
-
   return `/v1/onboarding/brand:complete`
 }
 
-export const completeBrandOnboarding = async (brandOnboardingPayload: BrandOnboardingPayload, options?: RequestInit): Promise<completeBrandOnboardingResponse> => {
+export const completeBrandOnboarding = async (
+  brandOnboardingPayload: BrandOnboardingPayload,
+  options?: RequestInit,
+): Promise<completeBrandOnboardingResponse> => {
+  return customFetch<completeBrandOnboardingResponse>(
+    getCompleteBrandOnboardingUrl(),
+    {
+      ...options,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(brandOnboardingPayload),
+    },
+  )
+}
 
-  return customFetch<completeBrandOnboardingResponse>(getCompleteBrandOnboardingUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      brandOnboardingPayload,)
+export const getCompleteBrandOnboardingMutationOptions = <
+  TError = Error,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof completeBrandOnboarding>>,
+    TError,
+    { data: BrandOnboardingPayload },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof completeBrandOnboarding>>,
+  TError,
+  { data: BrandOnboardingPayload },
+  TContext
+> => {
+  const mutationKey = ['completeBrandOnboarding']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof completeBrandOnboarding>>,
+    { data: BrandOnboardingPayload }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return completeBrandOnboarding(data)
   }
-);}
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type CompleteBrandOnboardingMutationResult = NonNullable<
+  Awaited<ReturnType<typeof completeBrandOnboarding>>
+>
+export type CompleteBrandOnboardingMutationBody = BrandOnboardingPayload
+export type CompleteBrandOnboardingMutationError = Error
 
-
-export const getCompleteBrandOnboardingMutationOptions = <TError = Error,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeBrandOnboarding>>, TError,{data: BrandOnboardingPayload}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof completeBrandOnboarding>>, TError,{data: BrandOnboardingPayload}, TContext> => {
-
-const mutationKey = ['completeBrandOnboarding'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeBrandOnboarding>>, {data: BrandOnboardingPayload}> = (props) => {
-          const {data} = props ?? {};
-
-          return  completeBrandOnboarding(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CompleteBrandOnboardingMutationResult = NonNullable<Awaited<ReturnType<typeof completeBrandOnboarding>>>
-    export type CompleteBrandOnboardingMutationBody = BrandOnboardingPayload
-    export type CompleteBrandOnboardingMutationError = Error
-
-    export const useCompleteBrandOnboarding = <TError = Error,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeBrandOnboarding>>, TError,{data: BrandOnboardingPayload}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof completeBrandOnboarding>>,
-        TError,
-        {data: BrandOnboardingPayload},
-        TContext
-      > => {
-      return useMutation(getCompleteBrandOnboardingMutationOptions(options), queryClient);
-    }
-    export type completeCreatorOnboardingResponse200 = {
+export const useCompleteBrandOnboarding = <TError = Error, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof completeBrandOnboarding>>,
+      TError,
+      { data: BrandOnboardingPayload },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof completeBrandOnboarding>>,
+  TError,
+  { data: BrandOnboardingPayload },
+  TContext
+> => {
+  return useMutation(
+    getCompleteBrandOnboardingMutationOptions(options),
+    queryClient,
+  )
+}
+export type completeCreatorOnboardingResponse200 = {
   data: MeResponse
   status: 200
 }
@@ -175,80 +197,111 @@ export type completeCreatorOnboardingResponse500 = {
   status: 500
 }
 
-export type completeCreatorOnboardingResponseSuccess = (completeCreatorOnboardingResponse200) & {
-  headers: Headers;
-};
-export type completeCreatorOnboardingResponseError = (completeCreatorOnboardingResponse400 | completeCreatorOnboardingResponse401 | completeCreatorOnboardingResponse409 | completeCreatorOnboardingResponse422 | completeCreatorOnboardingResponse500) & {
-  headers: Headers;
-};
+export type completeCreatorOnboardingResponseSuccess =
+  completeCreatorOnboardingResponse200 & {
+    headers: Headers
+  }
+export type completeCreatorOnboardingResponseError = (
+  | completeCreatorOnboardingResponse400
+  | completeCreatorOnboardingResponse401
+  | completeCreatorOnboardingResponse409
+  | completeCreatorOnboardingResponse422
+  | completeCreatorOnboardingResponse500
+) & {
+  headers: Headers
+}
 
-export type completeCreatorOnboardingResponse = (completeCreatorOnboardingResponseSuccess | completeCreatorOnboardingResponseError)
+export type completeCreatorOnboardingResponse =
+  | completeCreatorOnboardingResponseSuccess
+  | completeCreatorOnboardingResponseError
 
 export const getCompleteCreatorOnboardingUrl = () => {
-
-
-
-
   return `/v1/onboarding/creator:complete`
 }
 
-export const completeCreatorOnboarding = async (creatorOnboardingPayload: CreatorOnboardingPayload, options?: RequestInit): Promise<completeCreatorOnboardingResponse> => {
+export const completeCreatorOnboarding = async (
+  creatorOnboardingPayload: CreatorOnboardingPayload,
+  options?: RequestInit,
+): Promise<completeCreatorOnboardingResponse> => {
+  return customFetch<completeCreatorOnboardingResponse>(
+    getCompleteCreatorOnboardingUrl(),
+    {
+      ...options,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(creatorOnboardingPayload),
+    },
+  )
+}
 
-  return customFetch<completeCreatorOnboardingResponse>(getCompleteCreatorOnboardingUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      creatorOnboardingPayload,)
+export const getCompleteCreatorOnboardingMutationOptions = <
+  TError = Error,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof completeCreatorOnboarding>>,
+    TError,
+    { data: CreatorOnboardingPayload },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof completeCreatorOnboarding>>,
+  TError,
+  { data: CreatorOnboardingPayload },
+  TContext
+> => {
+  const mutationKey = ['completeCreatorOnboarding']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof completeCreatorOnboarding>>,
+    { data: CreatorOnboardingPayload }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return completeCreatorOnboarding(data)
   }
-);}
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type CompleteCreatorOnboardingMutationResult = NonNullable<
+  Awaited<ReturnType<typeof completeCreatorOnboarding>>
+>
+export type CompleteCreatorOnboardingMutationBody = CreatorOnboardingPayload
+export type CompleteCreatorOnboardingMutationError = Error
 
-
-export const getCompleteCreatorOnboardingMutationOptions = <TError = Error,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeCreatorOnboarding>>, TError,{data: CreatorOnboardingPayload}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof completeCreatorOnboarding>>, TError,{data: CreatorOnboardingPayload}, TContext> => {
-
-const mutationKey = ['completeCreatorOnboarding'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeCreatorOnboarding>>, {data: CreatorOnboardingPayload}> = (props) => {
-          const {data} = props ?? {};
-
-          return  completeCreatorOnboarding(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CompleteCreatorOnboardingMutationResult = NonNullable<Awaited<ReturnType<typeof completeCreatorOnboarding>>>
-    export type CompleteCreatorOnboardingMutationBody = CreatorOnboardingPayload
-    export type CompleteCreatorOnboardingMutationError = Error
-
-    export const useCompleteCreatorOnboarding = <TError = Error,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeCreatorOnboarding>>, TError,{data: CreatorOnboardingPayload}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof completeCreatorOnboarding>>,
-        TError,
-        {data: CreatorOnboardingPayload},
-        TContext
-      > => {
-      return useMutation(getCompleteCreatorOnboardingMutationOptions(options), queryClient);
-    }
-    export type brandEnrichmentResponse200 = {
+export const useCompleteCreatorOnboarding = <
+  TError = Error,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof completeCreatorOnboarding>>,
+      TError,
+      { data: CreatorOnboardingPayload },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof completeCreatorOnboarding>>,
+  TError,
+  { data: CreatorOnboardingPayload },
+  TContext
+> => {
+  return useMutation(
+    getCompleteCreatorOnboardingMutationOptions(options),
+    queryClient,
+  )
+}
+export type brandEnrichmentResponse200 = {
   data: BrandEnrichment
   status: 200
 }
@@ -283,115 +336,192 @@ export type brandEnrichmentResponse503 = {
   status: 503
 }
 
-export type brandEnrichmentResponseSuccess = (brandEnrichmentResponse200 | brandEnrichmentResponse204) & {
-  headers: Headers;
-};
-export type brandEnrichmentResponseError = (brandEnrichmentResponse400 | brandEnrichmentResponse401 | brandEnrichmentResponse429 | brandEnrichmentResponse500 | brandEnrichmentResponse503) & {
-  headers: Headers;
-};
+export type brandEnrichmentResponseSuccess = (
+  | brandEnrichmentResponse200
+  | brandEnrichmentResponse204
+) & {
+  headers: Headers
+}
+export type brandEnrichmentResponseError = (
+  | brandEnrichmentResponse400
+  | brandEnrichmentResponse401
+  | brandEnrichmentResponse429
+  | brandEnrichmentResponse500
+  | brandEnrichmentResponse503
+) & {
+  headers: Headers
+}
 
-export type brandEnrichmentResponse = (brandEnrichmentResponseSuccess | brandEnrichmentResponseError)
+export type brandEnrichmentResponse =
+  | brandEnrichmentResponseSuccess
+  | brandEnrichmentResponseError
 
-export const getBrandEnrichmentUrl = (params: BrandEnrichmentParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getBrandEnrichmentUrl = (params: BrandEnrichmentParams) => {
+  const normalizedParams = new URLSearchParams()
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
-  });
+  })
 
-  const stringifiedParams = normalizedParams.toString();
+  const stringifiedParams = normalizedParams.toString()
 
-  return stringifiedParams.length > 0 ? `/v1/onboarding/brand/enrichment?${stringifiedParams}` : `/v1/onboarding/brand/enrichment`
+  return stringifiedParams.length > 0
+    ? `/v1/onboarding/brand/enrichment?${stringifiedParams}`
+    : `/v1/onboarding/brand/enrichment`
 }
 
-export const brandEnrichment = async (params: BrandEnrichmentParams, options?: RequestInit): Promise<brandEnrichmentResponse> => {
-
-  return customFetch<brandEnrichmentResponse>(getBrandEnrichmentUrl(params),
-  {
+export const brandEnrichment = async (
+  params: BrandEnrichmentParams,
+  options?: RequestInit,
+): Promise<brandEnrichmentResponse> => {
+  return customFetch<brandEnrichmentResponse>(getBrandEnrichmentUrl(params), {
     ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-
-
-export const getBrandEnrichmentQueryKey = (params?: BrandEnrichmentParams,) => {
-    return [
-    `/v1/onboarding/brand/enrichment`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getBrandEnrichmentQueryOptions = <TData = Awaited<ReturnType<typeof brandEnrichment>>, TError = Error>(params: BrandEnrichmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandEnrichment>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getBrandEnrichmentQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof brandEnrichment>>> = ({ signal }) => brandEnrichment(params, { signal });
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof brandEnrichment>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+    method: 'GET',
+  })
 }
 
-export type BrandEnrichmentQueryResult = NonNullable<Awaited<ReturnType<typeof brandEnrichment>>>
+export const getBrandEnrichmentQueryKey = (params?: BrandEnrichmentParams) => {
+  return [
+    `/v1/onboarding/brand/enrichment`,
+    ...(params ? [params] : []),
+  ] as const
+}
+
+export const getBrandEnrichmentQueryOptions = <
+  TData = Awaited<ReturnType<typeof brandEnrichment>>,
+  TError = Error,
+>(
+  params: BrandEnrichmentParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof brandEnrichment>>,
+        TError,
+        TData
+      >
+    >
+  },
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getBrandEnrichmentQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof brandEnrichment>>> = ({
+    signal,
+  }) => brandEnrichment(params, { signal })
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof brandEnrichment>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type BrandEnrichmentQueryResult = NonNullable<
+  Awaited<ReturnType<typeof brandEnrichment>>
+>
 export type BrandEnrichmentQueryError = Error
 
-
-export function useBrandEnrichment<TData = Awaited<ReturnType<typeof brandEnrichment>>, TError = Error>(
- params: BrandEnrichmentParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandEnrichment>>, TError, TData>> & Pick<
+export function useBrandEnrichment<
+  TData = Awaited<ReturnType<typeof brandEnrichment>>,
+  TError = Error,
+>(
+  params: BrandEnrichmentParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof brandEnrichment>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof brandEnrichment>>,
           TError,
           Awaited<ReturnType<typeof brandEnrichment>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useBrandEnrichment<TData = Awaited<ReturnType<typeof brandEnrichment>>, TError = Error>(
- params: BrandEnrichmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandEnrichment>>, TError, TData>> & Pick<
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useBrandEnrichment<
+  TData = Awaited<ReturnType<typeof brandEnrichment>>,
+  TError = Error,
+>(
+  params: BrandEnrichmentParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof brandEnrichment>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof brandEnrichment>>,
           TError,
           Awaited<ReturnType<typeof brandEnrichment>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useBrandEnrichment<TData = Awaited<ReturnType<typeof brandEnrichment>>, TError = Error>(
- params: BrandEnrichmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandEnrichment>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-
-export function useBrandEnrichment<TData = Awaited<ReturnType<typeof brandEnrichment>>, TError = Error>(
- params: BrandEnrichmentParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandEnrichment>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getBrandEnrichmentQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+}
+export function useBrandEnrichment<
+  TData = Awaited<ReturnType<typeof brandEnrichment>>,
+  TError = Error,
+>(
+  params: BrandEnrichmentParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof brandEnrichment>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
 }
 
+export function useBrandEnrichment<
+  TData = Awaited<ReturnType<typeof brandEnrichment>>,
+  TError = Error,
+>(
+  params: BrandEnrichmentParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof brandEnrichment>>,
+        TError,
+        TData
+      >
+    >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>
+} {
+  const queryOptions = getBrandEnrichmentQueryOptions(params, options)
 
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+    TData,
+    TError
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
 
-
-
+  return { ...query, queryKey: queryOptions.queryKey }
+}
 
 export type presignCreatorAvatarResponse200 = {
   data: AvatarPresignResponse
@@ -428,76 +558,105 @@ export type presignCreatorAvatarResponse500 = {
   status: 500
 }
 
-export type presignCreatorAvatarResponseSuccess = (presignCreatorAvatarResponse200) & {
-  headers: Headers;
-};
-export type presignCreatorAvatarResponseError = (presignCreatorAvatarResponse400 | presignCreatorAvatarResponse401 | presignCreatorAvatarResponse403 | presignCreatorAvatarResponse404 | presignCreatorAvatarResponse422 | presignCreatorAvatarResponse500) & {
-  headers: Headers;
-};
+export type presignCreatorAvatarResponseSuccess =
+  presignCreatorAvatarResponse200 & {
+    headers: Headers
+  }
+export type presignCreatorAvatarResponseError = (
+  | presignCreatorAvatarResponse400
+  | presignCreatorAvatarResponse401
+  | presignCreatorAvatarResponse403
+  | presignCreatorAvatarResponse404
+  | presignCreatorAvatarResponse422
+  | presignCreatorAvatarResponse500
+) & {
+  headers: Headers
+}
 
-export type presignCreatorAvatarResponse = (presignCreatorAvatarResponseSuccess | presignCreatorAvatarResponseError)
+export type presignCreatorAvatarResponse =
+  | presignCreatorAvatarResponseSuccess
+  | presignCreatorAvatarResponseError
 
 export const getPresignCreatorAvatarUrl = () => {
-
-
-
-
   return `/v1/onboarding/creator/avatar:presign`
 }
 
-export const presignCreatorAvatar = async (avatarPresignRequest: AvatarPresignRequest, options?: RequestInit): Promise<presignCreatorAvatarResponse> => {
+export const presignCreatorAvatar = async (
+  avatarPresignRequest: AvatarPresignRequest,
+  options?: RequestInit,
+): Promise<presignCreatorAvatarResponse> => {
+  return customFetch<presignCreatorAvatarResponse>(
+    getPresignCreatorAvatarUrl(),
+    {
+      ...options,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+      body: JSON.stringify(avatarPresignRequest),
+    },
+  )
+}
 
-  return customFetch<presignCreatorAvatarResponse>(getPresignCreatorAvatarUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      avatarPresignRequest,)
+export const getPresignCreatorAvatarMutationOptions = <
+  TError = Error,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof presignCreatorAvatar>>,
+    TError,
+    { data: AvatarPresignRequest },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof presignCreatorAvatar>>,
+  TError,
+  { data: AvatarPresignRequest },
+  TContext
+> => {
+  const mutationKey = ['presignCreatorAvatar']
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof presignCreatorAvatar>>,
+    { data: AvatarPresignRequest }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return presignCreatorAvatar(data)
   }
-);}
 
+  return { mutationFn, ...mutationOptions }
+}
 
+export type PresignCreatorAvatarMutationResult = NonNullable<
+  Awaited<ReturnType<typeof presignCreatorAvatar>>
+>
+export type PresignCreatorAvatarMutationBody = AvatarPresignRequest
+export type PresignCreatorAvatarMutationError = Error
 
-
-export const getPresignCreatorAvatarMutationOptions = <TError = Error,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof presignCreatorAvatar>>, TError,{data: AvatarPresignRequest}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof presignCreatorAvatar>>, TError,{data: AvatarPresignRequest}, TContext> => {
-
-const mutationKey = ['presignCreatorAvatar'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof presignCreatorAvatar>>, {data: AvatarPresignRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  presignCreatorAvatar(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PresignCreatorAvatarMutationResult = NonNullable<Awaited<ReturnType<typeof presignCreatorAvatar>>>
-    export type PresignCreatorAvatarMutationBody = AvatarPresignRequest
-    export type PresignCreatorAvatarMutationError = Error
-
-    export const usePresignCreatorAvatar = <TError = Error,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof presignCreatorAvatar>>, TError,{data: AvatarPresignRequest}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof presignCreatorAvatar>>,
-        TError,
-        {data: AvatarPresignRequest},
-        TContext
-      > => {
-      return useMutation(getPresignCreatorAvatarMutationOptions(options), queryClient);
-    }
+export const usePresignCreatorAvatar = <TError = Error, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof presignCreatorAvatar>>,
+      TError,
+      { data: AvatarPresignRequest },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof presignCreatorAvatar>>,
+  TError,
+  { data: AvatarPresignRequest },
+  TContext
+> => {
+  return useMutation(
+    getPresignCreatorAvatarMutationOptions(options),
+    queryClient,
+  )
+}

@@ -8,4 +8,4 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type ClerkWebhookBody = { [key: string]: unknown };
+export type ClerkWebhookBody = { [key: string]: unknown }

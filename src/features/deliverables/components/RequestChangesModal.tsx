@@ -68,7 +68,9 @@ export function RequestChangesModal({
       </div>
 
       <div className="space-y-3">
-        <Label className="text-sm font-semibold text-foreground">What needs to change?</Label>
+        <Label className="text-sm font-semibold text-foreground">
+          What needs to change?
+        </Label>
         <div className="flex flex-wrap gap-2">
           {reasonOptions.map((reason) => {
             const isActive = selected.has(reason)
@@ -98,7 +100,10 @@ export function RequestChangesModal({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="rc-notes" className="text-sm font-semibold text-foreground">
+        <Label
+          htmlFor="rc-notes"
+          className="text-sm font-semibold text-foreground"
+        >
           Additional notes
         </Label>
         <Textarea
@@ -116,9 +121,7 @@ export function RequestChangesModal({
         </Button>
         <Button
           className="flex-1"
-          onClick={() =>
-            onSubmit?.({ reasons: Array.from(selected), notes })
-          }
+          onClick={() => onSubmit?.({ reasons: Array.from(selected), notes })}
         >
           Send feedback
         </Button>

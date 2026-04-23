@@ -7,21 +7,21 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { CreatorRateCard } from './creatorRateCard';
+import type { CreatorRateCard } from './creatorRateCard'
 
 export interface CreatorChannel {
   /** @maxLength 200 */
-  platform: string;
+  platform: string
   /** @maxLength 200 */
-  external_handle: string;
+  external_handle: string
   /**
-     * @maxLength 500
-     * @nullable
-     */
-  external_url?: string | null;
+   * @maxLength 500
+   * @nullable
+   */
+  external_url?: string | null
   /** @nullable */
-  followers?: number | null;
-  verified: boolean;
-  is_primary: boolean;
-  rate_cards: CreatorRateCard[];
+  followers?: number | null
+  verified: boolean
+  is_primary: boolean
+  rate_cards: CreatorRateCard[]
 }

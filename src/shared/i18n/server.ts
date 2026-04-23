@@ -8,12 +8,11 @@ import {
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE,
-  
   SUPPORTED_LOCALES,
   isLocale,
-  normalizeLocale
+  normalizeLocale,
 } from './config'
-import type {Locale} from './config';
+import type { Locale } from './config'
 
 function parseAcceptLanguage(header: string | undefined): Locale | null {
   if (!header) return null

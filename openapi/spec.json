@@ -15,9 +15,7 @@
     "/health": {
       "get": {
         "operationId": "health",
-        "tags": [
-          "system"
-        ],
+        "tags": ["system"],
         "responses": {
           "200": {
             "description": "OK",
@@ -35,9 +33,7 @@
     "/v1/me": {
       "get": {
         "operationId": "me",
-        "tags": [
-          "accounts"
-        ],
+        "tags": ["accounts"],
         "security": [
           {
             "bearerAuth": []
@@ -80,9 +76,7 @@
     "/v1/me/kind": {
       "post": {
         "operationId": "selectKind",
-        "tags": [
-          "accounts"
-        ],
+        "tags": ["accounts"],
         "security": [
           {
             "bearerAuth": []
@@ -155,9 +149,7 @@
     "/v1/onboarding/brand:complete": {
       "post": {
         "operationId": "completeBrandOnboarding",
-        "tags": [
-          "onboarding"
-        ],
+        "tags": ["onboarding"],
         "security": [
           {
             "bearerAuth": []
@@ -240,9 +232,7 @@
     "/v1/onboarding/creator:complete": {
       "post": {
         "operationId": "completeCreatorOnboarding",
-        "tags": [
-          "onboarding"
-        ],
+        "tags": ["onboarding"],
         "security": [
           {
             "bearerAuth": []
@@ -325,9 +315,7 @@
     "/v1/onboarding/brand/enrichment": {
       "get": {
         "operationId": "brandEnrichment",
-        "tags": [
-          "onboarding"
-        ],
+        "tags": ["onboarding"],
         "security": [
           {
             "bearerAuth": []
@@ -415,9 +403,7 @@
     "/v1/onboarding/creator/avatar:presign": {
       "post": {
         "operationId": "presignCreatorAvatar",
-        "tags": [
-          "onboarding"
-        ],
+        "tags": ["onboarding"],
         "security": [
           {
             "bearerAuth": []
@@ -510,9 +496,7 @@
     "/v1/webhooks/clerk": {
       "post": {
         "operationId": "clerkWebhook",
-        "tags": [
-          "webhooks"
-        ],
+        "tags": ["webhooks"],
         "requestBody": {
           "required": true,
           "content": {
@@ -595,9 +579,7 @@
     "schemas": {
       "Health": {
         "type": "object",
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "properties": {
           "status": {
             "type": "string",
@@ -607,18 +589,11 @@
       },
       "AccountKind": {
         "type": "string",
-        "enum": [
-          "brand",
-          "creator"
-        ]
+        "enum": ["brand", "creator"]
       },
       "OnboardingStatus": {
         "type": "string",
-        "enum": [
-          "kind_pending",
-          "onboarding_pending",
-          "onboarded"
-        ]
+        "enum": ["kind_pending", "onboarding_pending", "onboarded"]
       },
       "CreatorProfile": {
         "type": "object",
@@ -794,9 +769,7 @@
       },
       "KindSelectionRequest": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "$ref": "#/components/schemas/AccountKind"
@@ -900,48 +873,23 @@
       },
       "MarketingObjective": {
         "type": "string",
-        "enum": [
-          "awareness",
-          "performance",
-          "launch",
-          "community"
-        ]
+        "enum": ["awareness", "performance", "launch", "community"]
       },
       "CreatorExperience": {
         "type": "string",
-        "enum": [
-          "never",
-          "scaling",
-          "tried_without_results"
-        ]
+        "enum": ["never", "scaling", "tried_without_results"]
       },
       "CreatorSourcingHistory": {
         "type": "string",
-        "enum": [
-          "none",
-          "small_scale",
-          "large_scale",
-          "agency"
-        ]
+        "enum": ["none", "small_scale", "large_scale", "agency"]
       },
       "MonthlyBudgetRange": {
         "type": "string",
-        "enum": [
-          "under_10k",
-          "10k_to_25k",
-          "25k_to_50k",
-          "50k_plus",
-          "zero"
-        ]
+        "enum": ["under_10k", "10k_to_25k", "25k_to_50k", "50k_plus", "zero"]
       },
       "Timing": {
         "type": "string",
-        "enum": [
-          "launch_now",
-          "one_to_two_weeks",
-          "this_month",
-          "exploring"
-        ]
+        "enum": ["launch_now", "one_to_two_weeks", "this_month", "exploring"]
       },
       "Attribution": {
         "oneOf": [
@@ -968,16 +916,11 @@
       },
       "AttributionReferral": {
         "type": "object",
-        "required": [
-          "source",
-          "referral_text"
-        ],
+        "required": ["source", "referral_text"],
         "properties": {
           "source": {
             "type": "string",
-            "enum": [
-              "referral"
-            ]
+            "enum": ["referral"]
           },
           "referral_text": {
             "type": "string",
@@ -987,9 +930,7 @@
       },
       "AttributionNonReferral": {
         "type": "object",
-        "required": [
-          "source"
-        ],
+        "required": ["source"],
         "properties": {
           "source": {
             "type": "string",
@@ -1081,22 +1022,12 @@
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "male",
-              "female",
-              "non_binary",
-              "prefer_not_say"
-            ],
+            "enum": ["male", "female", "non_binary", "prefer_not_say"],
             "nullable": true
           },
           "experience_level": {
             "type": "string",
-            "enum": [
-              "none",
-              "1_to_5",
-              "6_to_20",
-              "20_plus_primary"
-            ]
+            "enum": ["none", "1_to_5", "6_to_20", "20_plus_primary"]
           },
           "channels": {
             "type": "array",
@@ -1177,11 +1108,7 @@
       },
       "CreatorRateCard": {
         "type": "object",
-        "required": [
-          "format",
-          "rate_amount",
-          "rate_currency"
-        ],
+        "required": ["format", "rate_amount", "rate_currency"],
         "properties": {
           "format": {
             "type": "string",
@@ -1199,10 +1126,7 @@
       },
       "BestVideo": {
         "type": "object",
-        "required": [
-          "url",
-          "kind"
-        ],
+        "required": ["url", "kind"],
         "properties": {
           "url": {
             "type": "string",
@@ -1211,10 +1135,7 @@
           },
           "kind": {
             "type": "string",
-            "enum": [
-              "organic",
-              "branded"
-            ]
+            "enum": ["organic", "branded"]
           }
         }
       },
@@ -1248,9 +1169,7 @@
       },
       "AvatarPresignRequest": {
         "type": "object",
-        "required": [
-          "content_type"
-        ],
+        "required": ["content_type"],
         "properties": {
           "filename": {
             "type": "string",
@@ -1259,11 +1178,7 @@
           },
           "content_type": {
             "type": "string",
-            "enum": [
-              "image/jpeg",
-              "image/png",
-              "image/webp"
-            ]
+            "enum": ["image/jpeg", "image/png", "image/webp"]
           }
         }
       },
@@ -1307,16 +1222,11 @@
       },
       "Error": {
         "type": "object",
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "properties": {
           "error": {
             "type": "object",
-            "required": [
-              "code",
-              "message"
-            ],
+            "required": ["code", "message"],
             "properties": {
               "code": {
                 "type": "string"
