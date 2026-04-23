@@ -9,8 +9,8 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  */
 
 export type BrandEnrichmentParams = {
-/**
- * @maxLength 500
- */
-url: string;
-};
+  /**
+   * @maxLength 500
+   */
+  url: string
+}

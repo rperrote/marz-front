@@ -8,10 +8,9 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type BestVideoKind = typeof BestVideoKind[keyof typeof BestVideoKind];
-
+export type BestVideoKind = (typeof BestVideoKind)[keyof typeof BestVideoKind]
 
 export const BestVideoKind = {
   organic: 'organic',
   branded: 'branded',
-} as const;
+} as const

@@ -8,12 +8,12 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type MarketingObjective = typeof MarketingObjective[keyof typeof MarketingObjective];
-
+export type MarketingObjective =
+  (typeof MarketingObjective)[keyof typeof MarketingObjective]
 
 export const MarketingObjective = {
   awareness: 'awareness',
   performance: 'performance',
   launch: 'launch',
   community: 'community',
-} as const;
+} as const

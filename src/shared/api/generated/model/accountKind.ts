@@ -8,10 +8,9 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type AccountKind = typeof AccountKind[keyof typeof AccountKind];
-
+export type AccountKind = (typeof AccountKind)[keyof typeof AccountKind]
 
 export const AccountKind = {
   brand: 'brand',
   creator: 'creator',
-} as const;
+} as const

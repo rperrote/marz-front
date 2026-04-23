@@ -7,13 +7,13 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 
  * OpenAPI spec version: 0.1.0
  */
-import type { AvatarPresignRequestContentType } from './avatarPresignRequestContentType';
+import type { AvatarPresignRequestContentType } from './avatarPresignRequestContentType'
 
 export interface AvatarPresignRequest {
   /**
-     * @maxLength 200
-     * @nullable
-     */
-  filename?: string | null;
-  content_type: AvatarPresignRequestContentType;
+   * @maxLength 200
+   * @nullable
+   */
+  filename?: string | null
+  content_type: AvatarPresignRequestContentType
 }

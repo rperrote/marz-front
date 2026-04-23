@@ -8,11 +8,11 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
  * OpenAPI spec version: 0.1.0
  */
 
-export type OnboardingStatus = typeof OnboardingStatus[keyof typeof OnboardingStatus];
-
+export type OnboardingStatus =
+  (typeof OnboardingStatus)[keyof typeof OnboardingStatus]
 
 export const OnboardingStatus = {
   kind_pending: 'kind_pending',
   onboarding_pending: 'onboarding_pending',
   onboarded: 'onboarded',
-} as const;
+} as const

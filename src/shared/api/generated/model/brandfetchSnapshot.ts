@@ -11,4 +11,4 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 /**
  * @nullable
  */
-export type BrandfetchSnapshot = { [key: string]: unknown } | null;
+export type BrandfetchSnapshot = { [key: string]: unknown } | null
