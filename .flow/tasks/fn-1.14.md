@@ -1,9 +1,7 @@
 # fn-1.14 F.11 — 14 pantallas onboarding brand (B1-B14)
 
-
 ## Description
-
-Implementar las 14 pantallas del onboarding brand (B1-B14) — la parte más grande del epic.
+Implementar las 14 pantallas del onboarding brand (B1-B14).
 
 Ubicación: `src/features/identity/onboarding/brand/screens/`.
 
@@ -22,7 +20,7 @@ Ubicación: `src/features/identity/onboarding/brand/screens/`.
 | B11 | `B11AttributionScreen` | OnbOptionChip (8) + input condicional | Si source=`referral` → input "¿Quién te recomendó?" requerido. |
 | B12 | `B12LoadingScreen` | animation | `setTimeout(2500)` → avanza solo. |
 | B13 | `B13PaywallScreen` | OnbPaywallCard (h0bnQ) | CTA "Start trial" disabled con tooltip "Próximamente"; botón "Continuar sin suscribirme" avanza. |
-| B14 | `B14ConfirmationScreen` | copy + CTA | Botón "Empezar" → trigger de F.12 (completar onboarding). |
+| B14 | `B14ConfirmationScreen` | copy + CTA | Botón "Empezar" → trigger de fn-1.15. |
 
 Reglas:
 - Todas usan `OnboardingShell`, `OnboardingTopbar` (stepLabel "Paso N de 14"), `OnboardingProgress` (N/14*100), `OnboardingFooter`.
@@ -30,21 +28,18 @@ Reglas:
 - Guarda en store al cambiar (no al Next).
 - Analytics: `onboarding_step_entered` on mount, `onboarding_step_completed` on Next válido.
 - Strings vía Lingui (`t`).
-
 ## Acceptance
-
 - [ ] Las 14 pantallas existen en `screens/`.
 - [ ] Cada una tiene test unitario de render + validación.
 - [ ] Happy path e2e: recorrer los 14 pasos con datos válidos → store tiene payload completo.
-- [ ] B1 enrichment: debounce funciona; logo preview aparece si mock devuelve data; no bloquea si 204/error.
+- [ ] B1 enrichment: debounce funciona; logo preview aparece si el endpoint devuelve data; no bloquea si 204/error.
 - [ ] B6 slider mapea correcto a enum.
 - [ ] B9 WhatsApp valida E.164.
 - [ ] B11 referral condicional funciona.
 - [ ] B12 avanza solo a los 2.5s.
 - [ ] Axe-core clean en todas.
-- [ ] Validación visual vs pencil ≥95% (screenshot compare de pantallas clave: B1, B2, B6, B11, B13).
-- [ ] Strings extraídos en catálogo Lingui (`pnpm i18n:extract` sin cambios no-trackeados).
-
+- [ ] Validación visual vs pencil ≥95% (pantallas clave: B1, B2, B6, B11, B13).
+- [ ] Strings extraídos en catálogo Lingui.
 ## Done summary
 TBD
 

@@ -1,32 +1,33 @@
-# fn-1.7 F.A — Wrapper de analytics cliente
-
+# fn-1.7 F.4 — Componentes reusables onboarding (shell/topbar/footer/progress/field/chips/cards)
 
 ## Description
+Implementar los componentes reusables de onboarding, mapeados 1:1 al pencil DS.
 
-Wrapper de analytics cliente — `src/shared/analytics/track.ts`.
+Ubicación: `src/features/identity/onboarding/shared/components/`.
 
-El solution doc §10.5 lista los eventos que cada pantalla/flow debe emitir. El endpoint real (`POST /v1/analytics/events`) es de una feature futura; este epic solo provee el wrapper para que las call sites no cambien después.
+- `OnboardingShell` ← `OnbScreenShell` (hQXtH) — wrapper con topbar + contenido + footer.
+- `OnboardingTopbar` ← `OnbTopbar` (4W3se) — prop `stepLabel: string`.
+- `OnboardingProgress` ← `OnbProgress` (w7qmh) — prop `percent: number` (0-100).
+- `OnboardingFooter` ← `OnbFooter` (KrwlG) — props `onBack?`, `onNext`, `nextDisabled?`, `nextLabel?`, `isLoading?`.
+- `OnboardingField` ← `OnbField` (PcSW6) — label + hint + error + children.
+- `OnboardingOptionChip` ← `OnbOptionChip` / `OnbOptionChipSelected` (fQBHs/mH8KA) — prop `selected: boolean`.
+- `OnboardingVerticalCard` ← `OnbVerticalCard` / selected (NrZHg/UFDvW).
+- `OnboardingContentTypeChip` ← `OnbContentTypeChip` / selected (xl1Zf/S1IXX).
+- `OnboardingTierCard` ← `OnbTierCard` / selected (EQBOc/v4b1t).
+- `OnboardingSectionTitle` ← `OnbSectionTitle` (oty0b).
 
-- Función `track(event, payload?)` que:
-  - Hace `console.debug('[analytics]', event, payload)` en dev.
-  - Incrementa un Prometheus-like counter in-memory (o expone un array) para tests.
-  - No-op en prod hasta que el endpoint real exista.
-- Tipado: el set de event names es un union literal string derivado del solution doc:
-  - `magic_link_requested`, `magic_link_succeeded`, `magic_link_failed`
-  - `kind_selected`
-  - `onboarding_step_entered`, `onboarding_step_completed`, `onboarding_abandoned`, `onboarding_completed`
-  - `sign_in_succeeded`, `sign_out`
-  - `onboarding_redirect_enforced`
-- `beforeunload` listener global que dispara `onboarding_abandoned` si hay data en algún onboarding store y no está `onboarded` — best-effort.
-
+Reglas:
+- Usar tokens del `styles.css` (no hardcodear colores/radios/spacing).
+- Props minimal; sin acoplamiento a dominio brand/creator.
+- Chips/cards son `role="radio"` o `role="checkbox"` según multi-select.
+- axe-core clean.
 ## Acceptance
-
-- [ ] Wrapper tipado con union literal strings.
-- [ ] Se puede importar desde cualquier feature sin ciclos.
-- [ ] Test: llamar `track('kind_selected', { kind: 'brand' })` registra el evento en el spy.
-- [ ] `beforeunload` listener registra `onboarding_abandoned` cuando corresponde.
-- [ ] En prod (sin `VITE_ENABLE_MSW` equivalent — ver si usar `import.meta.env.DEV`), el wrapper no rompe ni fuga info.
-
+- [ ] Los 10 componentes existen con tests (render + interacción básica).
+- [ ] Ruta dev `/ds-onboarding` opcional que renderiza todos en una grid (ver `src/routes/ds.tsx` como patrón).
+- [ ] Validación visual vs pencil ≥95% (screenshots comparados con `get_screenshot` de los IDs del DS).
+- [ ] `pnpm test` verde.
+- [ ] Navegación por teclado: Tab + Space en chips/cards.
+- [ ] No hay strings hardcoded; los labels vienen por props.
 ## Done summary
 TBD
 

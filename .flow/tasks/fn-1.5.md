@@ -1,37 +1,27 @@
-# fn-1.5 F.3 — Token provider + mutator + retry-on-401
-
+# fn-1.5 F.A — Wrapper de analytics cliente
 
 ## Description
+Wrapper de analytics cliente — `src/shared/analytics/track.ts`.
 
-Conectar el mutator de Orval con el token de Clerk + implementar retry-on-401.
+El solution doc §10.5 lista los eventos que cada pantalla/flow debe emitir. El endpoint real (`POST /v1/analytics/events`) es de una feature futura; este epic solo provee el wrapper para que las call sites no cambien después.
 
-- `src/features/identity/hooks/useClerkTokenProvider.ts`:
-  - Hook que en mount llama `setAuthTokenProvider(() => clerk.session?.getToken() ?? null)`.
-  - Usar en `__root.tsx` una sola vez.
-- `src/shared/api/mutator.ts`:
-  - Inyecta `Authorization: Bearer <token>` desde el provider.
-  - Deserializa JSON.
-  - `ApiError` tipado `{ code, message, details? }` (matches schema `Error` del spec).
-  - Retry-on-401 (**ver epic spec §D5**): si response es 401 y el `error.code ∈ {token_invalid, token_expired}` y no se ha reintentado aún:
-    - `const newToken = await clerk.session?.getToken({ skipCache: true }).catch(() => null)`.
-    - **Si `newToken == null`** (session murió, token revocado, provider caído): `clerk.signOut()` + `navigate('/auth')` + throw ApiError. **No** reintentar fetch sin token.
-    - Si hay `newToken`: retry una vez con el nuevo token.
-    - Si ese retry vuelve 401: `clerk.signOut()` + `navigate('/auth')` + throw ApiError.
-  - 503 `auth_provider_unavailable`: propagar error sin cerrar session (UI muestra banner).
-  - AbortSignal passthrough.
-
+- Función `track(event, payload?)` que:
+  - Hace `console.debug('[analytics]', event, payload)` en dev.
+  - Incrementa un counter in-memory (array) para tests.
+  - No-op en prod hasta que el endpoint real exista.
+- Tipado: el set de event names es un union literal string:
+  - `magic_link_requested`, `magic_link_succeeded`, `magic_link_failed`
+  - `kind_selected`
+  - `onboarding_step_entered`, `onboarding_step_completed`, `onboarding_abandoned`, `onboarding_completed`
+  - `sign_in_succeeded`, `sign_out`
+  - `onboarding_redirect_enforced`
+- `beforeunload` listener global que dispara `onboarding_abandoned` si hay data en algún onboarding store y no está `onboarded` — best-effort.
 ## Acceptance
-
-- [ ] Unit test MSW (`src/shared/api/mutator.test.ts`):
-  - 200 → payload deserializado.
-  - 401 una vez + 200 segunda → retorna payload, refresh del token llamado una vez.
-  - 401 + 401 → `signOut` invocado, redirect a `/auth`, throw ApiError.
-  - **401 + refresh devuelve null token → `signOut` invocado sin segundo fetch; verificar con spy que `fetch` se llamó exactamente 1 vez** (§D5).
-  - 503 auth_provider_unavailable → throw ApiError, signOut NO llamado.
-  - 400/422 → throw ApiError con `details.field_errors` si aplica.
-- [ ] Todos los hooks de Orval usan este mutator (verificar `orval.config.ts`).
-- [ ] Typecheck OK.
-
+- [ ] Wrapper tipado con union literal strings.
+- [ ] Se puede importar desde cualquier feature sin ciclos.
+- [ ] Test: llamar `track('kind_selected', { kind: 'brand' })` registra el evento en el spy.
+- [ ] `beforeunload` listener registra `onboarding_abandoned` cuando corresponde.
+- [ ] En prod, el wrapper no rompe ni fuga info.
 ## Done summary
 TBD
 

@@ -18,3 +18,6 @@ coverage
 bun.lock
 bun.lockb
 .rafita/runs/
+.rafita/state.json
+.rafita/plans/
+.rafita/sessions/

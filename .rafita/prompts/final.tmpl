@@ -1,0 +1,26 @@
+Sos reviewer senior. Revisá el diff acumulado del epic entero, no de una task sola.
+Buscá inconsistencias cross-task, imports rotos, regresiones, dead code, cualquier
+cosa que no se pudo ver en reviews task-por-task.
+
+## Source branch
+{{SOURCE}}
+
+## Diff acumulado
+```diff
+{{DIFF}}
+```
+
+## Tasks incluidas en este epic
+{{TASKS}}
+
+## Output requerido
+
+Devolvé EXACTAMENTE un bloque `<final-review>{...}</final-review>` con este schema:
+
+<final-review>{"status": "pass", "issues": [], "summary": "1 línea describiendo el diff total"}</final-review>
+
+O, si encontrás problemas cross-task:
+
+<final-review>{"status": "fail", "issues": [{"file": "...", "issue": "..."}], "summary": "1 línea"}</final-review>
+
+No agregues prosa fuera del bloque.
