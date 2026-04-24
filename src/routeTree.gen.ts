@@ -17,12 +17,15 @@ import { Route as CreatorRouteImport } from './routes/_creator'
 import { Route as BrandRouteImport } from './routes/_brand'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as OnboardingBrandRouteImport } from './routes/onboarding/brand'
 import { Route as AuthLinkInvalidRouteImport } from './routes/auth/link-invalid'
 import { Route as AuthKindRouteImport } from './routes/auth/kind'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
 import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
+import { Route as OnboardingBrandIndexRouteImport } from './routes/onboarding/brand.index'
+import { Route as OnboardingBrandStepRouteImport } from './routes/onboarding/brand.$step'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -62,6 +65,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingBrandRoute = OnboardingBrandRouteImport.update({
+  id: '/onboarding/brand',
+  path: '/onboarding/brand',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLinkInvalidRoute = AuthLinkInvalidRouteImport.update({
   id: '/auth/link-invalid',
   path: '/auth/link-invalid',
@@ -92,6 +100,16 @@ const BrandCampaignsRoute = BrandCampaignsRouteImport.update({
   path: '/campaigns',
   getParentRoute: () => BrandRoute,
 } as any)
+const OnboardingBrandIndexRoute = OnboardingBrandIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OnboardingBrandRoute,
+} as any)
+const OnboardingBrandStepRoute = OnboardingBrandStepRouteImport.update({
+  id: '/$step',
+  path: '/$step',
+  getParentRoute: () => OnboardingBrandRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -105,7 +123,10 @@ export interface FileRoutesByFullPath {
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/kind': typeof AuthKindRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
+  '/onboarding/brand': typeof OnboardingBrandRouteWithChildren
   '/auth/': typeof AuthIndexRoute
+  '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
+  '/onboarding/brand/': typeof OnboardingBrandIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -120,6 +141,8 @@ export interface FileRoutesByTo {
   '/auth/kind': typeof AuthKindRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth': typeof AuthIndexRoute
+  '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
+  '/onboarding/brand': typeof OnboardingBrandIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -136,7 +159,10 @@ export interface FileRoutesById {
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/kind': typeof AuthKindRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
+  '/onboarding/brand': typeof OnboardingBrandRouteWithChildren
   '/auth/': typeof AuthIndexRoute
+  '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
+  '/onboarding/brand/': typeof OnboardingBrandIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -152,7 +178,10 @@ export interface FileRouteTypes {
     | '/auth/check-email'
     | '/auth/kind'
     | '/auth/link-invalid'
+    | '/onboarding/brand'
     | '/auth/'
+    | '/onboarding/brand/$step'
+    | '/onboarding/brand/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -167,6 +196,8 @@ export interface FileRouteTypes {
     | '/auth/kind'
     | '/auth/link-invalid'
     | '/auth'
+    | '/onboarding/brand/$step'
+    | '/onboarding/brand'
   id:
     | '__root__'
     | '/'
@@ -182,7 +213,10 @@ export interface FileRouteTypes {
     | '/auth/check-email'
     | '/auth/kind'
     | '/auth/link-invalid'
+    | '/onboarding/brand'
     | '/auth/'
+    | '/onboarding/brand/$step'
+    | '/onboarding/brand/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +231,7 @@ export interface RootRouteChildren {
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthKindRoute: typeof AuthKindRoute
   AuthLinkInvalidRoute: typeof AuthLinkInvalidRoute
+  OnboardingBrandRoute: typeof OnboardingBrandRouteWithChildren
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
@@ -258,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/brand': {
+      id: '/onboarding/brand'
+      path: '/onboarding/brand'
+      fullPath: '/onboarding/brand'
+      preLoaderRoute: typeof OnboardingBrandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/link-invalid': {
       id: '/auth/link-invalid'
       path: '/auth/link-invalid'
@@ -300,6 +342,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandCampaignsRouteImport
       parentRoute: typeof BrandRoute
     }
+    '/onboarding/brand/': {
+      id: '/onboarding/brand/'
+      path: '/'
+      fullPath: '/onboarding/brand/'
+      preLoaderRoute: typeof OnboardingBrandIndexRouteImport
+      parentRoute: typeof OnboardingBrandRoute
+    }
+    '/onboarding/brand/$step': {
+      id: '/onboarding/brand/$step'
+      path: '/$step'
+      fullPath: '/onboarding/brand/$step'
+      preLoaderRoute: typeof OnboardingBrandStepRouteImport
+      parentRoute: typeof OnboardingBrandRoute
+    }
   }
 }
 
@@ -324,6 +380,20 @@ const CreatorRouteChildren: CreatorRouteChildren = {
 const CreatorRouteWithChildren =
   CreatorRoute._addFileChildren(CreatorRouteChildren)
 
+interface OnboardingBrandRouteChildren {
+  OnboardingBrandStepRoute: typeof OnboardingBrandStepRoute
+  OnboardingBrandIndexRoute: typeof OnboardingBrandIndexRoute
+}
+
+const OnboardingBrandRouteChildren: OnboardingBrandRouteChildren = {
+  OnboardingBrandStepRoute: OnboardingBrandStepRoute,
+  OnboardingBrandIndexRoute: OnboardingBrandIndexRoute,
+}
+
+const OnboardingBrandRouteWithChildren = OnboardingBrandRoute._addFileChildren(
+  OnboardingBrandRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRouteWithChildren,
@@ -336,6 +406,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthKindRoute: AuthKindRoute,
   AuthLinkInvalidRoute: AuthLinkInvalidRoute,
+  OnboardingBrandRoute: OnboardingBrandRouteWithChildren,
   AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport

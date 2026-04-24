@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-24T13:52:46.904581Z",
   "created_at": "2026-04-22T19:14:29.902613Z",
   "depends_on": ["fn-1.7", "fn-1.12"],
   "epic": "fn-1",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Layout, store Zustand SSR-safe, m\u00e1quina de 14 pasos con componentes y validaciones, tests de store y steps, y guards de navegaci\u00f3n implementados correctamente; lint, typecheck y tests pasan."
+  },
   "id": "fn-1.13",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.13.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.10 \u2014 Layout /onboarding/brand + store Zustand + m\u00e1quina de pasos",
-  "updated_at": "2026-04-22T21:22:18.244307Z"
+  "updated_at": "2026-04-24T14:12:07.141020Z"
 }

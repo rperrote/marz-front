@@ -67,7 +67,7 @@ Array `{ id, component, validate?: (state) => boolean }`. El layout deriva el pa
 
 ## Done summary
 
-TBD
+Layout, store Zustand SSR-safe, máquina de 14 pasos con componentes y validaciones, tests de store y steps, y guards de navegación implementados correctamente; lint, typecheck y tests pasan.
 
 ## Evidence
 
