@@ -1,23 +1,20 @@
 import { t } from '@lingui/core/macro'
 import {
-  Video,
-  Camera,
-  Mic,
-  PenTool,
-  Clapperboard,
+  PackageOpen,
+  Star,
+  LayoutTemplate,
   Sparkles,
-  MonitorPlay,
-  Radio,
   BookOpen,
   Megaphone,
-  Film,
-  ImageIcon,
+  Scissors,
+  GraduationCap,
+  Mic,
+  Laugh,
+  Sun,
+  Clapperboard,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import {
-  OnboardingSectionTitle,
-  OnboardingContentTypeChip,
-} from '#/features/identity/onboarding/shared/components'
+import { OnboardingContentTypeChip } from '#/features/identity/onboarding/shared/components'
 import { useCreatorOnboardingStore } from '../store'
 
 const CONTENT_TYPE_OPTIONS: {
@@ -25,18 +22,30 @@ const CONTENT_TYPE_OPTIONS: {
   label: () => string
   icon: LucideIcon
 }[] = [
-  { value: 'short_video', label: () => t`Video corto`, icon: Video },
-  { value: 'long_video', label: () => t`Video largo`, icon: MonitorPlay },
-  { value: 'reel', label: () => t`Reel`, icon: Clapperboard },
-  { value: 'story', label: () => t`Story`, icon: Sparkles },
-  { value: 'photo', label: () => t`Foto`, icon: Camera },
-  { value: 'carousel', label: () => t`Carrusel`, icon: ImageIcon },
-  { value: 'podcast', label: () => t`Podcast`, icon: Mic },
-  { value: 'livestream', label: () => t`Livestream`, icon: Radio },
-  { value: 'blog', label: () => t`Blog / Artículo`, icon: BookOpen },
-  { value: 'ugc', label: () => t`UGC`, icon: Film },
-  { value: 'review', label: () => t`Review`, icon: PenTool },
-  { value: 'shoutout', label: () => t`Shoutout / Mención`, icon: Megaphone },
+  { value: 'unboxing', label: () => t`Unboxing`, icon: PackageOpen },
+  { value: 'reviews', label: () => t`Reviews`, icon: Star },
+  {
+    value: 'product_demos',
+    label: () => t`Product demos`,
+    icon: LayoutTemplate,
+  },
+  { value: 'lifestyle', label: () => t`Lifestyle`, icon: Sparkles },
+  { value: 'storytelling', label: () => t`Storytelling`, icon: BookOpen },
+  { value: 'video_ads', label: () => t`Video Ads`, icon: Megaphone },
+  {
+    value: 'faceless_clipping',
+    label: () => t`Faceless / Clipping`,
+    icon: Scissors,
+  },
+  { value: 'tutorials', label: () => t`Tutoriales`, icon: GraduationCap },
+  { value: 'interviews', label: () => t`Entrevistas`, icon: Mic },
+  { value: 'humor_sketches', label: () => t`Humor / Sketches`, icon: Laugh },
+  { value: 'day_in_the_life', label: () => t`Day in the life`, icon: Sun },
+  {
+    value: 'behind_the_scenes',
+    label: () => t`Behind the scenes`,
+    icon: Clapperboard,
+  },
 ]
 
 export function C6ContentTypesScreen() {
@@ -55,12 +64,16 @@ export function C6ContentTypesScreen() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`¿Qué tipo de contenido creás?`}
-        subtitle={t`Seleccioná todos los que apliquen.`}
-      />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="flex w-full flex-col items-center gap-9">
+      <div className="flex w-full max-w-[600px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`¿Qué tipo de contenido hacés?`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Las marcas buscan tipos específicos. Marcá los que te salen bien.`}
+        </p>
+      </div>
+      <div className="flex max-w-[800px] flex-wrap justify-center gap-2.5">
         {CONTENT_TYPE_OPTIONS.map((o) => (
           <OnboardingContentTypeChip
             key={o.value}
@@ -71,6 +84,9 @@ export function C6ContentTypesScreen() {
           />
         ))}
       </div>
+      <p className="text-[11px] text-muted-foreground" aria-live="polite">
+        {t`${selected.length} de ${CONTENT_TYPE_OPTIONS.length} seleccionados`}
+      </p>
     </div>
   )
 }

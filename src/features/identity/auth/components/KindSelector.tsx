@@ -24,8 +24,7 @@ const cards: Array<{
     kind: 'brand',
     icon: Building2,
     title: 'Soy una marca',
-    description:
-      'Quiero correr campañas con creadores que generen resultados reales.',
+    description: 'Quiero correr campañas con creadores.',
     disabled: false,
   },
   {

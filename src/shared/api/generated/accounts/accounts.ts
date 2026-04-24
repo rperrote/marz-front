@@ -27,6 +27,8 @@ import type { Error, KindSelectionRequest, MeResponse } from '../model'
 
 import { customFetch } from '../../mutator'
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
+
 export type meResponse200 = {
   data: MeResponse
   status: 200
@@ -73,13 +75,14 @@ export const getMeQueryOptions = <
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof me>>, TError, TData>
   >
+  request?: SecondParameter<typeof customFetch>
 }) => {
-  const { query: queryOptions } = options ?? {}
+  const { query: queryOptions, request: requestOptions } = options ?? {}
 
   const queryKey = queryOptions?.queryKey ?? getMeQueryKey()
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof me>>> = ({ signal }) =>
-    me({ signal })
+    me({ signal, ...requestOptions })
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof me>>,
@@ -104,6 +107,7 @@ export function useMe<TData = Awaited<ReturnType<typeof me>>, TError = Error>(
         >,
         'initialData'
       >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & {
@@ -122,6 +126,7 @@ export function useMe<TData = Awaited<ReturnType<typeof me>>, TError = Error>(
         >,
         'initialData'
       >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -132,6 +137,7 @@ export function useMe<TData = Awaited<ReturnType<typeof me>>, TError = Error>(
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof me>>, TError, TData>
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -143,6 +149,7 @@ export function useMe<TData = Awaited<ReturnType<typeof me>>, TError = Error>(
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof me>>, TError, TData>
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -225,6 +232,7 @@ export const getSelectKindMutationOptions = <
     { data: KindSelectionRequest },
     TContext
   >
+  request?: SecondParameter<typeof customFetch>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof selectKind>>,
   TError,
@@ -232,13 +240,13 @@ export const getSelectKindMutationOptions = <
   TContext
 > => {
   const mutationKey = ['selectKind']
-  const { mutation: mutationOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
       options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof selectKind>>,
@@ -246,7 +254,7 @@ export const getSelectKindMutationOptions = <
   > = (props) => {
     const { data } = props ?? {}
 
-    return selectKind(data)
+    return selectKind(data, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
@@ -266,6 +274,7 @@ export const useSelectKind = <TError = Error, TContext = unknown>(
       { data: KindSelectionRequest },
       TContext
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseMutationResult<

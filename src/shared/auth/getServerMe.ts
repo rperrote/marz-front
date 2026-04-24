@@ -29,13 +29,17 @@ export type ServerMeResult = ServerMeOk | ServerMeFail
 export const getServerMe = createServerFn({ method: 'GET' }).handler(
   async (): Promise<ServerMeResult> => {
     const authObject = await auth()
+    console.log('[getServerMe] userId:', authObject.userId)
 
     if (!authObject.userId) {
+      console.log('[getServerMe] no userId → ok:false')
       return { ok: false, body: null }
     }
 
     const token = await authObject.getToken()
+    console.log('[getServerMe] token present:', !!token)
     if (!token) {
+      console.log('[getServerMe] no token → ok:false')
       return { ok: false, body: null }
     }
 
@@ -46,8 +50,11 @@ export const getServerMe = createServerFn({ method: 'GET' }).handler(
         Authorization: `Bearer ${token}`,
       },
     })
+    console.log('[getServerMe] /v1/me status:', res.status)
 
     if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      console.log('[getServerMe] /v1/me error body:', body.slice(0, 300))
       return { ok: false, body: null }
     }
 

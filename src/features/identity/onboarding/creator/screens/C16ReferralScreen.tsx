@@ -3,10 +3,7 @@ import { t } from '@lingui/core/macro'
 import { useNavigate } from '@tanstack/react-router'
 import { Input } from '#/components/ui/input'
 import { Button } from '#/components/ui/button'
-import {
-  OnboardingSectionTitle,
-  OnboardingField,
-} from '#/features/identity/onboarding/shared/components'
+import { OnboardingField } from '#/features/identity/onboarding/shared/components'
 import { track } from '#/shared/analytics/track'
 import { useCreatorOnboardingStore } from '../store'
 import { STEPS, getStepId } from '../steps'
@@ -40,22 +37,33 @@ export function C16ReferralScreen() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`¿Cómo nos conociste?`}
-        subtitle={t`Opcional — nos ayuda a mejorar.`}
-      />
-      <div className="flex w-full max-w-[440px] flex-col gap-6">
-        <OnboardingField label={t`Referido o fuente`}>
+    <div className="flex w-full flex-col items-center gap-9">
+      <div className="flex w-full max-w-[560px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`¿Quién te invitó?`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Si alguien te pasó el link, dejalo. Los bonificamos.`}
+        </p>
+      </div>
+      <div className="flex w-full max-w-[440px] flex-col gap-5">
+        <OnboardingField
+          label={t`Handle o nombre (opcional)`}
+          className="max-w-none"
+        >
           <Input
             value={store.referral_text ?? ''}
             onChange={handleChange}
-            placeholder={t`Un amigo, Instagram, Google...`}
+            placeholder="@valenzavacs"
             maxLength={2000}
           />
         </OnboardingField>
       </div>
-      <Button variant="ghost" onClick={skip} className="text-muted-foreground">
+      <Button
+        variant="ghost"
+        onClick={skip}
+        className="text-xs text-muted-foreground"
+      >
         {t`Omitir`}
       </Button>
     </div>

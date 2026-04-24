@@ -19,6 +19,7 @@ import { installBeforeUnloadListener } from '#/shared/analytics/beforeunload'
 import { AppI18nProvider } from '#/shared/i18n/provider'
 import { resolveLocale } from '#/shared/i18n/server'
 import { loadCatalog } from '#/shared/i18n/setup'
+import type { Messages } from '#/shared/i18n/setup'
 
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -31,10 +32,15 @@ const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getIte
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async () => {
     const locale = await resolveLocale()
-    await loadCatalog(locale)
-    return { locale }
+    const messages = await loadCatalog(locale)
+    return { locale, messages }
   },
-  loader: ({ context }) => ({ locale: context.locale }),
+  loader: ({
+    context,
+  }): { locale: typeof context.locale; messages: Messages } => ({
+    locale: context.locale,
+    messages: context.messages,
+  }),
   head: ({ loaderData }) => ({
     meta: [
       { charSet: 'utf-8' },
@@ -53,7 +59,7 @@ function ClerkTokenBridge() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { locale } = Route.useLoaderData()
+  const { locale, messages } = Route.useLoaderData()
 
   useEffect(() => {
     installBeforeUnloadListener()
@@ -75,7 +81,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <ClerkProvider>
           <ClerkTokenBridge />
           <MobileRedirectGuard />
-          <AppI18nProvider initialLocale={locale}>{children}</AppI18nProvider>
+          <AppI18nProvider initialLocale={locale} initialMessages={messages}>
+            {children}
+          </AppI18nProvider>
           <Toaster position="bottom-center" />
         </ClerkProvider>
         {import.meta.env.DEV ? (

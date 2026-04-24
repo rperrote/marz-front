@@ -10,7 +10,7 @@ Se consume con `oapi-codegen` (server) y `openapi-typescript` + `openapi-fetch` 
 import type { Attribution } from './attribution'
 import type { BrandfetchSnapshot } from './brandfetchSnapshot'
 import type { CreatorExperience } from './creatorExperience'
-import type { CreatorSourcingHistory } from './creatorSourcingHistory'
+import type { CreatorSourcingIntent } from './creatorSourcingIntent'
 import type { MarketingObjective } from './marketingObjective'
 import type { MonthlyBudgetRange } from './monthlyBudgetRange'
 import type { Timing } from './timing'
@@ -38,7 +38,7 @@ export interface BrandOnboardingPayload {
   vertical: Vertical
   marketing_objective: MarketingObjective
   creator_experience: CreatorExperience
-  creator_sourcing_history: CreatorSourcingHistory
+  creator_sourcing_intent: CreatorSourcingIntent
   monthly_budget_range: MonthlyBudgetRange
   timing: Timing
   attribution: Attribution

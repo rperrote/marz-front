@@ -93,9 +93,6 @@ function KindPage() {
             Marz
           </span>
         </div>
-        <span className="text-[11px] font-medium text-muted-foreground">
-          Paso 1 de 3
-        </span>
       </div>
 
       <div className="h-0.5 w-full bg-border">

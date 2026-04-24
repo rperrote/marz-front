@@ -19,7 +19,7 @@ const FIELD_TO_STEP: Record<string, string> = {
   vertical: 'vertical',
   marketing_objective: 'objective',
   creator_experience: 'experience',
-  creator_sourcing_history: 'experience',
+  creator_sourcing_intent: 'experience',
   monthly_budget_range: 'budget',
   timing: 'timing',
   contact_name: 'contact',

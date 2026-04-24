@@ -79,10 +79,7 @@ export function B1IdentityScreen() {
             maxLength={200}
           />
         </OnboardingField>
-        <OnboardingField
-          label={t`Sitio web`}
-          hint={t`Opcional — lo usamos para personalizar tu experiencia.`}
-        >
+        <OnboardingField label={t`Sitio web`}>
           <Input
             value={urlInput}
             onChange={handleUrlChange}

@@ -9,6 +9,8 @@ import { resetTrackedEvents, getTrackedEvents } from '#/shared/analytics/track'
 
 const mockCreate = vi.fn()
 const mockSendLink = vi.fn()
+const mockSignUpCreate = vi.fn()
+const mockSignUpSendLink = vi.fn()
 const mockNavigate = vi.fn()
 
 vi.mock('@clerk/tanstack-react-start', () => ({
@@ -17,6 +19,14 @@ vi.mock('@clerk/tanstack-react-start', () => ({
     signIn: {
       create: mockCreate,
       emailLink: { sendLink: mockSendLink },
+    },
+    errors: {},
+    fetchStatus: 'idle' as const,
+  }),
+  useSignUp: () => ({
+    signUp: {
+      create: mockSignUpCreate,
+      verifications: { sendEmailLink: mockSignUpSendLink },
     },
     errors: {},
     fetchStatus: 'idle' as const,

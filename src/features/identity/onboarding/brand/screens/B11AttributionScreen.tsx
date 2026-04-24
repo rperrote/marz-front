@@ -1,32 +1,45 @@
 import { useCallback } from 'react'
 import { t } from '@lingui/core/macro'
+import { Instagram, Twitter, Users, Search, Linkedin } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { cn } from '#/lib/utils'
 import { Input } from '#/components/ui/input'
-import {
-  OnboardingSectionTitle,
-  OnboardingOptionChip,
-  OnboardingField,
-} from '#/features/identity/onboarding/shared/components'
+import { OnboardingField } from '#/features/identity/onboarding/shared/components'
 import { useBrandOnboardingStore } from '../store'
 import { AttributionNonReferralSource } from '#/shared/api/generated/model/attributionNonReferralSource'
 import type { Attribution } from '#/shared/api/generated/model/attribution'
 
 type AllSource = AttributionNonReferralSource | 'referral'
 
-const SOURCES: { value: AllSource; label: () => string }[] = [
-  { value: AttributionNonReferralSource.instagram, label: () => t`Instagram` },
+const SOURCES: {
+  value: AllSource
+  label: () => string
+  icon?: LucideIcon
+}[] = [
+  {
+    value: AttributionNonReferralSource.instagram,
+    label: () => t`Instagram`,
+    icon: Instagram,
+  },
   {
     value: AttributionNonReferralSource.twitter_x,
-    label: () => t`Twitter / X`,
+    label: () => t`X / Twitter`,
+    icon: Twitter,
   },
-  { value: AttributionNonReferralSource.tiktok, label: () => t`TikTok` },
-  { value: AttributionNonReferralSource.linkedin, label: () => t`LinkedIn` },
-  { value: AttributionNonReferralSource.reddit, label: () => t`Reddit` },
+  { value: 'referral' as const, label: () => t`Referido`, icon: Users },
   {
     value: AttributionNonReferralSource.search,
-    label: () => t`Búsqueda en Google`,
+    label: () => t`Búsqueda`,
+    icon: Search,
   },
-  { value: 'referral' as const, label: () => t`Me lo recomendaron` },
   { value: AttributionNonReferralSource.other, label: () => t`Otro` },
+  { value: AttributionNonReferralSource.tiktok, label: () => t`TikTok` },
+  {
+    value: AttributionNonReferralSource.linkedin,
+    label: () => t`LinkedIn`,
+    icon: Linkedin,
+  },
+  { value: AttributionNonReferralSource.reddit, label: () => t`Reddit` },
 ]
 
 function getSelectedSource(attr: Attribution | undefined): AllSource | null {
@@ -68,29 +81,62 @@ export function B11AttributionScreen() {
   )
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`¿Cómo conociste Marz?`}
-        subtitle={t`Nos ayuda a mejorar cómo llegamos a más marcas.`}
-      />
+    <div className="flex w-full flex-col items-center gap-9">
+      <div className="flex w-full max-w-[600px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`¿Cómo llegaste a Marz?`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Nos ayuda a entender qué funciona.`}
+        </p>
+      </div>
+
       <div className="flex w-full max-w-[560px] flex-col gap-6">
-        <div className="flex flex-wrap justify-center gap-2">
-          {SOURCES.map((s) => (
-            <OnboardingOptionChip
-              key={s.value}
-              label={s.label()}
-              role="radio"
-              selected={selectedSource === s.value}
-              onToggle={() => handleSelect(s.value)}
-            />
-          ))}
+        <div
+          className="flex flex-wrap justify-center gap-2.5"
+          role="radiogroup"
+          aria-label={t`Fuente`}
+        >
+          {SOURCES.map((s) => {
+            const selected = selectedSource === s.value
+            const Icon = s.icon
+            return (
+              <button
+                key={s.value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => handleSelect(s.value)}
+                className={cn(
+                  'flex h-11 items-center gap-2 rounded-full px-5 text-xs transition-colors',
+                  selected
+                    ? 'border-2 border-primary bg-primary/10 font-semibold text-primary'
+                    : 'border border-border bg-card font-medium text-foreground hover:bg-surface-hover',
+                )}
+              >
+                {Icon && (
+                  <Icon
+                    className={cn(
+                      'size-4',
+                      selected ? 'text-primary' : 'text-foreground',
+                    )}
+                  />
+                )}
+                {s.label()}
+              </button>
+            )
+          })}
         </div>
+
         {isReferral && (
-          <OnboardingField label={t`¿Quién te recomendó?`}>
+          <OnboardingField
+            label={t`¿Quién te recomendó Marz?`}
+            className="max-w-none"
+          >
             <Input
               value={referralText}
               onChange={handleReferralTextChange}
-              placeholder={t`Nombre o empresa`}
+              placeholder={t`Nombre o handle de quien te pasó el dato`}
               maxLength={2000}
               autoFocus
             />

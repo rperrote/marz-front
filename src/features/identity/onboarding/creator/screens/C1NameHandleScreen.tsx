@@ -1,10 +1,7 @@
 import { useCallback } from 'react'
 import { t } from '@lingui/core/macro'
 import { Input } from '#/components/ui/input'
-import {
-  OnboardingSectionTitle,
-  OnboardingField,
-} from '#/features/identity/onboarding/shared/components'
+import { OnboardingField } from '#/features/identity/onboarding/shared/components'
 import { useCreatorOnboardingStore } from '../store'
 
 const HANDLE_RE = /^[a-z0-9_]{3,30}$/
@@ -36,32 +33,38 @@ export function C1NameHandleScreen() {
       : store.fieldErrors.handle
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`¿Cómo te llamás?`}
-        subtitle={t`Elegí tu nombre y tu handle para que las marcas te encuentren.`}
-      />
-      <div className="flex w-full max-w-[440px] flex-col gap-6">
+    <div className="flex w-full flex-col items-center gap-9">
+      <div className="flex w-full max-w-[560px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`¿Cómo te conocen?`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Tu nombre público y tu handle principal.`}
+        </p>
+      </div>
+
+      <div className="flex w-full max-w-[460px] flex-col gap-5">
         <OnboardingField
-          label={t`Nombre`}
+          label={t`Nombre público`}
+          className="max-w-none"
           error={store.fieldErrors.display_name}
         >
           <Input
             value={store.display_name ?? ''}
             onChange={handleNameChange}
-            placeholder={t`Tu nombre o nombre artístico`}
+            placeholder={t`Lucas Romero`}
             maxLength={200}
           />
         </OnboardingField>
         <OnboardingField
-          label={t`Handle`}
-          hint={t`marz.co/@${handle || '...'}`}
+          label={t`Handle principal`}
+          className="max-w-none"
           error={handleError}
         >
           <Input
             value={handle}
             onChange={handleHandleChange}
-            placeholder="tu_handle"
+            placeholder="@lucasromero"
             maxLength={30}
             aria-invalid={!!handleError}
           />

@@ -783,7 +783,7 @@
           "vertical",
           "marketing_objective",
           "creator_experience",
-          "creator_sourcing_history",
+          "creator_sourcing_intent",
           "monthly_budget_range",
           "timing",
           "attribution",
@@ -824,8 +824,8 @@
           "creator_experience": {
             "$ref": "#/components/schemas/CreatorExperience"
           },
-          "creator_sourcing_history": {
-            "$ref": "#/components/schemas/CreatorSourcingHistory"
+          "creator_sourcing_intent": {
+            "$ref": "#/components/schemas/CreatorSourcingIntent"
           },
           "monthly_budget_range": {
             "$ref": "#/components/schemas/MonthlyBudgetRange"
@@ -879,9 +879,9 @@
         "type": "string",
         "enum": ["never", "scaling", "tried_without_results"]
       },
-      "CreatorSourcingHistory": {
+      "CreatorSourcingIntent": {
         "type": "string",
-        "enum": ["none", "small_scale", "large_scale", "agency"]
+        "enum": ["already_have", "discover_in_marz", "both"]
       },
       "MonthlyBudgetRange": {
         "type": "string",

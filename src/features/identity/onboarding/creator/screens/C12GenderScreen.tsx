@@ -1,10 +1,7 @@
 import { t } from '@lingui/core/macro'
 import { useNavigate } from '@tanstack/react-router'
 import { Button } from '#/components/ui/button'
-import {
-  OnboardingSectionTitle,
-  OnboardingOptionChip,
-} from '#/features/identity/onboarding/shared/components'
+import { OnboardingOptionChip } from '#/features/identity/onboarding/shared/components'
 import { track } from '#/shared/analytics/track'
 import type { CreatorOnboardingPayloadGender as Gender } from '#/shared/api/generated/model/creatorOnboardingPayloadGender'
 import { CreatorOnboardingPayloadGender } from '#/shared/api/generated/model/creatorOnboardingPayloadGender'
@@ -45,13 +42,17 @@ export function C12GenderScreen() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`¿Cuál es tu género?`}
-        subtitle={t`Opcional — lo usamos para métricas demográficas.`}
-      />
+    <div className="flex w-full flex-col items-center gap-9">
+      <div className="flex w-full max-w-[600px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`¿Cuál es tu género?`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Algunas campañas filtran por género de creador. Opcional.`}
+        </p>
+      </div>
       <div
-        className="flex flex-wrap justify-center gap-3"
+        className="flex flex-wrap justify-center gap-2.5"
         role="radiogroup"
         aria-label={t`Género`}
       >
@@ -65,7 +66,11 @@ export function C12GenderScreen() {
           />
         ))}
       </div>
-      <Button variant="ghost" onClick={skip} className="text-muted-foreground">
+      <Button
+        variant="ghost"
+        onClick={skip}
+        className="text-xs text-muted-foreground"
+      >
         {t`Omitir`}
       </Button>
     </div>

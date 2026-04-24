@@ -1,26 +1,23 @@
 import { t } from '@lingui/core/macro'
-import {
-  OnboardingSectionTitle,
-  OnboardingOptionChip,
-} from '#/features/identity/onboarding/shared/components'
+import { OnboardingOptionChip } from '#/features/identity/onboarding/shared/components'
 import { useCreatorOnboardingStore } from '../store'
 
 const NICHE_OPTIONS: { value: string; label: () => string }[] = [
-  { value: 'fashion', label: () => t`Moda` },
-  { value: 'beauty', label: () => t`Belleza` },
-  { value: 'fitness', label: () => t`Fitness` },
-  { value: 'food', label: () => t`Comida` },
-  { value: 'travel', label: () => t`Viajes` },
-  { value: 'tech', label: () => t`Tecnología` },
+  { value: 'fintech', label: () => t`Fintech` },
+  { value: 'tech', label: () => t`Tech` },
   { value: 'gaming', label: () => t`Gaming` },
-  { value: 'music', label: () => t`Música` },
-  { value: 'comedy', label: () => t`Comedia` },
-  { value: 'education', label: () => t`Educación` },
+  { value: 'comedy', label: () => t`Comedy` },
   { value: 'lifestyle', label: () => t`Lifestyle` },
-  { value: 'sports', label: () => t`Deportes` },
-  { value: 'parenting', label: () => t`Maternidad / Paternidad` },
-  { value: 'pets', label: () => t`Mascotas` },
-  { value: 'finance', label: () => t`Finanzas` },
+  { value: 'business', label: () => t`Business` },
+  { value: 'productivity', label: () => t`Productividad` },
+  { value: 'fitness', label: () => t`Fitness` },
+  { value: 'personal_finance', label: () => t`Finanzas personales` },
+  { value: 'crypto', label: () => t`Crypto` },
+  { value: 'food', label: () => t`Food` },
+  { value: 'travel', label: () => t`Travel` },
+  { value: 'beauty', label: () => t`Beauty` },
+  { value: 'fashion', label: () => t`Moda` },
+  { value: 'parenting', label: () => t`Parenting` },
 ]
 
 export function C5NichesScreen() {
@@ -40,17 +37,15 @@ export function C5NichesScreen() {
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`¿Cuáles son tus nichos?`}
-        subtitle={t`Elegí entre 1 y 5 nichos que representen tu contenido.`}
-      />
-      <p
-        className="text-[length:var(--font-size-sm)] font-medium text-muted-foreground"
-        aria-live="polite"
-      >
-        {t`${selected.length} de 5 seleccionados`}
-      </p>
-      <div className="flex max-w-[560px] flex-wrap justify-center gap-3">
+      <div className="flex w-full max-w-[600px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`¿En qué te especializás?`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Hasta 5 nichos. Matching va a ser más preciso.`}
+        </p>
+      </div>
+      <div className="flex max-w-[720px] flex-wrap justify-center gap-2">
         {NICHE_OPTIONS.map((o) => (
           <OnboardingOptionChip
             key={o.value}
@@ -60,6 +55,9 @@ export function C5NichesScreen() {
           />
         ))}
       </div>
+      <p className="text-xs text-muted-foreground" aria-live="polite">
+        {t`${selected.length} de 5 seleccionados`}
+      </p>
     </div>
   )
 }

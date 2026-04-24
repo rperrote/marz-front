@@ -24,6 +24,8 @@ import type { Health } from '../model'
 
 import { customFetch } from '../../mutator'
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
+
 export type healthResponse200 = {
   data: Health
   status: 200
@@ -58,14 +60,15 @@ export const getHealthQueryOptions = <
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof health>>, TError, TData>
   >
+  request?: SecondParameter<typeof customFetch>
 }) => {
-  const { query: queryOptions } = options ?? {}
+  const { query: queryOptions, request: requestOptions } = options ?? {}
 
   const queryKey = queryOptions?.queryKey ?? getHealthQueryKey()
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof health>>> = ({
     signal,
-  }) => health({ signal })
+  }) => health({ signal, ...requestOptions })
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof health>>,
@@ -93,6 +96,7 @@ export function useHealth<
         >,
         'initialData'
       >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & {
@@ -114,6 +118,7 @@ export function useHealth<
         >,
         'initialData'
       >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -127,6 +132,7 @@ export function useHealth<
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof health>>, TError, TData>
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -141,6 +147,7 @@ export function useHealth<
     query?: Partial<
       UseQueryOptions<Awaited<ReturnType<typeof health>>, TError, TData>
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {

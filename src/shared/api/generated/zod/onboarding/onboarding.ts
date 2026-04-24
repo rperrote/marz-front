@@ -69,11 +69,10 @@ export const CompleteBrandOnboardingBody = zod.object({
     'community',
   ]),
   creator_experience: zod.enum(['never', 'scaling', 'tried_without_results']),
-  creator_sourcing_history: zod.enum([
-    'none',
-    'small_scale',
-    'large_scale',
-    'agency',
+  creator_sourcing_intent: zod.enum([
+    'already_have',
+    'discover_in_marz',
+    'both',
   ]),
   monthly_budget_range: zod.enum([
     'under_10k',

@@ -36,6 +36,8 @@ import type {
 
 import { customFetch } from '../../mutator'
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
+
 export type completeBrandOnboardingResponse200 = {
   data: MeResponse
   status: 200
@@ -113,6 +115,7 @@ export const getCompleteBrandOnboardingMutationOptions = <
     { data: BrandOnboardingPayload },
     TContext
   >
+  request?: SecondParameter<typeof customFetch>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof completeBrandOnboarding>>,
   TError,
@@ -120,13 +123,13 @@ export const getCompleteBrandOnboardingMutationOptions = <
   TContext
 > => {
   const mutationKey = ['completeBrandOnboarding']
-  const { mutation: mutationOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
       options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof completeBrandOnboarding>>,
@@ -134,7 +137,7 @@ export const getCompleteBrandOnboardingMutationOptions = <
   > = (props) => {
     const { data } = props ?? {}
 
-    return completeBrandOnboarding(data)
+    return completeBrandOnboarding(data, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
@@ -154,6 +157,7 @@ export const useCompleteBrandOnboarding = <TError = Error, TContext = unknown>(
       { data: BrandOnboardingPayload },
       TContext
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
@@ -244,6 +248,7 @@ export const getCompleteCreatorOnboardingMutationOptions = <
     { data: CreatorOnboardingPayload },
     TContext
   >
+  request?: SecondParameter<typeof customFetch>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof completeCreatorOnboarding>>,
   TError,
@@ -251,13 +256,13 @@ export const getCompleteCreatorOnboardingMutationOptions = <
   TContext
 > => {
   const mutationKey = ['completeCreatorOnboarding']
-  const { mutation: mutationOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
       options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof completeCreatorOnboarding>>,
@@ -265,7 +270,7 @@ export const getCompleteCreatorOnboardingMutationOptions = <
   > = (props) => {
     const { data } = props ?? {}
 
-    return completeCreatorOnboarding(data)
+    return completeCreatorOnboarding(data, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
@@ -288,6 +293,7 @@ export const useCompleteCreatorOnboarding = <
       { data: CreatorOnboardingPayload },
       TContext
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseMutationResult<
@@ -402,15 +408,16 @@ export const getBrandEnrichmentQueryOptions = <
         TData
       >
     >
+    request?: SecondParameter<typeof customFetch>
   },
 ) => {
-  const { query: queryOptions } = options ?? {}
+  const { query: queryOptions, request: requestOptions } = options ?? {}
 
   const queryKey = queryOptions?.queryKey ?? getBrandEnrichmentQueryKey(params)
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof brandEnrichment>>> = ({
     signal,
-  }) => brandEnrichment(params, { signal })
+  }) => brandEnrichment(params, { signal, ...requestOptions })
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof brandEnrichment>>,
@@ -445,6 +452,7 @@ export function useBrandEnrichment<
         >,
         'initialData'
       >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & {
@@ -471,6 +479,7 @@ export function useBrandEnrichment<
         >,
         'initialData'
       >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -489,6 +498,7 @@ export function useBrandEnrichment<
         TData
       >
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -508,6 +518,7 @@ export function useBrandEnrichment<
         TData
       >
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & {
@@ -606,6 +617,7 @@ export const getPresignCreatorAvatarMutationOptions = <
     { data: AvatarPresignRequest },
     TContext
   >
+  request?: SecondParameter<typeof customFetch>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof presignCreatorAvatar>>,
   TError,
@@ -613,13 +625,13 @@ export const getPresignCreatorAvatarMutationOptions = <
   TContext
 > => {
   const mutationKey = ['presignCreatorAvatar']
-  const { mutation: mutationOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
       options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof presignCreatorAvatar>>,
@@ -627,7 +639,7 @@ export const getPresignCreatorAvatarMutationOptions = <
   > = (props) => {
     const { data } = props ?? {}
 
-    return presignCreatorAvatar(data)
+    return presignCreatorAvatar(data, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
@@ -647,6 +659,7 @@ export const usePresignCreatorAvatar = <TError = Error, TContext = unknown>(
       { data: AvatarPresignRequest },
       TContext
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseMutationResult<

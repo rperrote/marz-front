@@ -54,7 +54,7 @@ export const useBrandOnboardingStore = create<BrandOnboardingState>()(
           vertical: undefined,
           marketing_objective: undefined,
           creator_experience: undefined,
-          creator_sourcing_history: undefined,
+          creator_sourcing_intent: undefined,
           monthly_budget_range: undefined,
           timing: undefined,
           attribution: undefined,

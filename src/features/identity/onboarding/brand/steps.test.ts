@@ -94,7 +94,7 @@ describe('validate functions', () => {
       validate(
         makeState({
           creator_experience: 'never',
-          creator_sourcing_history: 'none',
+          creator_sourcing_intent: 'already_have',
         }),
       ),
     ).toBe(true)

@@ -1,10 +1,7 @@
 import { useCallback } from 'react'
 import { t } from '@lingui/core/macro'
 import { Input } from '#/components/ui/input'
-import {
-  OnboardingSectionTitle,
-  OnboardingField,
-} from '#/features/identity/onboarding/shared/components'
+import { OnboardingField } from '#/features/identity/onboarding/shared/components'
 import { useBrandOnboardingStore } from '../store'
 
 function formatE164(raw: string): string {
@@ -31,31 +28,38 @@ export function B9ContactScreen() {
     whatsapp.length === 0 || /^\+[1-9]\d{7,14}$/.test(whatsapp)
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`¿Quién será el contacto principal?`}
-        subtitle={t`Datos de la persona que va a gestionar las campañas.`}
-      />
-      <div className="flex w-full max-w-[440px] flex-col gap-6">
-        <OnboardingField label={t`Nombre completo`}>
-          <Input
-            value={store.contact_name ?? ''}
-            onChange={(e) => store.setField('contact_name', e.target.value)}
-            placeholder={t`Juan Pérez`}
-            maxLength={200}
-          />
-        </OnboardingField>
-        <OnboardingField label={t`Cargo`}>
-          <Input
-            value={store.contact_title ?? ''}
-            onChange={(e) => store.setField('contact_title', e.target.value)}
-            placeholder={t`Marketing Manager`}
-            maxLength={200}
-          />
-        </OnboardingField>
+    <div className="flex w-full flex-col items-center gap-9">
+      <div className="flex w-full max-w-[560px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`Último paso antes del match`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Lo usamos para coordinar arranque. Nada de spam.`}
+        </p>
+      </div>
+
+      <div className="flex w-full max-w-[560px] flex-col gap-5">
+        <div className="flex w-full gap-4">
+          <OnboardingField label={t`Nombre`} className="max-w-none flex-1">
+            <Input
+              value={store.contact_name ?? ''}
+              onChange={(e) => store.setField('contact_name', e.target.value)}
+              placeholder={t`María`}
+              maxLength={200}
+            />
+          </OnboardingField>
+          <OnboardingField label={t`Cargo`} className="max-w-none flex-1">
+            <Input
+              value={store.contact_title ?? ''}
+              onChange={(e) => store.setField('contact_title', e.target.value)}
+              placeholder={t`Growth Lead`}
+              maxLength={200}
+            />
+          </OnboardingField>
+        </div>
         <OnboardingField
           label={t`WhatsApp`}
-          hint={t`Formato internacional, ej: +5491155551234`}
+          className="max-w-none"
           error={
             !whatsappValid ? t`Formato inválido. Usá formato E.164.` : undefined
           }
@@ -63,7 +67,7 @@ export function B9ContactScreen() {
           <Input
             value={whatsapp}
             onChange={handleWhatsAppChange}
-            placeholder="+5491155551234"
+            placeholder="+54 11 5555-5555"
             type="tel"
             maxLength={16}
             aria-invalid={!whatsappValid}

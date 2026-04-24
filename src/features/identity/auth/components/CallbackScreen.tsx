@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { useClerk } from '@clerk/tanstack-react-start'
+import { useAuth, useClerk } from '@clerk/tanstack-react-start'
 import { useQueryClient } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 
@@ -9,17 +9,31 @@ import { track } from '#/shared/analytics/track'
 
 export function CallbackScreen() {
   const clerk = useClerk()
+  const { getToken, isLoaded } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const verifyingRef = useRef(false)
 
   useEffect(() => {
+    if (!isLoaded) return
     if (verifyingRef.current) return
     verifyingRef.current = true
 
     async function verify() {
       try {
         await clerk.handleEmailLinkVerification({})
+
+        // Esperar a que Clerk propague la sesión y el token esté disponible
+        let token: string | null = null
+        for (let i = 0; i < 20; i++) {
+          token = await getToken()
+          if (token) break
+          await new Promise((r) => setTimeout(r, 100))
+        }
+        if (!token) {
+          void navigate({ to: '/auth/link-invalid' })
+          return
+        }
 
         track('magic_link_succeeded')
 
@@ -46,7 +60,7 @@ export function CallbackScreen() {
     }
 
     void verify()
-  }, [clerk, navigate, queryClient])
+  }, [clerk, navigate, queryClient, getToken, isLoaded])
 
   return (
     <div className="flex w-full max-w-[480px] flex-col items-center gap-7 rounded-2xl border border-border bg-card p-10">

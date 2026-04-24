@@ -1,0 +1,13 @@
+{
+  "branch_name": "fn-2",
+  "created_at": "2026-04-24T22:21:24.905058Z",
+  "depends_on_epics": [],
+  "id": "fn-2",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-2.md",
+  "status": "open",
+  "title": "FEAT-002: Brief Builder (Frontend) \u2014 wizard 4 fases con WS de progreso IA",
+  "updated_at": "2026-04-24T22:22:40.337839Z"
+}

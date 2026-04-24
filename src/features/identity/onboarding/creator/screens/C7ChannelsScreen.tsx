@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { t } from '@lingui/core/macro'
-import { OnboardingSectionTitle } from '#/features/identity/onboarding/shared/components'
+import { Info } from 'lucide-react'
 import type { CreatorChannel } from '#/shared/api/generated/model/creatorChannel'
 import { validateChannels } from '../schema'
 import { useCreatorOnboardingStore } from '../store'
@@ -23,11 +23,15 @@ export function C7ChannelsScreen() {
   )
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`Tus canales`}
-        subtitle={t`Agregá tus redes sociales y definí tus tarifas por formato.`}
-      />
+    <div className="flex w-full flex-col items-center gap-6">
+      <div className="flex w-full max-w-[720px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`Conectá tus cuentas y qué publicás`}
+        </h1>
+        <p className="text-center text-sm leading-[1.5] text-muted-foreground">
+          {t`Verificamos followers y engagement. Cargá tu tarifa por formato — las marcas ven rango, no tu precio directo.`}
+        </p>
+      </div>
       <ChannelEditor channels={channels} onChange={handleChange} />
       {errors.length > 0 && (
         <p
@@ -43,6 +47,12 @@ export function C7ChannelsScreen() {
                 : null}
         </p>
       )}
+      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <Info className="size-3" />
+        <span>
+          {t`Tus tarifas son privadas. Las marcas ven rango, nunca tu número exacto.`}
+        </span>
+      </div>
     </div>
   )
 }

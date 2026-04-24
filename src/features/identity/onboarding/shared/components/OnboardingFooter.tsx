@@ -7,7 +7,6 @@ interface OnboardingFooterProps {
   nextDisabled?: boolean
   nextLabel?: string
   backLabel?: string
-  autosaveLabel?: string
   isLoading?: boolean
   className?: string
 }
@@ -18,50 +17,38 @@ export function OnboardingFooter({
   nextDisabled = false,
   nextLabel = 'Continuar',
   backLabel = 'Atrás',
-  autosaveLabel = 'Autoguardado',
   isLoading = false,
   className,
 }: OnboardingFooterProps) {
   return (
-    <footer
-      className={cn(
-        'flex h-20 w-full items-center justify-between border-t border-border bg-background px-8',
-        className,
-      )}
+    <div
+      className={cn('flex w-full items-center justify-center gap-3', className)}
     >
-      {onBack ? (
+      {onBack && (
         <button
           type="button"
           onClick={onBack}
-          className="flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-4 text-[length:var(--font-size-sm)] font-medium text-foreground transition-colors hover:bg-surface-hover"
+          className="flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-surface-hover"
         >
-          <ArrowLeft className="size-4" />
+          <ArrowLeft size={16} />
           {backLabel}
         </button>
-      ) : (
-        <div />
       )}
-
-      <div className="flex items-center gap-3">
-        <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
-          {autosaveLabel}
-        </span>
-        <button
-          type="button"
-          onClick={onNext}
-          disabled={nextDisabled || isLoading}
-          className="flex h-10 items-center gap-2 rounded-xl bg-primary px-5 text-[length:var(--font-size-sm)] font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <>
-              {nextLabel}
-              <ArrowRight className="size-4" />
-            </>
-          )}
-        </button>
-      </div>
-    </footer>
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={nextDisabled || isLoading}
+        className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground transition-opacity hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {isLoading ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <>
+            {nextLabel}
+            <ArrowRight size={16} />
+          </>
+        )}
+      </button>
+    </div>
   )
 }

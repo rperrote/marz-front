@@ -59,7 +59,7 @@ const VALID_STATE = {
   vertical: 'tech' as const,
   marketing_objective: 'awareness' as const,
   creator_experience: 'never' as const,
-  creator_sourcing_history: 'none' as const,
+  creator_sourcing_intent: 'already_have' as const,
   monthly_budget_range: 'under_10k' as const,
   timing: 'exploring' as const,
   attribution: { source: 'search' as const },

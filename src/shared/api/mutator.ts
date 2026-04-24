@@ -136,7 +136,11 @@ async function handleResponse<T>(res: Response): Promise<T> {
     )
   }
 
-  return parsed as T
+  return {
+    data: parsed,
+    status: res.status,
+    headers: res.headers,
+  } as T
 }
 
 async function parseErrorBody(res: Response): Promise<ApiErrorBody | null> {

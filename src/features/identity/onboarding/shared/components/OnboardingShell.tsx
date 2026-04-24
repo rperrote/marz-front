@@ -49,18 +49,20 @@ export function OnboardingShell({
           className,
         )}
       >
-        {children}
+        <div className="flex w-full flex-col items-center gap-12">
+          {children}
+          {!hideFooter && (
+            <OnboardingFooter
+              onBack={onBack}
+              onNext={onNext}
+              nextDisabled={nextDisabled}
+              nextLabel={nextLabel}
+              backLabel={backLabel}
+              isLoading={isLoading}
+            />
+          )}
+        </div>
       </main>
-      {!hideFooter && (
-        <OnboardingFooter
-          onBack={onBack}
-          onNext={onNext}
-          nextDisabled={nextDisabled}
-          nextLabel={nextLabel}
-          backLabel={backLabel}
-          isLoading={isLoading}
-        />
-      )}
     </div>
   )
 }

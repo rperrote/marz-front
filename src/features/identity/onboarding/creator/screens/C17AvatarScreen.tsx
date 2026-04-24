@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
-import { Upload, X } from 'lucide-react'
+import { Upload, User, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '#/components/ui/button'
-import { OnboardingSectionTitle } from '#/features/identity/onboarding/shared/components'
 import { usePresignCreatorAvatar } from '#/shared/api/generated/onboarding/onboarding'
 import type { AvatarPresignRequestContentType } from '#/shared/api/generated/model/avatarPresignRequestContentType'
 import { useCreatorOnboardingStore } from '../store'
@@ -104,18 +103,22 @@ export function C17AvatarScreen() {
   }, [store])
 
   return (
-    <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
-        title={t`Tu foto de perfil`}
-        subtitle={t`Subí una foto para que las marcas te reconozcan.`}
-      />
-      <div className="flex flex-col items-center gap-4">
+    <div className="flex w-full flex-col items-center gap-9">
+      <div className="flex w-full max-w-[640px] flex-col items-center gap-2.5">
+        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          {t`Una foto para tu perfil`}
+        </h1>
+        <p className="text-center text-sm text-muted-foreground">
+          {t`Cuadrada, cara visible, sin filtros locos. Usamos la misma que marcas verán.`}
+        </p>
+      </div>
+      <div className="flex flex-col items-center gap-5">
         {preview ? (
           <div className="relative">
             <img
               src={preview}
               alt={t`Preview de avatar`}
-              className="size-32 rounded-full object-cover"
+              className="size-[140px] rounded-full object-cover"
             />
             <Button
               variant="destructive"
@@ -128,18 +131,19 @@ export function C17AvatarScreen() {
             </Button>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            disabled={uploading}
-            className="flex size-32 flex-col items-center justify-center gap-2 rounded-full border-2 border-dashed border-border bg-muted text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-          >
-            <Upload className="size-6" />
-            <span className="text-[length:var(--font-size-xs)]">
-              {uploading ? t`Subiendo...` : t`Subir foto`}
-            </span>
-          </button>
+          <div className="flex size-[140px] items-center justify-center rounded-full border border-border bg-card">
+            <User className="size-8 text-muted-foreground" />
+          </div>
         )}
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-5 text-xs font-semibold text-foreground transition-colors hover:bg-surface-hover disabled:opacity-50"
+        >
+          <Upload className="size-4" />
+          {uploading ? t`Subiendo…` : preview ? t`Cambiar foto` : t`Subir foto`}
+        </button>
         <input
           ref={inputRef}
           type="file"
@@ -149,11 +153,11 @@ export function C17AvatarScreen() {
           aria-label={t`Seleccionar imagen`}
         />
         {store.fieldErrors.avatar_s3_key && (
-          <p className="text-[length:var(--font-size-sm)] text-destructive">
+          <p className="text-sm text-destructive">
             {store.fieldErrors.avatar_s3_key}
           </p>
         )}
-        <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground">
           {t`JPEG, PNG o WebP. Máximo 5MB.`}
         </p>
       </div>

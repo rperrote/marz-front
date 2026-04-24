@@ -18,7 +18,7 @@ beforeEach(() => {
   useBrandOnboardingStore.setState({
     currentStepIndex: 4,
     creator_experience: undefined,
-    creator_sourcing_history: undefined,
+    creator_sourcing_intent: undefined,
   })
 })
 
@@ -26,22 +26,22 @@ describe('B5ExperienceScreen', () => {
   it('renders experience and sourcing groups', () => {
     render(<B5ExperienceScreen />)
     const radios = screen.getAllByRole('radio')
-    expect(radios.length).toBe(7)
+    expect(radios.length).toBe(6)
   })
 
   it('selects experience on click', async () => {
     const user = userEvent.setup()
     render(<B5ExperienceScreen />)
-    await user.click(screen.getByText(/nunca trabajé/i))
+    await user.click(screen.getByText(/nunca lo hice/i))
     expect(useBrandOnboardingStore.getState().creator_experience).toBe('never')
   })
 
   it('selects sourcing on click', async () => {
     const user = userEvent.setup()
     render(<B5ExperienceScreen />)
-    await user.click(screen.getByText(/sin experiencia/i))
-    expect(useBrandOnboardingStore.getState().creator_sourcing_history).toBe(
-      'none',
+    await user.click(screen.getByText(/quiero descubrirlos en marz/i))
+    expect(useBrandOnboardingStore.getState().creator_sourcing_intent).toBe(
+      'discover_in_marz',
     )
   })
 

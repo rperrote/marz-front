@@ -19,6 +19,8 @@ import type { ClerkWebhook200, ClerkWebhookBody, Error } from '../model'
 
 import { customFetch } from '../../mutator'
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1]
+
 export type clerkWebhookResponse200 = {
   data: ClerkWebhook200
   status: 200
@@ -86,6 +88,7 @@ export const getClerkWebhookMutationOptions = <
     { data: ClerkWebhookBody },
     TContext
   >
+  request?: SecondParameter<typeof customFetch>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof clerkWebhook>>,
   TError,
@@ -93,13 +96,13 @@ export const getClerkWebhookMutationOptions = <
   TContext
 > => {
   const mutationKey = ['clerkWebhook']
-  const { mutation: mutationOptions } = options
+  const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation &&
       'mutationKey' in options.mutation &&
       options.mutation.mutationKey
       ? options
       : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey } }
+    : { mutation: { mutationKey }, request: undefined }
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof clerkWebhook>>,
@@ -107,7 +110,7 @@ export const getClerkWebhookMutationOptions = <
   > = (props) => {
     const { data } = props ?? {}
 
-    return clerkWebhook(data)
+    return clerkWebhook(data, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
@@ -127,6 +130,7 @@ export const useClerkWebhook = <TError = Error, TContext = unknown>(
       { data: ClerkWebhookBody },
       TContext
     >
+    request?: SecondParameter<typeof customFetch>
   },
   queryClient?: QueryClient,
 ): UseMutationResult<

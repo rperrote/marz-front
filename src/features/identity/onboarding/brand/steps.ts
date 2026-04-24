@@ -51,8 +51,8 @@ export const STEPS: BrandOnboardingStep[] = [
     validate: (s) =>
       typeof s.creator_experience === 'string' &&
       s.creator_experience.length > 0 &&
-      typeof s.creator_sourcing_history === 'string' &&
-      s.creator_sourcing_history.length > 0,
+      typeof s.creator_sourcing_intent === 'string' &&
+      s.creator_sourcing_intent.length > 0,
   },
   {
     id: 'budget',

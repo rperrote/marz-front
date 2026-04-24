@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { z } from 'zod'
-import { useSignIn } from '@clerk/tanstack-react-start'
+import { useSignIn, useSignUp } from '@clerk/tanstack-react-start'
 import { useRouter } from '@tanstack/react-router'
 
 import { Button } from '#/components/ui/button'
@@ -10,8 +10,21 @@ import { track } from '#/shared/analytics/track'
 
 const emailSchema = z.string().email('Ingresá un email válido')
 
+function clerkErrorCode(err: unknown): string | undefined {
+  if (typeof err !== 'object' || err == null) return undefined
+  const nested = (err as { errors?: Array<{ code?: string }> }).errors?.[0]
+    ?.code
+  if (nested) return nested
+  return (err as { code?: string }).code
+}
+
+function isIdentifierNotFound(err: unknown): boolean {
+  return clerkErrorCode(err) === 'form_identifier_not_found'
+}
+
 export function MagicLinkRequestForm() {
   const { signIn } = useSignIn()
+  const { signUp } = useSignUp()
   const router = useRouter()
 
   const [email, setEmail] = useState('')
@@ -30,22 +43,30 @@ export function MagicLinkRequestForm() {
 
     setSubmitting(true)
 
+    const verificationUrl = `${window.location.origin}/auth/callback`
+
     try {
-      const createResult = await signIn.create({ identifier: result.data })
-      if (createResult.error) {
-        setError(createResult.error.longMessage ?? createResult.error.message)
-        setSubmitting(false)
-        return
+      const signInCreate = await signIn.create({ identifier: result.data })
+      let pendingError: unknown = signInCreate.error
+
+      if (!pendingError) {
+        const sendLink = await signIn.emailLink.sendLink({
+          emailAddress: result.data,
+          verificationUrl,
+        })
+        pendingError = sendLink.error
       }
 
-      const linkResult = await signIn.emailLink.sendLink({
-        emailAddress: result.data,
-        verificationUrl: `${window.location.origin}/auth/callback`,
-      })
-      if (linkResult.error) {
-        setError(linkResult.error.longMessage ?? linkResult.error.message)
-        setSubmitting(false)
-        return
+      if (pendingError) {
+        if (!isIdentifierNotFound(pendingError)) throw pendingError
+
+        const signUpCreate = await signUp.create({ emailAddress: result.data })
+        if (signUpCreate.error) throw signUpCreate.error
+
+        const sendLink = await signUp.verifications.sendEmailLink({
+          verificationUrl,
+        })
+        if (sendLink.error) throw sendLink.error
       }
 
       track('magic_link_requested', { email: result.data })
@@ -55,10 +76,18 @@ export function MagicLinkRequestForm() {
         search: { email: result.data },
       })
     } catch (err) {
+      const direct = err as { longMessage?: string; message?: string }
+      const nested = (
+        err as { errors?: Array<{ longMessage?: string; message?: string }> }
+      ).errors?.[0]
       const message =
-        err instanceof Error
+        direct.longMessage ??
+        nested?.longMessage ??
+        nested?.message ??
+        direct.message ??
+        (err instanceof Error
           ? err.message
-          : 'Error inesperado. Intentá de nuevo.'
+          : 'Error inesperado. Intentá de nuevo.')
       setError(message)
       setSubmitting(false)
     }
@@ -68,7 +97,7 @@ export function MagicLinkRequestForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="flex w-full flex-col gap-3"
+      className="flex w-full flex-col gap-7"
     >
       <div className="flex flex-col gap-3">
         <Label htmlFor="auth-email" className="text-xs text-muted-foreground">

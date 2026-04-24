@@ -66,6 +66,7 @@ function CreatorOnboardingLayout() {
   const params = useParams({ strict: false })
   const stepId = (params as Record<string, string | undefined>).step
   const currentIndex = stepId ? getStepIndex(stepId) : -1
+  const store = useCreatorOnboardingStore()
 
   if (currentIndex === -1) return null
 
@@ -73,7 +74,6 @@ function CreatorOnboardingLayout() {
   const percent = ((currentIndex + 1) / STEPS.length) * 100
   const stepLabel = `Paso ${currentIndex + 1} de ${STEPS.length}`
 
-  const store = useCreatorOnboardingStore()
   const validate = currentStep.validate
   const hideFooter = currentStep.id === 'confirmation'
 
