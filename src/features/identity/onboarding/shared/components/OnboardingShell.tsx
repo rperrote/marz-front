@@ -15,6 +15,7 @@ interface OnboardingShellProps {
   isLoading?: boolean
   onExit?: () => void
   exitLabel?: string
+  hideFooter?: boolean
   children: ReactNode
   className?: string
 }
@@ -30,6 +31,7 @@ export function OnboardingShell({
   isLoading,
   onExit,
   exitLabel,
+  hideFooter,
   children,
   className,
 }: OnboardingShellProps) {
@@ -49,14 +51,16 @@ export function OnboardingShell({
       >
         {children}
       </main>
-      <OnboardingFooter
-        onBack={onBack}
-        onNext={onNext}
-        nextDisabled={nextDisabled}
-        nextLabel={nextLabel}
-        backLabel={backLabel}
-        isLoading={isLoading}
-      />
+      {!hideFooter && (
+        <OnboardingFooter
+          onBack={onBack}
+          onNext={onNext}
+          nextDisabled={nextDisabled}
+          nextLabel={nextLabel}
+          backLabel={backLabel}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   )
 }

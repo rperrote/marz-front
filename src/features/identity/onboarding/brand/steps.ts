@@ -1,5 +1,21 @@
 import type { ComponentType } from 'react'
 import type { BrandOnboardingState } from './store'
+import {
+  B1IdentityScreen,
+  B2VerticalScreen,
+  B3PrimingSocialProof,
+  B4ObjectiveScreen,
+  B5ExperienceScreen,
+  B6BudgetScreen,
+  B7PrimingMatchPreview,
+  B8TimingScreen,
+  B9ContactScreen,
+  B10PrimingProjection,
+  B11AttributionScreen,
+  B12LoadingScreen,
+  B13PaywallScreen,
+  B14ConfirmationScreen,
+} from './screens'
 
 export interface BrandOnboardingStep {
   id: string
@@ -7,81 +23,95 @@ export interface BrandOnboardingStep {
   validate?: (state: BrandOnboardingState) => boolean
 }
 
-function Placeholder() {
-  return null
-}
-
 export const STEPS: BrandOnboardingStep[] = [
   {
-    id: 'name',
-    component: Placeholder,
+    id: 'identity',
+    component: B1IdentityScreen,
     validate: (s) => typeof s.name === 'string' && s.name.trim().length > 0,
   },
-  { id: 'website', component: Placeholder },
-  { id: 'colors', component: Placeholder },
   {
     id: 'vertical',
-    component: Placeholder,
+    component: B2VerticalScreen,
     validate: (s) => typeof s.vertical === 'string' && s.vertical.length > 0,
   },
   {
-    id: 'marketing-objective',
-    component: Placeholder,
+    id: 'priming-social',
+    component: B3PrimingSocialProof,
+  },
+  {
+    id: 'objective',
+    component: B4ObjectiveScreen,
     validate: (s) =>
       typeof s.marketing_objective === 'string' &&
       s.marketing_objective.length > 0,
   },
   {
-    id: 'creator-experience',
-    component: Placeholder,
+    id: 'experience',
+    component: B5ExperienceScreen,
     validate: (s) =>
       typeof s.creator_experience === 'string' &&
-      s.creator_experience.length > 0,
-  },
-  {
-    id: 'creator-sourcing',
-    component: Placeholder,
-    validate: (s) =>
+      s.creator_experience.length > 0 &&
       typeof s.creator_sourcing_history === 'string' &&
       s.creator_sourcing_history.length > 0,
   },
   {
     id: 'budget',
-    component: Placeholder,
+    component: B6BudgetScreen,
     validate: (s) =>
       typeof s.monthly_budget_range === 'string' &&
       s.monthly_budget_range.length > 0,
   },
   {
+    id: 'priming-match',
+    component: B7PrimingMatchPreview,
+  },
+  {
     id: 'timing',
-    component: Placeholder,
+    component: B8TimingScreen,
     validate: (s) => typeof s.timing === 'string' && s.timing.length > 0,
   },
   {
-    id: 'attribution',
-    component: Placeholder,
-    validate: (s) => s.attribution != null && 'source' in s.attribution,
-  },
-  {
-    id: 'contact-name',
-    component: Placeholder,
+    id: 'contact',
+    component: B9ContactScreen,
     validate: (s) =>
-      typeof s.contact_name === 'string' && s.contact_name.trim().length > 0,
-  },
-  {
-    id: 'contact-title',
-    component: Placeholder,
-    validate: (s) =>
-      typeof s.contact_title === 'string' && s.contact_title.trim().length > 0,
-  },
-  {
-    id: 'contact-whatsapp',
-    component: Placeholder,
-    validate: (s) =>
+      typeof s.contact_name === 'string' &&
+      s.contact_name.trim().length > 0 &&
+      typeof s.contact_title === 'string' &&
+      s.contact_title.trim().length > 0 &&
       typeof s.contact_whatsapp_e164 === 'string' &&
-      /^\+[1-9]\d{1,14}$/.test(s.contact_whatsapp_e164),
+      /^\+[1-9]\d{7,14}$/.test(s.contact_whatsapp_e164),
   },
-  { id: 'review', component: Placeholder },
+  {
+    id: 'priming-projection',
+    component: B10PrimingProjection,
+  },
+  {
+    id: 'attribution',
+    component: B11AttributionScreen,
+    validate: (s) => {
+      if (s.attribution == null || !('source' in s.attribution)) return false
+      if (s.attribution.source === 'referral') {
+        return (
+          'referral_text' in s.attribution &&
+          typeof s.attribution.referral_text === 'string' &&
+          s.attribution.referral_text.trim().length > 0
+        )
+      }
+      return true
+    },
+  },
+  {
+    id: 'loading',
+    component: B12LoadingScreen,
+  },
+  {
+    id: 'paywall',
+    component: B13PaywallScreen,
+  },
+  {
+    id: 'confirmation',
+    component: B14ConfirmationScreen,
+  },
 ]
 
 export function getStepIndex(stepId: string): number {

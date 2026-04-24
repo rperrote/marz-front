@@ -47,7 +47,7 @@ Reglas:
 
 ## Done summary
 
-TBD
+Diff limpio: steps.ts actualiza 14 pasos con imports correctos, tests cubren validaciones, OnboardingShell extiende API con hideFooter sin breaking changes, brand.tsx usa hideFooter para pasos sin footer.
 
 ## Evidence
 

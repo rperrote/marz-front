@@ -75,6 +75,10 @@ function BrandOnboardingLayout() {
 
   const store = useBrandOnboardingStore()
   const validate = currentStep.validate
+  const hideFooter =
+    currentStep.id === 'loading' ||
+    currentStep.id === 'paywall' ||
+    currentStep.id === 'confirmation'
 
   const handleNext = () => {
     if (currentIndex < STEPS.length - 1) {
@@ -123,6 +127,7 @@ function BrandOnboardingLayout() {
       onBack={currentIndex > 0 ? handleBack : undefined}
       onNext={handleNext}
       nextDisabled={validate ? !validate(store) : false}
+      hideFooter={hideFooter}
       onExit={handleExit}
     >
       <Outlet />
