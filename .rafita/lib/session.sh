@@ -102,6 +102,26 @@ except Exception:
 ' "$f" "$role" "$key"
 }
 
+# Replace the UUID for a role with a fresh one (e.g. after "already in use").
+session::regenerate_id() {
+  local task_id="$1" role="$2"
+  local f; f=$(session::_file "$task_id")
+  [[ -f "$f" ]] || return 0
+  session::_py '
+import json,sys,uuid
+try:
+    with open(sys.argv[1]) as fp: d=json.load(fp)
+    v=d.get(sys.argv[2],{})
+    if isinstance(v,dict):
+        v["id"]=str(uuid.uuid4())
+        v["used"]=0
+        d[sys.argv[2]]=v
+        with open(sys.argv[1],"w") as fp: json.dump(d,fp)
+except Exception:
+    pass
+' "$f" "$role"
+}
+
 # Increment the usage counter for a role.
 session::mark_used() {
   local task_id="$1" role="$2"
