@@ -25,7 +25,7 @@ Ruta `/auth/callback` — pantalla transitoria que ejecuta la verificación del 
 
 ## Done summary
 
-TBD
+Ruta, componente y tests implementan correctamente el flujo de verificación de magic link con navegación, analytics, loading state y accesibilidad.
 
 ## Evidence
 

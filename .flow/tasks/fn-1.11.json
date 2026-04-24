@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-24T13:19:43.538214Z",
   "created_at": "2026-04-22T19:14:29.682518Z",
   "depends_on": ["fn-1.8", "fn-1.6"],
   "epic": "fn-1",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Ruta, componente y tests implementan correctamente el flujo de verificaci\u00f3n de magic link con navegaci\u00f3n, analytics, loading state y accesibilidad."
+  },
   "id": "fn-1.11",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.11.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.8 \u2014 Ruta /auth/callback (verify + navigate)",
-  "updated_at": "2026-04-22T21:19:47.066906Z"
+  "updated_at": "2026-04-24T13:33:21.240380Z"
 }

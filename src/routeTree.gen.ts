@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthLinkInvalidRouteImport } from './routes/auth/link-invalid'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
+import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
 import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
 
@@ -70,6 +71,11 @@ const AuthCheckEmailRoute = AuthCheckEmailRouteImport.update({
   path: '/auth/check-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreatorOffersRoute = CreatorOffersRouteImport.update({
   id: '/offers',
   path: '/offers',
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
   '/offers': typeof CreatorOffersRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth/': typeof AuthIndexRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
   '/offers': typeof CreatorOffersRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth': typeof AuthIndexRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_brand/campaigns': typeof BrandCampaignsRoute
   '/_creator/offers': typeof CreatorOffersRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth/': typeof AuthIndexRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/campaigns'
     | '/offers'
+    | '/auth/callback'
     | '/auth/check-email'
     | '/auth/link-invalid'
     | '/auth/'
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/campaigns'
     | '/offers'
+    | '/auth/callback'
     | '/auth/check-email'
     | '/auth/link-invalid'
     | '/auth'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_brand/campaigns'
     | '/_creator/offers'
+    | '/auth/callback'
     | '/auth/check-email'
     | '/auth/link-invalid'
     | '/auth/'
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthLinkInvalidRoute: typeof AuthLinkInvalidRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCheckEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_creator/offers': {
       id: '/_creator/offers'
       path: '/offers'
@@ -292,6 +312,7 @@ const rootRouteChildren: RootRouteChildren = {
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthLinkInvalidRoute: AuthLinkInvalidRoute,
   AuthIndexRoute: AuthIndexRoute,
