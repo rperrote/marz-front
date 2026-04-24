@@ -32,11 +32,8 @@ Conectar el mutator de Orval con el token de Clerk + implementar retry-on-401.
 - [ ] Typecheck OK.
 
 ## Done summary
-
-TBD
-
+Mutator inyecta Bearer token, implementa retry-on-401 con refresh, signOut + navigate en casos irrecuperables, propaga 503 sin cerrar sesión, y está cubierto por tests unitarios. Typecheck OK.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

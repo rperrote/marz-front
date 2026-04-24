@@ -12,6 +12,7 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
 
+import { useClerkTokenProvider } from '#/features/identity/hooks/useClerkTokenProvider'
 import { installBeforeUnloadListener } from '#/shared/analytics/beforeunload'
 import { AppI18nProvider } from '#/shared/i18n/provider'
 import { resolveLocale } from '#/shared/i18n/server'
@@ -44,6 +45,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
 })
 
+function ClerkTokenBridge() {
+  useClerkTokenProvider()
+  return null
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { locale } = Route.useLoaderData()
 
@@ -65,6 +71,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
         <ClerkProvider>
+          <ClerkTokenBridge />
           <AppI18nProvider initialLocale={locale}>{children}</AppI18nProvider>
         </ClerkProvider>
         {import.meta.env.DEV ? (
