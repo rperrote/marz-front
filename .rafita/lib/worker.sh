@@ -82,6 +82,8 @@ worker::run() {
       session::capture_opencode "$task_id" "$role"
     fi
     session::mark_used "$task_id" "$role"
+    local used_after; used_after=$(session::get "$task_id" "$role" "used" 2>/dev/null || echo "?")
+    common::log INFO "worker::run session_mark_used task=${task_id} role=${role} used_after=${used_after} session_file=$(session::_file "$task_id")"
   fi
 
   return $rc
