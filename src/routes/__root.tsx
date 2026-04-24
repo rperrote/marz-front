@@ -14,6 +14,7 @@ import { Toaster } from '#/components/ui/sonner'
 import appCss from '../styles.css?url'
 
 import { useClerkTokenProvider } from '#/features/identity/hooks/useClerkTokenProvider'
+import { MobileRedirectGuard } from '#/features/identity/onboarding/components/MobileRedirectGuard'
 import { installBeforeUnloadListener } from '#/shared/analytics/beforeunload'
 import { AppI18nProvider } from '#/shared/i18n/provider'
 import { resolveLocale } from '#/shared/i18n/server'
@@ -73,6 +74,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="bg-background text-foreground font-sans antialiased">
         <ClerkProvider>
           <ClerkTokenBridge />
+          <MobileRedirectGuard />
           <AppI18nProvider initialLocale={locale}>{children}</AppI18nProvider>
           <Toaster position="bottom-center" />
         </ClerkProvider>

@@ -39,7 +39,7 @@ Detección mobile + ruta `/desktop-only`.
 
 ## Done summary
 
-TBD
+Implementación completa de detección mobile + /desktop-only con 22 tests, hook SSR-safe, redirect client-only en useEffect, y fallback a /auth — todo verificado green.
 
 ## Evidence
 

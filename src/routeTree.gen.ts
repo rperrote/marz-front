@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DsOnboardingRouteImport } from './routes/ds-onboarding'
 import { Route as DsRouteImport } from './routes/ds'
+import { Route as DesktopOnlyRouteImport } from './routes/desktop-only'
 import { Route as CreatorRouteImport } from './routes/_creator'
 import { Route as BrandRouteImport } from './routes/_brand'
 import { Route as IndexRouteImport } from './routes/index'
@@ -48,6 +49,11 @@ const DsOnboardingRoute = DsOnboardingRouteImport.update({
 const DsRoute = DsRouteImport.update({
   id: '/ds',
   path: '/ds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesktopOnlyRoute = DesktopOnlyRouteImport.update({
+  id: '/desktop-only',
+  path: '/desktop-only',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreatorRoute = CreatorRouteImport.update({
@@ -131,6 +137,7 @@ const OnboardingBrandStepRoute = OnboardingBrandStepRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/desktop-only': typeof DesktopOnlyRoute
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/desktop-only': typeof DesktopOnlyRoute
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_brand': typeof BrandRouteWithChildren
   '/_creator': typeof CreatorRouteWithChildren
+  '/desktop-only': typeof DesktopOnlyRoute
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/desktop-only'
     | '/ds'
     | '/ds-onboarding'
     | '/health'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/desktop-only'
     | '/ds'
     | '/ds-onboarding'
     | '/health'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_brand'
     | '/_creator'
+    | '/desktop-only'
     | '/ds'
     | '/ds-onboarding'
     | '/health'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BrandRoute: typeof BrandRouteWithChildren
   CreatorRoute: typeof CreatorRouteWithChildren
+  DesktopOnlyRoute: typeof DesktopOnlyRoute
   DsRoute: typeof DsRoute
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/ds'
       fullPath: '/ds'
       preLoaderRoute: typeof DsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desktop-only': {
+      id: '/desktop-only'
+      path: '/desktop-only'
+      fullPath: '/desktop-only'
+      preLoaderRoute: typeof DesktopOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_creator': {
@@ -467,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BrandRoute: BrandRouteWithChildren,
   CreatorRoute: CreatorRouteWithChildren,
+  DesktopOnlyRoute: DesktopOnlyRoute,
   DsRoute: DsRoute,
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
