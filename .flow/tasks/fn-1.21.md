@@ -22,7 +22,7 @@ Sign out desde shells brand/creator.
 
 ## Done summary
 
-TBD
+SignOutButton con side effects completos, integrado en ambos shells, cubierto por 7 tests.
 
 ## Evidence
 
