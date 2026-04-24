@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# session.sh — persistent CLI sessions per task/role.
-# Claude gets a UUID pre-generated; opencode gets captured after the first
-# successful run. Files live in .rafita/sessions/<task_id>.json so they
-# survive rafita --resume (run_dir changes on resume).
+# session.sh — CLI sessions per task/role, scoped to the current run.
+# Files live in .rafita/runs/<run_id>/sessions/<task_id>.json.
+# Sessions are reused across rounds within the same run; a new run always
+# gets fresh sessions (new UUIDs, used=0).
 
 session::_file() {
   local task_id="$1"
