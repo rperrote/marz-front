@@ -32,7 +32,7 @@ Guards:
 
 ## Done summary
 
-TBD
+Ruta /auth con MagicLinkRequestForm, useAuthGuard, tests de cobertura completa, navegación con state tipado, API Clerk Future correctamente manejada, y accesibilidad verificada.
 
 ## Evidence
 
