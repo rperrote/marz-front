@@ -23,7 +23,8 @@
     "api:sync": "tsx scripts/sync-api.ts",
     "api:generate": "orval",
     "i18n:extract": "lingui extract",
-    "i18n:compile": "lingui compile"
+    "i18n:compile": "lingui compile",
+    "prepare": "husky"
   },
   "dependencies": {
     "@clerk/tanstack-react-start": "^1.1.5",
@@ -72,7 +73,9 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitejs/plugin-react-swc": "^4.3.0",
+    "husky": "^9.1.7",
     "jsdom": "^28.1.0",
+    "lint-staged": "^16.4.0",
     "orval": "^8.8.0",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
@@ -81,6 +84,12 @@
     "vitest": "^3.0.5",
     "vitest-axe": "^0.1.0",
     "yaml": "^2.8.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   },
   "pnpm": {
     "onlyBuiltDependencies": [
