@@ -18,7 +18,7 @@ Ruta `/auth/link-invalid` + componente `MagicExpiredScreen`.
 
 ## Done summary
 
-TBD
+Ruta y componente implementados correctamente, tests cubren analytics, navegación y axe-core.
 
 ## Evidence
 
