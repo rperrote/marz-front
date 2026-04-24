@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-24T01:20:40.965421Z",
   "created_at": "2026-04-22T19:14:28.943726Z",
   "depends_on": [],
   "epic": "fn-1",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Wrapper de analytics tipado con no-op en prod, tests cubriendo track y beforeunload, listener global instalado en root."
+  },
   "id": "fn-1.5",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.5.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.A \u2014 Wrapper de analytics cliente",
-  "updated_at": "2026-04-22T21:18:57.728245Z"
+  "updated_at": "2026-04-24T01:31:34.233590Z"
 }

@@ -12,6 +12,7 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
 
+import { installBeforeUnloadListener } from '#/shared/analytics/beforeunload'
 import { AppI18nProvider } from '#/shared/i18n/provider'
 import { resolveLocale } from '#/shared/i18n/server'
 import { loadCatalog } from '#/shared/i18n/setup'
@@ -45,6 +46,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { locale } = Route.useLoaderData()
+
+  useEffect(() => {
+    installBeforeUnloadListener()
+  }, [])
 
   useEffect(() => {
     if (import.meta.env.DEV) {

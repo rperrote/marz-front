@@ -27,11 +27,8 @@ El solution doc §10.5 lista los eventos que cada pantalla/flow debe emitir. El 
 - [ ] En prod, el wrapper no rompe ni fuga info.
 
 ## Done summary
-
-TBD
-
+Wrapper de analytics tipado con no-op en prod, tests cubriendo track y beforeunload, listener global instalado en root.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:
