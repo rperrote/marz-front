@@ -26,7 +26,7 @@ Guards reales en `_brand.tsx` y `_creator.tsx` basados en `useMe`. Reemplazar st
 
 ## Done summary
 
-TBD
+Guards reales en beforeLoad con cache 30s, analytics, tests de cobertura completa, typecheck y lint verdes.
 
 ## Evidence
 
