@@ -55,7 +55,7 @@ worker::run() {
     local used; used=$(session::get "$task_id" "$role" "used" 2>/dev/null || echo 0)
     [[ -z "$used" ]] && used=0
     session_id=$(session::get "$task_id" "$role" "id" 2>/dev/null || echo "")
-    common::log INFO "worker::run session_check task=${task_id} role=${role} used=${used} session_id=${session_id:-none}"
+    common::log INFO "worker::run session_check task=${task_id} role=${role} used=${used} session_id=${session_id:-none} RAFITA_RUN_DIR=${RAFITA_RUN_DIR:-unset} session_file=$(session::_file "$task_id")"
     if [[ "$used" == "0" ]]; then
       session_mode="new"
     else
