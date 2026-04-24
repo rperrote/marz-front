@@ -28,7 +28,7 @@ Trigger final del onboarding brand — B14 botón "Empezar" dispara `useComplete
 
 ## Done summary
 
-TBD
+Hook de submit con Zod parse, manejo de 422/409/500, invalidación de queries, navegación, analytics, field errors inline en store, reset con limpieza de sessionStorage, y tests unitarios de cobertura completa.
 
 ## Evidence
 

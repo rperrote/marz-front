@@ -9,6 +9,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { useEffect } from 'react'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
+import { Toaster } from '#/components/ui/sonner'
 
 import appCss from '../styles.css?url'
 
@@ -73,6 +74,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <ClerkProvider>
           <ClerkTokenBridge />
           <AppI18nProvider initialLocale={locale}>{children}</AppI18nProvider>
+          <Toaster position="bottom-center" />
         </ClerkProvider>
         {import.meta.env.DEV ? (
           <TanStackDevtools

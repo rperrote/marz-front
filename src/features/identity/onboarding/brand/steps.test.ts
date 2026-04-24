@@ -7,7 +7,10 @@ function makeState(
 ): BrandOnboardingState {
   return {
     currentStepIndex: 0,
+    fieldErrors: {},
     setField: () => {},
+    setFieldErrors: () => {},
+    clearFieldErrors: () => {},
     goTo: () => {},
     reset: () => {},
     ...partial,

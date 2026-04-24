@@ -2,11 +2,11 @@ import { t } from '@lingui/core/macro'
 import { PartyPopper } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { OnboardingSectionTitle } from '#/features/identity/onboarding/shared/components'
+import { useSubmitBrandOnboarding } from '#/features/identity/onboarding/brand/useSubmitBrandOnboarding'
 
 export function B14ConfirmationScreen() {
-  // B14: "Empezar" triggers fn-1.15 (completeBrandOnboarding).
-  // The layout's onNext handles navigation; this screen just renders the CTA.
-  // fn-1.15 will wire up the actual submission.
+  const { submit, isPending } = useSubmitBrandOnboarding()
+
   return (
     <div className="flex w-full flex-col items-center gap-8">
       <div className="flex size-16 items-center justify-center rounded-2xl bg-primary/10">
@@ -20,8 +20,10 @@ export function B14ConfirmationScreen() {
         size="lg"
         className="min-w-[200px]"
         data-testid="onboarding-start-btn"
+        disabled={isPending}
+        onClick={submit}
       >
-        {t`Empezar`}
+        {isPending ? t`Configurando...` : t`Empezar`}
       </Button>
     </div>
   )
