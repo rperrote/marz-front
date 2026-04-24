@@ -29,7 +29,7 @@ Guard:
 
 ## Done summary
 
-TBD
+Layout, store, steps, schema, tests y placeholders de 21 pantallas creator implementados correctamente; sin dead code, sin any, con SSR-safe sessionStorage y cobertura de tests.
 
 ## Evidence
 
