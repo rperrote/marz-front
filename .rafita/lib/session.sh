@@ -1,30 +1,25 @@
 #!/usr/bin/env bash
-# session.sh — persistent CLI sessions per task/role.
-# Claude gets a UUID pre-generated; opencode gets captured after the first
-# successful run. Files live in .rafita/sessions/<task_id>.json so they
-# survive rafita --resume (run_dir changes on resume).
+# session.sh — CLI sessions per task/role, scoped to the current run.
+# Files live in .rafita/runs/<run_id>/sessions/<task_id>.json.
+# Sessions are reused across rounds within the same run; a new run always
+# gets fresh sessions (new UUIDs, used=0).
 
 session::_file() {
   local task_id="$1"
-  printf '%s/sessions/%s.json' "${RAFITA_DIR:-.rafita}" "$task_id"
+  local run_dir="${RAFITA_RUN_DIR:-${RAFITA_DIR:-.rafita}/runs/default}"
+  printf '%s/sessions/%s.json' "$run_dir" "$task_id"
 }
 
-# Run a python snippet that needs args, capturing stdout to a variable.
-# Usage: session::_pyrun <out_var> <script_text> [arg...]
-session::_pyrun() {
-  local out_var="$1"; shift
+# Run a python snippet, printing stdout. Callers capture via $().
+# Usage: session::_py <script_text> [arg...]
+session::_py() {
   local script="$1"; shift
   local tmp; tmp=$(mktemp)
   printf '%s\n' "$script" > "$tmp"
-  local result
-  result=$(python3 "$tmp" "$@" 2>/dev/null)
+  python3 "$tmp" "$@" 2>/dev/null
   rm -f "$tmp"
-  printf -v "$out_var" '%s' "$result"
 }
 
-# Initialize session metadata for a task.
-# Preserves existing session IDs across runs (for --resume and --resume-task).
-# Only generates new IDs for roles that don't have one yet.
 session::task_init() {
   local task_id="$1"
   local f; f=$(session::_file "$task_id")
@@ -34,16 +29,20 @@ session::task_init() {
   local rev_p; rev_p=$(worker::_provider_for_role reviewer)
 
   if [[ -f "$f" ]]; then
-    # File exists: update _run_id but preserve existing session IDs.
-    # Only generate new IDs for empty roles.
-    session::_pyrun _unused '
+    # File exists: if run_id changed, regenerate all IDs (new run = new sessions).
+    # If same run_id, preserve existing IDs (resume within the same run).
+    session::_py '
 import json,sys,uuid
 f,run_id,dev_p,rev_p=sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]
 with open(f) as fp: d=json.load(fp)
+same_run = (d.get("_run_id","") == run_id and bool(run_id))
 d["_run_id"]=run_id
 for role,provider in [("dev",dev_p),("reviewer",rev_p)]:
     v=d.get(role,{})
-    if not isinstance(v,dict) or not v.get("id"):
+    has_id = isinstance(v,dict) and bool(v.get("id"))
+    if same_run and has_id:
+        pass
+    else:
         if provider=="claude":
             d[role]={"provider":"claude","id":str(uuid.uuid4()),"used":0}
         else:
@@ -54,7 +53,7 @@ with open(f,"w") as fp: json.dump(d,fp)
   fi
 
   # Fresh start: create file with empty roles.
-  session::_pyrun _unused '
+  session::_py '
 import json,sys
 f,run_id=sys.argv[1],sys.argv[2]
 with open(f,"w") as fp:
@@ -65,7 +64,7 @@ with open(f,"w") as fp:
   if [[ "$dev_p" == "claude" ]]; then
     local sid
     sid=$(python3 -c 'import uuid; print(uuid.uuid4())' 2>/dev/null || uuidgen)
-    session::_pyrun _unused '
+    session::_py '
 import json,sys
 f,role,sid=sys.argv[1],sys.argv[2],sys.argv[3]
 with open(f) as fp: d=json.load(fp)
@@ -77,7 +76,7 @@ with open(f,"w") as fp: json.dump(d,fp)
   if [[ "$rev_p" == "claude" ]]; then
     local sid
     sid=$(python3 -c 'import uuid; print(uuid.uuid4())' 2>/dev/null || uuidgen)
-    session::_pyrun _unused '
+    session::_py '
 import json,sys
 f,role,sid=sys.argv[1],sys.argv[2],sys.argv[3]
 with open(f) as fp: d=json.load(fp)
@@ -92,8 +91,7 @@ session::get() {
   local task_id="$1" role="$2" key="${3:-id}"
   local f; f=$(session::_file "$task_id")
   [[ -f "$f" ]] || return 0
-  local result
-  session::_pyrun result '
+  session::_py '
 import json,sys
 try:
     with open(sys.argv[1]) as fp: d=json.load(fp)
@@ -102,7 +100,26 @@ try:
 except Exception:
     print("")
 ' "$f" "$role" "$key"
-  printf '%s' "$result"
+}
+
+# Replace the UUID for a role with a fresh one (e.g. after "already in use").
+session::regenerate_id() {
+  local task_id="$1" role="$2"
+  local f; f=$(session::_file "$task_id")
+  [[ -f "$f" ]] || return 0
+  session::_py '
+import json,sys,uuid
+try:
+    with open(sys.argv[1]) as fp: d=json.load(fp)
+    v=d.get(sys.argv[2],{})
+    if isinstance(v,dict):
+        v["id"]=str(uuid.uuid4())
+        v["used"]=0
+        d[sys.argv[2]]=v
+        with open(sys.argv[1],"w") as fp: json.dump(d,fp)
+except Exception:
+    pass
+' "$f" "$role"
 }
 
 # Increment the usage counter for a role.
@@ -110,7 +127,7 @@ session::mark_used() {
   local task_id="$1" role="$2"
   local f; f=$(session::_file "$task_id")
   [[ -f "$f" ]] || return 0
-  session::_pyrun _unused '
+  session::_py '
 import json,sys
 try:
     with open(sys.argv[1]) as fp: d=json.load(fp)
@@ -137,7 +154,7 @@ session::capture_opencode() {
 
   local cwd; cwd=$(pwd)
   local sid
-  session::_pyrun sid '
+  sid=$(session::_py '
 import json,sys
 try:
     data=json.loads(sys.argv[1])
@@ -145,16 +162,15 @@ try:
     for s in data:
         if s.get("cwd")==cwd or s.get("path")==cwd:
             print(s.get("id",""))
-            break
-    else:
-        if data and isinstance(data,list):
-            print(data[0].get("id",""))
+            sys.exit(0)
+    if data and isinstance(data,list):
+        print(data[0].get("id",""))
 except Exception:
     print("")
-' "$sessions_json" "$cwd"
+' "$sessions_json" "$cwd")
   [[ -z "$sid" ]] && return 0
 
-  session::_pyrun _unused '
+  session::_py '
 import json,sys
 f,role,sid=sys.argv[1],sys.argv[2],sys.argv[3]
 with open(f) as fp: d=json.load(fp)

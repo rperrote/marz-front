@@ -38,11 +38,19 @@ export function CreatorHeaderCard({
           <AvatarFallback>{avatarFallback ?? initials(name)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-lg font-semibold text-foreground">{name}</div>
-          <div className="truncate font-mono text-sm text-primary">{handle}</div>
+          <div className="truncate text-lg font-semibold text-foreground">
+            {name}
+          </div>
+          <div className="truncate font-mono text-sm text-primary">
+            {handle}
+          </div>
         </div>
         {onToggle ? (
-          <IconButton shape="circle" aria-label="Toggle creator details" onClick={onToggle}>
+          <IconButton
+            shape="circle"
+            aria-label="Toggle creator details"
+            onClick={onToggle}
+          >
             {collapsed ? <ChevronDown /> : <ChevronUp />}
           </IconButton>
         ) : null}
@@ -52,7 +60,9 @@ export function CreatorHeaderCard({
         <div className="grid grid-cols-3 gap-4 border-t border-border px-4 py-3">
           {stats.map((stat) => (
             <div key={stat.label}>
-              <div className="text-xl font-semibold text-foreground">{stat.value}</div>
+              <div className="text-xl font-semibold text-foreground">
+                {stat.value}
+              </div>
               <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {stat.label}
               </div>

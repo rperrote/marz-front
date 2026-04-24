@@ -31,7 +31,9 @@ export function SidebarItem({
           : 'text-sidebar-foreground hover:bg-sidebar-accent',
       )}
     >
-      <Icon className={cn('size-5 shrink-0', active && 'text-sidebar-primary')} />
+      <Icon
+        className={cn('size-5 shrink-0', active && 'text-sidebar-primary')}
+      />
       {collapsed ? null : <span className="truncate">{label}</span>}
     </button>
   )

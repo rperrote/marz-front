@@ -8,8 +8,8 @@ import { IconButton } from '#/shared/ui/IconButton'
 
 import { BundlePlatformRow } from './BundlePlatformRow'
 import { DeadlineField } from './DeadlineField'
-import { OfferTypeChooser  } from './OfferTypeChooser'
-import type {OfferType} from './OfferTypeChooser';
+import { OfferTypeChooser } from './OfferTypeChooser'
+import type { OfferType } from './OfferTypeChooser'
 import { StageEditor } from './StageEditor'
 import { SummaryTotalRow } from './SummaryTotalRow'
 
@@ -98,10 +98,14 @@ export function SpeedBonusBlock({
       <header className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Zap className="size-5 text-warning" />
-          <span className="text-base font-semibold text-foreground">Speed Bonus</span>
+          <span className="text-base font-semibold text-foreground">
+            Speed Bonus
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Reward faster delivery</span>
+          <span className="text-xs text-muted-foreground">
+            Reward faster delivery
+          </span>
           <Switch checked={enabled} onCheckedChange={onToggle} />
         </div>
       </header>
@@ -109,7 +113,11 @@ export function SpeedBonusBlock({
       {enabled ? (
         <div className="mt-3 space-y-2">
           {tiers.map((tier) => (
-            <TierRow key={tier.id} tier={tier} onRemove={() => onRemoveTier?.(tier.id)} />
+            <TierRow
+              key={tier.id}
+              tier={tier}
+              onRemove={() => onRemoveTier?.(tier.id)}
+            />
           ))}
           <button
             type="button"
@@ -125,7 +133,13 @@ export function SpeedBonusBlock({
   )
 }
 
-function TierRow({ tier, onRemove }: { tier: SpeedBonusTier; onRemove?: () => void }) {
+function TierRow({
+  tier,
+  onRemove,
+}: {
+  tier: SpeedBonusTier
+  onRemove?: () => void
+}) {
   const reward =
     tier.mode === 'percent' ? `+ ${tier.amount}%` : `+$ ${tier.amount}`
   return (
@@ -139,7 +153,9 @@ function TierRow({ tier, onRemove }: { tier: SpeedBonusTier; onRemove?: () => vo
         <ModeToggle active={tier.mode === 'percent'} label="%" />
         <ModeToggle active={tier.mode === 'amount'} label="$" />
       </div>
-      <span className="font-mono text-sm font-semibold text-success">{reward}</span>
+      <span className="font-mono text-sm font-semibold text-success">
+        {reward}
+      </span>
       <IconButton size="sm" aria-label="Remove tier" onClick={onRemove}>
         <Trash2 />
       </IconButton>

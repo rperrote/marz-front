@@ -1,16 +1,11 @@
 import { I18nProvider } from '@lingui/react'
-import { useEffect, useState, createContext, useContext  } from 'react'
+import { useEffect, useState, createContext, useContext } from 'react'
 
-import {
-  DEFAULT_LOCALE,
-  LOCALE_STORAGE_KEY,
-  
-  isLocale
-} from './config'
-import type {Locale} from './config';
-import { i18n, loadCatalog } from './setup'
+import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, isLocale } from './config'
+import type { Locale } from './config'
+import { activateCatalog, i18n, loadCatalog } from './setup'
+import type { Messages } from './setup'
 import { persistLocale } from './server'
-
 
 type I18nContextValue = {
   locale: Locale
@@ -27,13 +22,21 @@ export function useLocale(): I18nContextValue {
 
 type AppI18nProviderProps = {
   initialLocale: Locale
+  initialMessages: Messages
   children: React.ReactNode
 }
 
 export function AppI18nProvider({
   initialLocale,
+  initialMessages,
   children,
 }: AppI18nProviderProps) {
+  useState(() => {
+    if (i18n.locale !== initialLocale) {
+      activateCatalog(initialLocale, initialMessages)
+    }
+  })
+
   const [locale, setLocaleState] = useState<Locale>(initialLocale)
 
   useEffect(() => {

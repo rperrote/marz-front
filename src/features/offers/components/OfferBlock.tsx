@@ -41,13 +41,20 @@ export function OfferBlock({
     <div className="rounded-2xl border border-border bg-card p-4">
       <header className="flex items-center gap-2">
         <span className="text-base font-semibold text-foreground">{title}</span>
-        <span className="font-mono text-xs text-muted-foreground">#{offerId}</span>
+        <span className="font-mono text-xs text-muted-foreground">
+          #{offerId}
+        </span>
         <div className="ml-auto flex items-center gap-2">
           <Badge variant={statusVariant} className="rounded-full">
             {statusLabel}
           </Badge>
           {onToggle ? (
-            <IconButton size="sm" shape="circle" aria-label="Collapse offer" onClick={onToggle}>
+            <IconButton
+              size="sm"
+              shape="circle"
+              aria-label="Collapse offer"
+              onClick={onToggle}
+            >
               <ChevronUp />
             </IconButton>
           ) : null}
@@ -56,7 +63,10 @@ export function OfferBlock({
 
       <dl className="mt-3 space-y-1.5 text-sm">
         {terms.map((term) => (
-          <div key={term.label} className="flex items-baseline justify-between gap-4">
+          <div
+            key={term.label}
+            className="flex items-baseline justify-between gap-4"
+          >
             <dt className="text-muted-foreground">{term.label}</dt>
             <dd
               className={

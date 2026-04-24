@@ -5,7 +5,7 @@ services:
       target: runner
     container_name: marz-front
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       NODE_ENV: production
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}

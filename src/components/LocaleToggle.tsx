@@ -1,6 +1,6 @@
 import { useLocale } from '#/shared/i18n/provider'
-import { SUPPORTED_LOCALES  } from '#/shared/i18n/config'
-import type {Locale} from '#/shared/i18n/config';
+import { SUPPORTED_LOCALES } from '#/shared/i18n/config'
+import type { Locale } from '#/shared/i18n/config'
 
 const LABELS: Record<Locale, string> = {
   es: 'ES',

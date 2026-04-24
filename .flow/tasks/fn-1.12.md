@@ -1,6 +1,7 @@
 # fn-1.12 F.9 — Ruta /auth/kind + KindSelector
 
 ## Description
+
 Ruta `/auth/kind` + componente `KindSelector`.
 
 - Archivo: `src/routes/auth/kind.tsx`.
@@ -18,7 +19,9 @@ Ruta `/auth/kind` + componente `KindSelector`.
   - Requiere session Clerk.
   - Requiere `onboarding_status === 'kind_pending'`. Otro estado → redirect a `redirect_to`.
 - Analytics: `kind_selected` con kind en success.
+
 ## Acceptance
+
 - [ ] Renderiza las 3 tarjetas; agencia deshabilitada.
 - [ ] Click en brand → mutation → navega a `/onboarding/brand`.
 - [ ] Click en creator → mutation → navega a `/onboarding/creator`.
@@ -26,10 +29,13 @@ Ruta `/auth/kind` + componente `KindSelector`.
 - [ ] Guard redirect si `onboarding_status != kind_pending`.
 - [ ] Analytics fire.
 - [ ] Axe-core clean.
+
 ## Done summary
-TBD
+
+Ruta, componente, tests y guards implementados correctamente; fixes de loop, fallback dinámico y refetchQueries aplicados.
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

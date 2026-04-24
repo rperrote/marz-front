@@ -56,15 +56,23 @@ function MobileCardFrame({
   right?: React.ReactNode
   children: React.ReactNode
 }) {
-  const header = headerVariant === 'solid' ? toneHeader[tone].solid : toneHeader[tone].tint
+  const header =
+    headerVariant === 'solid' ? toneHeader[tone].solid : toneHeader[tone].tint
   return (
-    <div className={cn('overflow-hidden rounded-2xl border-2 bg-card', toneBorder[tone])}>
+    <div
+      className={cn(
+        'overflow-hidden rounded-2xl border-2 bg-card',
+        toneBorder[tone],
+      )}
+    >
       <div className={cn('flex items-center gap-2 px-4 py-2.5', header)}>
         <Icon className="size-4" />
         <span className="font-mono text-xs font-semibold uppercase tracking-wider">
           {kicker}
         </span>
-        {right ? <span className="ml-auto text-xs font-mono">{right}</span> : null}
+        {right ? (
+          <span className="ml-auto text-xs font-mono">{right}</span>
+        ) : null}
       </div>
       <div className="p-4">{children}</div>
     </div>
@@ -107,9 +115,14 @@ export function MobileOfferCard({
         <h3 className="text-xl font-semibold text-foreground">{title}</h3>
         <dl className="space-y-2 text-sm">
           {rows.map((row) => (
-            <div key={row.label} className="flex items-baseline justify-between gap-3">
+            <div
+              key={row.label}
+              className="flex items-baseline justify-between gap-3"
+            >
               <dt className="text-muted-foreground">{row.label}</dt>
-              <dd className="font-mono font-semibold text-foreground">{row.value}</dd>
+              <dd className="font-mono font-semibold text-foreground">
+                {row.value}
+              </dd>
             </div>
           ))}
         </dl>
@@ -118,7 +131,12 @@ export function MobileOfferCard({
             <Button className="w-full" size="lg" onClick={onAccept}>
               Accept offer
             </Button>
-            <Button variant="outline" className="w-full" size="lg" onClick={onReject}>
+            <Button
+              variant="outline"
+              className="w-full"
+              size="lg"
+              onClick={onReject}
+            >
               Reject
             </Button>
           </div>
@@ -205,9 +223,14 @@ export function MobilePaymentCard({
         {lines && lines.length > 0 ? (
           <dl className="space-y-1.5 rounded-xl bg-muted p-3 text-sm">
             {lines.map((line) => (
-              <div key={line.label} className="flex items-baseline justify-between gap-3">
+              <div
+                key={line.label}
+                className="flex items-baseline justify-between gap-3"
+              >
                 <dt className="text-muted-foreground">{line.label}</dt>
-                <dd className="font-mono font-semibold text-foreground">{line.amount}</dd>
+                <dd className="font-mono font-semibold text-foreground">
+                  {line.amount}
+                </dd>
               </div>
             ))}
           </dl>

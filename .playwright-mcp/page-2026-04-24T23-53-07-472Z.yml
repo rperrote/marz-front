@@ -1,0 +1,43 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e9]
+        - generic [ref=e19]: Marz
+      - generic [ref=e20]:
+        - heading "Entrá a Marz" [level=1] [ref=e21]
+        - paragraph [ref=e22]: Campañas con creadores, sin agencias ni vueltas.
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: Email
+          - textbox "Email" [ref=e26]:
+            - /placeholder: tu@empresa.com
+        - button "Continuar con email" [ref=e27]
+      - paragraph [ref=e28]: Al continuar aceptás los Términos y la Política de privacidad.
+  - region "Notifications alt+T"
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - button "Select element":
+                      - img
+                - generic:
+                  - generic:
+                    - button "Open comments":
+                      - generic:
+                        - img
+                - generic:
+                  - generic:
+                    - button "Copy all comments":
+                      - img
+              - generic:
+                - button "Disable React Grab" [pressed]
+          - button "Collapse toolbar":
+            - img
+  - button "Open TanStack Devtools" [ref=e29] [cursor=pointer]:
+    - img "TanStack Devtools" [ref=e30]

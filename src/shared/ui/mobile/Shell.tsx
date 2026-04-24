@@ -36,14 +36,25 @@ function WifiGlyph() {
   return (
     <svg width="14" height="10" viewBox="0 0 14 10" aria-hidden>
       <path d="M7 10 L9.5 7.5 A3.5 3.5 0 0 0 4.5 7.5 Z" fill="currentColor" />
-      <path d="M1 4 A8 8 0 0 1 13 4 l-1.5 1.5 A6 6 0 0 0 2.5 5.5 Z" fill="currentColor" />
+      <path
+        d="M1 4 A8 8 0 0 1 13 4 l-1.5 1.5 A6 6 0 0 0 2.5 5.5 Z"
+        fill="currentColor"
+      />
     </svg>
   )
 }
 function BatteryGlyph() {
   return (
     <svg width="22" height="10" viewBox="0 0 22 10" aria-hidden>
-      <rect x="0.5" y="0.5" width="19" height="9" rx="2" fill="none" stroke="currentColor" />
+      <rect
+        x="0.5"
+        y="0.5"
+        width="19"
+        height="9"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+      />
       <rect x="2" y="2" width="15" height="6" rx="1" fill="currentColor" />
       <rect x="20" y="3" width="1.5" height="4" rx="0.5" fill="currentColor" />
     </svg>
@@ -121,7 +132,12 @@ export function MobileBottomTabBar({
               active ? 'text-primary' : 'text-muted-foreground',
             )}
           >
-            <Icon className={cn('size-6', active ? 'text-primary' : 'text-muted-foreground')} />
+            <Icon
+              className={cn(
+                'size-6',
+                active ? 'text-primary' : 'text-muted-foreground',
+              )}
+            />
             {tab.label}
           </button>
         )

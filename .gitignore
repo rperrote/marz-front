@@ -21,3 +21,6 @@ bun.lockb
 .rafita/state.json
 .rafita/plans/
 .rafita/sessions/
+test-results/
+playwright-report/
+playwright/.cache/

@@ -36,7 +36,9 @@ export function BundlePlatformRow({
         <Icon className="size-5 text-muted-foreground" />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-foreground">{label}</div>
+        <div className="truncate text-sm font-semibold text-foreground">
+          {label}
+        </div>
         <div className="truncate text-xs text-muted-foreground">{format}</div>
       </div>
       <div className="flex items-center gap-2 rounded-full bg-muted pl-3 pr-1">

@@ -1,10 +1,7 @@
 import { Film, Timer, Upload } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
-import {
-  SystemEventCard,
-  VideoPlaceholder,
-} from '#/shared/ui/SystemEventCard'
+import { SystemEventCard, VideoPlaceholder } from '#/shared/ui/SystemEventCard'
 
 interface DraftSubmittedCardBaseProps {
   message: string

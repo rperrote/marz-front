@@ -8,7 +8,7 @@
   "id": "fn-1.1",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.1.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.0a \u2014 OpenAPI spec.json escrito a mano (base Orval)",
   "updated_at": "2026-04-22T20:52:13.814144Z"
 }

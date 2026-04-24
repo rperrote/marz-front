@@ -53,7 +53,8 @@ export function OfferAcceptedCard(props: OfferAcceptedCardProps) {
             {props.creatorName} accepted the offer
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {props.creatorName.split(' ')[0]} is preparing the draft. Deadline is {props.deadline}.
+            {props.creatorName.split(' ')[0]} is preparing the draft. Deadline
+            is {props.deadline}.
           </p>
         </div>
       )}

@@ -9,7 +9,11 @@ export default defineConfig({
     {
       path: '<rootDir>/src/shared/i18n/locales/{locale}/messages',
       include: ['src'],
-      exclude: ['**/node_modules/**', '**/*.gen.ts', 'src/shared/api/generated/**'],
+      exclude: [
+        '**/node_modules/**',
+        '**/*.gen.ts',
+        'src/shared/api/generated/**',
+      ],
     },
   ],
   format: 'po',

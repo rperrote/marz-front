@@ -1,6 +1,7 @@
 # fn-1.15 F.12 — Trigger final brand (useCompleteBrandOnboarding)
 
 ## Description
+
 Trigger final del onboarding brand — B14 botón "Empezar" dispara `useCompleteBrandOnboarding`.
 
 - Wire del botón en `B14ConfirmationScreen`.
@@ -15,17 +16,22 @@ Trigger final del onboarding brand — B14 botón "Empezar" dispara `useComplete
   - On 422 `validation_failed`: mapea `field_errors` a mensajes inline y navega al primer paso con error.
   - On 409 `invalid_state`: refetch `useMe` + navigate a `redirect_to`.
   - Otros errores: toast genérico + mantiene en B14 (botón re-habilita).
+
 ## Acceptance
+
 - [ ] Happy path brand e2e: recorrer los 14 pasos → B14 → submit → 200 → home brand.
 - [ ] 422 con `field_errors` en `vertical` → navega a B2 con error inline.
 - [ ] 409 `invalid_state` → refetch `useMe` + navigate sin loop.
 - [ ] Error genérico (500) → toast + botón re-clickeable.
 - [ ] Store limpiado en success (sessionStorage ya no tiene `marz-brand-onboarding`).
 - [ ] Analytics fire.
+
 ## Done summary
-TBD
+
+Hook de submit con Zod parse, manejo de 422/409/500, invalidación de queries, navegación, analytics, field errors inline en store, reset con limpieza de sessionStorage, y tests unitarios de cobertura completa.
 
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

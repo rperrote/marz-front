@@ -1,17 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-24T17:17:48.883748Z",
   "created_at": "2026-04-22T19:14:30.773601Z",
-  "depends_on": [
-    "fn-1.19",
-    "fn-1.5"
-  ],
+  "depends_on": ["fn-1.19", "fn-1.5"],
   "epic": "fn-1",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "SignOutButton con side effects completos, integrado en ambos shells, cubierto por 7 tests."
+  },
   "id": "fn-1.21",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.21.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.18 \u2014 Sign out desde shells",
-  "updated_at": "2026-04-23T13:15:42.827699Z"
+  "updated_at": "2026-04-24T17:30:33.778280Z"
 }

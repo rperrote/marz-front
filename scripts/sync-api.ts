@@ -1,18 +1,33 @@
 import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parse as parseYaml } from 'yaml'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+
+// load .env.local if present
+try {
+  const envLocal = readFileSync(resolve(root, '.env.local'), 'utf-8')
+  for (const line of envLocal.split('\n')) {
+    const match = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/)
+    if (match?.[1] && match[2] !== undefined)
+      process.env[match[1]] ??= match[2].replace(/^['"]|['"]$/g, '')
+  }
+} catch {
+  // no .env.local, continue
+}
+
 const specPath = resolve(root, 'openapi/spec.json')
 
-const apiUrl = process.env.VITE_API_URL ?? process.env.API_URL
+const apiUrl = process.env.API_URL ?? process.env.VITE_API_URL
 if (!apiUrl) {
-  console.error('VITE_API_URL (or API_URL) env var is required')
+  console.error('API_URL (or VITE_API_URL) env var is required')
   process.exit(1)
 }
 
-const specPathSegment = process.env.OPENAPI_PATH ?? '/openapi.json'
+const specPathSegment = process.env.OPENAPI_PATH ?? '/openapi.yaml'
 const specUrl = `${apiUrl.replace(/\/$/, '')}${specPathSegment}`
 
 console.log(`[sync-api] fetching ${specUrl}`)
@@ -22,7 +37,9 @@ if (!res.ok) {
   process.exit(1)
 }
 
-const spec = await res.json()
+const text = await res.text()
+const contentType = res.headers.get('content-type') ?? ''
+const spec = contentType.includes('json') ? JSON.parse(text) : parseYaml(text)
 await mkdir(dirname(specPath), { recursive: true })
 await writeFile(specPath, JSON.stringify(spec, null, 2))
 console.log(`[sync-api] spec written to ${specPath}`)

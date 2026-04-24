@@ -76,6 +76,7 @@ Un `Account` es `brand` o `creator`, nunca ambos (ver glosario + `architecture/b
 Cada grupo monta su `Shell` (`BrandShell`, `CreatorShell` en `features/identity/components/`). Los shells son organismos distintos porque son **productos conceptualmente distintos** — brand tiene workspace switcher y items Campaigns/Influencers/Payments, creator no tiene switcher y tiene Offers/Deliverables/Earnings. No son "sidebar con otros items", son dos layouts.
 
 Cuando agregues una ruta nueva:
+
 - Pertenece a brand → `src/routes/_brand/<nombre>.tsx`
 - Pertenece a creator → `src/routes/_creator/<nombre>.tsx`
 - Es pública (login, signup) → `src/routes/<nombre>.tsx` en la raíz
@@ -97,6 +98,7 @@ pnpm api:generate      # regenera desde openapi/spec.json local (sin refetch)
 - **`src/shared/api/generated/zod/`** — schemas Zod para validar requests/responses.
 
 **Committeamos `src/shared/api/generated/` y `openapi/spec.json`.** Razones:
+
 1. Reproducibilidad: el tag del front apunta a un spec fijo, independiente de cambios en dev.
 2. Desacople de deploys: front puede mergear aunque dev esté caído.
 3. Diff review: el PR muestra cambios de contrato en texto plano antes de que entren.
@@ -104,6 +106,7 @@ pnpm api:generate      # regenera desde openapi/spec.json local (sin refetch)
 `.gitattributes` marca los generados como `linguist-generated=true` para que GitHub colapse los diffs.
 
 **Cuándo regenerar:**
+
 - Siempre después de que el backend mergea un cambio de contrato (`pnpm api:sync` → commit).
 - Antes de abrir un PR si la feature depende de endpoints nuevos.
 

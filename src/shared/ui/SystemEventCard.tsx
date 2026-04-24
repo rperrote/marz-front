@@ -3,7 +3,12 @@ import type { ReactNode } from 'react'
 
 import { cn } from '#/lib/utils'
 
-export type EventCardTone = 'info' | 'success' | 'warning' | 'destructive' | 'neutral'
+export type EventCardTone =
+  | 'info'
+  | 'success'
+  | 'warning'
+  | 'destructive'
+  | 'neutral'
 
 /**
  * Header variant: `tint` (muted bg + colored kicker text) vs `solid` (full bg
@@ -82,7 +87,9 @@ export function StatTile({ label, value }: { label: string; value: string }) {
       <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </div>
-      <div className="mt-0.5 text-xl font-semibold text-foreground">{value}</div>
+      <div className="mt-0.5 text-xl font-semibold text-foreground">
+        {value}
+      </div>
     </div>
   )
 }

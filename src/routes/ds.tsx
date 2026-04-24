@@ -248,17 +248,27 @@ function DesignSystemPage() {
         <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <div>
-              <h1 className="text-xl font-semibold tracking-tight">Marz · Design System</h1>
+              <h1 className="text-xl font-semibold tracking-tight">
+                Marz · Design System
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Atoms · Molecules · Reusable components — synced with{' '}
-                <code className="rounded bg-muted px-1.5 py-0.5 text-xs">marz-design/marzv2.pen</code>
+                <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
+                  marz-design/marzv2.pen
+                </code>
               </p>
             </div>
             <div className="flex items-center gap-3">
               <nav className="hidden gap-4 text-sm text-muted-foreground md:flex">
-                <a href="#atoms" className="hover:text-foreground">Atoms</a>
-                <a href="#molecules" className="hover:text-foreground">Molecules</a>
-                <a href="#reusable" className="hover:text-foreground">Reusable</a>
+                <a href="#atoms" className="hover:text-foreground">
+                  Atoms
+                </a>
+                <a href="#molecules" className="hover:text-foreground">
+                  Molecules
+                </a>
+                <a href="#reusable" className="hover:text-foreground">
+                  Reusable
+                </a>
               </nav>
               <ThemeToggle />
             </div>
@@ -336,7 +346,10 @@ function AtomsSection() {
       <TokenGroup title="Typography — font-size">
         <div className="space-y-3">
           {fontSizeTokens.map(({ name, px }) => (
-            <div key={name} className="flex items-baseline gap-4 border-b border-border pb-2">
+            <div
+              key={name}
+              className="flex items-baseline gap-4 border-b border-border pb-2"
+            >
               <span
                 className="font-sans text-foreground"
                 style={{ fontSize: `var(--font-size-${name})` }}
@@ -354,7 +367,10 @@ function AtomsSection() {
       <TokenGroup title="Typography — font-weight">
         <div className="space-y-2">
           {fontWeightTokens.map(({ name, value }) => (
-            <div key={name} className="flex items-baseline gap-4 border-b border-border pb-2">
+            <div
+              key={name}
+              className="flex items-baseline gap-4 border-b border-border pb-2"
+            >
               <span className="text-xl" style={{ fontWeight: value }}>
                 The quick brown fox
               </span>
@@ -390,11 +406,15 @@ function AtomsSection() {
         <div className="space-y-2">
           <div className="flex items-baseline gap-4">
             <span className="font-sans text-xl">Marz · Geist Sans</span>
-            <span className="ml-auto font-mono text-xs text-muted-foreground">--font-sans</span>
+            <span className="ml-auto font-mono text-xs text-muted-foreground">
+              --font-sans
+            </span>
           </div>
           <div className="flex items-baseline gap-4">
             <span className="font-mono text-xl">Marz · Geist Mono</span>
-            <span className="ml-auto font-mono text-xs text-muted-foreground">--font-mono</span>
+            <span className="ml-auto font-mono text-xs text-muted-foreground">
+              --font-mono
+            </span>
           </div>
         </div>
       </TokenGroup>
@@ -443,7 +463,9 @@ function MoleculesSection() {
           <Button size="sm">Small</Button>
           <Button>Default</Button>
           <Button size="lg">Large</Button>
-          <Button size="icon" aria-label="icon">★</Button>
+          <Button size="icon" aria-label="icon">
+            ★
+          </Button>
         </div>
       </TokenGroup>
 
@@ -469,7 +491,9 @@ function MoleculesSection() {
               <Avatar className={size}>
                 <AvatarFallback>MZ</AvatarFallback>
               </Avatar>
-              <span className="font-mono text-xs text-muted-foreground">{label}</span>
+              <span className="font-mono text-xs text-muted-foreground">
+                {label}
+              </span>
             </div>
           ))}
         </div>
@@ -575,14 +599,30 @@ function ReusableSection() {
 
       <ShowcaseGroup title="Chat · event bubbles" context="features/chat">
         <div className="flex flex-wrap gap-3">
-          <EventBubble severity="info" direction="out">Draft submitted</EventBubble>
-          <EventBubble severity="info" direction="in">Draft submitted</EventBubble>
-          <EventBubble severity="success" direction="out">YouTube link approved</EventBubble>
-          <EventBubble severity="success" direction="in">YouTube link approved</EventBubble>
-          <EventBubble severity="warning" direction="out">Awaiting review</EventBubble>
-          <EventBubble severity="warning" direction="in">Awaiting review</EventBubble>
-          <EventBubble severity="destructive" direction="out">Draft rejected — changes requested</EventBubble>
-          <EventBubble severity="destructive" direction="in">Draft rejected — changes requested</EventBubble>
+          <EventBubble severity="info" direction="out">
+            Draft submitted
+          </EventBubble>
+          <EventBubble severity="info" direction="in">
+            Draft submitted
+          </EventBubble>
+          <EventBubble severity="success" direction="out">
+            YouTube link approved
+          </EventBubble>
+          <EventBubble severity="success" direction="in">
+            YouTube link approved
+          </EventBubble>
+          <EventBubble severity="warning" direction="out">
+            Awaiting review
+          </EventBubble>
+          <EventBubble severity="warning" direction="in">
+            Awaiting review
+          </EventBubble>
+          <EventBubble severity="destructive" direction="out">
+            Draft rejected — changes requested
+          </EventBubble>
+          <EventBubble severity="destructive" direction="in">
+            Draft rejected — changes requested
+          </EventBubble>
         </div>
       </ShowcaseGroup>
 
@@ -594,10 +634,7 @@ function ReusableSection() {
             online
             unread
           />
-          <ChatRailItem
-            name="Nova Flux"
-            preview="Got it — rendering now"
-          />
+          <ChatRailItem name="Nova Flux" preview="Got it — rendering now" />
           <ChatRailItem
             name="Terra Collective"
             preview="Final cut attached ⬇"
@@ -639,12 +676,24 @@ function ReusableSection() {
 
       <ShowcaseGroup title="Icon button" context="shared/ui">
         <div className="flex items-center gap-3">
-          <IconButton aria-label="view"><Eye /></IconButton>
-          <IconButton variant="outline" aria-label="view outline"><Eye /></IconButton>
-          <IconButton variant="solid" aria-label="view solid"><Eye /></IconButton>
-          <IconButton shape="circle" aria-label="close circle"><XIcon /></IconButton>
-          <IconButton size="sm" aria-label="small"><Eye /></IconButton>
-          <IconButton size="lg" aria-label="large"><Eye /></IconButton>
+          <IconButton aria-label="view">
+            <Eye />
+          </IconButton>
+          <IconButton variant="outline" aria-label="view outline">
+            <Eye />
+          </IconButton>
+          <IconButton variant="solid" aria-label="view solid">
+            <Eye />
+          </IconButton>
+          <IconButton shape="circle" aria-label="close circle">
+            <XIcon />
+          </IconButton>
+          <IconButton size="sm" aria-label="small">
+            <Eye />
+          </IconButton>
+          <IconButton size="lg" aria-label="large">
+            <Eye />
+          </IconButton>
         </div>
       </ShowcaseGroup>
 
@@ -656,7 +705,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Campaign workspace tabs" context="features/campaigns">
+      <ShowcaseGroup
+        title="Campaign workspace tabs"
+        context="features/campaigns"
+      >
         <CampaignWorkspaceTabs
           tabs={[
             { id: 'discovery', label: 'Discovery', icon: Compass },
@@ -668,11 +720,17 @@ function ReusableSection() {
         />
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Request changes modal" context="features/deliverables">
+      <ShowcaseGroup
+        title="Request changes modal"
+        context="features/deliverables"
+      >
         <RequestChangesModal title="YouTube Video · Luminal Studio" inline />
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Offer card · received / sent" context="features/offers">
+      <ShowcaseGroup
+        title="Offer card · received / sent"
+        context="features/offers"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <OfferCard
             variant="received"
@@ -706,7 +764,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Offer accepted · creator / brand" context="features/offers">
+      <ShowcaseGroup
+        title="Offer accepted · creator / brand"
+        context="features/offers"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <OfferAcceptedCard audience="creator" deadline="Oct 12" />
           <OfferAcceptedCard
@@ -717,7 +778,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Draft submitted · creator / brand" context="features/deliverables">
+      <ShowcaseGroup
+        title="Draft submitted · creator / brand"
+        context="features/deliverables"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <DraftSubmittedCard
             audience="creator"
@@ -736,7 +800,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Draft submitted · portrait (Reel / Short)" context="features/deliverables">
+      <ShowcaseGroup
+        title="Draft submitted · portrait (Reel / Short)"
+        context="features/deliverables"
+      >
         <div className="max-w-xs">
           <DraftSubmittedCard
             audience="brand"
@@ -760,7 +827,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Link submitted · creator / brand" context="features/deliverables">
+      <ShowcaseGroup
+        title="Link submitted · creator / brand"
+        context="features/deliverables"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <LinkSubmittedCard
             audience="creator"
@@ -778,7 +848,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Request changes card" context="features/deliverables">
+      <ShowcaseGroup
+        title="Request changes card"
+        context="features/deliverables"
+      >
         <div className="max-w-md">
           <RequestChangesCard
             intro="The video looks good overall but we need:"
@@ -791,7 +864,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Payment card · received / sent" context="features/payments">
+      <ShowcaseGroup
+        title="Payment card · received / sent"
+        context="features/payments"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <PaymentCard audience="received" amount="$4,575.00" />
           <PaymentCard audience="sent" amount="$4,575.00" />
@@ -805,8 +881,16 @@ function ReusableSection() {
             title="YouTube Video"
             status="draft_submitted"
             drafts={[
-              { filename: 'draft_v1.mp4', duration: '3:24', status: 'changes_requested' },
-              { filename: 'draft_v2.mp4', duration: '3:22', status: 'in_review' },
+              {
+                filename: 'draft_v1.mp4',
+                duration: '3:24',
+                status: 'changes_requested',
+              },
+              {
+                filename: 'draft_v2.mp4',
+                duration: '3:22',
+                status: 'in_review',
+              },
             ]}
           />
           <DeliverableCard
@@ -818,29 +902,61 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Stage card · expanded / collapsed" context="features/deliverables">
+      <ShowcaseGroup
+        title="Stage card · expanded / collapsed"
+        context="features/deliverables"
+      >
         <div className="space-y-3">
-          <StageCard stageNumber={1} name="Launch week" deadline="Oct 12" status="active">
+          <StageCard
+            stageNumber={1}
+            name="Launch week"
+            deadline="Oct 12"
+            status="active"
+          >
             <DeliverableCard
               platform="youtube"
               title="YouTube Video"
               status="draft_submitted"
               drafts={[
-                { filename: 'draft_v1.mp4', duration: '3:24', status: 'changes_requested' },
-                { filename: 'draft_v2.mp4', duration: '3:22', status: 'in_review' },
+                {
+                  filename: 'draft_v1.mp4',
+                  duration: '3:24',
+                  status: 'changes_requested',
+                },
+                {
+                  filename: 'draft_v2.mp4',
+                  duration: '3:22',
+                  status: 'in_review',
+                },
               ]}
             />
           </StageCard>
-          <StageCard stageNumber={2} name="Follow-up week" deadline="Oct 20" status="upcoming" />
-          <StageCard stageNumber={3} name="Closing week" deadline="Nov 5" status="done" />
+          <StageCard
+            stageNumber={2}
+            name="Follow-up week"
+            deadline="Oct 20"
+            status="upcoming"
+          />
+          <StageCard
+            stageNumber={3}
+            name="Closing week"
+            deadline="Nov 5"
+            status="done"
+          />
         </div>
       </ShowcaseGroup>
 
       <ShowcaseGroup title="Brand header card" context="features/identity">
-        <BrandHeaderCard name="Marz Brand" meta="Consumer electronics · 85K followers" />
+        <BrandHeaderCard
+          name="Marz Brand"
+          meta="Consumer electronics · 85K followers"
+        />
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Creator header card · collapsed / expanded" context="features/identity">
+      <ShowcaseGroup
+        title="Creator header card · collapsed / expanded"
+        context="features/identity"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <CreatorHeaderCard
             name="Luminal Studio"
@@ -859,7 +975,10 @@ function ReusableSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Offer block · current offer" context="features/offers">
+      <ShowcaseGroup
+        title="Offer block · current offer"
+        context="features/offers"
+      >
         <div className="max-w-md">
           <OfferBlock
             title="Current Offer"
@@ -868,7 +987,11 @@ function ReusableSection() {
             terms={[
               { label: 'Budget', value: '$4,500.00' },
               { label: 'Deadline', value: 'Oct 12, 2024' },
-              { label: 'Speed bonus', value: '+15% within 48h', tone: 'accent' },
+              {
+                label: 'Speed bonus',
+                value: '+15% within 48h',
+                tone: 'accent',
+              },
             ]}
             sectionLabel="Deliverables"
           >
@@ -877,8 +1000,16 @@ function ReusableSection() {
               title="YouTube Video"
               status="draft_submitted"
               drafts={[
-                { filename: 'draft_v1.mp4', duration: '3:24', status: 'changes_requested' },
-                { filename: 'draft_v2.mp4', duration: '3:22', status: 'in_review' },
+                {
+                  filename: 'draft_v1.mp4',
+                  duration: '3:24',
+                  status: 'changes_requested',
+                },
+                {
+                  filename: 'draft_v2.mp4',
+                  duration: '3:22',
+                  status: 'in_review',
+                },
               ]}
             />
           </OfferBlock>
@@ -889,17 +1020,33 @@ function ReusableSection() {
         <div className="max-w-md">
           <ArchivedOffersList
             offers={[
-              { offerId: 'OFR-2801', amount: '$2,800', date: 'Sep 14, 2024', status: 'paid' },
-              { offerId: 'OFR-2650', amount: '$3,200', date: 'Jul 02, 2024', status: 'paid' },
+              {
+                offerId: 'OFR-2801',
+                amount: '$2,800',
+                date: 'Sep 14, 2024',
+                status: 'paid',
+              },
+              {
+                offerId: 'OFR-2650',
+                amount: '$3,200',
+                date: 'Jul 02, 2024',
+                status: 'paid',
+              },
             ]}
           />
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Context panel · creator view (brand context)" context="features/identity">
+      <ShowcaseGroup
+        title="Context panel · creator view (brand context)"
+        context="features/identity"
+      >
         <ContextPanel
           headerSlot={
-            <BrandHeaderCard name="Marz Brand" meta="Consumer electronics · 85K followers" />
+            <BrandHeaderCard
+              name="Marz Brand"
+              meta="Consumer electronics · 85K followers"
+            />
           }
           offerSlot={
             <OfferBlock
@@ -909,7 +1056,11 @@ function ReusableSection() {
               terms={[
                 { label: 'Budget', value: '$4,500.00' },
                 { label: 'Deadline', value: 'Oct 12, 2024' },
-                { label: 'Speed bonus', value: '+15% within 48h', tone: 'accent' },
+                {
+                  label: 'Speed bonus',
+                  value: '+15% within 48h',
+                  tone: 'accent',
+                },
               ]}
               sectionLabel="Deliverables"
             >
@@ -918,8 +1069,16 @@ function ReusableSection() {
                 title="YouTube Video"
                 status="draft_submitted"
                 drafts={[
-                  { filename: 'draft_v1.mp4', duration: '3:24', status: 'changes_requested' },
-                  { filename: 'draft_v2.mp4', duration: '3:22', status: 'in_review' },
+                  {
+                    filename: 'draft_v1.mp4',
+                    duration: '3:24',
+                    status: 'changes_requested',
+                  },
+                  {
+                    filename: 'draft_v2.mp4',
+                    duration: '3:22',
+                    status: 'in_review',
+                  },
                 ]}
               />
             </OfferBlock>
@@ -927,15 +1086,28 @@ function ReusableSection() {
           archiveSlot={
             <ArchivedOffersList
               offers={[
-                { offerId: 'OFR-2801', amount: '$2,800', date: 'Sep 14, 2024', status: 'paid' },
-                { offerId: 'OFR-2650', amount: '$3,200', date: 'Jul 02, 2024', status: 'paid' },
+                {
+                  offerId: 'OFR-2801',
+                  amount: '$2,800',
+                  date: 'Sep 14, 2024',
+                  status: 'paid',
+                },
+                {
+                  offerId: 'OFR-2650',
+                  amount: '$3,200',
+                  date: 'Jul 02, 2024',
+                  status: 'paid',
+                },
               ]}
             />
           }
         />
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Context panel · brand view (creator context, expanded)" context="features/identity">
+      <ShowcaseGroup
+        title="Context panel · brand view (creator context, expanded)"
+        context="features/identity"
+      >
         <ContextPanel
           headerSlot={
             <CreatorHeaderCard
@@ -956,22 +1128,45 @@ function ReusableSection() {
               terms={[
                 { label: 'Budget', value: '$4,500.00' },
                 { label: 'Deadline', value: 'Oct 12, 2024' },
-                { label: 'Speed bonus', value: '+15% within 48h', tone: 'accent' },
+                {
+                  label: 'Speed bonus',
+                  value: '+15% within 48h',
+                  tone: 'accent',
+                },
               ]}
               sectionLabel="Stages"
             >
-              <StageCard stageNumber={1} name="Launch week" deadline="Oct 5" status="done" />
-              <StageCard stageNumber={2} name="Follow-up week" deadline="Oct 12" status="active">
+              <StageCard
+                stageNumber={1}
+                name="Launch week"
+                deadline="Oct 5"
+                status="done"
+              />
+              <StageCard
+                stageNumber={2}
+                name="Follow-up week"
+                deadline="Oct 12"
+                status="active"
+              >
                 <DeliverableCard
                   platform="youtube"
                   title="YouTube Video"
                   status="draft_submitted"
                   drafts={[
-                    { filename: 'draft_v1.mp4', duration: '3:24', status: 'changes_requested' },
+                    {
+                      filename: 'draft_v1.mp4',
+                      duration: '3:24',
+                      status: 'changes_requested',
+                    },
                   ]}
                 />
               </StageCard>
-              <StageCard stageNumber={3} name="Holiday content" deadline="Dec 1" status="upcoming" />
+              <StageCard
+                stageNumber={3}
+                name="Holiday content"
+                deadline="Dec 1"
+                status="upcoming"
+              />
             </OfferBlock>
           }
         />
@@ -997,9 +1192,24 @@ function ReusableSection() {
 
       <ShowcaseGroup title="Bundle platform row" context="features/offers">
         <div className="max-w-xl space-y-2">
-          <BundlePlatformRow platform="youtube" label="YouTube" format="Long-form video" amount={2500} />
-          <BundlePlatformRow platform="instagram" label="Instagram Reels" format="Short-form vertical" amount={1200} />
-          <BundlePlatformRow platform="tiktok" label="TikTok" format="Short-form vertical" amount={800} />
+          <BundlePlatformRow
+            platform="youtube"
+            label="YouTube"
+            format="Long-form video"
+            amount={2500}
+          />
+          <BundlePlatformRow
+            platform="instagram"
+            label="Instagram Reels"
+            format="Short-form vertical"
+            amount={1200}
+          />
+          <BundlePlatformRow
+            platform="tiktok"
+            label="TikTok"
+            format="Short-form vertical"
+            amount={800}
+          />
         </div>
       </ShowcaseGroup>
 
@@ -1012,7 +1222,11 @@ function ReusableSection() {
       <ShowcaseGroup title="Summary total row" context="features/offers">
         <div className="max-w-md space-y-2">
           <SummaryTotalRow label="Bundle total" amount="$4,500.00" />
-          <SummaryTotalRow label="Campaign total" amount="$12,500.00" emphasis="strong" />
+          <SummaryTotalRow
+            label="Campaign total"
+            amount="$12,500.00"
+            emphasis="strong"
+          />
         </div>
       </ShowcaseGroup>
 
@@ -1024,7 +1238,12 @@ function ReusableSection() {
             deadline="Oct 12"
             subtotal="$2,500"
           >
-            <BundlePlatformRow platform="youtube" label="YouTube video" format="Long-form" amount={1800} />
+            <BundlePlatformRow
+              platform="youtube"
+              label="YouTube video"
+              format="Long-form"
+              amount={1800}
+            />
           </StageEditor>
         </div>
       </ShowcaseGroup>
@@ -1047,11 +1266,15 @@ function ReusableSection() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="mb-2 block text-sm font-semibold">Budget (USD)</Label>
+              <Label className="mb-2 block text-sm font-semibold">
+                Budget (USD)
+              </Label>
               <DeadlineField value="$4,500.00" />
             </div>
             <div>
-              <Label className="mb-2 block text-sm font-semibold">Deadline</Label>
+              <Label className="mb-2 block text-sm font-semibold">
+                Deadline
+              </Label>
               <DeadlineField value="Oct 12, 2024" />
             </div>
           </div>
@@ -1059,7 +1282,13 @@ function ReusableSection() {
           <SpeedBonusBlock
             enabled
             tiers={[
-              { id: 't1', value: 48, unit: 'hours', mode: 'percent', amount: 15 },
+              {
+                id: 't1',
+                value: 48,
+                unit: 'hours',
+                mode: 'percent',
+                amount: 15,
+              },
               { id: 't2', value: 7, unit: 'days', mode: 'amount', amount: 450 },
             ]}
           />
@@ -1071,14 +1300,33 @@ function ReusableSection() {
           <div className="space-y-3 rounded-2xl bg-muted p-4">
             <div className="flex items-baseline justify-between">
               <div>
-                <div className="font-semibold text-foreground">Bundle Deliverables</div>
-                <div className="text-xs text-muted-foreground">1 video per platform</div>
+                <div className="font-semibold text-foreground">
+                  Bundle Deliverables
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  1 video per platform
+                </div>
               </div>
               <Badge className="rounded-full">3 platforms</Badge>
             </div>
-            <BundlePlatformRow platform="youtube" label="YouTube" format="Long-form video" amount={2500} />
-            <BundlePlatformRow platform="instagram" label="Instagram Reels" format="Short-form vertical" amount={1200} />
-            <BundlePlatformRow platform="tiktok" label="TikTok" format="Short-form vertical" amount={800} />
+            <BundlePlatformRow
+              platform="youtube"
+              label="YouTube"
+              format="Long-form video"
+              amount={2500}
+            />
+            <BundlePlatformRow
+              platform="instagram"
+              label="Instagram Reels"
+              format="Short-form vertical"
+              amount={1200}
+            />
+            <BundlePlatformRow
+              platform="tiktok"
+              label="TikTok"
+              format="Short-form vertical"
+              amount={800}
+            />
             <SummaryTotalRow label="Bundle total" amount="$4,500.00" />
           </div>
           <div>
@@ -1091,13 +1339,37 @@ function ReusableSection() {
       <ShowcaseGroup title="Send offer · multistage" context="features/offers">
         <SendOfferSidesheet creatorName="Luminal Studio" mode="multistage">
           <div className="space-y-3">
-            <StageEditor stageNumber={1} name="Launch week" deadline="Oct 12" subtotal="$2,500">
-              <BundlePlatformRow platform="youtube" label="YouTube video" format="Long-form" amount={1800} />
+            <StageEditor
+              stageNumber={1}
+              name="Launch week"
+              deadline="Oct 12"
+              subtotal="$2,500"
+            >
+              <BundlePlatformRow
+                platform="youtube"
+                label="YouTube video"
+                format="Long-form"
+                amount={1800}
+              />
             </StageEditor>
-            <StageEditor stageNumber={2} name="Mid-campaign" deadline="Oct 20" subtotal="$1,500">
-              <BundlePlatformRow platform="youtube" label="YouTube video" format="Long-form" amount={1800} />
+            <StageEditor
+              stageNumber={2}
+              name="Mid-campaign"
+              deadline="Oct 20"
+              subtotal="$1,500"
+            >
+              <BundlePlatformRow
+                platform="youtube"
+                label="YouTube video"
+                format="Long-form"
+                amount={1800}
+              />
             </StageEditor>
-            <SummaryTotalRow label="Campaign total" amount="$4,500.00" emphasis="strong" />
+            <SummaryTotalRow
+              label="Campaign total"
+              amount="$4,500.00"
+              emphasis="strong"
+            />
           </div>
         </SendOfferSidesheet>
       </ShowcaseGroup>
@@ -1111,13 +1383,18 @@ function MobileSection() {
   return (
     <div className="space-y-10 rounded-2xl border border-border bg-muted/30 p-6">
       <div>
-        <h3 className="text-xl font-semibold text-foreground">Mobile variants</h3>
+        <h3 className="text-xl font-semibold text-foreground">
+          Mobile variants
+        </h3>
         <p className="mt-1 text-sm text-muted-foreground">
           Native-aspect components. Previewed inside 375 × auto phone frames.
         </p>
       </div>
 
-      <ShowcaseGroup title="Shell · status bar, topbar, tab bar, home indicator" context="shared/ui/mobile">
+      <ShowcaseGroup
+        title="Shell · status bar, topbar, tab bar, home indicator"
+        context="shared/ui/mobile"
+      >
         <PhoneFrame>
           <MobileStatusBar />
           <MobileTopbar title="Chat" />
@@ -1136,9 +1413,16 @@ function MobileSection() {
         </PhoneFrame>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Chat · rail + header + composer + bubbles" context="features/chat/mobile">
+      <ShowcaseGroup
+        title="Chat · rail + header + composer + bubbles"
+        context="features/chat/mobile"
+      >
         <PhoneFrame>
-          <MobileChatHeader name="Aurora Beauty" subtitle="Summer Glow Launch" avatarFallback="AB" />
+          <MobileChatHeader
+            name="Aurora Beauty"
+            subtitle="Summer Glow Launch"
+            avatarFallback="AB"
+          />
           <div className="flex-1 space-y-2 overflow-auto bg-background p-3">
             <MobileChatRailItem
               name="Aurora Beauty"
@@ -1148,7 +1432,8 @@ function MobileSection() {
               avatarFallback="AB"
             />
             <MobileMessageBubble direction="in">
-              Hey! We loved your recent content on skincare routines. Interested in collaborating?
+              Hey! We loved your recent content on skincare routines. Interested
+              in collaborating?
             </MobileMessageBubble>
             <MobileMessageBubble direction="out">
               Absolutely! Tell me more about the campaign.
@@ -1159,7 +1444,10 @@ function MobileSection() {
         </PhoneFrame>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Chat · system event cards" context="features/chat/mobile">
+      <ShowcaseGroup
+        title="Chat · system event cards"
+        context="features/chat/mobile"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <MobileOfferCard
             variant="received"
@@ -1207,9 +1495,15 @@ function MobileSection() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup title="Floating action · action bar" context="shared/ui/mobile">
+      <ShowcaseGroup
+        title="Floating action · action bar"
+        context="shared/ui/mobile"
+      >
         <div className="flex flex-wrap items-center gap-4">
-          <MobileFloatingAction label="Upload draft" icon={<Upload className="size-4" />} />
+          <MobileFloatingAction
+            label="Upload draft"
+            icon={<Upload className="size-4" />}
+          />
           <MobileActionBar>
             <Upload className="size-4" />
             Upload draft
@@ -1243,19 +1537,28 @@ function ShowcaseGroup({
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
         </h3>
-        <span className="font-mono text-xs text-muted-foreground/70">{context}</span>
+        <span className="font-mono text-xs text-muted-foreground/70">
+          {context}
+        </span>
       </div>
-      <div className="rounded-xl border border-border bg-card p-6">{children}</div>
+      <div className="rounded-xl border border-border bg-card p-6">
+        {children}
+      </div>
     </div>
   )
 }
-
 
 // -----------------------------------------------------------------------------
 // Shared layout pieces
 // -----------------------------------------------------------------------------
 
-function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
+function SectionHeader({
+  title,
+  subtitle,
+}: {
+  title: string
+  subtitle: string
+}) {
   return (
     <div className="border-b border-border pb-3">
       <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
@@ -1264,7 +1567,13 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle: string })
   )
 }
 
-function TokenGroup({ title, children }: { title: string; children: React.ReactNode }) {
+function TokenGroup({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
   return (
     <div className="space-y-4">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

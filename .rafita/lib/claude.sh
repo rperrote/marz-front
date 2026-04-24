@@ -77,7 +77,7 @@ claude::_invoke() {
   fi
 
   local claude_bin="${RAFITA_CLAUDE_BIN:-claude}"
-  local args=(-p "$prompt")
+  local args=(-p)
   [[ -n "$model" ]] && args+=(--model "$model")
   [[ "${RAFITA_YOLO:-1}" == "1" ]] && args+=(--dangerously-skip-permissions)
 
@@ -87,20 +87,19 @@ claude::_invoke() {
     args+=(--resume "$session_id")
   fi
 
-  local stdout_tmp stderr_tmp rc
-  stdout_tmp=$(mktemp); stderr_tmp=$(mktemp)
-  # Run the CLI inside its own session (setsid) so Ctrl+C can tear down the
-  # whole subtree — the node-based claude CLI forks workers that otherwise
-  # become orphans when we only kill the direct child.
-  # Background + wait lets bash handle SIGINT immediately. Stdin closed to
-  # avoid EOF blocking on some CLI versions.
+  # Write prompt to a temp file and feed via stdin to avoid shell
+  # argument-parsing issues with prompts containing leading dashes.
+  local prompt_tmp stdout_tmp stderr_tmp rc
+  prompt_tmp=$(mktemp); stdout_tmp=$(mktemp); stderr_tmp=$(mktemp)
+  printf '%s' "$prompt" > "$prompt_tmp"
+
   local spawn=(python3 "$RAFITA_SCRIPTS_DIR/bin/spawn-session.py")
   if [[ -n "${RAFITA_WORKER_TIMEOUT:-}" ]] && command -v timeout >/dev/null 2>&1; then
     "${spawn[@]}" timeout "$RAFITA_WORKER_TIMEOUT" "$claude_bin" "${args[@]}" \
-      >"$stdout_tmp" 2>"$stderr_tmp" </dev/null &
+      >"$stdout_tmp" 2>"$stderr_tmp" <"$prompt_tmp" &
   else
     "${spawn[@]}" "$claude_bin" "${args[@]}" \
-      >"$stdout_tmp" 2>"$stderr_tmp" </dev/null &
+      >"$stdout_tmp" 2>"$stderr_tmp" <"$prompt_tmp" &
   fi
   RAFITA_CHILD_PID=$!
   # Register the child PID so the interrupt handler can kill the whole
@@ -129,7 +128,7 @@ claude::_invoke() {
   RAFITA_CLAUDE_OUT=$(cat "$stdout_tmp")
   RAFITA_CLAUDE_ERR=$(cat "$stderr_tmp")
   RAFITA_CLAUDE_RC=$rc
-  rm -f "$stdout_tmp" "$stderr_tmp"
+  rm -f "$stdout_tmp" "$stderr_tmp" "$prompt_tmp"
 }
 
 # --- child process tracking --------------------------------------------------
@@ -322,6 +321,17 @@ claude::run() {
         common::debug_save "$task_id" "${label}.response" "$combined"
       fi
       return 1
+    fi
+    # If the session is unavailable (dead resume or UUID already in use), fall back to a fresh call
+    # and regenerate the UUID so future rounds don't retry the same broken id.
+    if [[ "$session_mode" == "resume" ]] || { [[ "$session_mode" == "new" ]] && printf '%s' "$err" | grep -q "already in use"; }; then
+      common::log WARN "claude session unavailable (rc=$rc); regenerating session id and retrying without session"
+      if [[ "$task_id" != "_global" ]]; then
+        local role_alias="${alias:-dev}"
+        session::regenerate_id "$task_id" "$role_alias"
+      fi
+      session_mode=""
+      session_id=""
     fi
     local backoff=$(( 2 ** transient_attempts ))
     common::log WARN "claude transient rc=$rc, retry $transient_attempts/3 after ${backoff}s"

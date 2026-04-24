@@ -1,0 +1,14 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-24T22:22:52.668415Z",
+  "depends_on": ["fn-2.7", "fn-2.3"],
+  "epic": "fn-2",
+  "id": "fn-2.8",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-2.8.md",
+  "status": "todo",
+  "title": "F.5 \u2014 Fase 3: revisi\u00f3n y edici\u00f3n (ICP, scoring, filters, disqualifiers)",
+  "updated_at": "2026-04-24T22:26:45.034753Z"
+}

@@ -20,7 +20,10 @@ interface UseWebSocketOptions {
  * Reconnection with backoff is not implemented yet. When needed, drop in
  * `partysocket` and keep the same interface.
  */
-export function useWebSocket({ handlers = {}, enabled = false }: UseWebSocketOptions = {}) {
+export function useWebSocket({
+  handlers = {},
+  enabled = false,
+}: UseWebSocketOptions = {}) {
   const [status, setStatus] = useState<Status>('idle')
   const socketRef = useRef<WebSocket | null>(null)
   const handlersRef = useRef(handlers)

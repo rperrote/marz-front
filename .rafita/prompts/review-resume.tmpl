@@ -5,3 +5,14 @@
 ```
 
 Emití EXACTAMENTE UN bloque `<review>...</review>` con el veredicto. Sin prosa adicional, sin razonamiento previo, sin filtrar items.
+
+
+### Cambios fuera de scope — NO rechazar por estos
+
+El agente dev corre `pnpm lint`, `pnpm format` y el typecheck como parte del flujo normal. Esto puede producir diffs en archivos que no son parte de la task. **No marcar como error ni pedir reverting** cuando el único cambio en un archivo es alguno de los siguientes:
+
+- Reformateo puro de Prettier (indentación, largo de línea, comillas, trailing comma, saltos de línea). Identificable porque el diff no cambia ningún token semántico del AST.
+- Ajuste de `noUncheckedIndexedAccess`: agregado de guard `if (match?.[1] && ...)` o cambio de `match[1]` a `match?.[1]` sobre el resultado de `.match()`.
+- Cambio de `if (match)` a `if (match?.[1] && match[2] !== undefined)` para satisfacer TypeScript strict.
+
+Si el archivo tiene algún cambio funcional además del formato, revisá solo ese cambio funcional e ignorá el ruido de formato.

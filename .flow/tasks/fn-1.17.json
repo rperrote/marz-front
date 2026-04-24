@@ -1,17 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-24T15:51:20.735079Z",
   "created_at": "2026-04-22T19:14:30.338577Z",
-  "depends_on": [
-    "fn-1.16",
-    "fn-1.4"
-  ],
+  "depends_on": ["fn-1.16", "fn-1.4"],
   "epic": "fn-1",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Todas las 11 correcciones del review anterior est\u00e1n verificadas: memory leak de blob URLs revocado correctamente, imports reordenados, radiogroups agregados en C10/C12/C2/C4, tracking de skip en C12/C16, comentario de decisi\u00f3n en ChannelEditor, validaci\u00f3n Zod integrada en C7, y tests de C17 cubren los 4 casos requeridos. Tests (48), lint y typecheck pasan."
+  },
   "id": "fn-1.17",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.17.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.14 \u2014 20 pantallas onboarding creator (C1-C20)",
-  "updated_at": "2026-04-23T13:13:10.381325Z"
+  "updated_at": "2026-04-24T16:23:51.875609Z"
 }

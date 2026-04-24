@@ -16,7 +16,9 @@ export function PaymentCard({ amount, audience, note }: PaymentCardProps) {
       ? `Payment of ${amount} received`
       : `Payment of ${amount} sent`
   const defaultNote =
-    audience === 'received' ? 'Great job on the video!' : 'Funds are on the way.'
+    audience === 'received'
+      ? 'Great job on the video!'
+      : 'Funds are on the way.'
 
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-border bg-muted px-4 py-4">

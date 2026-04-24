@@ -18,10 +18,25 @@ interface StageCardProps {
   children?: ReactNode
 }
 
-const statusMeta: Record<StageStatus, { label: string; variant: 'default' | 'secondary' | 'outline'; kickerTone: string }> = {
-  upcoming: { label: 'Upcoming', variant: 'outline', kickerTone: 'text-muted-foreground' },
+const statusMeta: Record<
+  StageStatus,
+  {
+    label: string
+    variant: 'default' | 'secondary' | 'outline'
+    kickerTone: string
+  }
+> = {
+  upcoming: {
+    label: 'Upcoming',
+    variant: 'outline',
+    kickerTone: 'text-muted-foreground',
+  },
   active: { label: 'Active', variant: 'secondary', kickerTone: 'text-primary' },
-  done: { label: 'Done', variant: 'default', kickerTone: 'text-muted-foreground' },
+  done: {
+    label: 'Done',
+    variant: 'default',
+    kickerTone: 'text-muted-foreground',
+  },
 }
 
 export function StageCard({
@@ -60,7 +75,12 @@ export function StageCard({
           ) : null}
           <span className="font-mono">{deadline}</span>
           {onToggle ? (
-            <IconButton size="sm" shape="circle" aria-label="Toggle stage" onClick={onToggle}>
+            <IconButton
+              size="sm"
+              shape="circle"
+              aria-label="Toggle stage"
+              onClick={onToggle}
+            >
               {isCollapsed ? <ChevronDown /> : <ChevronUp />}
             </IconButton>
           ) : null}

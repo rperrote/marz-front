@@ -1,11 +1,5 @@
-import {
-  Check,
-  Hourglass,
-  Upload,
-  X
-  
-} from 'lucide-react'
-import type {LucideIcon} from 'lucide-react';
+import { Check, Hourglass, Upload, X } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 import { cn } from '#/lib/utils'
 

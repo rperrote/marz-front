@@ -1,19 +1,25 @@
+import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { TanStackDevtools } from '@tanstack/react-devtools'
 import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
 import { useEffect } from 'react'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
+import { Toaster } from '#/components/ui/sonner'
 
 import appCss from '../styles.css?url'
 
+import { useClerkTokenProvider } from '#/features/identity/hooks/useClerkTokenProvider'
+import { MobileRedirectGuard } from '#/features/identity/onboarding/components/MobileRedirectGuard'
+import { installBeforeUnloadListener } from '#/shared/analytics/beforeunload'
 import { AppI18nProvider } from '#/shared/i18n/provider'
-import { loadCatalog } from '#/shared/i18n/setup'
 import { resolveLocale } from '#/shared/i18n/server'
+import { loadCatalog } from '#/shared/i18n/setup'
+import type { Messages } from '#/shared/i18n/setup'
 
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -26,10 +32,15 @@ const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getIte
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async () => {
     const locale = await resolveLocale()
-    await loadCatalog(locale)
-    return { locale }
+    const messages = await loadCatalog(locale)
+    return { locale, messages }
   },
-  loader: ({ context }) => ({ locale: context.locale }),
+  loader: ({
+    context,
+  }): { locale: typeof context.locale; messages: Messages } => ({
+    locale: context.locale,
+    messages: context.messages,
+  }),
   head: ({ loaderData }) => ({
     meta: [
       { charSet: 'utf-8' },
@@ -42,8 +53,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
 })
 
+function ClerkTokenBridge() {
+  useClerkTokenProvider()
+  return null
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { locale } = Route.useLoaderData()
+  const { locale, messages } = Route.useLoaderData()
+
+  useEffect(() => {
+    installBeforeUnloadListener()
+  }, [])
 
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -58,9 +78,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
-        <AppI18nProvider initialLocale={locale}>
-          {children}
-        </AppI18nProvider>
+        <ClerkProvider>
+          <ClerkTokenBridge />
+          <MobileRedirectGuard />
+          <AppI18nProvider initialLocale={locale} initialMessages={messages}>
+            {children}
+          </AppI18nProvider>
+          <Toaster position="bottom-center" />
+        </ClerkProvider>
         {import.meta.env.DEV ? (
           <TanStackDevtools
             config={{ position: 'bottom-right' }}

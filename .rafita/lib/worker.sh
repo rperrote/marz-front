@@ -55,6 +55,7 @@ worker::run() {
     local used; used=$(session::get "$task_id" "$role" "used" 2>/dev/null || echo 0)
     [[ -z "$used" ]] && used=0
     session_id=$(session::get "$task_id" "$role" "id" 2>/dev/null || echo "")
+    common::log INFO "worker::run session_check task=${task_id} role=${role} used=${used} session_id=${session_id:-none} RAFITA_RUN_DIR=${RAFITA_RUN_DIR:-unset} session_file=$(session::_file "$task_id")"
     if [[ "$used" == "0" ]]; then
       session_mode="new"
     else
@@ -80,7 +81,13 @@ worker::run() {
     if [[ "$provider" == "opencode" && "$session_mode" == "new" ]]; then
       session::capture_opencode "$task_id" "$role"
     fi
+    local sf; sf=$(session::_file "$task_id")
+    local file_exists="no"; [[ -f "$sf" ]] && file_exists="yes"
+    common::log INFO "worker::run pre_mark_used task=${task_id} role=${role} file=${sf} exists=${file_exists} RAFITA_RUN_DIR=${RAFITA_RUN_DIR:-unset}"
     session::mark_used "$task_id" "$role"
+    local used_after; used_after=$(session::get "$task_id" "$role" "used" 2>/dev/null || echo "?")
+    local file_contents; file_contents=$(cat "$sf" 2>/dev/null || echo "MISSING")
+    common::log INFO "worker::run session_mark_used task=${task_id} role=${role} used_after=${used_after} file_contents=${file_contents}"
   fi
 
   return $rc
