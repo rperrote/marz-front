@@ -32,7 +32,7 @@ Ruta `/auth/kind` + componente `KindSelector`.
 
 ## Done summary
 
-TBD
+Ruta, componente, tests y guards implementados correctamente; fixes de loop, fallback dinámico y refetchQueries aplicados.
 
 ## Evidence
 

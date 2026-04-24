@@ -18,6 +18,7 @@ import { Route as BrandRouteImport } from './routes/_brand'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthLinkInvalidRouteImport } from './routes/auth/link-invalid'
+import { Route as AuthKindRouteImport } from './routes/auth/kind'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
@@ -66,6 +67,11 @@ const AuthLinkInvalidRoute = AuthLinkInvalidRouteImport.update({
   path: '/auth/link-invalid',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthKindRoute = AuthKindRouteImport.update({
+  id: '/auth/kind',
+  path: '/auth/kind',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCheckEmailRoute = AuthCheckEmailRouteImport.update({
   id: '/auth/check-email',
   path: '/auth/check-email',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
+  '/auth/kind': typeof AuthKindRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth/': typeof AuthIndexRoute
 }
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
+  '/auth/kind': typeof AuthKindRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth': typeof AuthIndexRoute
 }
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
+  '/auth/kind': typeof AuthKindRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth/': typeof AuthIndexRoute
 }
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
+    | '/auth/kind'
     | '/auth/link-invalid'
     | '/auth/'
   fileRoutesByTo: FileRoutesByTo
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
+    | '/auth/kind'
     | '/auth/link-invalid'
     | '/auth'
   id:
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/_creator/offers'
     | '/auth/callback'
     | '/auth/check-email'
+    | '/auth/kind'
     | '/auth/link-invalid'
     | '/auth/'
   fileRoutesById: FileRoutesById
@@ -183,6 +195,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
+  AuthKindRoute: typeof AuthKindRoute
   AuthLinkInvalidRoute: typeof AuthLinkInvalidRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLinkInvalidRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/kind': {
+      id: '/auth/kind'
+      path: '/auth/kind'
+      fullPath: '/auth/kind'
+      preLoaderRoute: typeof AuthKindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/check-email': {
       id: '/auth/check-email'
       path: '/auth/check-email'
@@ -314,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,
+  AuthKindRoute: AuthKindRoute,
   AuthLinkInvalidRoute: AuthLinkInvalidRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
