@@ -18,6 +18,7 @@ import { Route as BrandRouteImport } from './routes/_brand'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthLinkInvalidRouteImport } from './routes/auth/link-invalid'
+import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
 import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
 
@@ -64,6 +65,11 @@ const AuthLinkInvalidRoute = AuthLinkInvalidRouteImport.update({
   path: '/auth/link-invalid',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCheckEmailRoute = AuthCheckEmailRouteImport.update({
+  id: '/auth/check-email',
+  path: '/auth/check-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreatorOffersRoute = CreatorOffersRouteImport.update({
   id: '/offers',
   path: '/offers',
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
   '/offers': typeof CreatorOffersRoute
+  '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth/': typeof AuthIndexRoute
 }
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
   '/offers': typeof CreatorOffersRoute
+  '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth': typeof AuthIndexRoute
 }
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_brand/campaigns': typeof BrandCampaignsRoute
   '/_creator/offers': typeof CreatorOffersRoute
+  '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth/': typeof AuthIndexRoute
 }
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/campaigns'
     | '/offers'
+    | '/auth/check-email'
     | '/auth/link-invalid'
     | '/auth/'
   fileRoutesByTo: FileRoutesByTo
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/campaigns'
     | '/offers'
+    | '/auth/check-email'
     | '/auth/link-invalid'
     | '/auth'
   id:
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_brand/campaigns'
     | '/_creator/offers'
+    | '/auth/check-email'
     | '/auth/link-invalid'
     | '/auth/'
   fileRoutesById: FileRoutesById
@@ -157,6 +169,7 @@ export interface RootRouteChildren {
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
+  AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthLinkInvalidRoute: typeof AuthLinkInvalidRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
@@ -226,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLinkInvalidRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/check-email': {
+      id: '/auth/check-email'
+      path: '/auth/check-email'
+      fullPath: '/auth/check-email'
+      preLoaderRoute: typeof AuthCheckEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_creator/offers': {
       id: '/_creator/offers'
       path: '/offers'
@@ -272,9 +292,20 @@ const rootRouteChildren: RootRouteChildren = {
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
+  AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthLinkInvalidRoute: AuthLinkInvalidRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

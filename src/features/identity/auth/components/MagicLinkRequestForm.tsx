@@ -51,8 +51,8 @@ export function MagicLinkRequestForm() {
       track('magic_link_requested', { email: result.data })
 
       void router.navigate({
-        to: '/auth/check-email' as string,
-        state: { email: result.data },
+        to: '/auth/check-email',
+        search: { email: result.data },
       })
     } catch (err) {
       const message =

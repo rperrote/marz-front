@@ -25,7 +25,7 @@ Ruta `/auth/check-email` + componente `MagicSentScreen`.
 
 ## Done summary
 
-TBD
+Ruta, componente, tests de estado/efectos y de ruta, accesibilidad con aria-disabled + aria-live, y analytics de reenvío implementados correctamente.
 
 ## Evidence
 

@@ -101,7 +101,7 @@ describe('MagicLinkRequestForm', () => {
     )
   })
 
-  it('navigates to /auth/check-email with email in state on success', async () => {
+  it('navigates to /auth/check-email with email in search on success', async () => {
     mockCreate.mockResolvedValue({ error: null })
     mockSendLink.mockResolvedValue({ error: null })
 
@@ -115,7 +115,7 @@ describe('MagicLinkRequestForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.objectContaining({
           to: '/auth/check-email',
-          state: { email: 'test@example.com' },
+          search: { email: 'test@example.com' },
         }),
       )
     })
