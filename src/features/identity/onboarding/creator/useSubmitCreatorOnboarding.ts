@@ -94,6 +94,22 @@ export function useSubmitCreatorOnboarding() {
           }
 
           if (error.status === 422) {
+            if (error.code === 'avatar_not_found') {
+              const store = useCreatorOnboardingStore.getState()
+              store.setFieldErrors({
+                avatar_s3_key: 'Subí la foto de nuevo',
+              })
+              const idx = getStepIndex('avatar')
+              if (idx >= 0) {
+                store.goTo(idx)
+                void navigate({
+                  to: '/onboarding/creator/$step',
+                  params: { step: 'avatar' },
+                })
+              }
+              return
+            }
+
             const rawFieldErrors = error.details?.field_errors
             if (rawFieldErrors) {
               const inlineErrors: FieldErrors = {}
@@ -123,6 +139,22 @@ export function useSubmitCreatorOnboarding() {
           }
 
           if (error.status === 409) {
+            if (error.code === 'handle_taken') {
+              const store = useCreatorOnboardingStore.getState()
+              store.setFieldErrors({
+                handle: error.message || 'Este handle ya está en uso',
+              })
+              const idx = getStepIndex('name-handle')
+              if (idx >= 0) {
+                store.goTo(idx)
+                void navigate({
+                  to: '/onboarding/creator/$step',
+                  params: { step: 'name-handle' },
+                })
+              }
+              return
+            }
+
             void meQuery.refetch().then((result) => {
               const redirectTo =
                 result.data?.status === 200

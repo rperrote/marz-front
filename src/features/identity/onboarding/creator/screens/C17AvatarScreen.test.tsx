@@ -23,6 +23,7 @@ vi.mock('#/shared/api/generated/onboarding/onboarding', () => ({
 vi.mock('../store', () => ({
   useCreatorOnboardingStore: () => ({
     avatar_s3_key: '',
+    fieldErrors: {},
     setField: mockSetField,
   }),
 }))

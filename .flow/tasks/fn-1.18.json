@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-24T16:23:59.467108Z",
   "created_at": "2026-04-22T19:14:30.448693Z",
   "depends_on": ["fn-1.17", "fn-1.4"],
   "epic": "fn-1",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Wire de submit en C20, manejo completo de errores API (422/409), reset de store y navegaci\u00f3n, render de error en C17, y tests unitarios cubriendo todos los escenarios."
+  },
   "id": "fn-1.18",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.18.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.15 \u2014 Trigger final creator (useCompleteCreatorOnboarding)",
-  "updated_at": "2026-04-23T13:13:40.611509Z"
+  "updated_at": "2026-04-24T16:39:08.620667Z"
 }

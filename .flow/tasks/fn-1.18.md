@@ -25,7 +25,7 @@ Trigger final del onboarding creator — C20 botón "Empezar" dispara `useComple
 
 ## Done summary
 
-TBD
+Wire de submit en C20, manejo completo de errores API (422/409), reset de store y navegación, render de error en C17, y tests unitarios cubriendo todos los escenarios.
 
 ## Evidence
 

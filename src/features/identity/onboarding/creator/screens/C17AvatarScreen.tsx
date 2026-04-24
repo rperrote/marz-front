@@ -148,6 +148,11 @@ export function C17AvatarScreen() {
           className="hidden"
           aria-label={t`Seleccionar imagen`}
         />
+        {store.fieldErrors.avatar_s3_key && (
+          <p className="text-[length:var(--font-size-sm)] text-destructive">
+            {store.fieldErrors.avatar_s3_key}
+          </p>
+        )}
         <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
           {t`JPEG, PNG o WebP. Máximo 5MB.`}
         </p>
