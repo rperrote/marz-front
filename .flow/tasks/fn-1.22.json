@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-24T17:30:40.148804Z",
   "created_at": "2026-04-22T19:14:30.883632Z",
   "depends_on": ["fn-1.19"],
   "epic": "fn-1",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Eliminaci\u00f3n completa de residuos pre-Clerk: login.tsx borrado, routeTree.regen.ts regenerado limpio, session.ts ya no existe, index.tsx redirige correcto. Typecheck y lint limpios."
+  },
   "id": "fn-1.22",
   "priority": null,
   "spec_path": ".flow/tasks/fn-1.22.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.19 \u2014 Borrar residuos placeholders pre-Clerk",
-  "updated_at": "2026-04-23T13:15:43.056186Z"
+  "updated_at": "2026-04-24T17:37:12.015646Z"
 }

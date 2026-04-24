@@ -19,7 +19,7 @@ Eliminar residuos placeholder pre-Clerk.
 
 ## Done summary
 
-TBD
+Eliminación completa de residuos pre-Clerk: login.tsx borrado, routeTree.regen.ts regenerado limpio, session.ts ya no existe, index.tsx redirige correcto. Typecheck y lint limpios.
 
 ## Evidence
 

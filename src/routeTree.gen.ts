@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DsOnboardingRouteImport } from './routes/ds-onboarding'
 import { Route as DsRouteImport } from './routes/ds'
@@ -31,11 +30,6 @@ import { Route as OnboardingBrandIndexRouteImport } from './routes/onboarding/br
 import { Route as OnboardingCreatorStepRouteImport } from './routes/onboarding/creator.$step'
 import { Route as OnboardingBrandStepRouteImport } from './routes/onboarding/brand.$step'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
@@ -141,7 +135,6 @@ export interface FileRoutesByFullPath {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
-  '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -162,7 +155,6 @@ export interface FileRoutesByTo {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
-  '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -184,7 +176,6 @@ export interface FileRoutesById {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
-  '/login': typeof LoginRoute
   '/_brand/campaigns': typeof BrandCampaignsRoute
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -207,7 +198,6 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
-    | '/login'
     | '/campaigns'
     | '/offers'
     | '/auth/callback'
@@ -228,7 +218,6 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
-    | '/login'
     | '/campaigns'
     | '/offers'
     | '/auth/callback'
@@ -249,7 +238,6 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
-    | '/login'
     | '/_brand/campaigns'
     | '/_creator/offers'
     | '/auth/callback'
@@ -273,7 +261,6 @@ export interface RootRouteChildren {
   DsRoute: typeof DsRoute
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
-  LoginRoute: typeof LoginRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthKindRoute: typeof AuthKindRoute
@@ -285,13 +272,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/health': {
       id: '/health'
       path: '/health'
@@ -491,7 +471,6 @@ const rootRouteChildren: RootRouteChildren = {
   DsRoute: DsRoute,
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
-  LoginRoute: LoginRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthKindRoute: AuthKindRoute,
