@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HealthRouteImport } from './routes/health'
+import { Route as DsOnboardingRouteImport } from './routes/ds-onboarding'
 import { Route as DsRouteImport } from './routes/ds'
 import { Route as CreatorRouteImport } from './routes/_creator'
 import { Route as BrandRouteImport } from './routes/_brand'
@@ -26,6 +27,11 @@ const LoginRoute = LoginRouteImport.update({
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DsOnboardingRoute = DsOnboardingRouteImport.update({
+  id: '/ds-onboarding',
+  path: '/ds-onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DsRoute = DsRouteImport.update({
@@ -60,6 +66,7 @@ const BrandCampaignsRoute = BrandCampaignsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ds': typeof DsRoute
+  '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
@@ -68,6 +75,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ds': typeof DsRoute
+  '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/campaigns': typeof BrandCampaignsRoute
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/_brand': typeof BrandRouteWithChildren
   '/_creator': typeof CreatorRouteWithChildren
   '/ds': typeof DsRoute
+  '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
   '/_brand/campaigns': typeof BrandCampaignsRoute
@@ -86,15 +95,30 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ds' | '/health' | '/login' | '/campaigns' | '/offers'
+  fullPaths:
+    | '/'
+    | '/ds'
+    | '/ds-onboarding'
+    | '/health'
+    | '/login'
+    | '/campaigns'
+    | '/offers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ds' | '/health' | '/login' | '/campaigns' | '/offers'
+  to:
+    | '/'
+    | '/ds'
+    | '/ds-onboarding'
+    | '/health'
+    | '/login'
+    | '/campaigns'
+    | '/offers'
   id:
     | '__root__'
     | '/'
     | '/_brand'
     | '/_creator'
     | '/ds'
+    | '/ds-onboarding'
     | '/health'
     | '/login'
     | '/_brand/campaigns'
@@ -106,6 +130,7 @@ export interface RootRouteChildren {
   BrandRoute: typeof BrandRouteWithChildren
   CreatorRoute: typeof CreatorRouteWithChildren
   DsRoute: typeof DsRoute
+  DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
 }
@@ -124,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/health'
       preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ds-onboarding': {
+      id: '/ds-onboarding'
+      path: '/ds-onboarding'
+      fullPath: '/ds-onboarding'
+      preLoaderRoute: typeof DsOnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ds': {
@@ -197,18 +229,10 @@ const rootRouteChildren: RootRouteChildren = {
   BrandRoute: BrandRouteWithChildren,
   CreatorRoute: CreatorRouteWithChildren,
   DsRoute: DsRoute,
+  DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

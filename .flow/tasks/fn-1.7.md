@@ -34,11 +34,8 @@ Reglas:
 - [ ] No hay strings hardcoded; los labels vienen por props.
 
 ## Done summary
-
-TBD
-
+10 componentes reusables de onboarding implementados con tests, ruta /ds-onboarding, tokens CSS, navegación por teclado, axe-clean; lint/test/typecheck verde.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:
