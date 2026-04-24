@@ -6,6 +6,7 @@ type AnalyticsEvent =
   | 'onboarding_step_entered'
   | 'onboarding_step_completed'
   | 'onboarding_abandoned'
+  | 'onboarding_step_skipped'
   | 'onboarding_completed'
   | 'sign_in_succeeded'
   | 'sign_out'

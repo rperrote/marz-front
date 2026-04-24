@@ -51,6 +51,34 @@ export const creatorChannelsRefinement = (
   })
 }
 
+export function validateChannels(
+  channels: CreatorOnboardingPayload['channels'],
+): string[] {
+  const errors: string[] = []
+  if (channels.length < 1) {
+    errors.push('at_least_one_channel_required')
+    return errors
+  }
+  const primaries = channels.filter((c) => c.is_primary).length
+  if (primaries !== 1) {
+    errors.push('exactly_one_primary_required')
+  }
+  channels.forEach((channel) => {
+    const allowed = FORMATS_BY_PLATFORM[channel.platform]
+    const seenFormats = new Set<string>()
+    channel.rate_cards.forEach((rc) => {
+      if (allowed && !allowed.includes(rc.format)) {
+        errors.push('format_not_valid_for_platform')
+      }
+      if (seenFormats.has(rc.format)) {
+        errors.push('duplicate_format_in_channel')
+      }
+      seenFormats.add(rc.format)
+    })
+  })
+  return errors
+}
+
 export const CreatorOnboardingPayloadSchema =
   CompleteCreatorOnboardingBody.superRefine((val, ctx) => {
     creatorChannelsRefinement(val.channels, ctx)

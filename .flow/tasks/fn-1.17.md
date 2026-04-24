@@ -101,7 +101,7 @@ export const CreatorOnboardingPayloadSchema = /* Orval-generated base schema */
 
 ## Done summary
 
-TBD
+Todas las 11 correcciones del review anterior están verificadas: memory leak de blob URLs revocado correctamente, imports reordenados, radiogroups agregados en C10/C12/C2/C4, tracking de skip en C12/C16, comentario de decisión en ChannelEditor, validación Zod integrada en C7, y tests de C17 cubren los 4 casos requeridos. Tests (48), lint y typecheck pasan.
 
 ## Evidence
 
