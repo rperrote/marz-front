@@ -4,7 +4,7 @@ import { Instagram, Twitter, Users, Search, Linkedin } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '#/lib/utils'
 import { Input } from '#/components/ui/input'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import { useBrandOnboardingStore } from '../store'
 import { AttributionNonReferralSource } from '#/shared/api/generated/model/attributionNonReferralSource'
 import type { Attribution } from '#/shared/api/generated/model/attribution'
@@ -129,18 +129,18 @@ export function B11AttributionScreen() {
         </div>
 
         {isReferral && (
-          <OnboardingField
-            label={t`¿Quién te recomendó Marz?`}
-            className="max-w-none"
-          >
-            <Input
-              value={referralText}
-              onChange={handleReferralTextChange}
-              placeholder={t`Nombre o handle de quien te pasó el dato`}
-              maxLength={2000}
-              autoFocus
-            />
-          </OnboardingField>
+          <FieldRow label={t`¿Quién te recomendó Marz?`}>
+            {(aria) => (
+              <Input
+                {...aria}
+                value={referralText}
+                onChange={handleReferralTextChange}
+                placeholder={t`Nombre o handle de quien te pasó el dato`}
+                maxLength={2000}
+                autoFocus
+              />
+            )}
+          </FieldRow>
         )}
       </div>
     </div>

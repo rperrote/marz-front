@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { t } from '@lingui/core/macro'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import { useCreatorOnboardingStore } from '../store'
 
 const MONTHS = [
@@ -64,48 +64,57 @@ export function C11BirthdayScreen() {
       </div>
 
       <div className="flex w-full max-w-[520px] gap-3">
-        <OnboardingField label={t`Día`} className="max-w-none flex-1">
-          <select
-            className={selectClass}
-            value={day}
-            onChange={(e) => update({ d: e.target.value })}
-          >
-            <option value="">—</option>
-            {Array.from({ length: 31 }, (_, i) => `${i + 1}`).map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </OnboardingField>
-        <OnboardingField label={t`Mes`} className="max-w-none flex-[1.4]">
-          <select
-            className={selectClass}
-            value={month}
-            onChange={(e) => update({ m: e.target.value })}
-          >
-            <option value="">—</option>
-            {MONTHS.map((name, i) => (
-              <option key={name} value={`${i + 1}`}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </OnboardingField>
-        <OnboardingField label={t`Año`} className="max-w-none flex-1">
-          <select
-            className={selectClass}
-            value={year}
-            onChange={(e) => update({ y: e.target.value })}
-          >
-            <option value="">—</option>
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </OnboardingField>
+        <FieldRow label={t`Día`} className="flex-1">
+          {(aria) => (
+            <select
+              {...aria}
+              className={selectClass}
+              value={day}
+              onChange={(e) => update({ d: e.target.value })}
+            >
+              <option value="">—</option>
+              {Array.from({ length: 31 }, (_, i) => `${i + 1}`).map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          )}
+        </FieldRow>
+        <FieldRow label={t`Mes`} className="flex-[1.4]">
+          {(aria) => (
+            <select
+              {...aria}
+              className={selectClass}
+              value={month}
+              onChange={(e) => update({ m: e.target.value })}
+            >
+              <option value="">—</option>
+              {MONTHS.map((name, i) => (
+                <option key={name} value={`${i + 1}`}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          )}
+        </FieldRow>
+        <FieldRow label={t`Año`} className="flex-1">
+          {(aria) => (
+            <select
+              {...aria}
+              className={selectClass}
+              value={year}
+              onChange={(e) => update({ y: e.target.value })}
+            >
+              <option value="">—</option>
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          )}
+        </FieldRow>
       </div>
       {store.fieldErrors.birthday && (
         <p className="text-xs text-destructive" role="alert">

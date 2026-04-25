@@ -23,6 +23,5 @@ bun.lockb
 .rafita/sessions/
 test-results/
 playwright-report/
-playwright/.cache/
-.playwright-mcp/page-2026-04-25T02-36-55-403Z.yml
-.playwright-mcp/page-2026-04-25T02-37-03-037Z.yml
+playwright/
+.playwright-mcp/

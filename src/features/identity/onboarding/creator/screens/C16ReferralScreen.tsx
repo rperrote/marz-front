@@ -3,7 +3,7 @@ import { t } from '@lingui/core/macro'
 import { useNavigate } from '@tanstack/react-router'
 import { Input } from '#/components/ui/input'
 import { Button } from '#/components/ui/button'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import { track } from '#/shared/analytics/track'
 import { useCreatorOnboardingStore } from '../store'
 import { STEPS, getStepId } from '../steps'
@@ -47,17 +47,17 @@ export function C16ReferralScreen() {
         </p>
       </div>
       <div className="flex w-full max-w-[440px] flex-col gap-5">
-        <OnboardingField
-          label={t`Handle o nombre (opcional)`}
-          className="max-w-none"
-        >
-          <Input
-            value={store.referral_text ?? ''}
-            onChange={handleChange}
-            placeholder="@valenzavacs"
-            maxLength={2000}
-          />
-        </OnboardingField>
+        <FieldRow label={t`Handle o nombre (opcional)`}>
+          {(aria) => (
+            <Input
+              {...aria}
+              value={store.referral_text ?? ''}
+              onChange={handleChange}
+              placeholder="@valenzavacs"
+              maxLength={2000}
+            />
+          )}
+        </FieldRow>
       </div>
       <Button
         variant="ghost"

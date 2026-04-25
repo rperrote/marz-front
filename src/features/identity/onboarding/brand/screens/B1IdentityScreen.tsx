@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
 import { Input } from '#/components/ui/input'
-import {
-  OnboardingSectionTitle,
-  OnboardingField,
-} from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
+import { OnboardingSectionTitle } from '#/features/identity/onboarding/shared/components'
 import { useBrandOnboardingStore } from '../store'
 import { useBrandEnrichment } from '#/shared/api/generated/onboarding/onboarding'
 import type { BrandfetchSnapshot } from '#/shared/api/generated/model/brandfetchSnapshot'
@@ -71,22 +69,28 @@ export function B1IdentityScreen() {
         subtitle={t`Ingresá el nombre y la web de tu marca para comenzar.`}
       />
       <div className="flex w-full max-w-[440px] flex-col gap-6">
-        <OnboardingField label={t`Nombre de la marca`}>
-          <Input
-            value={store.name ?? ''}
-            onChange={handleNameChange}
-            placeholder={t`Mi Marca`}
-            maxLength={200}
-          />
-        </OnboardingField>
-        <OnboardingField label={t`Sitio web`}>
-          <Input
-            value={urlInput}
-            onChange={handleUrlChange}
-            placeholder="https://mimarca.com"
-            maxLength={500}
-          />
-        </OnboardingField>
+        <FieldRow label={t`Nombre de la marca`}>
+          {(aria) => (
+            <Input
+              {...aria}
+              value={store.name ?? ''}
+              onChange={handleNameChange}
+              placeholder={t`Mi Marca`}
+              maxLength={200}
+            />
+          )}
+        </FieldRow>
+        <FieldRow label={t`Sitio web`}>
+          {(aria) => (
+            <Input
+              {...aria}
+              value={urlInput}
+              onChange={handleUrlChange}
+              placeholder="https://mimarca.com"
+              maxLength={500}
+            />
+          )}
+        </FieldRow>
         {enrichmentData && (
           <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
             {enrichmentData.logo_url && (

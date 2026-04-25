@@ -17,13 +17,13 @@ import {
   OnboardingTopbar,
   OnboardingProgress,
   OnboardingFooter,
-  OnboardingField,
   OnboardingOptionChip,
   OnboardingVerticalCard,
   OnboardingContentTypeChip,
   OnboardingTierCard,
   OnboardingSectionTitle,
 } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 
 export const Route = createFileRoute('/ds-onboarding')({
   component: DsOnboardingPage,
@@ -93,20 +93,27 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">OnboardingField</h2>
+        <h2 className="text-xl font-bold text-foreground">FieldRow</h2>
         <div className="flex flex-col items-center gap-4">
-          <OnboardingField label="Nombre de marca">
-            <Input placeholder="Escribe tu nombre de marca" />
-          </OnboardingField>
-          <OnboardingField
+          <FieldRow label="Nombre de marca" className="max-w-[440px]">
+            {(aria) => (
+              <Input {...aria} placeholder="Escribe tu nombre de marca" />
+            )}
+          </FieldRow>
+          <FieldRow
             label="Sitio web"
             hint="Ingresa la URL de tu sitio web"
+            className="max-w-[440px]"
           >
-            <Input placeholder="https://ejemplo.com" />
-          </OnboardingField>
-          <OnboardingField label="Email" error="El email es requerido">
-            <Input placeholder="email@ejemplo.com" />
-          </OnboardingField>
+            {(aria) => <Input {...aria} placeholder="https://ejemplo.com" />}
+          </FieldRow>
+          <FieldRow
+            label="Email"
+            error="El email es requerido"
+            className="max-w-[440px]"
+          >
+            {(aria) => <Input {...aria} placeholder="email@ejemplo.com" />}
+          </FieldRow>
         </div>
       </section>
 

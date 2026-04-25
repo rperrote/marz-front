@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { t } from '@lingui/core/macro'
 import { Input } from '#/components/ui/input'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import { useCreatorOnboardingStore } from '../store'
 
 const HANDLE_RE = /^[a-z0-9_]{3,30}$/
@@ -44,31 +44,31 @@ export function C1NameHandleScreen() {
       </div>
 
       <div className="flex w-full max-w-[460px] flex-col gap-5">
-        <OnboardingField
+        <FieldRow
           label={t`Nombre público`}
-          className="max-w-none"
           error={store.fieldErrors.display_name}
         >
-          <Input
-            value={store.display_name ?? ''}
-            onChange={handleNameChange}
-            placeholder={t`Lucas Romero`}
-            maxLength={200}
-          />
-        </OnboardingField>
-        <OnboardingField
-          label={t`Handle principal`}
-          className="max-w-none"
-          error={handleError}
-        >
-          <Input
-            value={handle}
-            onChange={handleHandleChange}
-            placeholder="@lucasromero"
-            maxLength={30}
-            aria-invalid={!!handleError}
-          />
-        </OnboardingField>
+          {(aria) => (
+            <Input
+              {...aria}
+              value={store.display_name ?? ''}
+              onChange={handleNameChange}
+              placeholder={t`Lucas Romero`}
+              maxLength={200}
+            />
+          )}
+        </FieldRow>
+        <FieldRow label={t`Handle principal`} error={handleError}>
+          {(aria) => (
+            <Input
+              {...aria}
+              value={handle}
+              onChange={handleHandleChange}
+              placeholder="@lucasromero"
+              maxLength={30}
+            />
+          )}
+        </FieldRow>
       </div>
     </div>
   )

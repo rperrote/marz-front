@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { t } from '@lingui/core/macro'
 import { Input } from '#/components/ui/input'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import { useBrandOnboardingStore } from '../store'
 
 function formatE164(raw: string): string {
@@ -40,39 +40,48 @@ export function B9ContactScreen() {
 
       <div className="flex w-full max-w-[560px] flex-col gap-5">
         <div className="flex w-full gap-4">
-          <OnboardingField label={t`Nombre`} className="max-w-none flex-1">
-            <Input
-              value={store.contact_name ?? ''}
-              onChange={(e) => store.setField('contact_name', e.target.value)}
-              placeholder={t`María`}
-              maxLength={200}
-            />
-          </OnboardingField>
-          <OnboardingField label={t`Cargo`} className="max-w-none flex-1">
-            <Input
-              value={store.contact_title ?? ''}
-              onChange={(e) => store.setField('contact_title', e.target.value)}
-              placeholder={t`Growth Lead`}
-              maxLength={200}
-            />
-          </OnboardingField>
+          <FieldRow label={t`Nombre`} className="flex-1">
+            {(aria) => (
+              <Input
+                {...aria}
+                value={store.contact_name ?? ''}
+                onChange={(e) => store.setField('contact_name', e.target.value)}
+                placeholder={t`María`}
+                maxLength={200}
+              />
+            )}
+          </FieldRow>
+          <FieldRow label={t`Cargo`} className="flex-1">
+            {(aria) => (
+              <Input
+                {...aria}
+                value={store.contact_title ?? ''}
+                onChange={(e) =>
+                  store.setField('contact_title', e.target.value)
+                }
+                placeholder={t`Growth Lead`}
+                maxLength={200}
+              />
+            )}
+          </FieldRow>
         </div>
-        <OnboardingField
+        <FieldRow
           label={t`WhatsApp`}
-          className="max-w-none"
           error={
             !whatsappValid ? t`Formato inválido. Usá formato E.164.` : undefined
           }
         >
-          <Input
-            value={whatsapp}
-            onChange={handleWhatsAppChange}
-            placeholder="+54 11 5555-5555"
-            type="tel"
-            maxLength={16}
-            aria-invalid={!whatsappValid}
-          />
-        </OnboardingField>
+          {(aria) => (
+            <Input
+              {...aria}
+              value={whatsapp}
+              onChange={handleWhatsAppChange}
+              placeholder="+54 11 5555-5555"
+              type="tel"
+              maxLength={16}
+            />
+          )}
+        </FieldRow>
       </div>
     </div>
   )

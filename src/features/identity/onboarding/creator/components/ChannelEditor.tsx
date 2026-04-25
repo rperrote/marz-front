@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import type { CreatorChannel } from '#/shared/api/generated/model/creatorChannel'
 import type { CreatorRateCard } from '#/shared/api/generated/model/creatorRateCard'
 
@@ -193,16 +193,19 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
               )}
             </div>
 
-            <OnboardingField label={t`Handle`}>
-              <Input
-                value={channel.external_handle}
-                onChange={(e) =>
-                  updateChannel(ci, { external_handle: e.target.value })
-                }
-                placeholder="@tu_handle"
-                maxLength={200}
-              />
-            </OnboardingField>
+            <FieldRow label={t`Handle`}>
+              {(aria) => (
+                <Input
+                  {...aria}
+                  value={channel.external_handle}
+                  onChange={(e) =>
+                    updateChannel(ci, { external_handle: e.target.value })
+                  }
+                  placeholder="@tu_handle"
+                  maxLength={200}
+                />
+              )}
+            </FieldRow>
 
             {channel.rate_cards.length > 0 && (
               <div className="flex flex-col gap-3">

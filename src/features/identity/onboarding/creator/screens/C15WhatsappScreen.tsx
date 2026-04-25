@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { t } from '@lingui/core/macro'
 import { Input } from '#/components/ui/input'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import { useCreatorOnboardingStore } from '../store'
 
 const E164_RE = /^\+[1-9]\d{1,14}$/
@@ -34,20 +34,18 @@ export function C15WhatsappScreen() {
         </p>
       </div>
       <div className="flex w-full max-w-[440px] flex-col gap-5">
-        <OnboardingField
-          label={t`WhatsApp`}
-          className="max-w-none"
-          error={error}
-        >
-          <Input
-            type="tel"
-            value={value}
-            onChange={handleChange}
-            placeholder="+54 11 5555-5555"
-            maxLength={16}
-            aria-invalid={!!error}
-          />
-        </OnboardingField>
+        <FieldRow label={t`WhatsApp`} error={error}>
+          {(aria) => (
+            <Input
+              {...aria}
+              type="tel"
+              value={value}
+              onChange={handleChange}
+              placeholder="+54 11 5555-5555"
+              maxLength={16}
+            />
+          )}
+        </FieldRow>
       </div>
     </div>
   )

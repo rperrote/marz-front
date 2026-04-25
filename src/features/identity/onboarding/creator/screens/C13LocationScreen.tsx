@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
-import { OnboardingField } from '#/features/identity/onboarding/shared/components'
+import { FieldRow } from '#/shared/ui/form'
 import { useCreatorOnboardingStore } from '../store'
 import { COUNTRIES } from '../countries'
 
@@ -33,35 +33,41 @@ export function C13LocationScreen() {
         </p>
       </div>
       <div className="flex w-full max-w-[440px] flex-col gap-5">
-        <OnboardingField
-          label={t`País`}
-          className="max-w-none"
-          error={store.fieldErrors.country}
-        >
-          <Select
-            value={store.country ?? ''}
-            onValueChange={(v) => store.setField('country', v)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t`Argentina`} />
-            </SelectTrigger>
-            <SelectContent>
-              {COUNTRIES.map((c) => (
-                <SelectItem key={c.code} value={c.code}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </OnboardingField>
-        <OnboardingField label={t`Ciudad`} className="max-w-none">
-          <Input
-            value={store.city ?? ''}
-            onChange={handleCityChange}
-            placeholder={t`Buenos Aires`}
-            maxLength={200}
-          />
-        </OnboardingField>
+        <FieldRow label={t`País`} error={store.fieldErrors.country}>
+          {(aria) => (
+            <Select
+              value={store.country ?? ''}
+              onValueChange={(v) => store.setField('country', v)}
+            >
+              <SelectTrigger
+                id={aria.id}
+                aria-describedby={aria['aria-describedby']}
+                aria-invalid={aria['aria-invalid']}
+                className="w-full"
+              >
+                <SelectValue placeholder={t`Argentina`} />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </FieldRow>
+        <FieldRow label={t`Ciudad`}>
+          {(aria) => (
+            <Input
+              {...aria}
+              value={store.city ?? ''}
+              onChange={handleCityChange}
+              placeholder={t`Buenos Aires`}
+              maxLength={200}
+            />
+          )}
+        </FieldRow>
       </div>
     </div>
   )

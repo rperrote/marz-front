@@ -154,11 +154,37 @@ Si necesitás un type que no existe (ej. RadioGroup con visual de "card", PhoneF
 
 `aria` tiene `id`, `aria-describedby`, `aria-invalid`. `FieldRow` genera ids estables con `useId()` y conecta `htmlFor` del label automáticamente. **Nunca pasar `id` o `name` desde fuera** — el field component lee `field.name` del context.
 
-## Compose con Zustand para multi-step wizards
+## Cuándo NO usar este sistema
 
-Cuando un wizard tiene state que vive más allá de la screen (ej. brand onboarding 14 pasos), el store mantiene **navegación + datos derivados de APIs externas** (no inputs del usuario). Cada screen monta su propio `useAppForm` con `defaultValues` hidratados del store, y al avanzar persiste el subset al store. **No usar el form como global state** y **no usar el store como state del form**.
+El sistema asume que cada formulario tiene **submit propio** dentro de la screen. No aplica a wizards multi-step donde el shell controla la navegación (ej. onboarding brand/creator), porque:
 
-Detalle del patrón en `state.md` (cuando se actualice — ver Epic 5).
+- El "submit" no vive en la screen, vive en el footer global del shell.
+- La validación de "¿puede avanzar?" se hace contra el store agregado, no contra un form local.
+- Los valores tienen que persistir al volver atrás, lo cual encaja naturalmente con un store Zustand.
+
+En esos casos las screens son **inputs controlados sobre el store** y reusan `FieldRow` directamente como chrome visual:
+
+```tsx
+import { FieldRow } from '#/shared/ui/form'
+import { Input } from '#/components/ui/input'
+
+export function ScreenWithStoreInputs() {
+  const store = useBrandOnboardingStore()
+  return (
+    <FieldRow label={t`Nombre`}>
+      {(aria) => (
+        <Input
+          {...aria}
+          value={store.name ?? ''}
+          onChange={(e) => store.setField('name', e.target.value)}
+        />
+      )}
+    </FieldRow>
+  )
+}
+```
+
+Este patrón es la excepción, no la regla. Si tu form tiene un botón "Enviar/Guardar/Continuar" propio, usá `useAppForm`.
 
 ## Tests
 
