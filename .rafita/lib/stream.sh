@@ -35,12 +35,18 @@ stream::run_claude_streaming() {
   # We intentionally do NOT pass --include-partial-messages. It floods the
   # stream with one stream_event per token; closed turns give us complete
   # text/tool_use/tool_result blocks plus the authoritative `result` event.
-  local args=(-p "$prompt" --verbose --output-format stream-json)
+  #
+  # The prompt is fed via stdin (-p alone, no value). Passing -p "$prompt"
+  # works for short strings but bombs on prompts with leading dashes, very
+  # long content, or shell-sensitive characters — the CLI would silently
+  # exit with no events. Same convention claude::_invoke uses.
+  local args=(-p --verbose --output-format stream-json)
   [[ -n "$model" ]] && args+=(--model "$model")
   [[ "${RAFITA_YOLO:-1}" == "1" ]] && args+=(--dangerously-skip-permissions)
 
-  local stderr_tmp final_tmp
-  stderr_tmp=$(mktemp); final_tmp=$(mktemp)
+  local prompt_tmp stderr_tmp final_tmp
+  prompt_tmp=$(mktemp); stderr_tmp=$(mktemp); final_tmp=$(mktemp)
+  printf '%s' "$prompt" > "$prompt_tmp"
 
   local spawn=(python3 "$RAFITA_SCRIPTS_DIR/bin/spawn-session.py")
 
@@ -48,7 +54,9 @@ stream::run_claude_streaming() {
   # tty. The old code wrote parser stderr to /dev/tty which then went into
   # the void. Pin parser stderr to this shell's FD 2 (which IS the user's
   # terminal) via FD duplication so live events actually show up.
-  exec {RAFITA_LIVE_FD}>&2
+  # Use fixed FD 3 instead of auto-assignment ({var}>&2) because the latter
+  # requires bash 4+; macOS ships bash 3.2.
+  exec 3>&2
   export RAFITA_DEBUG="${RAFITA_DEBUG:-1}"
 
   # pipefail makes the pipe rc reflect the worst step (claude OR parser).
@@ -59,11 +67,11 @@ stream::run_claude_streaming() {
 
   local cli_rc parser_rc
   if [[ -n "${RAFITA_WORKER_TIMEOUT:-}" ]] && command -v timeout >/dev/null 2>&1; then
-    "${spawn[@]}" timeout "${RAFITA_WORKER_TIMEOUT}" "$claude_bin" "${args[@]}" 2>"$stderr_tmp" \
-      | python3 "$parser_py" > "$final_tmp" 2>&${RAFITA_LIVE_FD} </dev/null &
+    "${spawn[@]}" timeout "${RAFITA_WORKER_TIMEOUT}" "$claude_bin" "${args[@]}" 2>"$stderr_tmp" <"$prompt_tmp" \
+      | python3 "$parser_py" > "$final_tmp" 2>&3 &
   else
-    "${spawn[@]}" "$claude_bin" "${args[@]}" 2>"$stderr_tmp" \
-      | python3 "$parser_py" > "$final_tmp" 2>&${RAFITA_LIVE_FD} </dev/null &
+    "${spawn[@]}" "$claude_bin" "${args[@]}" 2>"$stderr_tmp" <"$prompt_tmp" \
+      | python3 "$parser_py" > "$final_tmp" 2>&3 &
   fi
   local leader=$!
   claude::_register_child "$leader"
@@ -71,8 +79,8 @@ stream::run_claude_streaming() {
   local pipe_rc=$?
   claude::_unregister_child "$leader"
 
-  # Close the live FD.
-  exec {RAFITA_LIVE_FD}>&-
+  # Close FD 3.
+  exec 3>&-
   if (( _had_pipefail == 0 )); then set +o pipefail; fi
 
   # Try to disambiguate: if final_tmp is non-empty, the parser produced
@@ -88,5 +96,5 @@ stream::run_claude_streaming() {
     RAFITA_CLAUDE_RC="$pipe_rc"
   fi
 
-  rm -f "$stderr_tmp" "$final_tmp"
+  rm -f "$prompt_tmp" "$stderr_tmp" "$final_tmp"
 }

@@ -15,7 +15,7 @@ Cómo trabajar con el design system de Marz. Cargar SIEMPRE que reproduzcas un d
 ## Documento de contexto
 
 ```
-/Users/rodrigoperrote/Proyects/marz/marzv2/marz-docs/DESIGN.md
+/Users/rodrigoperrote/Proyects/marz/marzv2/marz-docs/DESIGN-DEV.md
 ```
 
 Leer este archivo (con `Read` normal — está en plain markdown) cuando necesites:

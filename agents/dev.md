@@ -68,7 +68,7 @@ Carga **solo** los archivos que aplican a la tarea actual. No los leas todos por
 - **Forms (TanStack Form + Zod)**: `agents/knowledge/forms.md`.
 - **i18n con Lingui**: `agents/knowledge/i18n.md`.
 - **Tokens y theming**: `agents/knowledge/tokens.md`.
-- **Diseño (cómo leer el .pen, DESIGN.md, MCP pencil)**: `agents/knowledge/design.md`. SIEMPRE para tareas de UI.
+- **Diseño (cómo leer el .pen, DESIGN-DEV.md, MCP pencil)**: `agents/knowledge/design.md`. SIEMPRE para tareas de UI.
 - **Testing (Vitest + Testing Library)**: `agents/knowledge/testing.md`.
 - **Playwright (E2E persistente + MCP dev verification)**: `agents/knowledge/playwright.md`. SIEMPRE para verificar cambios de UI.
 - **WebSocket / eventos**: `agents/knowledge/ws.md`.

@@ -28,16 +28,47 @@ phase::final_review() {
     DIFF="$diff" \
     TASKS="$tasks_md")
 
-  local out rc
+  local out rc verdict status
   out=$(worker::run "$prompt" "final-review" "reviewer")
   rc=$?
-  local verdict
-  if [[ $rc -eq 0 ]]; then
-    verdict=$(printf '%s' "$out" | review::extract_final_verdict)
-  else
+  if [[ $rc -ne 0 ]]; then
     verdict='{"status":"fail","issues":[{"issue":"final review worker rc='"$rc"'"}],"summary":"final review invocation failed"}'
+  else
+    verdict=$(printf '%s' "$out" | review::extract_final_verdict)
+    status=$(common::json_get "$verdict" status 2>/dev/null || echo "")
+
+    # Retry loop for unparseable verdicts (no <final-review> tag). Same
+    # rationale as phase::review: reuse session, ask reviewer to reformat
+    # without re-analyzing. 2 retries max. Final review is best-effort so
+    # exhausted retries → keep the parse_error verdict (not hard fail).
+    local retry=0
+    local max_retries=2
+    while [[ "$status" == "fail" ]] \
+        && (printf '%s' "$verdict" | grep -q "no <final-review> tag\|json decode\|json:") \
+        && (( retry < max_retries )); do
+      retry=$((retry + 1))
+      common::log WARN "final verdict unparseable (attempt $retry/$max_retries); asking reviewer to reformat"
+      ui::phase "FINAL" "verdict unparseable; reformat (retry ${retry}/${max_retries})..."
+      local reformat_prompt="Tu respuesta anterior no contiene un bloque <final-review>{...}</final-review> con JSON válido.
+
+Re-emití EL MISMO veredicto que ya formaste, con el MISMO análisis. Lo único que tenés que arreglar es el envoltorio: el verdict tiene que ir dentro de <final-review>...</final-review> con JSON válido y los campos:
+
+- status (\"pass\" o \"fail\")
+- summary (string corto)
+- issues (array; cada item con issue)
+
+No re-analices. No re-leas el diff. Solo re-emití tu veredicto previo en el formato correcto."
+
+      out=$(worker::run "$reformat_prompt" "final-review-reformat-${retry}" "reviewer")
+      rc=$?
+      if [[ $rc -ne 0 ]]; then
+        verdict='{"status":"fail","issues":[{"issue":"final reformat worker rc='"$rc"'"}],"summary":"final reformat invocation failed"}'
+        break
+      fi
+      verdict=$(printf '%s' "$out" | review::extract_final_verdict)
+      status=$(common::json_get "$verdict" status 2>/dev/null || echo "")
+    done
   fi
-  local status
   status=$(common::json_get "$verdict" status)
   if [[ "$status" == "pass" ]]; then
     ui::phase_pass "FINAL" "epic diff looks good"

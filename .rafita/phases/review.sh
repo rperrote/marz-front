@@ -44,15 +44,54 @@ phase::review() {
       REVIEW_RULES="${RAFITA_PROFILE_REVIEW_RULES:-(none)}")
   fi
 
-  local out rc
+  local out rc verdict source
   out=$(worker::run "$prompt" "review-round-${round}" "reviewer")
   rc=$?
   if [[ $rc -eq 42 ]]; then return 3; fi
   if [[ $rc -ne 0 ]]; then ui::phase_fail "REVIEW" "worker rc=$rc"; return 2; fi
 
-  # Normalize verdict; print to stdout.
-  local verdict
   verdict=$(printf '%s' "$out" | review::extract_verdict)
+  source=$(common::json_get "$verdict" source 2>/dev/null || echo "")
+
+  # Retry loop for unparseable verdicts. Reuses the reviewer's session so it
+  # already has the spec + diff context — we only ask it to reformat its
+  # answer into the required <review>{...}</review> envelope. 2 retries
+  # max; after that, hard-fail the task instead of feeding garbage fixes
+  # to the dev (which would cause the dev to "fix" the verdict parser
+  # instead of real code).
+  local retry=0
+  local max_retries=2
+  while [[ "$source" == "parse_error" ]] && (( retry < max_retries )); do
+    retry=$((retry + 1))
+    common::log WARN "review verdict unparseable (attempt $retry/$max_retries); asking reviewer to reformat"
+    ui::phase "REVIEW" "verdict unparseable; reformat (retry ${retry}/${max_retries})..."
+    local reformat_prompt="Tu respuesta anterior no contiene un bloque <review>{...}</review> con JSON válido.
+
+Re-emití EL MISMO veredicto que ya formaste, con el MISMO análisis y los MISMOS fixes. Lo único que tenés que arreglar es el envoltorio: el verdict tiene que ir dentro de <review>...</review> con JSON válido y los campos:
+
+- approved (boolean)
+- summary (string corto)
+- fixes (array; cada item con file, issue, suggestion)
+
+No re-analices. No re-leas el diff. Solo re-emití tu veredicto previo en el formato correcto."
+
+    out=$(worker::run "$reformat_prompt" "review-round-${round}-reformat-${retry}" "reviewer")
+    rc=$?
+    if [[ $rc -eq 42 ]]; then return 3; fi
+    if [[ $rc -ne 0 ]]; then
+      ui::phase_fail "REVIEW" "reformat worker rc=$rc"
+      return 2
+    fi
+    verdict=$(printf '%s' "$out" | review::extract_verdict)
+    source=$(common::json_get "$verdict" source 2>/dev/null || echo "")
+  done
+
+  if [[ "$source" == "parse_error" ]]; then
+    common::log WARN "reviewer never produced parseable verdict after ${max_retries} retries; hard-failing task"
+    ui::phase_fail "REVIEW" "verdict unparseable after ${max_retries} retries"
+    return 2
+  fi
+
   printf '%s' "$verdict"
   return 0
 }
