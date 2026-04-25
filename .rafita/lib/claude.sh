@@ -139,6 +139,14 @@ claude::_invoke() {
   RAFITA_CLAUDE_OUT=$(cat "$stdout_tmp")
   RAFITA_CLAUDE_ERR=$(cat "$stderr_tmp")
   RAFITA_CLAUDE_RC=$rc
+  # Empty-output guard: claude CLI sometimes returns rc=0 with no stdout
+  # (network blip, tool-only conversation that ended without text, stream
+  # parser anomaly already mapped to rc=2 upstream). If rc=0 and the buffer
+  # is empty, force rc=2 so callers don't fabricate fake verdicts downstream.
+  if [[ -z "$RAFITA_CLAUDE_OUT" && "$RAFITA_CLAUDE_RC" -eq 0 ]]; then
+    common::log WARN "claude returned empty output with rc=0; forcing rc=2"
+    RAFITA_CLAUDE_RC=2
+  fi
   rm -f "$stdout_tmp" "$stderr_tmp" "$prompt_tmp"
 }
 

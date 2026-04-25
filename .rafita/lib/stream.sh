@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
-# stream.sh — streaming wrapper for the claude CLI. Only used when
-# RAFITA_DEBUG >= 2. Writes human-readable events to stderr in real time and
-# returns the final text response via RAFITA_CLAUDE_OUT (same globals that
-# claude::_invoke uses, for interchangeability).
+# stream.sh — streaming wrapper for the claude CLI.
+#
+# Activated by RAFITA_DEBUG >= 2 (or RAFITA_STREAM=1 explicitly).
+#
+# - Live: stream-parser.py writes per-event human view to stderr.
+# - Final: parser captures the authoritative `result.result` from the stream
+#   and writes it to its stdout. We capture that as RAFITA_CLAUDE_OUT.
+# - Empty-stream guard: parser exits 2 when it sees no `result` and no text.
+#   That bubbles up to RAFITA_CLAUDE_RC so callers can detect the anomaly
+#   instead of silently looping on a fake verdict.
+#
+# Globals populated (compatible with claude::_invoke):
+#   RAFITA_CLAUDE_OUT    final assistant text
+#   RAFITA_CLAUDE_RC     0 OK; 42 rate-limit; 2 parser empty; other CLI rc
+#   RAFITA_CLAUDE_ERR    raw stderr from claude (for rate-limit detection)
 
-# stream::run_claude_streaming <prompt> <model>
-# Populates: RAFITA_CLAUDE_OUT, RAFITA_CLAUDE_RC, RAFITA_CLAUDE_ERR.
 stream::run_claude_streaming() {
   local prompt="$1" model="$2"
   RAFITA_CLAUDE_OUT=""
@@ -14,76 +23,70 @@ stream::run_claude_streaming() {
 
   local parser_py="${RAFITA_SCRIPTS_DIR:-.rafita}/bin/stream-parser.py"
   if [[ ! -f "$parser_py" ]]; then
-    common::warn "stream-parser.py not found at $parser_py; falling back to non-streaming mode"
-    # Temporarily unset DEBUG to force the non-streaming path.
-    local saved="$RAFITA_DEBUG"
-    RAFITA_DEBUG=1
+    common::warn "stream-parser.py not found at $parser_py; falling back to non-streaming"
+    local saved="${RAFITA_STREAM:-}"
+    export RAFITA_STREAM=0
     claude::_invoke "$prompt" "$model"
-    RAFITA_DEBUG="$saved"
+    if [[ -n "$saved" ]]; then export RAFITA_STREAM="$saved"; else unset RAFITA_STREAM; fi
     return 0
   fi
 
   local claude_bin="${RAFITA_CLAUDE_BIN:-claude}"
-  # Note: we intentionally DO NOT pass --include-partial-messages. It floods
-  # the parser with `stream_event` deltas (one per token) that dwarf the real
-  # events we care about. Closed turns give us tool_use / text / tool_result
-  # / result with the full payload, which is enough for live visibility.
+  # We intentionally do NOT pass --include-partial-messages. It floods the
+  # stream with one stream_event per token; closed turns give us complete
+  # text/tool_use/tool_result blocks plus the authoritative `result` event.
   local args=(-p "$prompt" --verbose --output-format stream-json)
   [[ -n "$model" ]] && args+=(--model "$model")
   [[ "${RAFITA_YOLO:-1}" == "1" ]] && args+=(--dangerously-skip-permissions)
 
-  local stdout_tmp stderr_tmp final_tmp
-  stdout_tmp=$(mktemp); stderr_tmp=$(mktemp); final_tmp=$(mktemp)
+  local stderr_tmp final_tmp
+  stderr_tmp=$(mktemp); final_tmp=$(mktemp)
 
-  local tout="${RAFITA_WORKER_TIMEOUT:-1800}"
-  local rc
   local spawn=(python3 "$RAFITA_SCRIPTS_DIR/bin/spawn-session.py")
-  if command -v timeout >/dev/null 2>&1; then
-    "${spawn[@]}" timeout "$tout" "$claude_bin" "${args[@]}" 2>"$stderr_tmp" \
-      | python3 "$parser_py" > "$final_tmp" 2>/dev/tty </dev/null &
-    local leader=$!
-    claude::_register_child "$leader"
-    wait "$leader"
-    rc=$?
-    claude::_unregister_child "$leader"
+
+  # spawn-session.py runs setsid, so the spawned child loses its controlling
+  # tty. The old code wrote parser stderr to /dev/tty which then went into
+  # the void. Pin parser stderr to this shell's FD 2 (which IS the user's
+  # terminal) via FD duplication so live events actually show up.
+  exec {RAFITA_LIVE_FD}>&2
+  export RAFITA_DEBUG="${RAFITA_DEBUG:-1}"
+
+  # pipefail makes the pipe rc reflect the worst step (claude OR parser).
+  # We restore the original setting after.
+  local _had_pipefail=0
+  if [[ -o pipefail ]]; then _had_pipefail=1; fi
+  set -o pipefail
+
+  local cli_rc parser_rc
+  if [[ -n "${RAFITA_WORKER_TIMEOUT:-}" ]] && command -v timeout >/dev/null 2>&1; then
+    "${spawn[@]}" timeout "${RAFITA_WORKER_TIMEOUT}" "$claude_bin" "${args[@]}" 2>"$stderr_tmp" \
+      | python3 "$parser_py" > "$final_tmp" 2>&${RAFITA_LIVE_FD} </dev/null &
   else
     "${spawn[@]}" "$claude_bin" "${args[@]}" 2>"$stderr_tmp" \
-      | python3 "$parser_py" > "$final_tmp" 2>/dev/tty </dev/null &
-    local leader=$!
-    claude::_register_child "$leader"
-    wait "$leader"
-    rc=$?
-    claude::_unregister_child "$leader"
+      | python3 "$parser_py" > "$final_tmp" 2>&${RAFITA_LIVE_FD} </dev/null &
   fi
+  local leader=$!
+  claude::_register_child "$leader"
+  wait "$leader"
+  local pipe_rc=$?
+  claude::_unregister_child "$leader"
 
-  local final; final=$(cat "$final_tmp")
-  # Fallback: if parser produced nothing, scrape raw events for text blocks.
-  if [[ -z "$final" ]]; then
-    final=$(python3 - << 'PYEOF'
-import json, sys, os
-path = os.environ.get("STREAM_STDERR_PATH","")
-acc = []
-try:
-    data = open(path).read() if path else ""
-    for line in data.splitlines():
-        try:
-            ev = json.loads(line)
-        except Exception:
-            continue
-        if ev.get("type") == "assistant":
-            msg = ev.get("message") or {}
-            for block in msg.get("content") or []:
-                if isinstance(block, dict) and block.get("type") == "text":
-                    acc.append(block.get("text",""))
-except Exception:
-    pass
-sys.stdout.write("".join(acc))
-PYEOF
-    )
-  fi
+  # Close the live FD.
+  exec {RAFITA_LIVE_FD}>&-
+  if (( _had_pipefail == 0 )); then set +o pipefail; fi
 
-  RAFITA_CLAUDE_OUT="$final"
-  RAFITA_CLAUDE_RC="$rc"
+  # Try to disambiguate: if final_tmp is non-empty, the parser produced
+  # output. If it is empty AND pipe_rc != 0, treat as failure. If it is
+  # empty AND pipe_rc == 0 (shouldn't happen with the new parser, but just
+  # in case), force rc=2 so the caller doesn't fabricate a fake verdict.
+  RAFITA_CLAUDE_OUT=$(cat "$final_tmp")
   RAFITA_CLAUDE_ERR=$(cat "$stderr_tmp")
-  rm -f "$stdout_tmp" "$stderr_tmp" "$final_tmp"
+  if [[ -z "$RAFITA_CLAUDE_OUT" && "$pipe_rc" -eq 0 ]]; then
+    common::log WARN "stream parser produced no output for label=${RAFITA_LABEL:-?}; forcing rc=2"
+    RAFITA_CLAUDE_RC=2
+  else
+    RAFITA_CLAUDE_RC="$pipe_rc"
+  fi
+
+  rm -f "$stderr_tmp" "$final_tmp"
 }

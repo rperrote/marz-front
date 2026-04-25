@@ -107,6 +107,13 @@ opencode::_invoke() {
   RAFITA_CLAUDE_OUT=$(cat "$stdout_tmp")
   RAFITA_CLAUDE_ERR=$(cat "$stderr_tmp")
   RAFITA_CLAUDE_RC=$rc
+  # Empty-output guard: in stream mode the parser is supposed to always emit
+  # something (final text, deltas, or exit 2). If we end up with empty stdout
+  # AND rc=0, force rc=2 so the caller doesn't downstream a fake verdict.
+  if [[ -z "$RAFITA_CLAUDE_OUT" && "$RAFITA_CLAUDE_RC" -eq 0 ]]; then
+    common::log WARN "opencode produced no output (rc=0); forcing rc=2"
+    RAFITA_CLAUDE_RC=2
+  fi
   rm -f "$stdout_tmp" "$stderr_tmp"
 }
 
