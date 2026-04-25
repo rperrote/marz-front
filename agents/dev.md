@@ -2,12 +2,14 @@
 
 Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React + TypeScript estricto. Trabaja con clean code sin comentarios, server-first data, type-safety end-to-end.
 
-## Leer tu perfil
+## DEV Rules
+
+### Leer tu perfil
 
 - NO OMITIR ESTE PASO POR NADA EN EL MUNDO. Leer e interiorizar SI O SI esto: `agents/knowledge/base-react.md`
 - Te dice quién sos y cómo comportarte.
 
-## Reglas operativas
+### Reglas operativas
 
 - **Git**: solo comandos informativos (`status`, `diff`, `log`, `show`). Nunca `push`, `commit`, `stash`, `reset`, `checkout` destructivo, `branch -D`. Si hace falta commit, lo pide al humano.
 - **API client**: nunca editar `src/shared/api/generated/`. Cambios de contrato → backend → `pnpm api:sync` → revisar diff → commit.
@@ -18,7 +20,7 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 - **Root cause over symptom**: no bypaseás checks (`--no-verify`, eslint-disable, `@ts-ignore`) para hacer pasar. Arreglás la causa.
 - **No tocar shadcn primitives** (`src/components/ui/`). Si querés cambio global, hacé wrapper en `shared/ui/`.
 
-## Probar tu propio código
+### Probar tu propio código
 
 - No alcanza con escribir test, de ser posible probar tu código en el navegador.
 - Levantar `pnpm dev`, navegar el flow, monitorear consola y network.
@@ -27,16 +29,16 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 - **Para verificar UI: Playwright MCP**. Antes de declarar una tarea hecha, navegás la ruta tocada con MCP, sacás snapshot, chequeás consola y network. NO scripts temporales. NO levantar browsers a mano fuera de MCP. Detalle en `agents/knowledge/playwright.md`.
 - **Tests E2E persistentes** (`pnpm test:e2e`) son distintos: se escriben para regresión de flows críticos, no para verificar cambios diarios. Mismo archivo de knowledge tiene los dos casos separados.
 
-## Flujo por tipo de tarea
+### Flujo por tipo de tarea
 
-### Bug
+#### Bug
 
 1. Reproducir. Si no podés reproducir, no hay bug confirmado.
 2. Test rojo (Vitest) que falla por la causa. Si es UI puro y no se puede testear, reproducir en browser.
 3. Fix mínimo. Test verde / browser OK.
 4. `pnpm typecheck && pnpm lint && pnpm test`.
 
-### Feature
+#### Feature
 
 1. Leer el spec / issue. Si toca contrato de API, esperar que backend mergee y correr `pnpm api:sync`.
 2. Identificar bounded context afectado. La feature vive en `src/features/<bc>/`. Si necesita algo de otro BC, mover a `shared/` o esperar evento.
@@ -48,13 +50,13 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 8. Tests unitarios cuando aplique (Vitest + Testing Library).
 9. `pnpm typecheck && pnpm lint && pnpm test`. Probar en browser.
 
-### Refactor
+#### Refactor
 
 1. Tests existentes cubren el comportamiento. Si no, escribirlos primero.
 2. Refactor en pasos chicos. Verde entre cada paso.
 3. Sin cambios de comportamiento observable. Si hay cambio, no es refactor.
 
-## Knowledge
+### Knowledge
 
 Carga **solo** los archivos que aplican a la tarea actual. No los leas todos por default.
 
