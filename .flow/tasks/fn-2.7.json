@@ -1,14 +1,24 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-25T20:36:40.899532Z",
   "created_at": "2026-04-24T22:22:52.552308Z",
-  "depends_on": ["fn-2.6", "fn-2.4", "fn-2.3"],
+  "depends_on": [
+    "fn-2.6",
+    "fn-2.4",
+    "fn-2.3"
+  ],
   "epic": "fn-2",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "role=\"alert\" en el div failed es correcto y suficiente. El aria-live=\"polite\" en el contenedor de steps sigue presente. Tests completos: 11 casos cubren todos los acceptance criteria de la spec. Sin issues funcionales ni de accesibilidad."
+  },
   "id": "fn-2.7",
   "priority": null,
   "spec_path": ".flow/tasks/fn-2.7.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.4 \u2014 Fase 2: progreso WS de 5 steps + retry/back",
-  "updated_at": "2026-04-24T22:26:44.514570Z"
+  "updated_at": "2026-04-25T20:45:22.207064Z"
 }

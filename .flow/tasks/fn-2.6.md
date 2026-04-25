@@ -113,8 +113,11 @@ Mock del WS: usar `vi.mock('#/shared/ws/useWebSocket', ...)` (no abrir socket re
 - `enabled` se pasa al `useWebSocket` correctamente (no abre socket sin token).
 
 ## Done summary
+
 El único cambio funcional es el eslint-disable en la línea 23 del test, que es la solución correcta para el patrón vi.mock + import post-mock de Vitest. El resto del diff es metadata .flow/. Sin issues.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

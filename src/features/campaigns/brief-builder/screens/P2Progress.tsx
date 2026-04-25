@@ -1,47 +1,78 @@
-import { useEffect, useState } from 'react'
-import { Loader2 } from 'lucide-react'
-import { WizardSectionTitle } from '#/shared/ui/wizard'
-import { useBriefBuilderStore } from '../store'
+import { useEffect } from 'react'
+import { AlertCircle } from 'lucide-react'
+import { t } from '@lingui/core/macro'
 
-const STEPS = [
-  'Analizando tu marca...',
-  'Investigando tu industria...',
-  'Generando el brief...',
-]
+import { WizardSectionTitle } from '#/shared/ui/wizard'
+import { Button } from '#/components/ui/button'
+import { useBriefBuilderStore } from '../store'
+import { useBriefBuilderWS } from '../hooks/useBriefBuilderWS'
+import { useProcessBrief } from '../hooks/useProcessBrief'
+import { BriefProcessingStep } from '../components/BriefProcessingStep'
 
 export function P2Progress() {
-  const store = useBriefBuilderStore()
-  const [stepIndex, setStepIndex] = useState(0)
+  const processingToken = useBriefBuilderStore((s) => s.processingToken)
+  const setField = useBriefBuilderStore((s) => s.setField)
+  const goTo = useBriefBuilderStore((s) => s.goTo)
+  const ws = useBriefBuilderWS(processingToken)
+  const processBrief = useProcessBrief()
 
   useEffect(() => {
-    if (stepIndex < STEPS.length - 1) {
-      const timer = setTimeout(() => setStepIndex((i) => i + 1), 2500)
-      return () => clearTimeout(timer)
+    if (
+      (ws.status === 'completed' || ws.status === 'partial') &&
+      ws.briefDraft
+    ) {
+      setField('briefDraft', ws.briefDraft)
+      goTo(3)
     }
-  }, [stepIndex])
+  }, [ws.status, ws.briefDraft, setField, goTo])
 
-  const isProcessing =
-    store.processingToken !== null || store.briefDraft === null
+  if (ws.status === 'failed') {
+    return (
+      <div className="flex w-full flex-col items-center gap-8" role="alert">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10">
+            <AlertCircle className="size-6 text-destructive" />
+          </div>
+          <WizardSectionTitle
+            title={t`Error en el análisis`}
+            subtitle={ws.errorMessage ?? t`Ocurrió un error inesperado.`}
+          />
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => goTo(1)}>
+            {t`Volver al formulario`}
+          </Button>
+          <Button
+            disabled={!ws.retryable || processBrief.isPending}
+            onClick={() => {
+              if (processingToken) {
+                processBrief.mutate(processingToken)
+              }
+            }}
+          >
+            {processBrief.isPending ? t`Reintentando…` : t`Reintentar`}
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
       <WizardSectionTitle
-        title="Generando tu brief"
-        subtitle="Estamos armando una propuesta personalizada para tu campaña."
+        title={t`Generando tu brief`}
+        subtitle={t`Estamos armando una propuesta personalizada para tu campaña.`}
       />
-      <div className="flex flex-col items-center gap-6">
-        {isProcessing ? (
-          <>
-            <Loader2 className="size-10 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground" aria-live="polite">
-              {STEPS[stepIndex]}
-            </p>
-          </>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Brief generado. Continuá para revisarlo.
-          </p>
-        )}
+      <div className="flex w-full max-w-sm flex-col gap-4" aria-live="polite">
+        {ws.steps.map((step) => (
+          <BriefProcessingStep
+            key={step.step}
+            stepNumber={step.step}
+            label={step.label}
+            status={step.status}
+            errorMessage={step.errorMessage}
+          />
+        ))}
       </div>
     </div>
   )
