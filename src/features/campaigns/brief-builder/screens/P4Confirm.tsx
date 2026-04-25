@@ -2,6 +2,13 @@ import { Check } from 'lucide-react'
 import { WizardSectionTitle } from '#/shared/ui/wizard'
 import { useBriefBuilderStore } from '../store'
 
+const OBJECTIVE_LABELS: Record<string, string> = {
+  brand_awareness: 'Brand Awareness',
+  conversion: 'Conversión',
+  engagement: 'Engagement',
+  reach: 'Alcance',
+}
+
 export function P4Confirm() {
   const store = useBriefBuilderStore()
   const draft = store.briefDraft
@@ -18,12 +25,30 @@ export function P4Confirm() {
   }
 
   const summaryItems = [
-    { label: 'Título', value: draft.title },
-    { label: 'Objetivo', value: draft.objective },
-    { label: 'Audiencia', value: draft.targetAudience },
-    { label: 'Entregables', value: draft.deliverables.join(', ') },
-    { label: 'Presupuesto', value: draft.budget },
-    { label: 'Timeline', value: draft.timeline },
+    { label: 'Nombre', value: draft.campaign.name },
+    {
+      label: 'Objetivo',
+      value:
+        OBJECTIVE_LABELS[draft.campaign.objective] ?? draft.campaign.objective,
+    },
+    {
+      label: 'Presupuesto',
+      value: draft.campaign.budget_amount
+        ? `${draft.campaign.budget_currency} ${String(draft.campaign.budget_amount)}`
+        : '',
+    },
+    { label: 'Deadline', value: draft.campaign.deadline },
+    { label: 'ICP', value: draft.brief.icp_description ?? '' },
+    {
+      label: 'Plataformas',
+      value: draft.brief.icp_platforms.join(', '),
+    },
+    {
+      label: 'Scoring Dimensions',
+      value: draft.brief.scoring_dimensions
+        .map((d) => `${d.name} (${String(d.weight_pct)}%)`)
+        .join(', '),
+    },
   ].filter((item) => item.value.length > 0)
 
   return (

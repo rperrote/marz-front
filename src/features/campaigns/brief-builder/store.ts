@@ -8,13 +8,49 @@ export interface PdfMeta {
   pageCount: number
 }
 
+export type CampaignObjective =
+  | 'brand_awareness'
+  | 'conversion'
+  | 'engagement'
+  | 'reach'
+
+export type Gender = 'male' | 'female' | 'non_binary'
+export type Platform = 'youtube' | 'instagram' | 'tiktok'
+
+export interface ScoringDimension {
+  id: string
+  name: string
+  description: string
+  weight_pct: number
+  positive_signals: string[]
+  negative_signals: string[]
+}
+
+export interface HardFilter {
+  filter_type: string
+  filter_value: string
+}
+
 export interface BriefDraft {
-  title: string
-  objective: string
-  targetAudience: string
-  deliverables: string[]
-  budget: string
-  timeline: string
+  campaign: {
+    name: string
+    objective: CampaignObjective | ''
+    budget_amount: number | null
+    budget_currency: string
+    deadline: string
+  }
+  brief: {
+    icp_description: string | null
+    icp_age_min: number | null
+    icp_age_max: number | null
+    icp_genders: Gender[]
+    icp_countries: string[]
+    icp_platforms: Platform[]
+    icp_interests: string[]
+    scoring_dimensions: ScoringDimension[]
+    hard_filters: HardFilter[]
+    disqualifiers: string[]
+  }
 }
 
 export type Phase = 1 | 2 | 3 | 4

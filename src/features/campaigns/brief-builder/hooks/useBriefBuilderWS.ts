@@ -101,7 +101,14 @@ export function useBriefBuilderWS(
       const payload = envelope.payload as BriefProcessingCompleted
       if (payload.processing_token !== tokenRef.current) return
 
-      setBriefDraft(payload.brief_draft)
+      const incoming = payload.brief_draft
+      incoming.brief.scoring_dimensions = incoming.brief.scoring_dimensions.map(
+        (d) => ({
+          ...d,
+          id: d.id || crypto.randomUUID(),
+        }),
+      )
+      setBriefDraft(incoming)
       setStatus(payload.status)
 
       setSteps((prev) =>

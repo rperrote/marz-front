@@ -29,7 +29,16 @@ function useNextDisabled(phaseIndex: number): boolean {
 
   if (phaseIndex === 2) {
     const draft = store.briefDraft
-    return !draft || draft.title.trim().length === 0
+    if (!draft) return true
+    const dims = draft.brief.scoring_dimensions
+    const weightSum = dims.reduce((a, d) => a + d.weight_pct, 0)
+    return (
+      draft.campaign.name.trim().length === 0 ||
+      !draft.campaign.objective ||
+      !draft.campaign.budget_amount ||
+      dims.length === 0 ||
+      weightSum !== 100
+    )
   }
 
   return false
@@ -106,7 +115,9 @@ export function BriefBuilderWizard() {
             ? 'Crear campaña'
             : currentIndex === 0
               ? 'Analizar'
-              : 'Continuar'
+              : currentIndex === 2
+                ? 'Confirmar'
+                : 'Continuar'
         }
         onExit={handleExit}
         exitLabel="Cancelar"

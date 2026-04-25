@@ -30,12 +30,34 @@ vi.mock('../hooks/useProcessBrief', () => ({
 }))
 
 const MOCK_DRAFT: BriefDraft = {
-  title: 'Test Brief',
-  objective: 'Brand Awareness',
-  targetAudience: 'Gen Z',
-  deliverables: ['1 Reel'],
-  budget: '$5000',
-  timeline: '2 semanas',
+  campaign: {
+    name: 'Test Brief',
+    objective: 'brand_awareness',
+    budget_amount: 5000,
+    budget_currency: 'USD',
+    deadline: '',
+  },
+  brief: {
+    icp_description: 'Gen Z creators',
+    icp_age_min: 18,
+    icp_age_max: 30,
+    icp_genders: ['male', 'female'],
+    icp_countries: ['US'],
+    icp_platforms: ['instagram'],
+    icp_interests: ['fitness'],
+    scoring_dimensions: [
+      {
+        id: 'test-dim-1',
+        name: 'Engagement',
+        description: 'Rate',
+        weight_pct: 100,
+        positive_signals: [],
+        negative_signals: [],
+      },
+    ],
+    hard_filters: [],
+    disqualifiers: [],
+  },
 }
 
 function buildSteps(
