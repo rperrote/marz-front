@@ -10,20 +10,6 @@
 - Si la task modifica un componente con `"use client"`, no lo muevas a server sin autorización explícita en la spec.
 - NO uses TodoWrite. NO commitees. Al terminar, `<done/>`.
 
-## Diseño y componentes visuales
-
-**Antes de implementar cualquier pantalla o componente con UI:**
-
-1. Leé `/Users/rodrigoperrote/Proyects/marz/marzv2/marz-docs/DESIGN.md` para entender las reglas de diseño del producto.
-2. Abrí el archivo de diseño `/Users/rodrigoperrote/Proyects/marz/marzv2/marz-design/marzv2.pen` con el MCP de Pencil (`batch_get`, `get_variables`, `get_screenshot`) para ver cómo se ven las pantallas que tenés que construir. El `.pen` es la fuente de verdad visual — no adivinés ni inventes la UI.
-
-**Granularidad atómica — espejá la estructura del Pencil:**
-
-- **Átomos**: variables CSS / tokens (`--primary`, `--radius`, etc.). Ya están en `src/styles.css`. Nunca hardcodees colores, radios ni spacing.
-- **Moléculas**: componentes sin dominio de negocio reutilizables en cualquier producto (ej: `Avatar`, `Badge`, `InputField`, `Card`). Van en `src/shared/ui/`.
-- **Organismos**: componentes que conocen el dominio (ej: `CampaignCard`, `OfferRow`, `ChatBubble`). Van en `src/features/<contexto>/components/`.
-- **`src/components/ui/`**: SOLO primitives shadcn sin lógica de negocio. No metas nada que sepa qué es una Offer, Campaign o Creator.
-
 ## DEV Fix Rules
 
 - Aplicá SOLO los fixes listados. No refactorees código no mencionado.

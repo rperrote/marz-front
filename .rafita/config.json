@@ -9,10 +9,13 @@
   "claudeBin": "claude",
   "opencodeBin": "opencode",
   "devProvider": "claude",
-  "reviewerProvider": "opencode",
-  "plannerProvider": "opencode",
+  "reviewerProvider": "claude",
+  "plannerProvider": "claude",
   "devModel": "claude-opus-4-6",
-  "reviewerModel": "opencode-go/kimi-k2.6",
+  "reviewerModel": "claude-sonnet-4-6",
+  "closerEnabled": true,
+  "closerProvider": "claude",
+  "closerModel": "claude-opus-4-6",
   "flowctl": ".flow/bin/flowctl",
   "ui": true,
   "notifyWebhook": "",
@@ -20,5 +23,17 @@
   "rateLimitTaskRetry": true,
   "rateLimitMaxSleep": 21600,
   "resumeEnabled": true,
-  "debug": 2
+  "debug": 2,
+  "projectName": "Marz - Frontend",
+  "prBase": "dev",
+  "worktreeEnabled": true,
+  "worktreeBase": "../.rafita-worktrees",
+  "worktreeKeep": false,
+  "maxFinalRounds": 3,
+  "profileExtensions": {
+    "dev": "agents/dev.md",
+    "reviewer": "agents/reviewer.md",
+    "closer": "agents/closer.md",
+    "all": ""
+  }
 }

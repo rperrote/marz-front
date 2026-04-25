@@ -234,11 +234,46 @@ common::counters_init() {
   export RAFITA_TASKS_DONE=0
   export RAFITA_TASKS_SKIPPED=0
   export RAFITA_TASKS_FAILED=0
+  export RAFITA_TASKS_DONE_LIST=""
+  export RAFITA_TASKS_SKIPPED_LIST=""
+  export RAFITA_TASKS_FAILED_LIST=""
+  export RAFITA_EPICS_LIST=""
+  export RAFITA_LAST_PR_URL=""
+  export RAFITA_LAST_FINAL_VERDICT=""
 }
 
-common::mark_done()    { RAFITA_TASKS_DONE=$((RAFITA_TASKS_DONE + 1)); export RAFITA_TASKS_DONE; }
-common::mark_skipped() { RAFITA_TASKS_SKIPPED=$((RAFITA_TASKS_SKIPPED + 1)); export RAFITA_TASKS_SKIPPED; }
-common::mark_failed()  { RAFITA_TASKS_FAILED=$((RAFITA_TASKS_FAILED + 1)); export RAFITA_TASKS_FAILED; }
+# Internal: append a CSV-style entry to the named variable.
+common::_append_csv() {
+  local var="$1" val="$2"
+  [[ -z "$val" ]] && return 0
+  local cur="${!var:-}"
+  if [[ -z "$cur" ]]; then
+    printf -v "$var" '%s' "$val"
+  else
+    printf -v "$var" '%s,%s' "$cur" "$val"
+  fi
+  export "${var?}"
+}
+
+# mark_* accept an optional task_id so the completion notification can list
+# exactly which tasks fell in each bucket. Callers that pre-date this change
+# keep working (they just increment the counter).
+common::mark_done()    { RAFITA_TASKS_DONE=$((RAFITA_TASKS_DONE + 1)); export RAFITA_TASKS_DONE; common::_append_csv RAFITA_TASKS_DONE_LIST "${1:-}"; }
+common::mark_skipped() { RAFITA_TASKS_SKIPPED=$((RAFITA_TASKS_SKIPPED + 1)); export RAFITA_TASKS_SKIPPED; common::_append_csv RAFITA_TASKS_SKIPPED_LIST "${1:-}"; }
+common::mark_failed()  { RAFITA_TASKS_FAILED=$((RAFITA_TASKS_FAILED + 1)); export RAFITA_TASKS_FAILED; common::_append_csv RAFITA_TASKS_FAILED_LIST "${1:-}"; }
+
+common::record_epic() { common::_append_csv RAFITA_EPICS_LIST "${1:-}"; }
+
+# Auto-detects the project name: basename of git toplevel, fallback to basename
+# of cwd. Honors RAFITA_PROJECT_NAME override when set via config (projectName).
+common::project_name() {
+  local override="${RAFITA_PROJECT_NAME:-}"
+  if [[ -n "$override" ]]; then printf '%s' "$override"; return 0; fi
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [[ -n "$root" ]]; then basename "$root"; return 0; fi
+  basename "$PWD"
+}
 
 common::elapsed() {
   local now; now=$(date +%s)

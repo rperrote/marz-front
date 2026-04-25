@@ -46,10 +46,17 @@ git::setup_epic_branch() {
   local branch="${prefix}${epic}"
   if git rev-parse --verify --quiet "$branch" >/dev/null; then
     git checkout -q "$branch"
-  else
-    git checkout -q -b "$branch"
+    return 0
   fi
-  common::log INFO "branch: $branch"
+  # Branch doesn't exist yet — fetch + checkout prBase first so the new branch
+  # starts from the correct base, not from wherever HEAD happens to be.
+  local base; base=$(vcs::_resolve_pr_base)
+  if git::has_remote; then
+    git fetch -q origin "$base" 2>/dev/null || common::warn "fetch ${base} failed; branching from local"
+  fi
+  git checkout -q "$base" 2>/dev/null || common::warn "checkout ${base} failed; branching from current HEAD"
+  git checkout -q -b "$branch"
+  common::log INFO "branch: $branch (from ${base})"
 }
 
 git::snapshot_head() {
@@ -142,13 +149,75 @@ run_id: ${RAFITA_RUN_ID:-?}"
   git commit -q -m "$msg"
 }
 
-# Diff accumulated on current branch vs source branch (for final review).
-git::diff_since_base() {
-  local base="${1:-main}"
-  # Fall back to last known common ancestor, else master, else empty.
-  if ! git rev-parse --verify --quiet "$base" >/dev/null; then
-    base=$(git rev-parse --verify --quiet master >/dev/null && echo master || echo HEAD~1)
+# git::commit_closer <epic> <round>
+# Commits any pending closer edits as a separate "chore(epic): close" commit.
+# Same forbidden-path filtering as commit_scoped. Returns 1 if nothing to commit.
+git::commit_closer() {
+  local epic="$1" round="${2:-?}"
+  git add -A
+
+  local staged=()
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && staged+=("$line")
+  done < <(git diff --cached --name-only)
+
+  if (( ${#staged[@]} == 0 )); then
+    common::log INFO "commit_closer: nothing to commit"
+    return 1
   fi
+
+  local blocked=()
+  for p in "${staged[@]}"; do
+    if git::is_forbidden_path "$p"; then
+      blocked+=("$p")
+    fi
+  done
+  if (( ${#blocked[@]} )); then
+    git reset HEAD -- "${blocked[@]}" >/dev/null 2>&1 || true
+    for p in "${blocked[@]}"; do
+      common::warn "forbidden path blocked from closer commit: $p"
+    done
+  fi
+
+  # Re-check after filtering.
+  local kept
+  kept=$(git diff --cached --name-only | wc -l | tr -d ' ')
+  if [[ "$kept" == "0" ]]; then
+    common::log WARN "commit_closer: all paths blocked by forbidden list"
+    return 1
+  fi
+
+  local msg="chore(${epic}): close epic (round ${round})
+
+Automated via rafita closer
+run_id: ${RAFITA_RUN_ID:-?}"
+  git commit -q -m "$msg"
+}
+
+# Diff accumulated on current branch vs base branch (for final review).
+# When --current-branch is used the caller should pass RAFITA_PR_BASE, not
+# the current branch itself. Fallback chain: prBase config → dev → main →
+# master → HEAD~1 (last resort so diff is never against self).
+git::diff_since_base() {
+  local requested="${1:-}"
+  local current; current=$(git::current_branch)
+
+  # Resolve base: skip if it equals current branch (would diff nothing).
+  local base=""
+  for candidate in "$requested" "${RAFITA_PR_BASE:-}" dev main master; do
+    [[ -z "$candidate" ]] && continue
+    [[ "$candidate" == "$current" ]] && continue
+    if git rev-parse --verify --quiet "$candidate" >/dev/null 2>&1; then
+      base="$candidate"
+      break
+    fi
+  done
+
+  # Last resort: one commit back.
+  if [[ -z "$base" ]]; then
+    base="HEAD~1"
+  fi
+
   git diff "$base"...HEAD
 }
 
@@ -160,4 +229,60 @@ git::push_branch() {
 
 git::has_remote() {
   git remote | grep -q .
+}
+
+# --- worktrees --------------------------------------------------------------
+# One worktree per run. Caller cd's into it; rafita continues to create/switch
+# branches inside as usual. State/artifacts stay in the original repo (RAFITA_DIR
+# must be absolute before calling this).
+
+# git::create_run_worktree <run_id>
+# Prints the absolute worktree path on stdout.
+git::create_run_worktree() {
+  local run_id="$1"
+  local base_dir="${RAFITA_WORKTREE_BASE:-../.rafita-worktrees}"
+  # Resolve base_dir relative to the repo root (not cwd), then absolutize.
+  local repo_root; repo_root=$(git rev-parse --show-toplevel)
+  local wt_parent
+  if [[ "$base_dir" = /* ]]; then
+    wt_parent="$base_dir"
+  else
+    wt_parent="$repo_root/$base_dir"
+  fi
+  mkdir -p "$wt_parent"
+  wt_parent=$(cd "$wt_parent" && pwd)
+  local wt_path="$wt_parent/run-$run_id"
+
+  if [[ -e "$wt_path" ]]; then
+    common::fail "worktree path already exists: $wt_path"
+  fi
+
+  # Pick starting ref. In branchMode=current, mirror the user's current branch
+  # so they can continue work in an isolated checkout. Otherwise start from the
+  # resolved base branch (prBase → dev → main → master).
+  local start_ref
+  if [[ "${RAFITA_BRANCH_MODE:-new}" == "current" ]]; then
+    start_ref=$(git::current_branch)
+  else
+    start_ref=$(vcs::_resolve_pr_base)
+  fi
+
+  # Detached HEAD: later git::setup_epic_branch will create/switch branches
+  # inside the worktree. A checked-out branch in the worktree would collide if
+  # the same branch is also checked out in the main repo.
+  git worktree add -q --detach "$wt_path" "$start_ref" \
+    || common::fail "failed to create worktree at $wt_path from $start_ref"
+
+  common::log INFO "worktree created: $wt_path (from $start_ref)"
+  printf '%s' "$wt_path"
+}
+
+# git::remove_run_worktree <path>
+git::remove_run_worktree() {
+  local wt_path="$1"
+  [[ -z "$wt_path" || ! -d "$wt_path" ]] && return 0
+  # Caller must have cd'd out first.
+  git worktree remove --force "$wt_path" 2>/dev/null \
+    || common::warn "could not remove worktree at $wt_path (try: git worktree prune)"
+  common::log INFO "worktree removed: $wt_path"
 }

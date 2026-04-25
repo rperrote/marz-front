@@ -26,11 +26,26 @@ config::_defaults_json() {
   "flowctl": ".flow/bin/flowctl",
   "ui": true,
   "notifyWebhook": "",
+  "projectName": "",
   "skipOnFailedTask": true,
   "rateLimitTaskRetry": true,
   "rateLimitMaxSleep": 21600,
   "resumeEnabled": true,
-  "debug": 1
+  "debug": 1,
+  "prBase": "",
+  "worktreeEnabled": false,
+  "worktreeBase": "../.rafita-worktrees",
+  "worktreeKeep": false,
+  "closerEnabled": false,
+  "closerProvider": "",
+  "closerModel": "",
+  "maxFinalRounds": 3,
+  "profileExtensions": {
+    "dev": "",
+    "reviewer": "",
+    "closer": "",
+    "all": ""
+  }
 }
 JSON
 }
@@ -52,7 +67,16 @@ try:
   u=json.loads(sys.argv[2]) if sys.argv[2].strip() else {}
 except Exception as e:
   print(f"ERR:{e}", file=sys.stderr); sys.exit(2)
-d.update(u or {})
+# Shallow merge at the top level, but deep-merge one level for dict-valued keys
+# (so users can override a single sub-key without wiping defaults — e.g. only
+# profileExtensions.dev).
+for k, v in (u or {}).items():
+    if isinstance(v, dict) and isinstance(d.get(k), dict):
+        merged = dict(d[k])
+        merged.update(v)
+        d[k] = merged
+    else:
+        d[k] = v
 print(json.dumps(d))
 PYEOF
   )
@@ -77,10 +101,27 @@ print(out)
 import json, sys
 d=json.loads(sys.argv[1])
 for k,v in d.items():
+    if isinstance(v, (dict, list)):
+        # Nested structures are not flattened to RAFITA_* here; dedicated
+        # loaders (e.g. profile extensions) read them from RAFITA_CONFIG_JSON.
+        continue
     if isinstance(v, bool):
         print(f"{k}\t{str(v).lower()}")
     else:
         print(f"{k}\t{v}")
+' "$merged")
+
+  # Explicit exports for profileExtensions (object). Empty sub-keys stay empty.
+  while IFS=$'\t' read -r ext_name ext_val; do
+    [[ -z "$ext_name" ]] && continue
+    export "$ext_name=$ext_val"
+  done < <(python3 -c '
+import json, sys
+d = json.loads(sys.argv[1])
+pe = d.get("profileExtensions") or {}
+for sub in ("dev", "reviewer", "closer", "all"):
+    val = str(pe.get(sub, "") or "")
+    print(f"RAFITA_PROFILE_EXT_{sub.upper()}\t{val}")
 ' "$merged")
 
   export RAFITA_CONFIG_PATH="$path"
@@ -134,16 +175,84 @@ config::_load_profile() {
 
   export RAFITA_PROFILE_PATH="$found"
 
-  export RAFITA_PROFILE_DEV_RULES="$(config::_extract_section "$found" "DEV Rules")"
-  export RAFITA_PROFILE_DEV_FIX_RULES="$(config::_extract_section "$found" "DEV Fix Rules")"
-  export RAFITA_PROFILE_REVIEW_RULES="$(config::_extract_section "$found" "Review Rules")"
-  export RAFITA_PROFILE_PLAN_RULES="$(config::_extract_section "$found" "Plan Rules")"
-  export RAFITA_PROFILE_FORMAT_CMD="$(config::_extract_section "$found" "Format Command")"
-  export RAFITA_PROFILE_TEST_CMD="$(config::_extract_section "$found" "Test Command")"
-  export RAFITA_PROFILE_LINT_CMD="$(config::_extract_section "$found" "Lint Command")"
-  export RAFITA_PROFILE_TYPECHECK_CMD="$(config::_extract_section "$found" "Typecheck Command")"
-  export RAFITA_PROFILE_SKILLS="$(config::_extract_section "$found" "Skills")"
-  export RAFITA_PROFILE_FORBIDDEN_PATHS="$(config::_extract_section "$found" "Forbidden Paths")"
+  # Per-role extension files. Missing paths warn and are skipped.
+  # Role → sections it owns (concat) and commands it owns (replace).
+  local ext_dev;    ext_dev=$(config::_resolve_ext_path "${RAFITA_PROFILE_EXT_DEV:-}")
+  local ext_rev;    ext_rev=$(config::_resolve_ext_path "${RAFITA_PROFILE_EXT_REVIEWER:-}")
+  local ext_closer; ext_closer=$(config::_resolve_ext_path "${RAFITA_PROFILE_EXT_CLOSER:-}")
+  local ext_all;    ext_all=$(config::_resolve_ext_path "${RAFITA_PROFILE_EXT_ALL:-}")
+
+  # Concat sections: base + (role-specific ext) + (all ext).
+  # Rules
+  export RAFITA_PROFILE_DEV_RULES="$(config::_merge_section_concat     "$found" "DEV Rules"         "$ext_dev"    "$ext_all")"
+  export RAFITA_PROFILE_DEV_FIX_RULES="$(config::_merge_section_concat "$found" "DEV Fix Rules"     "$ext_dev"    "$ext_all")"
+  export RAFITA_PROFILE_PLAN_RULES="$(config::_merge_section_concat    "$found" "Plan Rules"        "$ext_dev"    "$ext_all")"
+  export RAFITA_PROFILE_SKILLS="$(config::_merge_section_concat        "$found" "Skills"            "$ext_dev"    "$ext_all")"
+  export RAFITA_PROFILE_FORBIDDEN_PATHS="$(config::_merge_section_concat "$found" "Forbidden Paths" "$ext_dev"    "$ext_all")"
+  export RAFITA_PROFILE_REVIEW_RULES="$(config::_merge_section_concat  "$found" "Review Rules"      "$ext_rev"    "$ext_all")"
+  export RAFITA_PROFILE_CLOSER_RULES="$(config::_merge_section_concat  "$found" "Closer Rules"      "$ext_closer" "$ext_all")"
+
+  # Commands: replace semantics. Dev-side commands apply to gates (shared by all
+  # roles). The 'all' extension can override; otherwise devExtension wins over base.
+  export RAFITA_PROFILE_FORMAT_CMD="$(config::_merge_section_replace    "$found" "Format Command"    "$ext_dev" "$ext_all")"
+  export RAFITA_PROFILE_TEST_CMD="$(config::_merge_section_replace      "$found" "Test Command"      "$ext_dev" "$ext_all")"
+  export RAFITA_PROFILE_LINT_CMD="$(config::_merge_section_replace      "$found" "Lint Command"      "$ext_dev" "$ext_all")"
+  export RAFITA_PROFILE_TYPECHECK_CMD="$(config::_merge_section_replace "$found" "Typecheck Command" "$ext_dev" "$ext_all")"
+}
+
+# Resolves a user-provided extension path. Empty → empty. Relative → resolved
+# against the current working directory (repo root at invocation time). Missing
+# file → warns and returns empty so callers can skip gracefully.
+config::_resolve_ext_path() {
+  local p="${1:-}"
+  [[ -z "$p" ]] && { printf ''; return 0; }
+  if [[ "$p" != /* ]]; then p="$(pwd)/$p"; fi
+  if [[ ! -f "$p" ]]; then
+    common::warn "profile extension not found: $p (continuing with base profile only)"
+    printf ''
+    return 0
+  fi
+  printf '%s' "$p"
+}
+
+# config::_merge_section_concat <base> <name> <ext...>
+# Reads section from base; appends the same section from each non-empty ext
+# file (in order) separated by a clear marker. Empty extensions are skipped.
+config::_merge_section_concat() {
+  local base="$1" name="$2"; shift 2
+  local result; result=$(config::_extract_section "$base" "$name")
+  local ext body
+  for ext in "$@"; do
+    [[ -z "$ext" ]] && continue
+    body=$(config::_extract_section "$ext" "$name")
+    [[ -z "$body" ]] && continue
+    if [[ -z "$result" ]]; then
+      result="$body"
+    else
+      result="${result}
+
+<!-- user profile extension: $(basename "$ext") -->
+
+${body}"
+    fi
+  done
+  printf '%s' "$result"
+}
+
+# config::_merge_section_replace <base> <name> <ext...>
+# Reads section from base; if any ext defines it, the LAST non-empty ext wins.
+# Order is dev-ext, then all-ext — so 'all' takes precedence when both set it.
+config::_merge_section_replace() {
+  local base="$1" name="$2"; shift 2
+  local result; result=$(config::_extract_section "$base" "$name")
+  local ext body
+  for ext in "$@"; do
+    [[ -z "$ext" ]] && continue
+    body=$(config::_extract_section "$ext" "$name")
+    [[ -z "$body" ]] && continue
+    result="$body"
+  done
+  printf '%s' "$result"
 }
 
 # Extract a markdown section by heading. Ignores "(none)" content.

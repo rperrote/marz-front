@@ -190,6 +190,7 @@ print(d.get("summary","task completed"))' "$verdict" > "$summary_tmp"
 orchestrator::run_epic() {
   local epic="$1"
   export RAFITA_CURRENT_EPIC="$epic"
+  common::record_epic "$epic"
   ui::epic_start "$epic"
   git::setup_epic_branch "$epic"
 
@@ -208,11 +209,11 @@ orchestrator::run_epic() {
         completed+=("$resume_task")
         RAFITA_COMPLETED_CSV=$(IFS=,; echo "${completed[*]}")
         export RAFITA_COMPLETED_CSV
-        common::mark_done
+        common::mark_done "$resume_task"
         ;;
-      1) common::mark_skipped ;;
-      2) common::mark_failed ;;
-      3) common::mark_failed ;;
+      1) common::mark_skipped "$resume_task" ;;
+      2) common::mark_failed "$resume_task" ;;
+      3) common::mark_failed "$resume_task" ;;
     esac
     unset RAFITA_RESUME_TASK_ID
   fi
@@ -233,17 +234,17 @@ orchestrator::run_epic() {
         completed+=("$task_id")
         RAFITA_COMPLETED_CSV=$(IFS=,; echo "${completed[*]}")
         export RAFITA_COMPLETED_CSV
-        common::mark_done
+        common::mark_done "$task_id"
         ;;
       1)
-        common::mark_skipped
+        common::mark_skipped "$task_id"
         if [[ "${RAFITA_SKIP_ON_FAILED_TASK:-1}" == "1" ]]; then
           common::log WARN "skipOnFailedTask=true; aborting epic"
           break
         fi
         ;;
       2)
-        common::mark_failed
+        common::mark_failed "$task_id"
         ui::error "hard failure on task ${task_id}; aborting epic"
         break
         ;;
@@ -256,14 +257,14 @@ orchestrator::run_epic() {
             completed+=("$task_id")
             RAFITA_COMPLETED_CSV=$(IFS=,; echo "${completed[*]}")
             export RAFITA_COMPLETED_CSV
-            common::mark_done
+            common::mark_done "$task_id"
           else
-            common::mark_failed
+            common::mark_failed "$task_id"
             ui::error "rate-limit retry also failed; aborting epic"
             break
           fi
         else
-          common::mark_failed
+          common::mark_failed "$task_id"
           ui::error "rate-limit at task level (retry disabled); aborting epic"
           break
         fi
@@ -276,9 +277,12 @@ orchestrator::run_epic() {
     return 0
   fi
 
-  # Final review (non-blocking).
+  # Closer + Final review loop (non-blocking overall).
+  # If closer is enabled, it runs before each final review and addresses any
+  # issues the reviewer flags. On approval, or after maxFinalRounds, publish.
   local final_verdict
-  final_verdict=$(phase::final_review "$epic" "${RAFITA_SOURCE_BRANCH:-main}" "${RAFITA_COMPLETED_CSV}")
+  final_verdict=$(orchestrator::close_epic_loop "$epic" "${RAFITA_PR_BASE:-}" "${RAFITA_COMPLETED_CSV}")
+  export RAFITA_LAST_FINAL_VERDICT="$final_verdict"
 
   orchestrator::publish_epic "$epic" "$final_verdict" "${completed[@]}"
   flowctl::close_epic "$epic"
@@ -309,6 +313,76 @@ orchestrator::_rate_limit_long_sleep() {
   local rc=$?
   if [[ $rc -eq 3 ]]; then return 2; fi
   return "$rc"
+}
+
+# orchestrator::close_epic_loop <epic> <source_branch> <tasks_csv>
+# Runs [CLOSER → FINAL REVIEW] up to maxFinalRounds. If closerEnabled is false,
+# this degenerates to a single final review (legacy behavior).
+# stdout: final verdict JSON (final-review shape: status/issues/summary).
+orchestrator::close_epic_loop() {
+  local epic="$1" source_branch="$2" tasks_csv="$3"
+  local max="${RAFITA_MAX_FINAL_ROUNDS:-3}"
+  local closer_on="${RAFITA_CLOSER_ENABLED:-0}"
+  local verdict=""
+  local round=1
+
+  if [[ "$closer_on" != "1" ]]; then
+    verdict=$(phase::final_review "$epic" "$source_branch" "$tasks_csv")
+    printf '%s' "$verdict"
+    return 0
+  fi
+
+  while (( round <= max )); do
+    export RAFITA_CURRENT_PHASE="closer"
+    local c_rc=0
+    if (( round == 1 )); then
+      phase::closer_initial "$epic" "$source_branch" "$tasks_csv" || c_rc=$?
+    else
+      phase::closer_fix "$epic" "$source_branch" "$tasks_csv" "$round" "$verdict" || c_rc=$?
+    fi
+    if [[ $c_rc -ne 0 ]]; then
+      common::log WARN "closer round=${round} rc=${c_rc}; breaking loop and using last verdict"
+      if [[ -z "$verdict" ]]; then
+        verdict='{"status":"fail","issues":[{"issue":"closer round '"${round}"' failed rc='"${c_rc}"'"}],"summary":"closer worker failed"}'
+      fi
+      break
+    fi
+
+    # Gates after closer edits. If they fail, feed gates-derived issues into
+    # the next round via a synthesized verdict. Non-blocking to publish.
+    local gates_out gates_rc=0
+    gates_out=$(quality::run_gates "closer-epic-${epic}" "$round") || gates_rc=$?
+    if [[ $gates_rc -ne 0 ]]; then
+      common::log WARN "closer gates failed on round=${round}; feeding to next closer round"
+      verdict=$(python3 -c '
+import json, sys
+body=sys.argv[1]
+print(json.dumps({"status":"fail","issues":[{"file":"(gates)","issue":body[:2000]}],"summary":"quality gates failed after closer"}))
+' "${gates_out:-unknown gates output}")
+      (( round == max )) && break
+      round=$(( round + 1 ))
+      continue
+    fi
+
+    # Commit any edits the closer introduced so the final-review diff reflects
+    # the committed state and publish_epic can push them. Empty diff → no-op.
+    git::commit_closer "$epic" "$round" || true
+
+    export RAFITA_CURRENT_PHASE="final"
+    verdict=$(phase::final_review "$epic" "$source_branch" "$tasks_csv")
+    local status; status=$(common::json_get "$verdict" status)
+    if [[ "$status" == "pass" ]]; then
+      common::log INFO "closer loop approved on round=${round}"
+      break
+    fi
+    round=$(( round + 1 ))
+  done
+
+  if (( round > max )); then
+    common::log WARN "closer loop exhausted ${max} rounds without approval; publishing with last verdict"
+  fi
+
+  printf '%s' "$verdict"
 }
 
 orchestrator::publish_epic() {
@@ -358,6 +432,6 @@ PYEOF
   rm -f "$body_tmp"
   if [[ -n "$url" ]]; then
     ui::info "PR: $url"
-    notify::send_pr "$url"
+    export RAFITA_LAST_PR_URL="$url"
   fi
 }

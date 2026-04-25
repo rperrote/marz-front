@@ -23,6 +23,7 @@ if command -v rsync >/dev/null 2>&1; then
     --exclude='sessions/' \
     --exclude='config.json' \
     --exclude='VERSION' \
+    --exclude='custom/' \
     "$SOURCE_DIR/" "$TARGET_DIR/"
 else
   for d in lib phases prompts bin profiles tests; do
@@ -44,10 +45,8 @@ fi
 printf '%s\n' "$version" > "$TARGET_DIR/VERSION"
 printf 'installed version: %s\n' "$version"
 
-# Write default config.json only if missing.
-if [[ ! -f "$TARGET_DIR/config.json" ]]; then
-  cat > "$TARGET_DIR/config.json" << 'JSON'
-{
+# Canonical defaults — keep in sync with lib/config.sh::config::_defaults_json.
+DEFAULTS_JSON='{
   "projectType": "generic",
   "provider": "github",
   "branchMode": "new",
@@ -65,16 +64,53 @@ if [[ ! -f "$TARGET_DIR/config.json" ]]; then
   "flowctl": ".flow/bin/flowctl",
   "ui": true,
   "notifyWebhook": "",
+  "projectName": "",
   "skipOnFailedTask": true,
   "rateLimitTaskRetry": true,
   "rateLimitMaxSleep": 21600,
   "resumeEnabled": true,
-  "debug": 1
-}
-JSON
-  printf 'wrote default config: %s/config.json\n' "$TARGET_DIR"
+  "debug": 1,
+  "prBase": "",
+  "worktreeEnabled": false,
+  "worktreeBase": "../.rafita-worktrees",
+  "worktreeKeep": false,
+  "closerEnabled": false,
+  "closerProvider": "",
+  "closerModel": "",
+  "maxFinalRounds": 3,
+  "profileExtensions": {
+    "dev": "",
+    "reviewer": "",
+    "closer": "",
+    "all": ""
+  }
+}'
+
+config_path="$TARGET_DIR/config.json"
+
+if [[ ! -f "$config_path" ]]; then
+  printf '%s\n' "$DEFAULTS_JSON" > "$config_path"
+  printf 'wrote default config: %s\n' "$config_path"
 else
   printf 'config.json preserved (already existed)\n'
+  # Report keys present in defaults but missing from the existing config.
+  new_keys=$(python3 - "$config_path" << PYEOF
+import json, sys
+defaults = json.loads('''$DEFAULTS_JSON''')
+try:
+    existing = json.loads(open(sys.argv[1]).read())
+except Exception as e:
+    print(f"  warning: could not parse config.json: {e}", flush=True)
+    sys.exit(0)
+missing = [k for k in defaults if k not in existing]
+for k in missing:
+    print(f"  + {k}: {json.dumps(defaults[k])}")
+PYEOF
+)
+  if [[ -n "$new_keys" ]]; then
+    printf 'new config keys available (not in your config.json):\n'
+    printf '%s\n' "$new_keys"
+  fi
 fi
 
 # Ensure .gitignore entries in the parent repo.
@@ -88,7 +124,43 @@ if [[ -d "$TARGET_DIR/.." && -d "$TARGET_DIR/../.git" ]]; then
   done
 fi
 
+# Ensure custom/ exists so users have an obvious place for their profile extensions.
+mkdir -p "$TARGET_DIR/custom"
+if [[ ! -f "$TARGET_DIR/custom/README.md" ]]; then
+  cat > "$TARGET_DIR/custom/README.md" << 'EOF'
+# rafita custom profile extensions
+
+This directory is preserved across `rafita:setup` runs. Put your project-specific
+profile markdowns here and reference them in `.rafita/config.json` under
+`profileExtensions`:
+
+```json
+"profileExtensions": {
+  "dev":      ".rafita/custom/dev.md",
+  "reviewer": ".rafita/custom/review.md",
+  "closer":   ".rafita/custom/closer.md",
+  "all":      ".rafita/custom/shared.md"
+}
+```
+
+Each file follows the same `## Section` format as the base profiles in
+`.rafita/profiles/`. Sections you define are merged on top of the base profile
+selected by `projectType`:
+
+- Rule-like sections (`DEV Rules`, `DEV Fix Rules`, `Review Rules`,
+  `Closer Rules`, `Plan Rules`, `Skills`, `Forbidden Paths`) are **appended**
+  to the base.
+- Command sections (`Format Command`, `Test Command`, `Lint Command`,
+  `Typecheck Command`) **replace** the base when defined.
+
+Do NOT edit files under `.rafita/profiles/` — they get overwritten on the next
+setup.
+EOF
+fi
+
 printf '\ndone. next steps:\n'
 printf '  edit %s/config.json to pick your projectType\n' "$TARGET_DIR"
+printf '  do NOT edit %s/profiles/*.md — setup overwrites them\n' "$TARGET_DIR"
+printf '  put project-specific rules in %s/custom/ and link them via profileExtensions\n' "$TARGET_DIR"
 printf '  ensure flowctl is on PATH (or set config.flowctl)\n'
 printf '  run: %s/rafita.sh --help\n' "$TARGET_DIR"

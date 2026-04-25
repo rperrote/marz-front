@@ -22,9 +22,24 @@ vcs::open_or_update_pr() {
   esac
 }
 
+vcs::_resolve_pr_base() {
+  # Returns the base branch for PRs. Fallback chain: prBase config → dev → main → master.
+  local current; current=$(git::current_branch)
+  for candidate in "${RAFITA_PR_BASE:-}" dev main master; do
+    [[ -z "$candidate" ]] && continue
+    [[ "$candidate" == "$current" ]] && continue
+    if git rev-parse --verify --quiet "$candidate" >/dev/null 2>&1; then
+      printf '%s' "$candidate"
+      return 0
+    fi
+  done
+  printf 'main'
+}
+
 vcs::_gh_pr() {
   local epic="$1" title="$2" body_file="$3"
   command -v gh >/dev/null 2>&1 || { common::warn "gh not installed"; return 1; }
+  local base; base=$(vcs::_resolve_pr_base)
   local existing
   existing=$(gh pr view --json url -q .url 2>/dev/null || true)
   if [[ -n "$existing" ]]; then
@@ -33,7 +48,7 @@ vcs::_gh_pr() {
     return 0
   fi
   local url
-  url=$(gh pr create --title "$title" --body-file "$body_file" --fill 2>/dev/null \
+  url=$(gh pr create --title "$title" --body-file "$body_file" --base "$base" --fill 2>/dev/null \
         | grep -Eo 'https?://[^ ]+' | tail -n1)
   [[ -z "$url" ]] && url=$(gh pr view --json url -q .url 2>/dev/null || true)
   printf '%s\n' "$url"
@@ -42,8 +57,10 @@ vcs::_gh_pr() {
 vcs::_glab_mr() {
   local epic="$1" title="$2" body_file="$3"
   command -v glab >/dev/null 2>&1 || { common::warn "glab not installed"; return 1; }
+  local base; base=$(vcs::_resolve_pr_base)
   local url
-  url=$(glab mr create --title "$title" --description "$(cat "$body_file")" --yes 2>/dev/null \
+  url=$(glab mr create --title "$title" --description "$(cat "$body_file")" \
+        --target-branch "$base" --yes 2>/dev/null \
         | grep -Eo 'https?://[^ ]+' | tail -n1)
   printf '%s\n' "$url"
 }

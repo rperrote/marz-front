@@ -23,6 +23,7 @@ worker::_provider_for_role() {
     dev|"")   printf '%s' "${RAFITA_DEV_PROVIDER:-claude}" ;;
     reviewer) printf '%s' "${RAFITA_REVIEWER_PROVIDER:-claude}" ;;
     planner)  printf '%s' "${RAFITA_PLANNER_PROVIDER:-${RAFITA_DEV_PROVIDER:-claude}}" ;;
+    closer)   printf '%s' "${RAFITA_CLOSER_PROVIDER:-${RAFITA_DEV_PROVIDER:-claude}}" ;;
     *)        printf '%s' "${RAFITA_DEV_PROVIDER:-claude}" ;;
   esac
 }
@@ -33,6 +34,7 @@ worker::_model_for_role() {
     dev|"")   printf '%s' "${RAFITA_DEV_MODEL:-}" ;;
     reviewer) printf '%s' "${RAFITA_REVIEWER_MODEL:-}" ;;
     planner)  printf '%s' "${RAFITA_DEV_MODEL:-}" ;;
+    closer)   printf '%s' "${RAFITA_CLOSER_MODEL:-${RAFITA_DEV_MODEL:-}}" ;;
     *)        printf '%s' "${RAFITA_DEV_MODEL:-}" ;;
   esac
 }
