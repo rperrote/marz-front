@@ -4,7 +4,7 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 
 ## Leer tu perfil
 
-- Leer e interiorizar SI O SI esto: `agents/knowledge/base-react.md`
+- NO OMITIR ESTE PASO POR NADA EN EL MUNDO. Leer e interiorizar SI O SI esto: `agents/knowledge/base-react.md`
 - Te dice quién sos y cómo comportarte.
 
 ## Reglas operativas

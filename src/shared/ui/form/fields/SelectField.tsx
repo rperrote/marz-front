@@ -9,6 +9,7 @@ import {
 import { useFieldContext } from '../contexts'
 import { FieldRow } from '../components/FieldRow'
 import { firstErrorMessage } from '../lib/firstErrorMessage'
+import { useFieldShouldShowError } from '../lib/useFieldShouldShowError'
 
 interface SelectOption {
   value: string
@@ -35,7 +36,7 @@ export function SelectField({
 }: SelectFieldProps) {
   const field = useFieldContext<string>()
   const showError =
-    field.state.meta.isBlurred && field.state.meta.errors.length > 0
+    useFieldShouldShowError(field) && field.state.meta.errors.length > 0
   const error = showError
     ? firstErrorMessage(field.state.meta.errors)
     : undefined
