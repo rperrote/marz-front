@@ -31,13 +31,15 @@ Usage:
 
 Options:
   --current-branch   Stay on current branch (override config branchMode)
-  --current-worktree Force an isolated worktree for this run (override config worktreeEnabled)
   --dry-run          Run the loop without invoking claude (for smoke tests)
-  --debug[=N]        Debug level: 0 clean, 1 logs (default), 2 stream, 3 verbose
+  --debug[=N]        Debug level: 0 clean, 1 logs (default), 2 stream, 3 raw
   --resume           Resume from .rafita/state.json if present
   --resume-task ID   Resume a specific in-progress task (skips next-task lookup)
   --reset            Clear .rafita/state.json and start fresh
   -h, --help         This help
+
+Worktrees: rafita does NOT manage worktrees. To run inside an isolated
+worktree, create one first with .rafita/worktree-create.sh and cd into it.
 EOF
 }
 
@@ -51,7 +53,6 @@ main() {
     case "$1" in
       -h|--help) usage; exit 0 ;;
       --current-branch) cli_overrides+=("RAFITA_BRANCH_MODE=current"); shift ;;
-      --current-worktree) cli_overrides+=("RAFITA_WORKTREE_ENABLED=1"); shift ;;
       --dry-run) cli_overrides+=("RAFITA_DRY_RUN=1"); shift ;;
       --resume) resume=1; shift ;;
       --resume-task) export RAFITA_RESUME_TASK_ID="$2"; shift 2 ;;
@@ -75,7 +76,7 @@ main() {
     config::apply_overrides "${cli_overrides[@]}"
   fi
 
-  # Absolutize RAFITA_DIR so state/runs survive a cd into a worktree.
+  # Absolutize RAFITA_DIR so paths are stable regardless of cd's later.
   if [[ "$RAFITA_DIR" != /* ]]; then
     mkdir -p "$RAFITA_DIR"
     RAFITA_DIR="$(cd "$RAFITA_DIR" && pwd)"
@@ -109,10 +110,6 @@ main() {
   common::counters_init
   ui::header
   ui::config_summary
-
-  # Worktree: isolate this run in a dedicated checkout. Branches are still
-  # created/switched inside it; state/artifacts stay in the original RAFITA_DIR.
-  rafita::_enter_worktree_if_enabled
 
   local -a epics=()
   if [[ -n "$epic_arg" ]]; then
@@ -158,8 +155,6 @@ rafita::_resume_flow() {
   common::counters_init
   ui::header
   ui::info "resuming run: epic=${epic} task=${task}"
-
-  rafita::_enter_worktree_if_enabled
 
   # Checkout saved branch.
   if [[ -n "$branch" ]]; then
@@ -209,7 +204,6 @@ rafita::_on_exit() {
   common::cleanup "$rc" || true
   # Single end-of-run notification (success / partial / failure / interrupted).
   notify::send_completion "$rc" || true
-  rafita::_cleanup_worktree "$rc" || true
 }
 
 # Scan previous run dirs for surviving claude children and kill them. Runs at
@@ -239,34 +233,6 @@ rafita::_reap_orphans() {
   if (( killed > 0 )); then
     printf 'rafita: reaped %d orphan claude process(es) from prior run(s)\n' "$killed" >&2
   fi
-}
-
-rafita::_enter_worktree_if_enabled() {
-  [[ "${RAFITA_WORKTREE_ENABLED:-0}" == "1" ]] || return 0
-  # Already inside a rafita worktree (e.g. re-entry via resume path).
-  [[ -n "${RAFITA_WORKTREE_PATH:-}" ]] && return 0
-
-  local wt_path
-  wt_path=$(git::create_run_worktree "$RAFITA_RUN_ID") || common::fail "worktree creation failed"
-  export RAFITA_WORKTREE_PATH="$wt_path"
-  cd "$wt_path" || common::fail "cannot cd into worktree: $wt_path"
-  ui::info "worktree: $wt_path"
-}
-
-rafita::_cleanup_worktree() {
-  local wt="${RAFITA_WORKTREE_PATH:-}"
-  [[ -z "$wt" ]] && return 0
-  # Keep the worktree around when asked, on interrupt, or on non-zero exit so
-  # the user can inspect or resume. Only remove on clean success.
-  local rc="${1:-0}"
-  if [[ "${RAFITA_WORKTREE_KEEP:-0}" == "1" || "$rc" -ne 0 ]]; then
-    common::log INFO "worktree kept at: $wt"
-    return 0
-  fi
-  # cd out before removing.
-  cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.." 2>/dev/null || cd / || true
-  git::remove_run_worktree "$wt"
-  unset RAFITA_WORKTREE_PATH
 }
 
 main "$@"

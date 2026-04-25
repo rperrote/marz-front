@@ -44,7 +44,19 @@ opencode::_invoke() {
   local spawn=(python3 "$RAFITA_SCRIPTS_DIR/bin/spawn-session.py")
   local leader
 
-  if [[ "${RAFITA_STREAM_OUTPUT:-0}" == "1" ]]; then
+  # Auto-enable streaming when debug>=2, unless explicitly turned off.
+  # Mirrors claude.sh logic so both providers behave the same.
+  local _stream="${RAFITA_STREAM_OUTPUT:-}"
+  if [[ -z "$_stream" ]]; then
+    if [[ -n "${RAFITA_STREAM:-}" ]]; then
+      _stream="$RAFITA_STREAM"
+    elif [[ "${RAFITA_DEBUG:-1}" -ge 2 ]]; then
+      _stream=1
+    else
+      _stream=0
+    fi
+  fi
+  if [[ "$_stream" == "1" ]]; then
     # Native JSON streaming: opencode --format json | parser → stdout_tmp
     args+=(--format json)
     local parser="$RAFITA_SCRIPTS_DIR/bin/stream-parser-opencode.py"

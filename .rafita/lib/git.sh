@@ -50,11 +50,18 @@ git::setup_epic_branch() {
   fi
   # Branch doesn't exist yet — fetch + checkout prBase first so the new branch
   # starts from the correct base, not from wherever HEAD happens to be.
+  # We also fast-forward the local base to origin/<base> when possible so
+  # subsequent epics in the same run start from the latest published code,
+  # not a stale local tip.
   local base; base=$(vcs::_resolve_pr_base)
   if git::has_remote; then
     git fetch -q origin "$base" 2>/dev/null || common::warn "fetch ${base} failed; branching from local"
   fi
   git checkout -q "$base" 2>/dev/null || common::warn "checkout ${base} failed; branching from current HEAD"
+  if git::has_remote && git rev-parse --verify --quiet "origin/${base}" >/dev/null 2>&1; then
+    git merge -q --ff-only "origin/${base}" 2>/dev/null \
+      || common::warn "${base} not fast-forward to origin/${base}; using local tip"
+  fi
   git checkout -q -b "$branch"
   common::log INFO "branch: $branch (from ${base})"
 }
@@ -232,9 +239,9 @@ git::has_remote() {
 }
 
 # --- worktrees --------------------------------------------------------------
-# One worktree per run. Caller cd's into it; rafita continues to create/switch
-# branches inside as usual. State/artifacts stay in the original repo (RAFITA_DIR
-# must be absolute before calling this).
+# DEPRECATED for production use. rafita.sh no longer manages worktrees —
+# create one yourself with worktree-create.sh and run rafita inside it.
+# These helpers remain for tests and manual scripts that may still call them.
 
 # git::create_run_worktree <run_id>
 # Prints the absolute worktree path on stdout.
@@ -251,7 +258,10 @@ git::create_run_worktree() {
   fi
   mkdir -p "$wt_parent"
   wt_parent=$(cd "$wt_parent" && pwd)
-  local wt_path="$wt_parent/run-$run_id"
+  # Worktree name: <repo-basename>-run-<run_id> for human readability when
+  # multiple repos drop their worktrees in a shared parent dir.
+  local repo_name; repo_name=$(basename "$repo_root")
+  local wt_path="$wt_parent/${repo_name}-run-${run_id}"
 
   if [[ -e "$wt_path" ]]; then
     common::fail "worktree path already exists: $wt_path"

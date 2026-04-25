@@ -51,7 +51,7 @@ common::log() {
 common::init_run_dir() {
   local base="${RAFITA_DIR:-.rafita}/runs"
   mkdir -p "$base"
-  local id="${1:-}"
+  local id="${1:-${RAFITA_RUN_ID:-}}"
   if [[ -z "$id" ]]; then
     id="$(date -u +"%Y%m%dT%H%M%SZ")-$$"
   fi
@@ -78,11 +78,30 @@ common::task_artifact_dir() {
 
 common::debug_save() {
   # Args: task_id label content
+  # Never overwrites: if path exists, appends -fix-K (K = next free integer)
+  # before the extension. So a second invocation of `dev-round-1.prompt`
+  # writes `dev-round-1-fix-1.prompt`, then `-fix-2`, etc. This preserves
+  # every prompt/response across gate retries, transient retries, etc.
   local task_id="$1" label="$2" content="$3"
   [[ "${RAFITA_DEBUG:-1}" -ge 1 ]] || return 0
   local dir
   dir=$(common::task_artifact_dir "$task_id")
   local path="$dir/$label"
+  if [[ -e "$path" ]]; then
+    local base ext k
+    if [[ "$label" == *.* ]]; then
+      base="${label%.*}"
+      ext=".${label##*.}"
+    else
+      base="$label"
+      ext=""
+    fi
+    k=1
+    while [[ -e "$dir/${base}-fix-${k}${ext}" ]]; do
+      k=$((k + 1))
+    done
+    path="$dir/${base}-fix-${k}${ext}"
+  fi
   common::scrub_secrets <<< "$content" > "$path"
 }
 

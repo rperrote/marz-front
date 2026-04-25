@@ -30,6 +30,9 @@ def main():
         line = raw.rstrip("\n")
         if not line.strip():
             continue
+        # debug=3: raw passthrough alongside the filtered view.
+        if debug >= 3:
+            sys.stderr.write(f"[{ts()}] [raw] {line}\n")
         try:
             ev = json.loads(line)
         except Exception:

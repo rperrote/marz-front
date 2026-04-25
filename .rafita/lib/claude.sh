@@ -67,11 +67,22 @@ claude::_invoke() {
     return 0
   fi
 
-  # Streaming is opt-in via RAFITA_STREAM=1. It's NOT tied to debug level
-  # anymore because the CLI's stream-json mode breaks `--dangerously-skip-
-  # permissions` for tool=Write (writes get gated even with --yolo). Use
-  # streaming only for read-only exploration, not DEV phases.
-  if [[ "${RAFITA_STREAM:-0}" == "1" ]] && command -v stream::run_claude_streaming >/dev/null 2>&1; then
+  # Streaming activation:
+  #   - debug=2 → text + tool calls summarized (parser does the filtering).
+  #   - debug=3 → raw JSON stream to stderr (no parser).
+  #   - RAFITA_STREAM=1 forces on regardless of debug.
+  #   - RAFITA_STREAM=0 forces off (override debug).
+  # Caveat: the CLI's stream-json mode historically broke
+  # --dangerously-skip-permissions for tool=Write (writes were gated even
+  # with --yolo). If you hit permission prompts during DEV, set
+  # RAFITA_STREAM=0 in your config or env to fall back.
+  local stream_on=0
+  if [[ -n "${RAFITA_STREAM:-}" ]]; then
+    [[ "$RAFITA_STREAM" == "1" ]] && stream_on=1
+  elif [[ "${RAFITA_DEBUG:-1}" -ge 2 ]]; then
+    stream_on=1
+  fi
+  if (( stream_on )) && command -v stream::run_claude_streaming >/dev/null 2>&1; then
     stream::run_claude_streaming "$prompt" "$model"
     return 0
   fi

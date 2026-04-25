@@ -173,6 +173,17 @@ print(d.get("summary","task completed"))' "$verdict" > "$summary_tmp"
     rm -f "$summary_tmp" "$evidence_tmp"
     if git::commit_scoped "$task_id" "$title"; then
       ui::task_done "$task_id" "$round"
+      # Push immediately so an interrupted run never strands committed work
+      # in a worktree that may get cleaned up. Best-effort: a push failure
+      # does not block the next task, but it is logged loudly.
+      local _br; _br=$(git::current_branch)
+      if [[ -n "$_br" ]]; then
+        if git push -u origin "$_br" >/dev/null 2>&1; then
+          common::log INFO "pushed ${_br} after task ${task_id}"
+        else
+          common::log WARN "push failed for ${_br} after task ${task_id} (continuing)"
+        fi
+      fi
     else
       # Nothing changed — still mark as done in flowctl but log it.
       common::log WARN "task ${task_id} approved but no diff to commit"
