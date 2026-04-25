@@ -15,7 +15,9 @@ vi.mock('@lingui/core/macro', () => ({
 describe('B10PrimingProjection', () => {
   it('renders copy text', () => {
     render(<B10PrimingProjection />)
-    expect(screen.getByText(/a punto de terminar/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/así se ve lo que podés alcanzar/i),
+    ).toBeInTheDocument()
   })
 
   it('has no accessibility violations', async () => {

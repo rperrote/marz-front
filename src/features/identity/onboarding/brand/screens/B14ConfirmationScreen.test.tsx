@@ -29,7 +29,7 @@ describe('B14ConfirmationScreen', () => {
   it('renders confirmation copy', async () => {
     renderWithProviders(<B14ConfirmationScreen />)
     await waitFor(() => {
-      expect(screen.getByText(/todo listo/i)).toBeInTheDocument()
+      expect(screen.getByText(/^Listo\./i)).toBeInTheDocument()
     })
   })
 

@@ -20,22 +20,27 @@ vi.mock('@tanstack/react-router', () => ({
 }))
 
 describe('B13PaywallScreen', () => {
-  it('renders plan card with disabled CTA', () => {
+  it('renders the four plan cards', () => {
     render(<B13PaywallScreen />)
-    expect(screen.getByText('Plan Pro')).toBeInTheDocument()
-    expect(screen.getByText('Start trial')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Start trial' })).toBeDisabled()
+    expect(screen.getByText('Starter')).toBeInTheDocument()
+    expect(screen.getByText('Growth')).toBeInTheDocument()
+    expect(screen.getByText('Scale')).toBeInTheDocument()
+    expect(screen.getByText('Custom')).toBeInTheDocument()
   })
 
   it('renders skip link', () => {
     render(<B13PaywallScreen />)
-    expect(screen.getByText(/continuar sin suscribirme/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/prefiero seguir sin acceso a la red de creadores/i),
+    ).toBeInTheDocument()
   })
 
   it('skip navigates to next step', async () => {
     const user = userEvent.setup()
     render(<B13PaywallScreen />)
-    await user.click(screen.getByText(/continuar sin suscribirme/i))
+    await user.click(
+      screen.getByText(/prefiero seguir sin acceso a la red de creadores/i),
+    )
     expect(mockNavigate).toHaveBeenCalled()
   })
 

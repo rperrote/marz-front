@@ -40,14 +40,14 @@ describe('B11AttributionScreen', () => {
   it('shows referral input when referral selected', async () => {
     const user = userEvent.setup()
     render(<B11AttributionScreen />)
-    await user.click(screen.getByText(/me lo recomendaron/i))
+    await user.click(screen.getByRole('radio', { name: /referido/i }))
     expect(screen.getByLabelText(/quién te recomendó/i)).toBeInTheDocument()
   })
 
   it('stores referral text', async () => {
     const user = userEvent.setup()
     render(<B11AttributionScreen />)
-    await user.click(screen.getByText(/me lo recomendaron/i))
+    await user.click(screen.getByRole('radio', { name: /referido/i }))
     await user.type(screen.getByLabelText(/quién te recomendó/i), 'María')
     expect(useBrandOnboardingStore.getState().attribution).toEqual({
       source: 'referral',

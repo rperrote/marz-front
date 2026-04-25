@@ -12,7 +12,11 @@ const config = defineConfig({
   plugins: [
     devtools(),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        routeFileIgnorePattern: '\\.(test|spec)\\.(ts|tsx)$',
+      },
+    }),
     viteReact({
       plugins: [['@lingui/swc-plugin', {}]],
     }),

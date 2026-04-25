@@ -15,7 +15,7 @@ vi.mock('@lingui/core/macro', () => ({
 describe('B3PrimingSocialProof', () => {
   it('renders copy text', () => {
     render(<B3PrimingSocialProof />)
-    expect(screen.getByText(/miles de marcas/i)).toBeInTheDocument()
+    expect(screen.getByText(/acá no entrás solo/i)).toBeInTheDocument()
   })
 
   it('has no accessibility violations', async () => {

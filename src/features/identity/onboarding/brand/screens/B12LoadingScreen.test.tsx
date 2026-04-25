@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { axe } from 'vitest-axe'
 import { B12LoadingScreen } from './B12LoadingScreen'
 
@@ -26,14 +26,17 @@ afterEach(() => {
 describe('B12LoadingScreen', () => {
   it('renders loading text', () => {
     render(<B12LoadingScreen />)
-    expect(screen.getByText(/preparando todo/i)).toBeInTheDocument()
+    expect(screen.getByText(/armando tu shortlist/i)).toBeInTheDocument()
   })
 
-  it('auto-advances after 2.5s', () => {
-    vi.useFakeTimers()
+  it('auto-advances once the four steps complete', async () => {
     render(<B12LoadingScreen />)
-    vi.advanceTimersByTime(2500)
-    expect(mockNavigate).toHaveBeenCalled()
+    await waitFor(
+      () => {
+        expect(mockNavigate).toHaveBeenCalled()
+      },
+      { timeout: 700 * 4 + 500 + 1000 },
+    )
   })
 
   it('has no accessibility violations', async () => {

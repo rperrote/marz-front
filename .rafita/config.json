@@ -18,7 +18,7 @@
   "closerModel": "claude-opus-4-6",
   "flowctl": ".flow/bin/flowctl",
   "ui": true,
-  "notifyWebhook": "",
+  "notifyWebhook": "https://discord.com/api/webhooks/1496528752736473240/CQa5mG3AJfD6PVXaCn1zSVKnLWrdXsbhN4Or4PATlKJmowmYi50A7Q-EzH_lc5gK9err",
   "skipOnFailedTask": true,
   "rateLimitTaskRetry": true,
   "rateLimitMaxSleep": 21600,

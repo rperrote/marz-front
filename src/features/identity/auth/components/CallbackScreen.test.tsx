@@ -10,12 +10,14 @@ const mockNavigate = vi.fn()
 const mockHandleEmailLinkVerification = vi.fn()
 const mockFetchQuery = vi.fn()
 
+const mockGetToken = vi.fn<() => Promise<string | null>>()
+
 vi.mock('@clerk/tanstack-react-start', () => ({
   ClerkProvider: ({ children }: { children: React.ReactNode }) => children,
   useAuth: () => ({
     isLoaded: true,
     isSignedIn: true,
-    getToken: vi.fn(),
+    getToken: mockGetToken,
     signOut: vi.fn(),
   }),
   useClerk: () => ({
@@ -50,6 +52,7 @@ describe('CallbackScreen', () => {
     vi.clearAllMocks()
     resetTrackedEvents()
     mockHandleEmailLinkVerification.mockResolvedValue(undefined)
+    mockGetToken.mockResolvedValue('valid-token')
   })
 
   it('renders loading spinner and text', async () => {

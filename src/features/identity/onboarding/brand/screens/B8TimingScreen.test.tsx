@@ -31,7 +31,7 @@ describe('B8TimingScreen', () => {
   it('selects timing on click', async () => {
     const user = userEvent.setup()
     render(<B8TimingScreen />)
-    await user.click(screen.getByText(/lanzar ahora/i))
+    await user.click(screen.getByText(/^lanzo ya$/i))
     expect(useBrandOnboardingStore.getState().timing).toBe('launch_now')
   })
 

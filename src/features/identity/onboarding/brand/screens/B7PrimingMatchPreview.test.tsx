@@ -15,7 +15,9 @@ vi.mock('@lingui/core/macro', () => ({
 describe('B7PrimingMatchPreview', () => {
   it('renders copy text', () => {
     render(<B7PrimingMatchPreview />)
-    expect(screen.getByText(/preparando tus matches/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/matching pre-calculado con tu vertical/i),
+    ).toBeInTheDocument()
   })
 
   it('has no accessibility violations', async () => {

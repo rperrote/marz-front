@@ -36,9 +36,8 @@ describe('B6BudgetScreen', () => {
 
   it('renders budget label', () => {
     render(<B6BudgetScreen />)
-    expect(
-      screen.getByText(/\$0 — sin presupuesto definido/i),
-    ).toBeInTheDocument()
+    expect(screen.getByText('10.000')).toBeInTheDocument()
+    expect(screen.getByText(/marcas similares invierten/i)).toBeInTheDocument()
   })
 
   it('has no accessibility violations', async () => {

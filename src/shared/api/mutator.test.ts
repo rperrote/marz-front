@@ -49,9 +49,13 @@ describe('customFetch', () => {
     const payload = { id: 1, name: 'test' }
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(200, payload))
 
-    const result = await customFetch('/users/1')
+    const result = await customFetch<{
+      data: typeof payload
+      status: number
+    }>('/users/1')
 
-    expect(result).toEqual(payload)
+    expect(result.status).toBe(200)
+    expect(result.data).toEqual(payload)
     expect(fetch).toHaveBeenCalledOnce()
   })
 
@@ -63,9 +67,13 @@ describe('customFetch', () => {
       )
       .mockResolvedValueOnce(jsonResponse(200, { ok: true }))
 
-    const result = await customFetch('/protected')
+    const result = await customFetch<{
+      data: { ok: boolean }
+      status: number
+    }>('/protected')
 
-    expect(result).toEqual({ ok: true })
+    expect(result.status).toBe(200)
+    expect(result.data).toEqual({ ok: true })
     expect(mockRefreshToken).toHaveBeenCalledOnce()
     expect(fetchSpy).toHaveBeenCalledTimes(2)
     expect(mockSignOut).not.toHaveBeenCalled()
