@@ -16,7 +16,11 @@ function useNextDisabled(phaseIndex: number): boolean {
 
   if (phaseIndex === 0) {
     const { websiteUrl, descriptionText } = store.formInput
-    return websiteUrl.trim().length === 0 && descriptionText.trim().length === 0
+    return (
+      websiteUrl.trim().length === 0 &&
+      descriptionText.trim().length === 0 &&
+      store.pdfFile === null
+    )
   }
 
   if (phaseIndex === 1) {
@@ -97,7 +101,13 @@ export function BriefBuilderWizard() {
         onBack={currentIndex > 0 ? handleBack : undefined}
         onNext={() => void handleNext()}
         nextDisabled={nextDisabled}
-        nextLabel={isLastPhase ? 'Crear campaña' : 'Continuar'}
+        nextLabel={
+          isLastPhase
+            ? 'Crear campaña'
+            : currentIndex === 0
+              ? 'Analizar'
+              : 'Continuar'
+        }
         onExit={handleExit}
         exitLabel="Cancelar"
         hideFooter={isProgressPhase}

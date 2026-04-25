@@ -4,12 +4,17 @@ export const formInputSchema = z
   .object({
     websiteUrl: z.string(),
     descriptionText: z.string(),
+    pdfFile: z.instanceof(File).nullable(),
   })
   .refine(
     (data) =>
       data.websiteUrl.trim().length > 0 ||
-      data.descriptionText.trim().length > 0,
-    { message: 'Completá al menos uno de los campos.', path: ['websiteUrl'] },
+      data.descriptionText.trim().length > 0 ||
+      data.pdfFile !== null,
+    {
+      message: 'Ingresá una descripción o subí un PDF.',
+      path: ['descriptionText'],
+    },
   )
 
 export const websiteUrlFieldSchema = z

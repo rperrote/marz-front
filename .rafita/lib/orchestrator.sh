@@ -80,6 +80,13 @@ orchestrator::run_task() {
     fi
   fi
 
+  # No-progress detector: if the dev replies N rounds in a row with summaries
+  # that are pure "ya está / nothing to fix / falsos positivos", the task is
+  # in a stalled loop where the dev disputes the reviewer instead of
+  # implementing. Stop early to avoid burning all max_rounds.
+  local noop_streak=0
+  local noop_threshold=3
+
   local round
   for (( round=start_round; round<=max; round++ )); do
     export RAFITA_CURRENT_ROUND="$round"
@@ -159,6 +166,29 @@ PYEOF
     first_issue=$(python3 "$py_tmp" "$verdict")
     rm -f "$py_tmp"
     [[ -n "$first_issue" ]] && ui::info "    first fix: ${first_issue}"
+
+    # No-progress check: read the dev summary of THIS round and look for
+    # patterns that indicate the dev did not actually change code (just
+    # disputed the review).
+    local dev_summary_file="${RAFITA_RUN_DIR:-}/${task_id}/dev-round-${round}.summary"
+    if [[ -f "$dev_summary_file" ]]; then
+      local dev_summary_text; dev_summary_text=$(cat "$dev_summary_file")
+      # Case-insensitive grep for known "no-op" phrases. Add more if you spot
+      # new patterns in stalled runs.
+      if printf '%s' "$dev_summary_text" | grep -qiE \
+          'no requiere|ya implementado|ya est[áa] (resuelto|hecho|cubierto)|falsos positivos|auditor[íi]a limpia|sin cambios necesarios|no se requieren cambios|nothing to fix|already (fixed|implemented|done)'; then
+        noop_streak=$((noop_streak + 1))
+        common::log WARN "task ${task_id} round ${round}: dev reported no-op (streak=${noop_streak}/${noop_threshold})"
+        if (( noop_streak >= noop_threshold )); then
+          common::log WARN "task ${task_id}: ${noop_threshold} no-op rounds in a row; aborting as stalled"
+          ui::error "task ${task_id} stalled — dev keeps disputing review without editing"
+          break
+        fi
+      else
+        # Real progress (or at least an attempt): reset the streak.
+        noop_streak=0
+      fi
+    fi
   done
 
   if [[ $approved -eq 1 ]]; then
@@ -191,9 +221,15 @@ print(d.get("summary","task completed"))' "$verdict" > "$summary_tmp"
     return 0
   fi
 
-  # Not approved in max rounds.
-  common::log WARN "task ${task_id} exhausted max rounds; changes preserved"
-  ui::task_skipped "$task_id" "max-rounds"
+  # Not approved. Could be exhausted max_rounds or stalled (no-progress
+  # detector triggered an early break). The noop_streak variable tells us.
+  if (( noop_streak >= noop_threshold )); then
+    common::log WARN "task ${task_id} stalled at round ${round}; changes preserved"
+    ui::task_skipped "$task_id" "stalled-${noop_threshold}-noops"
+  else
+    common::log WARN "task ${task_id} exhausted max rounds; changes preserved"
+    ui::task_skipped "$task_id" "max-rounds"
+  fi
   return 1
 }
 

@@ -1,0 +1,25 @@
+## Tu última respuesta no es parseable
+
+Faltó el bloque `<review>{...}</review>` con JSON válido, o el JSON adentro tenía sintaxis rota.
+
+NO cambies tu opinión. NO re-analices el diff. NO agregues fixes nuevos ni quites los que ya identificaste.
+
+Tu última respuesta literal fue:
+
+```
+{{LAST_OUTPUT}}
+```
+
+Convertí EXACTAMENTE ese análisis al formato requerido:
+
+- Aprobado: `<review>{"approved": true, "summary": "..."}</review>`
+- Rechazado: `<review>{"approved": false, "fixes": [{"file":"...","issue":"...","suggestion":"...","fixed":false}]}</review>`
+
+Reglas:
+- Si tu análisis previo concluyó "aprobado" / "OK" / "sin issues" → `approved: true`, `fixes` ausente o vacío.
+- Si tu análisis listó problemas → `approved: false` + cada problema como item de `fixes`.
+- "approved": true SOLO si fixes está vacío/ausente. Coherencia obligada.
+- El bloque `<review>...</review>` debe ser la última cosa de tu respuesta. Nada después de `</review>`.
+- JSON estricto adentro. Sin markdown, sin comentarios, sin trailing commas.
+
+Solo emití el bloque. Sin prosa antes ni después.

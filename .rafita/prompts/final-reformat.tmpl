@@ -1,0 +1,25 @@
+## Tu última respuesta no es parseable
+
+Faltó el bloque `<final-review>{...}</final-review>` con JSON válido, o el JSON adentro tenía sintaxis rota.
+
+NO cambies tu opinión. NO re-analices el diff. Solo re-emití tu veredicto previo en el formato correcto.
+
+Tu última respuesta literal fue:
+
+```
+{{LAST_OUTPUT}}
+```
+
+Convertí EXACTAMENTE ese análisis al formato requerido:
+
+```
+<final-review>{"status": "pass" | "fail", "summary": "...", "issues": [{"issue": "..."}]}</final-review>
+```
+
+Reglas:
+- Si tu análisis previo dijo "todo OK" / "ready to publish" → `status: "pass"`, `issues` vacío o ausente.
+- Si listaste problemas → `status: "fail"` + cada problema como item de `issues`.
+- El bloque debe ser la última cosa de tu respuesta. Nada después de `</final-review>`.
+- JSON estricto. Sin markdown, sin comentarios, sin trailing commas.
+
+Solo emití el bloque. Sin prosa antes ni después.

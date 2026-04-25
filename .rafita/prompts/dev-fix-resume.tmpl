@@ -1,3 +1,13 @@
+## Nuevos fixes del reviewer
+
 {{FIXES}}
 
-Resumí los cambios aplicados en `<summary>...</summary>` y emití `<done/>`.
+## Cómo proceder (no negociable)
+
+Tu trabajo es APLICAR estos fixes. No los cuestiones, no los re-evalúes, no respondas "ya está resuelto" sin haber editado el archivo en este round.
+
+- Si un fix te parece equivocado: igual aplicalo y dejá un comentario `// RAFITA:DISAGREE: <razón breve>` en el archivo afectado. El reviewer va a leerlo y decidir.
+- Si un fix referencia algo que ya está resuelto desde rounds anteriores: aplicá el cambio explícito que pide igualmente (ej: si pide agregar un `?.`, agregalo aunque creas que el código ya estaba seguro). El reviewer no tiene memoria perfecta de rounds previos.
+- Si NADA cambió en este round, eso no es válido — tenés que tocar al menos un archivo o, en último caso, marcar cada fix con `RAFITA:DISAGREE` en el archivo correspondiente.
+
+Al terminar, emití un resumen breve de QUÉ archivos editaste en `<summary>...</summary>` y luego `<done/>`.

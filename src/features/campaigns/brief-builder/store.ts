@@ -27,12 +27,14 @@ export interface BriefBuilderState {
     descriptionText: string
     pdfMeta: PdfMeta | null
   }
+  pdfFile: File | null
   briefDraft: BriefDraft | null
   campaignId: string | null
   setField: <TKey extends keyof BriefBuilderState>(
     key: TKey,
     value: BriefBuilderState[TKey],
   ) => void
+  setPdfFile: (file: File | null) => void
   goTo: (phase: Phase) => void
   reset: () => void
 }
@@ -47,11 +49,14 @@ const INITIAL_STATE = {
     descriptionText: '',
     pdfMeta: null,
   },
+  pdfFile: null as File | null,
   briefDraft: null,
   campaignId: null,
 }
 
-const sessionStorageSSR = createJSONStorage<BriefBuilderState>(() =>
+type PersistedBriefBuilderState = Omit<BriefBuilderState, 'pdfFile'>
+
+const sessionStorageSSR = createJSONStorage<PersistedBriefBuilderState>(() =>
   typeof window === 'undefined'
     ? { getItem: () => null, setItem: () => {}, removeItem: () => {} }
     : sessionStorage,
@@ -62,6 +67,16 @@ export const useBriefBuilderStore = create<BriefBuilderState>()(
     (set) => ({
       ...INITIAL_STATE,
       setField: (key, value) => set({ [key]: value }),
+      setPdfFile: (file) =>
+        set((prev) => ({
+          pdfFile: file,
+          formInput: {
+            ...prev.formInput,
+            pdfMeta: file
+              ? { fileName: file.name, sizeBytes: file.size, pageCount: 0 }
+              : null,
+          },
+        })),
       goTo: (phase) =>
         set({
           currentPhase: Math.min(Math.max(1, phase), PHASES.length) as Phase,
@@ -76,6 +91,10 @@ export const useBriefBuilderStore = create<BriefBuilderState>()(
     {
       name: STORAGE_KEY,
       storage: sessionStorageSSR,
+      partialize: ({
+        pdfFile: _,
+        ...rest
+      }): Omit<BriefBuilderState, 'pdfFile'> => rest,
       skipHydration: true,
     },
   ),
