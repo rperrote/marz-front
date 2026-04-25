@@ -13,15 +13,17 @@ import {
 } from 'lucide-react'
 import { Input } from '#/components/ui/input'
 import {
-  OnboardingShell,
-  OnboardingTopbar,
-  OnboardingProgress,
-  OnboardingFooter,
+  WizardShell,
+  WizardTopbar,
+  WizardProgress,
+  WizardFooter,
+  WizardSectionTitle,
+} from '#/shared/ui/wizard'
+import {
   OnboardingOptionChip,
   OnboardingVerticalCard,
   OnboardingContentTypeChip,
   OnboardingTierCard,
-  OnboardingSectionTitle,
 } from '#/features/identity/onboarding/shared/components'
 import { FieldRow } from '#/shared/ui/form'
 
@@ -46,7 +48,7 @@ function DsOnboardingPage() {
       <section className="space-y-8 border-b border-border p-8">
         <h2 className="text-xl font-bold text-foreground">OnboardingTopbar</h2>
         <div className="overflow-hidden rounded-xl border border-border">
-          <OnboardingTopbar stepLabel="Paso 1 de 17" onExit={() => {}} />
+          <WizardTopbar stepLabel="Paso 1 de 17" onExit={() => {}} />
         </div>
       </section>
 
@@ -55,28 +57,28 @@ function DsOnboardingPage() {
           OnboardingProgress
         </h2>
         <div className="space-y-4">
-          <OnboardingProgress percent={0} />
-          <OnboardingProgress percent={25} />
-          <OnboardingProgress percent={50} />
-          <OnboardingProgress percent={75} />
-          <OnboardingProgress percent={100} />
+          <WizardProgress percent={0} />
+          <WizardProgress percent={25} />
+          <WizardProgress percent={50} />
+          <WizardProgress percent={75} />
+          <WizardProgress percent={100} />
         </div>
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
         <h2 className="text-xl font-bold text-foreground">OnboardingFooter</h2>
         <div className="overflow-hidden rounded-xl border border-border">
-          <OnboardingFooter
+          <WizardFooter
             onBack={() => {}}
             onNext={() => {}}
             nextLabel="Continuar"
           />
         </div>
         <div className="overflow-hidden rounded-xl border border-border">
-          <OnboardingFooter onNext={() => {}} nextDisabled />
+          <WizardFooter onNext={() => {}} nextDisabled />
         </div>
         <div className="overflow-hidden rounded-xl border border-border">
-          <OnboardingFooter onNext={() => {}} isLoading />
+          <WizardFooter onNext={() => {}} isLoading />
         </div>
       </section>
 
@@ -85,7 +87,7 @@ function DsOnboardingPage() {
           OnboardingSectionTitle
         </h2>
         <div className="flex justify-center">
-          <OnboardingSectionTitle
+          <WizardSectionTitle
             title="Título de pantalla"
             subtitle="Subcopy que ecoa un dato previo del usuario."
           />
@@ -220,14 +222,14 @@ function DsOnboardingPage() {
           OnboardingShell (full)
         </h2>
         <div className="h-[600px] overflow-hidden rounded-xl border border-border">
-          <OnboardingShell
+          <WizardShell
             stepLabel="Paso 3 de 17"
             percent={18}
             onBack={() => {}}
             onNext={() => {}}
             onExit={() => {}}
           >
-            <OnboardingSectionTitle
+            <WizardSectionTitle
               title="¿En qué industria opera tu marca?"
               subtitle="Esto nos ayuda a conectarte con los creadores adecuados."
             />
@@ -248,7 +250,7 @@ function DsOnboardingPage() {
                 />
               ))}
             </div>
-          </OnboardingShell>
+          </WizardShell>
         </div>
       </section>
 
@@ -257,7 +259,7 @@ function DsOnboardingPage() {
           OnboardingShell (loading, no back)
         </h2>
         <div className="h-[400px] overflow-hidden rounded-xl border border-border">
-          <OnboardingShell
+          <WizardShell
             stepLabel="Paso 17 de 17"
             percent={100}
             onNext={() => {}}
@@ -265,8 +267,8 @@ function DsOnboardingPage() {
             isLoading
             onExit={() => {}}
           >
-            <OnboardingSectionTitle title="Procesando tu perfil..." />
-          </OnboardingShell>
+            <WizardSectionTitle title="Procesando tu perfil..." />
+          </WizardShell>
         </div>
       </section>
     </div>

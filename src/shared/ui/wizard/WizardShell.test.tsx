@@ -2,19 +2,19 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { axe } from 'vitest-axe'
-import { OnboardingShell } from './OnboardingShell'
+import { WizardShell } from './WizardShell'
 
-describe('OnboardingShell', () => {
+describe('WizardShell', () => {
   it('renders topbar, progress, children, and footer', () => {
     render(
-      <OnboardingShell
+      <WizardShell
         stepLabel="Paso 2 de 5"
         percent={40}
         onNext={() => {}}
         onBack={() => {}}
       >
         <p>Content</p>
-      </OnboardingShell>,
+      </WizardShell>,
     )
     expect(screen.getByText('Paso 2 de 5')).toBeInTheDocument()
     expect(screen.getByRole('progressbar')).toHaveAttribute(
@@ -30,14 +30,9 @@ describe('OnboardingShell', () => {
     const onNext = vi.fn()
     const onBack = vi.fn()
     render(
-      <OnboardingShell
-        stepLabel="Step"
-        percent={0}
-        onNext={onNext}
-        onBack={onBack}
-      >
+      <WizardShell stepLabel="Step" percent={0} onNext={onNext} onBack={onBack}>
         <p>Content</p>
-      </OnboardingShell>,
+      </WizardShell>,
     )
     await userEvent.click(screen.getByText('Continuar'))
     expect(onNext).toHaveBeenCalledOnce()
@@ -47,14 +42,14 @@ describe('OnboardingShell', () => {
 
   it('is axe-clean', async () => {
     const { container } = render(
-      <OnboardingShell
+      <WizardShell
         stepLabel="Step"
         percent={50}
         onNext={() => {}}
         onBack={() => {}}
       >
         <p>Content</p>
-      </OnboardingShell>,
+      </WizardShell>,
     )
     expect(await axe(container)).toHaveNoViolations()
   })

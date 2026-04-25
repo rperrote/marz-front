@@ -8,7 +8,7 @@ import {
 import { useAuth } from '@clerk/tanstack-react-start'
 
 import { useMe } from '#/shared/api/generated/accounts/accounts'
-import { OnboardingShell } from '#/features/identity/onboarding/shared/components'
+import { WizardShell } from '#/shared/ui/wizard'
 import { useBrandOnboardingStore } from '#/features/identity/onboarding/brand/store'
 import {
   STEPS,
@@ -121,7 +121,7 @@ function BrandOnboardingLayout() {
   if (kind !== 'brand' || onboardingStatus !== 'onboarding_pending') return null
 
   return (
-    <OnboardingShell
+    <WizardShell
       stepLabel={stepLabel}
       percent={percent}
       onBack={currentIndex > 0 ? handleBack : undefined}
@@ -131,6 +131,6 @@ function BrandOnboardingLayout() {
       onExit={handleExit}
     >
       <Outlet />
-    </OnboardingShell>
+    </WizardShell>
   )
 }

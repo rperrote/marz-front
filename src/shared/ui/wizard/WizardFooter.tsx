@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
 import { cn } from '#/lib/utils'
 
-interface OnboardingFooterProps {
+interface WizardFooterProps {
   onBack?: () => void
   onNext: () => void
   nextDisabled?: boolean
@@ -11,7 +11,7 @@ interface OnboardingFooterProps {
   className?: string
 }
 
-export function OnboardingFooter({
+export function WizardFooter({
   onBack,
   onNext,
   nextDisabled = false,
@@ -19,7 +19,7 @@ export function OnboardingFooter({
   backLabel = 'Atrás',
   isLoading = false,
   className,
-}: OnboardingFooterProps) {
+}: WizardFooterProps) {
   return (
     <div
       className={cn('flex w-full items-center justify-center gap-3', className)}

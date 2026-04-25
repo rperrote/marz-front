@@ -1,6 +1,6 @@
 import { cn } from '#/lib/utils'
 
-interface OnboardingTopbarProps {
+interface WizardTopbarProps {
   stepLabel: string
   onExit?: () => void
   exitLabel?: string
@@ -8,13 +8,13 @@ interface OnboardingTopbarProps {
   className?: string
 }
 
-export function OnboardingTopbar({
+export function WizardTopbar({
   stepLabel,
   onExit,
   exitLabel = 'Salir',
   brandLabel = 'Marz',
   className,
-}: OnboardingTopbarProps) {
+}: WizardTopbarProps) {
   return (
     <header
       className={cn(

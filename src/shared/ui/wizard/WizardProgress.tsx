@@ -1,16 +1,16 @@
 import { cn } from '#/lib/utils'
 
-interface OnboardingProgressProps {
+interface WizardProgressProps {
   percent: number
   ariaLabel?: string
   className?: string
 }
 
-export function OnboardingProgress({
+export function WizardProgress({
   percent,
   ariaLabel = 'Progreso de onboarding',
   className,
-}: OnboardingProgressProps) {
+}: WizardProgressProps) {
   const clamped = Math.max(0, Math.min(100, percent))
 
   return (
