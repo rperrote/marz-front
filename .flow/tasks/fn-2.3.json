@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-25T16:13:51.807749Z",
   "created_at": "2026-04-24T22:22:52.035764Z",
   "depends_on": [],
   "epic": "fn-2",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Solo metadata de task: newlines en fn-2.2.md y claim/status en fn-2.3.json. Sin c\u00f3digo, sin l\u00f3gica, sin nada que revisar."
+  },
   "id": "fn-2.3",
   "priority": null,
   "spec_path": ".flow/tasks/fn-2.3.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.0b \u2014 Dise\u00f1o Pencil: 4 templates + organismos del Brief Builder",
-  "updated_at": "2026-04-24T22:26:30.617848Z"
+  "updated_at": "2026-04-25T16:14:51.437031Z"
 }

@@ -76,11 +76,8 @@ pencil > exit()
 - Si se agregaron tokens nuevos, replicados en `marz-front/src/styles.css` (light + dark).
 
 ## Done summary
-
-TBD
-
+Solo metadata de task: newlines en fn-2.2.md y claim/status en fn-2.3.json. Sin código, sin lógica, sin nada que revisar.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:
