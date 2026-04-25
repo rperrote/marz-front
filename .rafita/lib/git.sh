@@ -260,9 +260,16 @@ git::create_run_worktree() {
   # Pick starting ref. In branchMode=current, mirror the user's current branch
   # so they can continue work in an isolated checkout. Otherwise start from the
   # resolved base branch (prBase → dev → main → master).
+  # NOTE: vcs::_resolve_pr_base skips the current branch (correct for PR base
+  # selection — you can't open a PR from dev to dev). For worktree start_ref
+  # that skip is wrong: if user is on dev with prBase=dev, the worktree must
+  # still start from dev, not silently fall through to main (which may be
+  # behind and carry stale .flow/epics/*.json state).
   local start_ref
   if [[ "${RAFITA_BRANCH_MODE:-new}" == "current" ]]; then
     start_ref=$(git::current_branch)
+  elif [[ -n "${RAFITA_PR_BASE:-}" ]] && git rev-parse --verify --quiet "${RAFITA_PR_BASE}" >/dev/null 2>&1; then
+    start_ref="${RAFITA_PR_BASE}"
   else
     start_ref=$(vcs::_resolve_pr_base)
   fi
