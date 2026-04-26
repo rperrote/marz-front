@@ -1,17 +1,70 @@
-import { Check } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from '@tanstack/react-router'
+import {
+  Check,
+  Loader2,
+  RotateCcw,
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+} from 'lucide-react'
+import { toast } from 'sonner'
 import { WizardSectionTitle } from '#/shared/ui/wizard'
+import { Button } from '#/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '#/components/ui/dialog'
 import { useBriefBuilderStore } from '../store'
-
-const OBJECTIVE_LABELS: Record<string, string> = {
-  brand_awareness: 'Brand Awareness',
-  conversion: 'Conversión',
-  engagement: 'Engagement',
-  reach: 'Alcance',
-}
+import {
+  useCreateCampaign,
+  getCreateCampaignFieldErrors,
+} from '../hooks/useCreateCampaign'
+import { BriefSummaryView } from '../components/BriefSummaryView'
 
 export function P4Confirm() {
   const store = useBriefBuilderStore()
+  const router = useRouter()
   const draft = store.briefDraft
+
+  const idempotencyKeyRef = useRef(crypto.randomUUID())
+  const hasTriggeredRef = useRef(false)
+  const [summaryOpen, setSummaryOpen] = useState(false)
+
+  const mutation = useCreateCampaign()
+
+  useEffect(() => {
+    if (!draft || hasTriggeredRef.current) return
+    hasTriggeredRef.current = true
+
+    mutation.mutate(
+      {
+        // TODO(fn-B.x): obtener brandWorkspaceId del auth context
+        brandWorkspaceId: 'default' as string,
+        idempotencyKey: idempotencyKeyRef.current,
+        draft,
+      },
+      {
+        onSuccess: (data) => {
+          store.setField('campaignId', data.campaign_id)
+        },
+        onError: (error) => {
+          const fieldErrors = getCreateCampaignFieldErrors(error)
+          if (fieldErrors) {
+            const messages = Object.values(fieldErrors).flat()
+            toast.error(
+              messages[0] ?? 'Error de validación. Revisá los campos.',
+            )
+          } else {
+            toast.error('No se pudo crear la campaña. Intentá de nuevo.')
+          }
+        },
+      },
+    )
+  }, [])
 
   if (!draft) {
     return (
@@ -24,55 +77,118 @@ export function P4Confirm() {
     )
   }
 
-  const summaryItems = [
-    { label: 'Nombre', value: draft.campaign.name },
-    {
-      label: 'Objetivo',
-      value:
-        OBJECTIVE_LABELS[draft.campaign.objective] ?? draft.campaign.objective,
-    },
-    {
-      label: 'Presupuesto',
-      value: draft.campaign.budget_amount
-        ? `${draft.campaign.budget_currency} ${String(draft.campaign.budget_amount)}`
-        : '',
-    },
-    { label: 'Deadline', value: draft.campaign.deadline },
-    { label: 'ICP', value: draft.brief.icp_description ?? '' },
-    {
-      label: 'Plataformas',
-      value: draft.brief.icp_platforms.join(', '),
-    },
-    {
-      label: 'Scoring Dimensions',
-      value: draft.brief.scoring_dimensions
-        .map((d) => `${d.name} (${String(d.weight_pct)}%)`)
-        .join(', '),
-    },
-  ].filter((item) => item.value.length > 0)
+  if (mutation.isPending) {
+    return (
+      <div className="flex w-full flex-col items-center gap-8">
+        <Loader2 className="size-10 animate-spin text-primary" />
+        <WizardSectionTitle
+          title="Creando tu campaña…"
+          subtitle="Esto puede tardar unos segundos."
+        />
+      </div>
+    )
+  }
+
+  if (mutation.isError) {
+    const fieldErrors = getCreateCampaignFieldErrors(mutation.error)
+    return (
+      <div className="flex w-full flex-col items-center gap-8">
+        <WizardSectionTitle
+          title="Error al crear la campaña"
+          subtitle={
+            fieldErrors
+              ? 'Hay errores de validación. Volvé al paso anterior para corregirlos.'
+              : 'Ocurrió un error inesperado. Podés volver a intentar.'
+          }
+        />
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => {
+              store.goTo(3)
+              void router.navigate({
+                to: '/campaigns/new/$phase',
+                params: { phase: 'review' },
+              })
+            }}
+          >
+            <ArrowLeft className="size-4" />
+            Volver al formulario
+          </Button>
+          {!fieldErrors && (
+            <Button
+              onClick={() => {
+                mutation.mutate({
+                  brandWorkspaceId: 'default' as string,
+                  idempotencyKey: idempotencyKeyRef.current,
+                  draft,
+                })
+              }}
+            >
+              <RotateCcw className="size-4" />
+              Volver a intentar
+            </Button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  const handleGoToMarketplace = async () => {
+    const campaignId = store.campaignId
+    try {
+      // TODO(fn-X): cuando exista la ruta /marketplace, tipar correctamente
+      await router.navigate({
+        to: '/marketplace',
+        ...(campaignId ? { search: { campaignId } } : {}),
+      } as Parameters<typeof router.navigate>[0])
+    } catch {
+      toast.info(
+        'El marketplace no está disponible aún. Te llevamos al inicio.',
+      )
+      void router.navigate({ to: '/' })
+    }
+  }
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
-      <WizardSectionTitle
-        title="Confirmá tu campaña"
-        subtitle="Revisá el resumen antes de crear la campaña."
-      />
-      <div className="w-full max-w-[560px] rounded-xl border border-border bg-card p-6">
-        <div className="flex flex-col gap-4">
-          {summaryItems.map((item) => (
-            <div key={item.label} className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-muted-foreground">
-                {item.label}
-              </span>
-              <span className="text-sm text-foreground">{item.value}</span>
-            </div>
-          ))}
+      <div className="flex size-[72px] items-center justify-center rounded-full bg-primary/20">
+        <div className="flex size-11 items-center justify-center rounded-full bg-primary">
+          <Check className="size-6 text-primary-foreground" strokeWidth={3} />
         </div>
       </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Check className="size-4 text-primary" />
-        <span>Al confirmar se creará la campaña como borrador.</span>
+
+      <WizardSectionTitle
+        title="Campaña creada"
+        subtitle="Tu campaña fue creada con éxito. Podés ir al marketplace o revisar el brief."
+      />
+
+      <div className="flex gap-3">
+        <Button
+          variant="outline"
+          onClick={() => setSummaryOpen(true)}
+          disabled={mutation.isPending}
+        >
+          <Eye className="size-4" />
+          Ver resumen del brief
+        </Button>
+        <Button onClick={handleGoToMarketplace} disabled={mutation.isPending}>
+          Ir al marketplace
+          <ArrowRight className="size-4" />
+        </Button>
       </div>
+
+      <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Resumen del brief</DialogTitle>
+            <DialogDescription>
+              Detalle completo de la campaña y brief creados.
+            </DialogDescription>
+          </DialogHeader>
+          <BriefSummaryView draft={draft} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

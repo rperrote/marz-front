@@ -69,6 +69,7 @@ export function BriefBuilderWizard() {
   const stepLabel = `Fase ${currentIndex + 1} de ${PHASES.length}`
   const isLastPhase = currentIndex === PHASES.length - 1
   const isProgressPhase = currentIndex === 1
+  const isConfirmPhase = isLastPhase
 
   const handleNext = async () => {
     const isValid = await callValidator()
@@ -121,7 +122,7 @@ export function BriefBuilderWizard() {
         }
         onExit={handleExit}
         exitLabel="Cancelar"
-        hideFooter={isProgressPhase}
+        hideFooter={isProgressPhase || isConfirmPhase}
       >
         <Outlet />
       </WizardShell>
