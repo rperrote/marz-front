@@ -99,6 +99,20 @@ print(d.get("title",""))
 '
 }
 
+# CSV of task ids in an epic with status=done. Used by --closer-only to
+# reconstruct the task list rafita would have built incrementally.
+flowctl::done_tasks_csv() {
+  local epic="$1"
+  local bin; bin=$(flowctl::_bin)
+  "$bin" tasks --epic "$epic" --status done --json 2>/dev/null | python3 -c '
+import json, sys
+try: d = json.load(sys.stdin)
+except Exception: sys.exit(0)
+ids = [t.get("id","") for t in (d.get("tasks") or []) if t.get("id")]
+print(",".join(ids))
+'
+}
+
 flowctl::start_task() {
   local task="$1"
   local bin; bin=$(flowctl::_bin)

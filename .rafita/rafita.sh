@@ -36,6 +36,8 @@ Options:
   --resume           Resume from .rafita/state.json if present
   --resume-task ID   Resume a specific in-progress task (skips next-task lookup)
   --reset            Clear .rafita/state.json and start fresh
+  --closer-only      Skip the DEV/REVIEW loop. Run only CLOSER+FINAL on the
+                     already-done tasks of the given epic, then publish.
   -h, --help         This help
 
 Worktrees: rafita does NOT manage worktrees. To run inside an isolated
@@ -47,7 +49,7 @@ main() {
   local epic_arg=""
   local -a cli_overrides
   cli_overrides=()
-  local resume=0 reset=0
+  local resume=0 reset=0 closer_only=0
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -57,6 +59,7 @@ main() {
       --resume) resume=1; shift ;;
       --resume-task) export RAFITA_RESUME_TASK_ID="$2"; shift 2 ;;
       --reset) reset=1; shift ;;
+      --closer-only) closer_only=1; shift ;;
       --debug) cli_overrides+=("RAFITA_DEBUG=2"); shift ;;
       --debug=*) cli_overrides+=("RAFITA_DEBUG=${1#--debug=}"); shift ;;
       fn-*) epic_arg="$1"; shift ;;
@@ -114,6 +117,8 @@ main() {
   local -a epics=()
   if [[ -n "$epic_arg" ]]; then
     epics=("$epic_arg")
+  elif (( closer_only )); then
+    common::fail "--closer-only requires an explicit EPIC_ID (we don't infer which epic to close)"
   else
     while IFS= read -r line; do
       [[ -n "$line" ]] && epics+=("$line")
@@ -126,9 +131,13 @@ main() {
   fi
 
   for epic in "${epics[@]}"; do
-    # run_epic returns 0 on happy path; any non-zero here is a handled failure
-    # already logged. Don't let set -e trip on it.
-    orchestrator::run_epic "$epic" || true
+    if (( closer_only )); then
+      orchestrator::run_closer_only "$epic" || true
+    else
+      # run_epic returns 0 on happy path; any non-zero here is a handled
+      # failure already logged. Don't let set -e trip on it.
+      orchestrator::run_epic "$epic" || true
+    fi
   done
 
   state::clear

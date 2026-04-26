@@ -340,6 +340,49 @@ orchestrator::run_epic() {
   fi
 }
 
+# orchestrator::run_closer_only <epic_id>
+# Skip the per-task DEV/REVIEW loop. Reconstruct the task list from
+# flowctl (status=done) and run only CLOSER+FINAL, then publish.
+# Useful when:
+#   - the epic was implemented in a previous run that crashed before publish
+#   - you tweaked the closer logic and want to re-run just the closing phase
+#   - you want to (re)open/update a PR from already-committed work
+# Returns 0 on success; non-zero if there's nothing to close or publish fails.
+orchestrator::run_closer_only() {
+  local epic="$1"
+  export RAFITA_CURRENT_EPIC="$epic"
+  common::record_epic "$epic"
+  ui::epic_start "$epic"
+  ui::info "closer-only mode: skipping DEV/REVIEW; running CLOSER+FINAL only"
+  git::setup_epic_branch "$epic"
+
+  # Build the completed list from flowctl (everything already done in this
+  # epic). Without this we have no task ids to feed into close_epic_loop /
+  # publish_epic, which use the list to render the PR body.
+  local tasks_csv; tasks_csv=$(flowctl::done_tasks_csv "$epic")
+  if [[ -z "$tasks_csv" ]]; then
+    ui::error "epic ${epic} has no done tasks; nothing to close or publish"
+    return 1
+  fi
+  export RAFITA_COMPLETED_CSV="$tasks_csv"
+  common::log INFO "closer-only: epic=${epic} tasks=${tasks_csv}"
+
+  # Run the closer↔final loop and publish (same path as run_epic uses at
+  # the end). publish_epic expects task ids as positional args.
+  local final_verdict
+  final_verdict=$(orchestrator::close_epic_loop "$epic" "${RAFITA_PR_BASE:-}" "$tasks_csv")
+  export RAFITA_LAST_FINAL_VERDICT="$final_verdict"
+
+  local -a tasks_array
+  IFS=',' read -ra tasks_array <<< "$tasks_csv"
+  orchestrator::publish_epic "$epic" "$final_verdict" "${tasks_array[@]}"
+  flowctl::close_epic "$epic"
+
+  if [[ "${RAFITA_BRANCH_MODE:-new}" == "new" && -n "${RAFITA_SOURCE_BRANCH:-}" ]]; then
+    git checkout -q "$RAFITA_SOURCE_BRANCH" 2>/dev/null || true
+  fi
+}
+
 orchestrator::_rate_limit_long_sleep() {
   local task_id="$1" title="$2"
   local reset="${RAFITA_LAST_RESET_AT:-}"
