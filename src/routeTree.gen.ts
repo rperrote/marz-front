@@ -33,6 +33,7 @@ import { Route as OnboardingBrandStepRouteImport } from './routes/onboarding/bra
 import { Route as BrandCampaignsNewRouteImport } from './routes/_brand/campaigns.new'
 import { Route as BrandCampaignsNewIndexRouteImport } from './routes/_brand/campaigns.new.index'
 import { Route as BrandCampaignsNewPhaseRouteImport } from './routes/_brand/campaigns.new.$phase'
+import { Route as BrandCampaignsCampaignIdBriefRouteImport } from './routes/_brand/campaigns.$campaignId.brief'
 
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
@@ -152,6 +153,12 @@ const BrandCampaignsNewPhaseRoute = BrandCampaignsNewPhaseRouteImport.update({
   path: '/$phase',
   getParentRoute: () => BrandCampaignsNewRoute,
 } as any)
+const BrandCampaignsCampaignIdBriefRoute =
+  BrandCampaignsCampaignIdBriefRouteImport.update({
+    id: '/$campaignId/brief',
+    path: '/$campaignId/brief',
+    getParentRoute: () => BrandCampaignsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/campaigns/': typeof BrandCampaignsIndexRoute
   '/onboarding/brand/': typeof OnboardingBrandIndexRoute
   '/onboarding/creator/': typeof OnboardingCreatorIndexRoute
+  '/campaigns/$campaignId/brief': typeof BrandCampaignsCampaignIdBriefRoute
   '/campaigns/new/$phase': typeof BrandCampaignsNewPhaseRoute
   '/campaigns/new/': typeof BrandCampaignsNewIndexRoute
 }
@@ -194,6 +202,7 @@ export interface FileRoutesByTo {
   '/campaigns': typeof BrandCampaignsIndexRoute
   '/onboarding/brand': typeof OnboardingBrandIndexRoute
   '/onboarding/creator': typeof OnboardingCreatorIndexRoute
+  '/campaigns/$campaignId/brief': typeof BrandCampaignsCampaignIdBriefRoute
   '/campaigns/new/$phase': typeof BrandCampaignsNewPhaseRoute
   '/campaigns/new': typeof BrandCampaignsNewIndexRoute
 }
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/_brand/campaigns/': typeof BrandCampaignsIndexRoute
   '/onboarding/brand/': typeof OnboardingBrandIndexRoute
   '/onboarding/creator/': typeof OnboardingCreatorIndexRoute
+  '/_brand/campaigns/$campaignId/brief': typeof BrandCampaignsCampaignIdBriefRoute
   '/_brand/campaigns/new/$phase': typeof BrandCampaignsNewPhaseRoute
   '/_brand/campaigns/new/': typeof BrandCampaignsNewIndexRoute
 }
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/campaigns/'
     | '/onboarding/brand/'
     | '/onboarding/creator/'
+    | '/campaigns/$campaignId/brief'
     | '/campaigns/new/$phase'
     | '/campaigns/new/'
   fileRoutesByTo: FileRoutesByTo
@@ -267,6 +278,7 @@ export interface FileRouteTypes {
     | '/campaigns'
     | '/onboarding/brand'
     | '/onboarding/creator'
+    | '/campaigns/$campaignId/brief'
     | '/campaigns/new/$phase'
     | '/campaigns/new'
   id:
@@ -293,6 +305,7 @@ export interface FileRouteTypes {
     | '/_brand/campaigns/'
     | '/onboarding/brand/'
     | '/onboarding/creator/'
+    | '/_brand/campaigns/$campaignId/brief'
     | '/_brand/campaigns/new/$phase'
     | '/_brand/campaigns/new/'
   fileRoutesById: FileRoutesById
@@ -484,6 +497,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandCampaignsNewPhaseRouteImport
       parentRoute: typeof BrandCampaignsNewRoute
     }
+    '/_brand/campaigns/$campaignId/brief': {
+      id: '/_brand/campaigns/$campaignId/brief'
+      path: '/$campaignId/brief'
+      fullPath: '/campaigns/$campaignId/brief'
+      preLoaderRoute: typeof BrandCampaignsCampaignIdBriefRouteImport
+      parentRoute: typeof BrandCampaignsRoute
+    }
   }
 }
 
@@ -503,11 +523,13 @@ const BrandCampaignsNewRouteWithChildren =
 interface BrandCampaignsRouteChildren {
   BrandCampaignsNewRoute: typeof BrandCampaignsNewRouteWithChildren
   BrandCampaignsIndexRoute: typeof BrandCampaignsIndexRoute
+  BrandCampaignsCampaignIdBriefRoute: typeof BrandCampaignsCampaignIdBriefRoute
 }
 
 const BrandCampaignsRouteChildren: BrandCampaignsRouteChildren = {
   BrandCampaignsNewRoute: BrandCampaignsNewRouteWithChildren,
   BrandCampaignsIndexRoute: BrandCampaignsIndexRoute,
+  BrandCampaignsCampaignIdBriefRoute: BrandCampaignsCampaignIdBriefRoute,
 }
 
 const BrandCampaignsRouteWithChildren = BrandCampaignsRoute._addFileChildren(

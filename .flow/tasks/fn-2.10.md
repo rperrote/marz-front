@@ -44,11 +44,8 @@ Título "Resumen del brief — {campaign.name}". Botón "Volver a campañas" →
 - 3 tests verdes (loading/success/404).
 
 ## Done summary
-
-TBD
-
+Ruta standalone /campaigns/$campaignId/brief implementada correctamente: hook manual justificado (RAFITA:BLOCKER:), tipos explícitos, manejo de estados loading/error/404/success, separación de BC respetada, 4 tests incluyendo axe.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:
