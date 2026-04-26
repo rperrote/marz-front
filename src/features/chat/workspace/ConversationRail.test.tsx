@@ -14,6 +14,10 @@ vi.mock('@lingui/core/macro', () => ({
   ),
 }))
 
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => vi.fn(),
+}))
+
 const mockCustomFetch = vi.fn()
 
 vi.mock('#/shared/api/mutator', () => ({

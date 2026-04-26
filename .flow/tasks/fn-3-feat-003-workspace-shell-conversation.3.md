@@ -55,8 +55,11 @@ Pencil ref `XxB84` (ChatRailItem). Ya está en el DS — no rediseñar. Spacing 
 - [ ] `pnpm typecheck` y `pnpm lint` verdes.
 
 ## Done summary
+
 Todos los cambios son correctos. El tipo genérico de customFetch refleja la shape real de handleResponse. El onClick quedó en el button semánticamente correcto. Los tests verifican el DOM observable (dot aria-hidden + getByRole button) en vez de detalles de implementación internos.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

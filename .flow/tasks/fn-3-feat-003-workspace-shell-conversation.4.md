@@ -49,9 +49,8 @@ Header del rail (search bar + tabs) sigue Pencil `XSdsQ`. Tokens: `bg-background
 - [ ] `pnpm typecheck` y `pnpm lint` verdes.
 
 ## Done summary
-
-_To be filled by the worker on completion._
-
+isFirstRender ref resuelve el navigate espurio en mount. FilterValue derivado de BrandWorkspaceSearch elimina duplicación del union. Tests sincronizados. Sin issues.
 ## Evidence
-
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:
