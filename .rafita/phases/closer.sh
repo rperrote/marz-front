@@ -3,25 +3,6 @@
 # the FINAL review, to close loose ends against the specs and address reviewer
 # feedback. Writes code. Opt-in via RAFITA_CLOSER_ENABLED.
 
-# phase::_closer_build_specs <tasks_csv>
-# Concatenates each task's spec with a separator. Best-effort; missing specs
-# are skipped.
-phase::_closer_build_specs() {
-  local tasks_csv="$1"
-  [[ -z "$tasks_csv" ]] && return 0
-  local IFS=','
-  local -a tasks
-  # shellcheck disable=SC2206
-  tasks=( $tasks_csv )
-  local t spec
-  for t in "${tasks[@]}"; do
-    [[ -z "$t" ]] && continue
-    spec=$(flowctl::task_spec "$t" 2>/dev/null || true)
-    [[ -z "$spec" ]] && continue
-    printf '### %s\n%s\n\n' "$t" "$spec"
-  done
-}
-
 # phase::_closer_common_hints
 # Emits formatter and forbidden-paths hints (same shape as dev).
 phase::_closer_format_hint() {
@@ -42,16 +23,10 @@ phase::closer_initial() {
   local epic="$1" source_branch="${2:-main}" tasks_csv="${3:-}"
   ui::phase "CLOSER" "closing epic ${epic} (round 1)..."
 
-  local diff
-  diff=$(git::diff_since_base "$source_branch")
-  if [[ ${#diff} -gt 120000 ]]; then
-    diff="${diff:0:120000}
-...[diff truncated at 120000 chars]"
-  fi
-
-  local specs; specs=$(phase::_closer_build_specs "$tasks_csv")
-  [[ -z "$specs" ]] && specs="(no specs available)"
-
+  # NOTE: we no longer embed SPECS or DIFF in the prompt. The template tells
+  # the closer which `git diff` and `cat .flow/tasks/...` commands to run.
+  # Old behavior dumped 150KB+ of context the model would skim. Now it
+  # actively pulls what it needs.
   local tasks_md
   if [[ -n "$tasks_csv" ]]; then
     tasks_md=$(printf '%s\n' "$tasks_csv" | tr ',' '\n' | sed 's/^/- /')
@@ -63,8 +38,6 @@ phase::closer_initial() {
   prompt=$(common::render_template "$RAFITA_SCRIPTS_DIR/prompts/closer.tmpl" \
     SOURCE="$source_branch" \
     TASKS="$tasks_md" \
-    SPECS="$specs" \
-    DIFF="$diff" \
     CLOSER_RULES="${RAFITA_PROFILE_CLOSER_RULES:-(sin reglas específicas del profile; aplicá criterio general)}" \
     FORBIDDEN_HINT="$(phase::_closer_forbidden_hint)" \
     FORMAT_HINT="$(phase::_closer_format_hint)")
@@ -85,22 +58,10 @@ phase::closer_fix() {
   local epic="$1" source_branch="${2:-main}" tasks_csv="${3:-}" round="$4" verdict="$5"
   ui::phase "CLOSER" "applying final-review feedback (round ${round})..."
 
-  local diff
-  diff=$(git::diff_since_base "$source_branch")
-  if [[ ${#diff} -gt 120000 ]]; then
-    diff="${diff:0:120000}
-...[diff truncated at 120000 chars]"
-  fi
-
-  local specs; specs=$(phase::_closer_build_specs "$tasks_csv")
-  [[ -z "$specs" ]] && specs="(no specs available)"
-
-  local tasks_md
-  if [[ -n "$tasks_csv" ]]; then
-    tasks_md=$(printf '%s\n' "$tasks_csv" | tr ',' '\n' | sed 's/^/- /')
-  else
-    tasks_md="- (no task list provided)"
-  fi
+  # Resume mode: no diff/specs embedded. The closer's session retains them
+  # from round 1; if it needs to re-inspect, the prompt tells it which
+  # commands to run. This keeps round N+ prompts short (~hundreds of bytes
+  # vs ~150KB before) so the model actually focuses on the feedback.
 
   local review_issues
   review_issues=$(python3 -c '
@@ -123,16 +84,14 @@ if summary:
     print(f"\n_summary:_ {summary}")
 ' "$verdict")
 
+  # Resume-style prompt: assumes the closer's session already carries specs,
+  # diff and rules from round 1. Only feeds the new reviewer feedback +
+  # commands the closer can run if it needs to re-inspect anything.
   local prompt
   prompt=$(common::render_template "$RAFITA_SCRIPTS_DIR/prompts/closer-fix.tmpl" \
     SOURCE="$source_branch" \
-    TASKS="$tasks_md" \
-    SPECS="$specs" \
-    DIFF="$diff" \
-    REVIEW_ISSUES="$review_issues" \
-    CLOSER_RULES="${RAFITA_PROFILE_CLOSER_RULES:-(sin reglas específicas del profile; aplicá criterio general)}" \
-    FORBIDDEN_HINT="$(phase::_closer_forbidden_hint)" \
-    FORMAT_HINT="$(phase::_closer_format_hint)")
+    EPIC="$epic" \
+    REVIEW_ISSUES="$review_issues")
 
   local out rc=0
   out=$(worker::run "$prompt" "closer-round-${round}" "closer") || rc=$?

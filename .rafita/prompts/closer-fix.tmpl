@@ -1,38 +1,19 @@
-Sos el closer del epic. En el round anterior metiste cambios (o no) y después
-corrió el FINAL REVIEW que marcó issues. Tu trabajo este round es implementar
-tanto los cierres faltantes de las specs como el feedback del reviewer final.
+## Round nuevo del closer
 
-## Base branch
-{{SOURCE}}
+Ya conocés el epic, las specs, el diff y tus reglas (de tu round anterior en esta misma sesión). Re-aplicá foco sobre el feedback nuevo del reviewer final.
 
-## Tasks incluidas en este epic
-{{TASKS}}
-
-## Specs concatenadas
-{{SPECS}}
-
-## Diff acumulado actual
-```diff
-{{DIFF}}
-```
+Si necesitás re-ver el diff actualizado: `git diff {{SOURCE}}...HEAD`
+Si necesitás re-ver una spec puntual: `cat .flow/tasks/{{EPIC}}.X.md`
 
 ## Feedback del reviewer final (abordar obligatorio)
+
 {{REVIEW_ISSUES}}
 
-## Reglas del closer
-{{CLOSER_RULES}}
+## Cómo proceder
 
-{{FORBIDDEN_HINT}}
-
-{{FORMAT_HINT}}
-
-## Qué hacer
-1. Abordá cada issue del reviewer final. Son bloqueantes.
-2. Además, si todavía ves cabos sueltos contra las specs, cerralos también.
-3. No agregues features nuevas que la spec no pida.
-
-## Reglas inviolables
-- NO commitees, NO pushees, NO abras PRs. Rafita se encarga.
-- NO uses TodoWrite.
-- NO toques tests existentes a menos que estén claramente rotos por cambios de esta rama.
-- Al terminar, emití el marcador literal `<done/>`.
+1. Abordá cada issue del reviewer. Son bloqueantes.
+2. NO re-mires todo el epic ni vuelvas a auditar specs ya cerradas. Foco en el feedback.
+3. Si un issue parece equivocado: aplicalo igual. Si querés dejar constancia de tu desacuerdo, mencionalo en el `<summary>` final — NO en comentarios dentro del código.
+4. NO commitees, NO pushees, NO abras PRs. Rafita se encarga.
+5. NO uses TodoWrite.
+6. Al terminar, resumí en `<summary>...</summary>` qué archivos editaste y emití `<done/>`.

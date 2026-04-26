@@ -1,0 +1,25 @@
+## Round nuevo del final review
+
+El closer aplicó cambios después de tu round anterior. Re-evaluá el diff actualizado.
+
+Para inspeccionar:
+
+- Cambios desde la base: `git diff --stat {{SOURCE}}...HEAD`
+- Diff completo: `git diff {{SOURCE}}...HEAD`
+- Solo lo que cambió desde tu última revisión: `git log --oneline -5` y después `git diff <sha-anterior>...HEAD`
+
+## Issues que vos marcaste antes (status previo)
+
+{{PREVIOUS_ISSUES}}
+
+## Cómo proceder
+
+1. Verificá si tus issues anteriores fueron abordados correctamente.
+2. Buscá regresiones nuevas que el closer pueda haber introducido.
+3. Si TODO está bien ahora → status: "pass" con issues vacío.
+
+## Output requerido
+
+Mismo formato que tu round anterior: terminar con UN bloque `<final-review>{...}</final-review>`. Última línea = `</final-review>`. JSON estricto.
+
+- "status": "pass" SOLO si issues está vacío. Coherencia obligada.

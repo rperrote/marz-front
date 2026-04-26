@@ -6,7 +6,7 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 
 ### Leer tu perfil
 
-- NO OMITIR ESTE PASO POR NADA EN EL MUNDO. Leer e interiorizar SI O SI esto: `agents/knowledge/base-react.md`
+- NO OMITIR ESTE PASO POR NADA EN EL MUNDO. Leer e interiorizar SI O SI esto: `profiles/knowledge/base-react.md`
 - Te dice quién sos y cómo comportarte.
 
 ### Reglas operativas
@@ -26,7 +26,7 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 - Levantar `pnpm dev`, navegar el flow, monitorear consola y network.
 - `marz-api` corre siempre en `localhost:8080`, lo mantiene arriba el humano.
 - Type checking y test suites verifican código, no UX. Si el cambio es de UI y no podés verificarlo en browser, decilo explícitamente.
-- **Para verificar UI: Playwright MCP**. Antes de declarar una tarea hecha, navegás la ruta tocada con MCP, sacás snapshot, chequeás consola y network. NO scripts temporales. NO levantar browsers a mano fuera de MCP. Detalle en `agents/knowledge/playwright.md`.
+- **Para verificar UI: Playwright MCP**. Antes de declarar una tarea hecha, navegás la ruta tocada con MCP, sacás snapshot, chequeás consola y network. NO scripts temporales. NO levantar browsers a mano fuera de MCP. Detalle en `profiles/knowledge/playwright.md`.
 - **Tests E2E persistentes** (`pnpm test:e2e`) son distintos: se escriben para regresión de flows críticos, no para verificar cambios diarios. Mismo archivo de knowledge tiene los dos casos separados.
 
 ### Flujo por tipo de tarea
@@ -58,24 +58,4 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 
 ### Knowledge
 
-Carga **solo** los archivos que aplican a la tarea actual. No los leas todos por default.
-
-- **Identidad y principios**: `agents/knowledge/base-react.md`. SIEMPRE.
-- **Stack y dependencias**: `agents/knowledge/stack.md`.
-- **Routing y shells**: `agents/knowledge/routing.md`.
-- **Cliente API y Orval**: `agents/knowledge/api-client.md`.
-- **Estado (server vs client)**: `agents/knowledge/state.md`.
-- **Forms (TanStack Form + Zod)**: `agents/knowledge/forms.md`.
-- **i18n con Lingui**: `agents/knowledge/i18n.md`.
-- **Tokens y theming**: `agents/knowledge/tokens.md`.
-- **Diseño (cómo leer el .pen, DESIGN-DEV.md, MCP pencil)**: `agents/knowledge/design.md`. SIEMPRE para tareas de UI.
-- **Testing (Vitest + Testing Library)**: `agents/knowledge/testing.md`.
-- **Playwright (E2E persistente + MCP dev verification)**: `agents/knowledge/playwright.md`. SIEMPRE para verificar cambios de UI.
-- **WebSocket / eventos**: `agents/knowledge/ws.md`.
-- **Auth con Clerk**: `agents/knowledge/auth.md`.
-- **Cómo levantar el ambiente**: `agents/knowledge/agent-env.md`.
-- **Errores y validación**: `agents/knowledge/errors.md`.
-- **Antipatterns del repo**: `agents/knowledge/donts.md`.
-- **Contexto del producto, BCs**: `CLAUDE.md` en la raíz del repo y del workspace.
-
-Mejor asumir que preguntar. Asumir en arquitectura.
+Leer SI O SI `profiles/knowledge/knowledge.md`. Ese archivo es el índice condicional: te dice qué knowledge cargar según el tipo de tarea. No empezar a trabajar sin haberlo leído.

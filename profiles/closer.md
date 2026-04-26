@@ -6,7 +6,7 @@ Rol super senior. Tu trabajo: agarrar una tarea que el dev dio por terminada, mi
 
 ### Leer tu perfil
 
-- Leer e interiorizar SÍ O SÍ: `agents/knowledge/base-react.md`.
+- Leer e interiorizar SÍ O SÍ: `profiles/knowledge/base-react.md`.
 - Aplicás los mismos principios que el dev, pero con la vara más alta: ya no estás construyendo, estás entregando.
 
 ### Qué hacés
@@ -54,7 +54,7 @@ Al final, das el visto bueno o no. Si das el visto bueno, la tarea queda lista p
 
 - Si la tarea esperaba cambios de contrato, `pnpm api:sync` corrió y el diff de `src/shared/api/generated/` está committeado.
 - Nadie editó los generados a mano.
-- El `mutator.ts` se usa como fetcher. Auth, AbortSignal y errores pasan por él.
+- El `src/shared/api/mutator.ts` se usa como fetcher. Auth, AbortSignal y errores pasan por él.
 - Schemas Zod generados se usan para validar forms cuando aplica.
 
 #### Forms
@@ -71,14 +71,14 @@ Al final, das el visto bueno o no. Si das el visto bueno, la tarea queda lista p
 
 #### Wire-up
 
-- Rutas nuevas en el grupo correcto. `routeTree.gen.ts` regenerado (no editado a mano).
-- Providers nuevos (si los hay) montados en `__root.tsx` o en el shell correspondiente.
+- Rutas nuevas en el grupo correcto. `src/routeTree.gen.ts` regenerado (no editado a mano).
+- Providers nuevos (si los hay) montados en `src/routes/__root.tsx` o en el shell correspondiente.
 - Variables de entorno nuevas declaradas en `src/env.ts` con Zod y documentadas en `.env.example`.
 - Feature flags / config centralizados donde corresponde.
 
 #### i18n
 
-- Strings visibles pasados por Lingui donde el proyecto ya lo use. Ver `i18n.md`.
+- Strings visibles pasados por Lingui donde el proyecto ya lo use. Ver `profiles/knowledge/i18n.md`.
 - Si falta una key, **la agregás vos**.
 
 #### Observabilidad y errores
@@ -140,12 +140,4 @@ En esos casos, dejás claro: qué está hecho, qué falta, por qué lo que falta
 
 ### Knowledge
 
-Usás todo lo que el dev usa, con el mismo peso:
-
-- `base-react.md` — rol, principios.
-- `stack.md`, `routing.md`, `api-client.md`, `state.md`, `forms.md`, `tokens.md` — arquitectura.
-- `errors.md`, `ws.md`, `auth.md`, `i18n.md`.
-- `testing.md`, `playwright.md` — verificación real.
-- `design.md` — cómo leer el `.pen` y el design system.
-- `agent-env.md` — cómo levantar ambiente.
-- `donts.md` — reglas duras.
+Leer SI O SI `profiles/knowledge/knowledge.md`. Ese archivo es el índice condicional: te dice qué knowledge cargar según el tipo de tarea. No empezar a revisar sin haberlo leído.

@@ -8,13 +8,9 @@ phase::final_review() {
   local epic="$1" source_branch="${2:-main}" tasks_csv="${3:-}"
   ui::phase "FINAL" "reviewing epic diff..."
 
-  local diff
-  diff=$(git::diff_since_base "$source_branch")
-  if [[ ${#diff} -gt 120000 ]]; then
-    diff="${diff:0:120000}
-...[diff truncated at 120000 chars]"
-  fi
-
+  # NOTE: we no longer embed the diff in the prompt. The reviewer runs git
+  # commands itself (template tells it which). This used to dump 120K of
+  # diff into every prompt — the model would skim instead of reading.
   local tasks_md
   if [[ -n "$tasks_csv" ]]; then
     tasks_md=$(printf '%s\n' "$tasks_csv" | tr ',' '\n' | sed 's/^/- /')
@@ -22,11 +18,43 @@ phase::final_review() {
     tasks_md="- (no task list provided)"
   fi
 
+  # Pick template: full on first call (session new), resume on subsequent
+  # calls in the same closer↔final loop (session active, knows the prior
+  # state). Resume includes the previous issues so the reviewer can verify
+  # they were addressed.
+  local task_id="${RAFITA_CURRENT_TASK:-_global}"
+  local reviewer_used
+  reviewer_used=$(session::get "$task_id" "reviewer" "used" 2>/dev/null || echo 0)
   local prompt
-  prompt=$(common::render_template "$RAFITA_SCRIPTS_DIR/prompts/final.tmpl" \
-    SOURCE="$source_branch" \
-    DIFF="$diff" \
-    TASKS="$tasks_md")
+  if [[ "$reviewer_used" != "0" && -n "$reviewer_used" ]]; then
+    local previous_issues
+    previous_issues=$(printf '%s' "${RAFITA_LAST_FINAL_VERDICT:-}" | python3 -c '
+import json, sys
+raw = sys.stdin.read()
+try:
+    d = json.loads(raw) if raw.strip() else {}
+except Exception:
+    d = {}
+issues = d.get("issues") or []
+if not issues:
+    print("- (no previous issues recorded)")
+else:
+    for i, it in enumerate(issues, 1):
+        if isinstance(it, dict):
+            f = it.get("file", "(global)")
+            msg = it.get("issue", "")
+            print(f"{i}. **{f}** — {msg}")
+        else:
+            print(f"{i}. {it}")
+')
+    prompt=$(common::render_template "$RAFITA_SCRIPTS_DIR/prompts/final-resume.tmpl" \
+      SOURCE="$source_branch" \
+      PREVIOUS_ISSUES="$previous_issues")
+  else
+    prompt=$(common::render_template "$RAFITA_SCRIPTS_DIR/prompts/final.tmpl" \
+      SOURCE="$source_branch" \
+      TASKS="$tasks_md")
+  fi
 
   local out rc verdict status
   out=$(worker::run "$prompt" "final-review" "reviewer")

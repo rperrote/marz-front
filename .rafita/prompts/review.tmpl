@@ -10,10 +10,22 @@ ID: {{TASK_ID}}
 ## Resumen de cambios (por el implementer)
 {{DEV_SUMMARY}}
 
-## Diff (cambios a revisar)
+## Cómo inspeccionar los cambios
+
+Tenés acceso al worktree. El diff completo está en `git diff` desde el snapshot de inicio de la task. Comandos útiles:
+
+- Lista de archivos cambiados: `git diff --stat HEAD~1...HEAD` (si el dev commiteó) o `git status` + `git diff HEAD` (si no)
+- Diff de un archivo: `git diff -- <path>` o `git diff HEAD -- <path>`
+- Contenido actual del archivo: `Read <path>` o `cat <path>`
+- Tests relacionados: `Glob` por `*.test.*` cerca de los archivos tocados
+
+Diff inicial (para que arranques con contexto):
+
 ```diff
 {{DIFF}}
 ```
+
+Si el diff embebido fue truncado, usá los comandos de arriba para ver lo faltante.
 
 ## Rubric
 Evaluá cada ítem como binario (cumple / no cumple). La aprobación requiere que TODOS los

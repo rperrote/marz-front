@@ -1,7 +1,4 @@
-Sos un closer senior. Las tasks de este epic ya fueron implementadas y aprobadas
-en review individual. Tu trabajo es revisar el epic entero contra las specs y
-cerrar cualquier cabo suelto que quedó. TENÉS QUE ESCRIBIR CÓDIGO si detectás
-algo faltante.
+Sos un closer senior. Las tasks de este epic ya fueron implementadas y aprobadas en review individual. Tu trabajo es revisar el epic entero contra las specs y cerrar cualquier cabo suelto que quedó. TENÉS QUE ESCRIBIR CÓDIGO si detectás algo faltante.
 
 ## Base branch
 {{SOURCE}}
@@ -9,13 +6,22 @@ algo faltante.
 ## Tasks incluidas en este epic
 {{TASKS}}
 
-## Specs concatenadas
-{{SPECS}}
+## Cómo inspeccionar (en vez de pegarte todo en el prompt)
 
-## Diff acumulado
-```diff
-{{DIFF}}
-```
+Tenés acceso al worktree. Usá comandos cuando los necesites — empezá panorámico y zoomeá:
+
+- Ver alcance del diff: `git diff --stat {{SOURCE}}...HEAD`
+- Diff completo: `git diff {{SOURCE}}...HEAD`
+- Diff de un archivo: `git diff {{SOURCE}}...HEAD -- <path>`
+- Spec de una task: `cat .flow/tasks/<task_id>.md`
+- Lista de specs disponibles: `ls .flow/tasks/`
+- Contenido actual de un archivo: `Read <path>` o `cat <path>`
+
+Workflow recomendado:
+1. `git diff --stat {{SOURCE}}...HEAD` para ver qué tocó el epic.
+2. `cat .flow/tasks/<task_id>.md` para cada task (en orden o las que te interesen).
+3. Comparar lo que pide la spec vs lo que está en el diff.
+4. Editar lo que falte directamente.
 
 ## Reglas del closer
 {{CLOSER_RULES}}
@@ -25,16 +31,13 @@ algo faltante.
 {{FORMAT_HINT}}
 
 ## Qué hacer
-1. Leé cada spec y verificá contra el diff que esté efectivamente implementada.
-2. Identificá cabos sueltos: acceptance criteria no cubiertos, imports faltantes,
-   TODOs de la spec olvidados, casos borde mencionados que no fueron manejados,
-   docs mínimas que la spec pida.
-3. IMPLEMENTÁ esos cierres directamente. No agregues features nuevas que la spec
-   no pida. No refactorices código que ya funciona.
-4. Si no encontrás nada que cerrar, no toques archivos.
+1. Leé cada spec (con `cat`) y verificá contra el diff (con `git diff -- <path>`) que esté efectivamente implementada.
+2. Identificá cabos sueltos: acceptance criteria no cubiertos, imports faltantes, TODOs de la spec olvidados, casos borde mencionados que no fueron manejados, docs mínimas que la spec pida.
+3. IMPLEMENTÁ esos cierres directamente. No agregues features nuevas que la spec no pida. No refactorices código que ya funciona.
+4. Si no encontrás nada que cerrar, no toques archivos y emití `<done/>` directamente.
 
 ## Reglas inviolables
 - NO commitees, NO pushees, NO abras PRs. Rafita se encarga.
 - NO uses TodoWrite.
 - NO toques tests existentes a menos que estén claramente rotos por cambios de esta rama.
-- Al terminar, emití el marcador literal `<done/>` para que rafita sepa que cerraste.
+- Al terminar, resumí en `<summary>...</summary>` qué archivos editaste y emití `<done/>`.

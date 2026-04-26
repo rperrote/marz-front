@@ -31,9 +31,12 @@ else
     cp -R "$SOURCE_DIR/$d" "$TARGET_DIR/$d"
   done
   cp "$SOURCE_DIR/rafita.sh" "$TARGET_DIR/rafita.sh"
+  cp "$SOURCE_DIR/worktree-create.sh" "$TARGET_DIR/worktree-create.sh"
+  cp "$SOURCE_DIR/check.sh" "$TARGET_DIR/check.sh"
 fi
 
-chmod +x "$TARGET_DIR/rafita.sh" "$TARGET_DIR/bin/"*.py "$TARGET_DIR/bin/"*.sh "$TARGET_DIR/tests/run-tests.sh" 2>/dev/null || true
+chmod +x "$TARGET_DIR/rafita.sh" "$TARGET_DIR/worktree-create.sh" "$TARGET_DIR/check.sh" \
+  "$TARGET_DIR/bin/"*.py "$TARGET_DIR/bin/"*.sh "$TARGET_DIR/tests/run-tests.sh" 2>/dev/null || true
 
 # Stamp the installed version so the user can check what they have.
 version_file="$SOURCE_DIR/../VERSION"

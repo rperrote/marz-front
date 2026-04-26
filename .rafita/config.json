@@ -31,9 +31,9 @@
   "worktreeKeep": false,
   "maxFinalRounds": 3,
   "profileExtensions": {
-    "dev": "agents/dev.md",
-    "reviewer": "agents/reviewer.md",
-    "closer": "agents/closer.md",
+    "dev": "profiles/dev.md",
+    "reviewer": "profiles/reviewer.md",
+    "closer": "profiles/closer.md",
     "all": ""
   }
 }

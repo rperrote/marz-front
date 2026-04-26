@@ -1,26 +1,34 @@
-Sos reviewer senior. Revisá el diff acumulado del epic entero, no de una task sola.
-Buscá inconsistencias cross-task, imports rotos, regresiones, dead code, cualquier
-cosa que no se pudo ver en reviews task-por-task.
+Sos reviewer senior. Revisá el diff acumulado del epic entero, no de una task sola. Buscá inconsistencias cross-task, imports rotos, regresiones, dead code, cualquier cosa que no se pudo ver en reviews task-por-task.
 
 ## Source branch
 {{SOURCE}}
 
-## Diff acumulado
-```diff
-{{DIFF}}
-```
-
 ## Tasks incluidas en este epic
 {{TASKS}}
 
+## Cómo inspeccionar
+
+Tenés acceso al worktree. Para revisar el diff usá los comandos cuando los necesites (en vez de pedirme que pegue todo el diff en este prompt):
+
+- Lista de archivos cambiados: `git diff --stat {{SOURCE}}...HEAD`
+- Diff completo: `git diff {{SOURCE}}...HEAD`
+- Diff de un archivo puntual: `git diff {{SOURCE}}...HEAD -- <path>`
+- Ver el contenido actual de un archivo: `cat <path>` o `Read`
+- Ver una task spec: `cat .flow/tasks/<task_id>.md`
+
+Empezá con `git diff --stat` para ver el alcance, después zoomeá en lo que te llame la atención.
+
 ## Output requerido
 
-Devolvé EXACTAMENTE un bloque `<final-review>{...}</final-review>` con este schema:
+Tu respuesta DEBE terminar con UN bloque `<final-review>...</final-review>` con JSON estricto. Última línea = `</final-review>`. Sin prosa después.
 
+Aprobado:
 <final-review>{"status": "pass", "issues": [], "summary": "1 línea describiendo el diff total"}</final-review>
 
-O, si encontrás problemas cross-task:
-
+Rechazado:
 <final-review>{"status": "fail", "issues": [{"file": "...", "issue": "..."}], "summary": "1 línea"}</final-review>
 
-No agregues prosa fuera del bloque.
+Reglas:
+- "status": "pass" SOLO si issues está vacío. Coherencia obligada.
+- JSON parseable adentro del bloque. Sin markdown, sin trailing commas.
+- La prosa de tu análisis va ANTES del bloque, no después.
