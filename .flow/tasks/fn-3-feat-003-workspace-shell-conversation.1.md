@@ -49,8 +49,11 @@ Pencil refs: `XSdsQ` (brand workspace), `2xWvk` (creator workspace). Rail 320px,
 - [ ] `pnpm typecheck` y `pnpm lint` verdes.
 
 ## Done summary
+
 Implementación correcta. BrandWorkspacePage/CreatorWorkspacePage separados limpiamente en features/chat/workspace/. El uso de brandWorkspaceSearchSchema como validateSearch global es la única opción viable dado que TanStack Router fija el schema en tiempo de registro — campaign_id es optional, no rompe creators. RAFITA:ANY: comentarios justificados en los dos as unknown as. Bloque Register con ssr:true presente en routeTree.gen.ts. Tests cubren ambos schemas. Sin deuda técnica.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
