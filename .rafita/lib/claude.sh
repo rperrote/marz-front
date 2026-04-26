@@ -14,8 +14,15 @@ claude::_resolve_model() {
     dev)      printf '%s' "${RAFITA_DEV_MODEL:-}" ;;
     reviewer) printf '%s' "${RAFITA_REVIEWER_MODEL:-}" ;;
     planner)  printf '%s' "${RAFITA_DEV_MODEL:-}" ;;
+    closer)   printf '%s' "${RAFITA_CLOSER_MODEL:-${RAFITA_DEV_MODEL:-}}" ;;
     "")       printf '' ;;
-    *)        printf '%s' "$alias" ;;
+    # Unknown alias: treat as a literal model name. Logged so a typo (or a
+    # forgotten case branch like `closer` used to be) is visible instead of
+    # silently sending nonsense to --model.
+    *)
+      common::log WARN "claude::_resolve_model: unknown alias '${alias}', passing through as literal model name"
+      printf '%s' "$alias"
+      ;;
   esac
 }
 
