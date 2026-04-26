@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkspaceRouteImport } from './routes/workspace'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DsOnboardingRouteImport } from './routes/ds-onboarding'
 import { Route as DsRouteImport } from './routes/ds'
@@ -35,6 +36,11 @@ import { Route as BrandCampaignsNewIndexRouteImport } from './routes/_brand/camp
 import { Route as BrandCampaignsNewPhaseRouteImport } from './routes/_brand/campaigns.new.$phase'
 import { Route as BrandCampaignsCampaignIdBriefRouteImport } from './routes/_brand/campaigns.$campaignId.brief'
 
+const WorkspaceRoute = WorkspaceRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/workspace': typeof WorkspaceRoute
   '/campaigns': typeof BrandCampaignsRouteWithChildren
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/workspace': typeof WorkspaceRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/workspace': typeof WorkspaceRoute
   '/_brand/campaigns': typeof BrandCampaignsRouteWithChildren
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/workspace'
     | '/campaigns'
     | '/offers'
     | '/auth/callback'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/workspace'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/workspace'
     | '/_brand/campaigns'
     | '/_creator/offers'
     | '/auth/callback'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   DsRoute: typeof DsRoute
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
+  WorkspaceRoute: typeof WorkspaceRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthKindRoute: typeof AuthKindRoute
@@ -329,6 +342,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/workspace': {
+      id: '/workspace'
+      path: '/workspace'
+      fullPath: '/workspace'
+      preLoaderRoute: typeof WorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/health': {
       id: '/health'
       path: '/health'
@@ -592,6 +612,7 @@ const rootRouteChildren: RootRouteChildren = {
   DsRoute: DsRoute,
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
+  WorkspaceRoute: WorkspaceRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthKindRoute: AuthKindRoute,

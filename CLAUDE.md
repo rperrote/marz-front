@@ -161,13 +161,14 @@ Ruta `/health` SSR devuelve `{status, uptime_sec}`. Dockerfile la usa en `HEALTH
 - Tailwind v4 usa `@import 'tailwindcss'` en CSS, no directives `@tailwind`. El `@theme inline` expone variables CSS como utilities sin rebuild.
 - shadcn primitives en `src/components/ui/*` son regenerables — si querés un cambio global, no editá el primitive, hacé un wrapper en `shared/ui/`.
 
-
 <!-- BEGIN FLOW-NEXT -->
+
 ## Flow-Next
 
 This project uses Flow-Next for task tracking. Use `.flow/bin/flowctl` instead of markdown TODOs or TodoWrite.
 
 **Quick commands:**
+
 ```bash
 .flow/bin/flowctl list                # List all epics + tasks
 .flow/bin/flowctl epics               # List all epics
@@ -212,13 +213,16 @@ EOF
 ```
 
 After creating a spec, choose next step:
+
 - `/flow-next:plan <epic-id>` — research + break into tasks
 - `/flow-next:interview <epic-id>` — deep Q&A to refine the spec
 
 **Rules:**
+
 - Use `.flow/bin/flowctl` for ALL task tracking
 - Do NOT create markdown TODOs or use TodoWrite
 - Re-anchor (re-read spec + status) before every task
 
 **More info:** `.flow/bin/flowctl --help` or read `.flow/usage.md`
+
 <!-- END FLOW-NEXT -->
