@@ -34,6 +34,7 @@ const scoringDimensionSchema = z.object({
 })
 
 const hardFilterSchema = z.object({
+  id: z.string(),
   filter_type: z.string().min(1, 'Seleccioná un tipo de filtro.'),
   filter_value: z.string().min(1, 'Ingresá un valor.'),
 })

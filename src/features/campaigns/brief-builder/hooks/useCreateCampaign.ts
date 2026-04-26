@@ -39,7 +39,9 @@ export function useCreateCampaign() {
               icp_platforms: draft.brief.icp_platforms,
               icp_interests: draft.brief.icp_interests,
               scoring_dimensions: draft.brief.scoring_dimensions,
-              hard_filters: draft.brief.hard_filters,
+              hard_filters: draft.brief.hard_filters.map(
+                ({ id: _, ...rest }) => rest,
+              ),
               disqualifiers: draft.brief.disqualifiers,
             },
           }),

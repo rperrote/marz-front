@@ -29,15 +29,17 @@ function buildEvent(
   }
 }
 
-function getAnalyticsUrl(): string {
-  return `${env.VITE_API_URL.replace(/\/$/, '')}/api/v1/analytics/events`
+const ANALYTICS_PATH = '/api/v1/analytics/events'
+
+function getAnalyticsFullUrl(): string {
+  return `${env.VITE_API_URL.replace(/\/$/, '')}${ANALYTICS_PATH}`
 }
 
 export function trackBriefBuilderStarted(
   payload: BriefBuilderStartedPayload,
 ): void {
   const event = buildEvent('brief_builder_started', { ...payload })
-  void customFetch('/api/v1/analytics/events', {
+  void customFetch(ANALYTICS_PATH, {
     method: 'POST',
     body: JSON.stringify(event),
   })
@@ -47,7 +49,7 @@ export function trackBriefBuilderAbandoned(
   payload: BriefBuilderAbandonedPayload,
 ): void {
   const event = buildEvent('brief_builder_abandoned', { ...payload })
-  void customFetch('/api/v1/analytics/events', {
+  void customFetch(ANALYTICS_PATH, {
     method: 'POST',
     body: JSON.stringify(event),
   })
@@ -60,5 +62,5 @@ export function trackBriefBuilderAbandonedBeacon(
   const blob = new Blob([JSON.stringify(event)], {
     type: 'application/json',
   })
-  navigator.sendBeacon(getAnalyticsUrl(), blob)
+  navigator.sendBeacon(getAnalyticsFullUrl(), blob)
 }

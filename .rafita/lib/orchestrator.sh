@@ -416,9 +416,16 @@ orchestrator::close_epic_loop() {
   local verdict=""
   local round=1
 
+  # Pin all closer/final artifacts (prompts, responses, gate logs) to a
+  # single per-epic dir instead of leaking into _global/ + closer-epic-*/.
+  # claude::run reads RAFITA_CURRENT_TASK to pick the artifact subdir.
+  local _saved_task="${RAFITA_CURRENT_TASK:-}"
+  export RAFITA_CURRENT_TASK="closer-epic-${epic}"
+
   if [[ "$closer_on" != "1" ]]; then
     verdict=$(phase::final_review "$epic" "$source_branch" "$tasks_csv")
     printf '%s' "$verdict"
+    if [[ -n "$_saved_task" ]]; then export RAFITA_CURRENT_TASK="$_saved_task"; else unset RAFITA_CURRENT_TASK; fi
     return 0
   fi
 
@@ -473,6 +480,7 @@ print(json.dumps({"status":"fail","issues":[{"file":"(gates)","issue":body[:2000
   fi
 
   printf '%s' "$verdict"
+  if [[ -n "$_saved_task" ]]; then export RAFITA_CURRENT_TASK="$_saved_task"; else unset RAFITA_CURRENT_TASK; fi
 }
 
 orchestrator::publish_epic() {

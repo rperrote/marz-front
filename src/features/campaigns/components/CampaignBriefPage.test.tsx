@@ -60,7 +60,9 @@ function makeDraft(): BriefDraft {
           negative_signals: [],
         },
       ],
-      hard_filters: [{ filter_type: 'min_followers', filter_value: '10000' }],
+      hard_filters: [
+        { id: 'hf-1', filter_type: 'min_followers', filter_value: '10000' },
+      ],
       disqualifiers: ['Contenido político'],
     },
   }

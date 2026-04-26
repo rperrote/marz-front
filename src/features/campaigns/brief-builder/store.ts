@@ -27,6 +27,7 @@ export interface ScoringDimension {
 }
 
 export interface HardFilter {
+  id: string
   filter_type: string
   filter_value: string
 }

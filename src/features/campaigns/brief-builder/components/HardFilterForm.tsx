@@ -27,7 +27,10 @@ interface HardFilterFormProps {
 
 export function HardFilterForm({ filters, onChange }: HardFilterFormProps) {
   const addFilter = () => {
-    onChange([...filters, { filter_type: '', filter_value: '' }])
+    onChange([
+      ...filters,
+      { id: crypto.randomUUID(), filter_type: '', filter_value: '' },
+    ])
   }
 
   const updateFilter = (index: number, updated: HardFilter) => {
@@ -41,7 +44,7 @@ export function HardFilterForm({ filters, onChange }: HardFilterFormProps) {
   return (
     <div className="flex flex-col gap-3">
       {filters.map((filter, idx) => (
-        <div key={idx} className="flex items-start gap-2">
+        <div key={filter.id} className="flex items-start gap-2">
           <Select
             value={filter.filter_type}
             onValueChange={(val) =>

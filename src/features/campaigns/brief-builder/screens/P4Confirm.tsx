@@ -35,12 +35,14 @@ export function P4Confirm() {
   const [summaryOpen, setSummaryOpen] = useState(false)
 
   const mutation = useCreateCampaign()
+  const mutateRef = useRef(mutation.mutate)
+  mutateRef.current = mutation.mutate
 
   useEffect(() => {
     if (!draft || hasTriggeredRef.current) return
     hasTriggeredRef.current = true
 
-    mutation.mutate(
+    mutateRef.current(
       {
         // TODO(fn-B.x): obtener brandWorkspaceId del auth context
         brandWorkspaceId: 'default' as string,
@@ -64,7 +66,7 @@ export function P4Confirm() {
         },
       },
     )
-  }, [])
+  }, [draft, store])
 
   if (!draft) {
     return (

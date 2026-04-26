@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useBlocker } from '@tanstack/react-router'
 import { useBriefBuilderStore } from '../store'
 import { trackBriefBuilderAbandonedBeacon } from '../analytics/brief-builder-analytics'
@@ -6,13 +6,31 @@ import { trackBriefBuilderAbandonedBeacon } from '../analytics/brief-builder-ana
 function useIsDirty(): boolean {
   const currentPhase = useBriefBuilderStore((s) => s.currentPhase)
   const campaignId = useBriefBuilderStore((s) => s.campaignId)
-  return currentPhase >= 1 && campaignId === null
+  const processingToken = useBriefBuilderStore((s) => s.processingToken)
+  const formInput = useBriefBuilderStore((s) => s.formInput)
+  const pdfFile = useBriefBuilderStore((s) => s.pdfFile)
+
+  if (campaignId !== null) return false
+  if (currentPhase >= 2) return true
+  if (processingToken !== null) return true
+
+  const hasInput =
+    formInput.websiteUrl.trim().length > 0 ||
+    formInput.descriptionText.trim().length > 0 ||
+    pdfFile !== null
+
+  return hasInput
 }
 
 export function useLeaveGuard() {
   const isDirty = useIsDirty()
-  const currentPhase = useBriefBuilderStore((s) => s.currentPhase)
-  const processingToken = useBriefBuilderStore((s) => s.processingToken)
+  const storeRef = useRef(useBriefBuilderStore.getState())
+
+  useEffect(() => {
+    return useBriefBuilderStore.subscribe((s) => {
+      storeRef.current = s
+    })
+  }, [])
 
   const blocker = useBlocker({
     shouldBlockFn: () => isDirty,
@@ -28,6 +46,7 @@ export function useLeaveGuard() {
     }
 
     const handlePageHide = () => {
+      const { currentPhase, processingToken } = storeRef.current
       trackBriefBuilderAbandonedBeacon({
         phase: currentPhase,
         processing_token: processingToken,
@@ -40,7 +59,7 @@ export function useLeaveGuard() {
       window.removeEventListener('beforeunload', handleBeforeUnload)
       window.removeEventListener('pagehide', handlePageHide)
     }
-  }, [isDirty, currentPhase, processingToken])
+  }, [isDirty])
 
   return { blocker, isDirty }
 }

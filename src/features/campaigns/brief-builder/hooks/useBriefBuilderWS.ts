@@ -108,6 +108,10 @@ export function useBriefBuilderWS(
           id: d.id || crypto.randomUUID(),
         }),
       )
+      incoming.brief.hard_filters = incoming.brief.hard_filters.map((f) => ({
+        ...f,
+        id: f.id || crypto.randomUUID(),
+      }))
       setBriefDraft(incoming)
       setStatus(payload.status)
 
