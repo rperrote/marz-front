@@ -92,7 +92,7 @@ Si B.9/B.10 todavía no están en dev, mockear con MSW para desarrollo local. F.
 
 ## Done summary
 
-TBD
+Bloque redundante eliminado; store, form y tests coherentes con la spec F.2.
 
 ## Evidence
 

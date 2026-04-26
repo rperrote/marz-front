@@ -8,7 +8,7 @@ import {
 import { useAuth } from '@clerk/tanstack-react-start'
 
 import { useMe } from '#/shared/api/generated/accounts/accounts'
-import { OnboardingShell } from '#/features/identity/onboarding/shared/components'
+import { WizardShell } from '#/shared/ui/wizard'
 import { useCreatorOnboardingStore } from '#/features/identity/onboarding/creator/store'
 import {
   STEPS,
@@ -119,7 +119,7 @@ function CreatorOnboardingLayout() {
     return null
 
   return (
-    <OnboardingShell
+    <WizardShell
       stepLabel={stepLabel}
       percent={percent}
       onBack={currentIndex > 0 ? handleBack : undefined}
@@ -129,6 +129,6 @@ function CreatorOnboardingLayout() {
       onExit={handleExit}
     >
       <Outlet />
-    </OnboardingShell>
+    </WizardShell>
   )
 }

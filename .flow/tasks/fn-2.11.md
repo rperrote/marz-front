@@ -88,7 +88,7 @@ En P4 onsuccess: marcar `campaignId` en store. `isDirty` pasa a `false`. Leave-g
 
 ## Done summary
 
-TBD
+useLeaveGuard sin enableBeforeUnload elimina el doble registro correctamente. Analytics con beacon/fetch separados es la implementación correcta. Tests cubren los casos relevantes con mocks apropiados. Sin issues funcionales.
 
 ## Evidence
 

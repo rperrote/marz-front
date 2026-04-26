@@ -45,7 +45,7 @@ Título "Resumen del brief — {campaign.name}". Botón "Volver a campañas" →
 
 ## Done summary
 
-TBD
+Ruta standalone /campaigns/$campaignId/brief implementada correctamente: hook manual justificado (RAFITA:BLOCKER:), tipos explícitos, manejo de estados loading/error/404/success, separación de BC respetada, 4 tests incluyendo axe.
 
 ## Evidence
 

@@ -80,6 +80,13 @@ orchestrator::run_task() {
     fi
   fi
 
+  # No-progress detector: if the dev replies N rounds in a row with summaries
+  # that are pure "ya está / nothing to fix / falsos positivos", the task is
+  # in a stalled loop where the dev disputes the reviewer instead of
+  # implementing. Stop early to avoid burning all max_rounds.
+  local noop_streak=0
+  local noop_threshold=3
+
   local round
   for (( round=start_round; round<=max; round++ )); do
     export RAFITA_CURRENT_ROUND="$round"
@@ -159,6 +166,29 @@ PYEOF
     first_issue=$(python3 "$py_tmp" "$verdict")
     rm -f "$py_tmp"
     [[ -n "$first_issue" ]] && ui::info "    first fix: ${first_issue}"
+
+    # No-progress check: read the dev summary of THIS round and look for
+    # patterns that indicate the dev did not actually change code (just
+    # disputed the review).
+    local dev_summary_file="${RAFITA_RUN_DIR:-}/${task_id}/dev-round-${round}.summary"
+    if [[ -f "$dev_summary_file" ]]; then
+      local dev_summary_text; dev_summary_text=$(cat "$dev_summary_file")
+      # Case-insensitive grep for known "no-op" phrases. Add more if you spot
+      # new patterns in stalled runs.
+      if printf '%s' "$dev_summary_text" | grep -qiE \
+          'no requiere|ya implementado|ya est[áa] (resuelto|hecho|cubierto)|falsos positivos|auditor[íi]a limpia|sin cambios necesarios|no se requieren cambios|nothing to fix|already (fixed|implemented|done)'; then
+        noop_streak=$((noop_streak + 1))
+        common::log WARN "task ${task_id} round ${round}: dev reported no-op (streak=${noop_streak}/${noop_threshold})"
+        if (( noop_streak >= noop_threshold )); then
+          common::log WARN "task ${task_id}: ${noop_threshold} no-op rounds in a row; aborting as stalled"
+          ui::error "task ${task_id} stalled — dev keeps disputing review without editing"
+          break
+        fi
+      else
+        # Real progress (or at least an attempt): reset the streak.
+        noop_streak=0
+      fi
+    fi
   done
 
   if [[ $approved -eq 1 ]]; then
@@ -191,9 +221,15 @@ print(d.get("summary","task completed"))' "$verdict" > "$summary_tmp"
     return 0
   fi
 
-  # Not approved in max rounds.
-  common::log WARN "task ${task_id} exhausted max rounds; changes preserved"
-  ui::task_skipped "$task_id" "max-rounds"
+  # Not approved. Could be exhausted max_rounds or stalled (no-progress
+  # detector triggered an early break). The noop_streak variable tells us.
+  if (( noop_streak >= noop_threshold )); then
+    common::log WARN "task ${task_id} stalled at round ${round}; changes preserved"
+    ui::task_skipped "$task_id" "stalled-${noop_threshold}-noops"
+  else
+    common::log WARN "task ${task_id} exhausted max rounds; changes preserved"
+    ui::task_skipped "$task_id" "max-rounds"
+  fi
   return 1
 }
 
@@ -304,6 +340,49 @@ orchestrator::run_epic() {
   fi
 }
 
+# orchestrator::run_closer_only <epic_id>
+# Skip the per-task DEV/REVIEW loop. Reconstruct the task list from
+# flowctl (status=done) and run only CLOSER+FINAL, then publish.
+# Useful when:
+#   - the epic was implemented in a previous run that crashed before publish
+#   - you tweaked the closer logic and want to re-run just the closing phase
+#   - you want to (re)open/update a PR from already-committed work
+# Returns 0 on success; non-zero if there's nothing to close or publish fails.
+orchestrator::run_closer_only() {
+  local epic="$1"
+  export RAFITA_CURRENT_EPIC="$epic"
+  common::record_epic "$epic"
+  ui::epic_start "$epic"
+  ui::info "closer-only mode: skipping DEV/REVIEW; running CLOSER+FINAL only"
+  git::setup_epic_branch "$epic"
+
+  # Build the completed list from flowctl (everything already done in this
+  # epic). Without this we have no task ids to feed into close_epic_loop /
+  # publish_epic, which use the list to render the PR body.
+  local tasks_csv; tasks_csv=$(flowctl::done_tasks_csv "$epic")
+  if [[ -z "$tasks_csv" ]]; then
+    ui::error "epic ${epic} has no done tasks; nothing to close or publish"
+    return 1
+  fi
+  export RAFITA_COMPLETED_CSV="$tasks_csv"
+  common::log INFO "closer-only: epic=${epic} tasks=${tasks_csv}"
+
+  # Run the closer↔final loop and publish (same path as run_epic uses at
+  # the end). publish_epic expects task ids as positional args.
+  local final_verdict
+  final_verdict=$(orchestrator::close_epic_loop "$epic" "${RAFITA_PR_BASE:-}" "$tasks_csv")
+  export RAFITA_LAST_FINAL_VERDICT="$final_verdict"
+
+  local -a tasks_array
+  IFS=',' read -ra tasks_array <<< "$tasks_csv"
+  orchestrator::publish_epic "$epic" "$final_verdict" "${tasks_array[@]}"
+  flowctl::close_epic "$epic"
+
+  if [[ "${RAFITA_BRANCH_MODE:-new}" == "new" && -n "${RAFITA_SOURCE_BRANCH:-}" ]]; then
+    git checkout -q "$RAFITA_SOURCE_BRANCH" 2>/dev/null || true
+  fi
+}
+
 orchestrator::_rate_limit_long_sleep() {
   local task_id="$1" title="$2"
   local reset="${RAFITA_LAST_RESET_AT:-}"
@@ -337,9 +416,16 @@ orchestrator::close_epic_loop() {
   local verdict=""
   local round=1
 
+  # Pin all closer/final artifacts (prompts, responses, gate logs) to a
+  # single per-epic dir instead of leaking into _global/ + closer-epic-*/.
+  # claude::run reads RAFITA_CURRENT_TASK to pick the artifact subdir.
+  local _saved_task="${RAFITA_CURRENT_TASK:-}"
+  export RAFITA_CURRENT_TASK="closer-epic-${epic}"
+
   if [[ "$closer_on" != "1" ]]; then
     verdict=$(phase::final_review "$epic" "$source_branch" "$tasks_csv")
     printf '%s' "$verdict"
+    if [[ -n "$_saved_task" ]]; then export RAFITA_CURRENT_TASK="$_saved_task"; else unset RAFITA_CURRENT_TASK; fi
     return 0
   fi
 
@@ -394,6 +480,7 @@ print(json.dumps({"status":"fail","issues":[{"file":"(gates)","issue":body[:2000
   fi
 
   printf '%s' "$verdict"
+  if [[ -n "$_saved_task" ]]; then export RAFITA_CURRENT_TASK="$_saved_task"; else unset RAFITA_CURRENT_TASK; fi
 }
 
 orchestrator::publish_epic() {

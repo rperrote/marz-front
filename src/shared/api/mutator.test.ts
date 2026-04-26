@@ -163,4 +163,102 @@ describe('customFetch', () => {
     expect(apiError.status).toBe(422)
     expect(apiError.details?.field_errors?.name).toEqual(['too short'])
   })
+
+  describe('FormData / multipart support', () => {
+    it('FormData body → does not set Content-Type, passes body as-is, parses JSON response', async () => {
+      const formData = new FormData()
+      formData.append('file', new Blob(['pdf-content']), 'brief.pdf')
+      formData.append('url', 'https://example.com')
+
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(jsonResponse(200, { id: 'brief-1' }))
+
+      const result = await customFetch<{
+        data: { id: string }
+        status: number
+      }>('/campaigns/brief-builder/init', {
+        method: 'POST',
+        body: formData,
+      })
+
+      expect(result.status).toBe(200)
+      expect(result.data).toEqual({ id: 'brief-1' })
+
+      const [, init] = fetchSpy.mock.calls[0]!
+      const headers = init?.headers as Record<string, string>
+      expect(headers).not.toHaveProperty('Content-Type')
+      expect(headers).toHaveProperty('Accept', 'application/json')
+      expect(init?.body).toBe(formData)
+    })
+
+    it('JSON body → sets Content-Type application/json (regression)', async () => {
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(jsonResponse(200, { ok: true }))
+
+      await customFetch('/users', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'test' }),
+      })
+
+      const [, init] = fetchSpy.mock.calls[0]!
+      const headers = init?.headers as Record<string, string>
+      expect(headers).toHaveProperty('Content-Type', 'application/json')
+    })
+
+    it('401 with FormData → refresh + retry once preserving FormData body', async () => {
+      const formData = new FormData()
+      formData.append('file', new Blob(['content']), 'doc.pdf')
+
+      const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      fetchSpy
+        .mockResolvedValueOnce(
+          jsonResponse(401, {
+            code: 'token_expired',
+            message: 'Token expired',
+          }),
+        )
+        .mockResolvedValueOnce(jsonResponse(200, { uploaded: true }))
+
+      const result = await customFetch<{
+        data: { uploaded: boolean }
+        status: number
+      }>('/upload', { method: 'POST', body: formData })
+
+      expect(result.status).toBe(200)
+      expect(result.data).toEqual({ uploaded: true })
+      expect(mockRefreshToken).toHaveBeenCalledOnce()
+      expect(fetchSpy).toHaveBeenCalledTimes(2)
+
+      const [, retryInit] = fetchSpy.mock.calls[1]!
+      const retryHeaders = retryInit?.headers as Record<string, string>
+      expect(retryHeaders).not.toHaveProperty('Content-Type')
+      expect(retryInit?.body).toBe(formData)
+    })
+
+    it('422 with FormData → throws ApiError with details', async () => {
+      const formData = new FormData()
+      formData.append('url', 'bad-url')
+
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        jsonResponse(422, {
+          code: 'validation_error',
+          message: 'Invalid input',
+          details: { field_errors: { url: ['invalid format'] } },
+        }),
+      )
+
+      const error = await customFetch('/upload', {
+        method: 'POST',
+        body: formData,
+      }).catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(ApiError)
+      const apiError = error as ApiError
+      expect(apiError.status).toBe(422)
+      expect(apiError.code).toBe('validation_error')
+      expect(apiError.details?.field_errors?.url).toEqual(['invalid format'])
+    })
+  })
 })

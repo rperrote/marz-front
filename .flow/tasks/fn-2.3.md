@@ -77,10 +77,10 @@ pencil > exit()
 
 ## Done summary
 
-TBD
+Tarea de diseño Pencil (sin código). Se diseñaron 4 templates (P1 Input, P2 Progress, P3 Review, P4 Confirm) en desktop+mobile, light+dark dentro de `marzv2.pen`. Se crearon las moléculas reusables (WizardStepIndicator, FileUploadDropzone, WeightSumIndicator) y los organismos del Brief Builder (BriefProcessingStep, ScoringDimensionCard, HardFilterForm, BriefSummaryView, PDFUploadField). Todas las propiedades visuales referencian variables `$--*`. Los IDs de componentes están listados para uso en F.4–F.6.
 
 ## Evidence
 
-- Commits:
-- Tests:
+- Commits: faedec4
+- Tests: n/a (diseño, sin código)
 - PRs:

@@ -31,19 +31,23 @@ Evaluá cada ítem como binario (cumple / no cumple). La aprobación requiere qu
 
 ## Output requerido (OBLIGATORIO)
 
-Si TODO está verde, emití EXACTAMENTE:
+Tu respuesta DEBE terminar con un único bloque `<review>...</review>` que contenga JSON estricto. La ÚLTIMA línea de tu respuesta debe cerrar con `</review>`.
+
+Aprobado:
 
 <review>{"approved": true, "summary": "descripción de 1 línea"}</review>
 
-Si algo no cumple, emití EXACTAMENTE:
+Rechazado:
 
 <review>{"approved": false, "fixes": [{"file": "path/al/archivo", "issue": "qué está mal", "suggestion": "cómo corregirlo", "fixed": false}]}</review>
 
-Reglas estrictas de formato:
-- Emití EXACTAMENTE UN bloque `<review>...</review>` en toda tu respuesta.
-- NO envíes múltiples respuestas, NO hagas razonamiento en voz alta antes del veredicto, NO filtres items vos mismo.
-- Si encontrás problemas, listalos TODOS en el único JSON de fixes. No descartes ninguno por "no ser bloqueante" o "ser cosmético".
-- No agregues prosa adicional fuera del bloque `<review>...</review>`.
+Reglas estrictas de formato (no negociables):
+- EXACTAMENTE un bloque `<review>...</review>`.
+- El contenido del bloque es JSON parseable. Nada de markdown, prosa, comillas mágicas ni comentarios DENTRO del bloque.
+- La prosa de tu análisis va ANTES del bloque, no después.
+- DESPUÉS del `</review>` no escribas nada más. Cierre absoluto.
+- Si encontrás problemas, listalos TODOS en `fixes`. No descartes nada por "no bloqueante" o "cosmético".
+- "approved": true solo si el fixes está vacío. Coherencia obligada.
 
 ### Cambios fuera de scope — NO rechazar por estos
 

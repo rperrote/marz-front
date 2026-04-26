@@ -49,7 +49,7 @@ Actualizar todos los callsites del onboarding a los nuevos paths/nombres. Tests 
 
 ## Done summary
 
-TBD
+Rename limpio de 5 componentes Onboarding* → Wizard* a shared/ui/wizard/, tests movidos y renombrados, todos los callsites actualizados. OnboardingField no existía en el repo (no es omisión). Sin any, tokens, imports innecesarios ni regresiones de bounded context.
 
 ## Evidence
 

@@ -1,18 +1,32 @@
+## Round nuevo de review
+
+Ya conocés la spec, las reglas del proyecto y el formato de output (de tu round anterior en esta misma sesión). Re-evaluá el diff actualizado a continuación.
+
+## Resumen del dev sobre lo que hizo en este round
+
 {{DEV_SUMMARY}}
+
+## Diff actualizado
 
 ```diff
 {{DIFF}}
 ```
 
-Emití EXACTAMENTE UN bloque `<review>...</review>` con el veredicto. Sin prosa adicional, sin razonamiento previo, sin filtrar items.
+## Recordatorios sobre el output (críticos)
 
+Tu respuesta DEBE terminar con UN bloque `<review>...</review>` con JSON parseable. La última línea debe ser el cierre `</review>`. Sin prosa después del bloque. JSON estricto, sin markdown adentro.
+
+- Aprobado: `<review>{"approved": true, "summary": "..."}</review>`
+- Rechazado: `<review>{"approved": false, "fixes": [{"file":"...","issue":"...","suggestion":"...","fixed":false}]}</review>`
+
+`"approved": true` solo si `fixes` está vacío. Si listás fixes, `approved` es false. Coherencia obligada.
 
 ### Cambios fuera de scope — NO rechazar por estos
 
-El agente dev corre `pnpm lint`, `pnpm format` y el typecheck como parte del flujo normal. Esto puede producir diffs en archivos que no son parte de la task. **No marcar como error ni pedir reverting** cuando el único cambio en un archivo es alguno de los siguientes:
+El agente dev corre `pnpm lint`, `pnpm format` y typecheck como parte del flujo. Esto produce diffs ruido en archivos que no son de la task. NO rechaces cuando el único cambio en un archivo es:
 
-- Reformateo puro de Prettier (indentación, largo de línea, comillas, trailing comma, saltos de línea). Identificable porque el diff no cambia ningún token semántico del AST.
-- Ajuste de `noUncheckedIndexedAccess`: agregado de guard `if (match?.[1] && ...)` o cambio de `match[1]` a `match?.[1]` sobre el resultado de `.match()`.
-- Cambio de `if (match)` a `if (match?.[1] && match[2] !== undefined)` para satisfacer TypeScript strict.
+- Reformateo puro de Prettier (whitespace, comillas, trailing commas).
+- Ajustes de `noUncheckedIndexedAccess` (guards `?.` sobre resultados de `.match()`).
+- Cambios menores de tipo para satisfacer TypeScript strict.
 
-Si el archivo tiene algún cambio funcional además del formato, revisá solo ese cambio funcional e ignorá el ruido de formato.
+Si el archivo tiene algún cambio funcional además del ruido, revisá solo lo funcional.

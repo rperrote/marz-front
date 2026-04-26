@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-25T20:29:32.442684Z",
   "created_at": "2026-04-24T22:22:52.397344Z",
   "depends_on": [],
   "epic": "fn-2",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "El \u00fanico cambio funcional es el eslint-disable en la l\u00ednea 23 del test, que es la soluci\u00f3n correcta para el patr\u00f3n vi.mock + import post-mock de Vitest. El resto del diff es metadata .flow/. Sin issues."
+  },
   "id": "fn-2.6",
   "priority": null,
   "spec_path": ".flow/tasks/fn-2.6.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.3 \u2014 Hook useBriefBuilderWS + tipos WS manuales",
-  "updated_at": "2026-04-24T22:26:31.707324Z"
+  "updated_at": "2026-04-25T20:36:37.634010Z"
 }

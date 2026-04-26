@@ -18,10 +18,8 @@ import {
   MoreHorizontal,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import {
-  OnboardingSectionTitle,
-  OnboardingVerticalCard,
-} from '#/features/identity/onboarding/shared/components'
+import { WizardSectionTitle } from '#/shared/ui/wizard'
+import { OnboardingVerticalCard } from '#/features/identity/onboarding/shared/components'
 import { useBrandOnboardingStore } from '../store'
 import { Vertical } from '#/shared/api/generated/model/vertical'
 
@@ -66,7 +64,7 @@ export function B2VerticalScreen() {
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
+      <WizardSectionTitle
         title={t`¿En qué vertical opera tu marca?`}
         subtitle={t`Elegí la categoría que mejor represente tu industria.`}
       />

@@ -49,15 +49,10 @@ phase::final_review() {
       retry=$((retry + 1))
       common::log WARN "final verdict unparseable (attempt $retry/$max_retries); asking reviewer to reformat"
       ui::phase "FINAL" "verdict unparseable; reformat (retry ${retry}/${max_retries})..."
-      local reformat_prompt="Tu respuesta anterior no contiene un bloque <final-review>{...}</final-review> con JSON válido.
-
-Re-emití EL MISMO veredicto que ya formaste, con el MISMO análisis. Lo único que tenés que arreglar es el envoltorio: el verdict tiene que ir dentro de <final-review>...</final-review> con JSON válido y los campos:
-
-- status (\"pass\" o \"fail\")
-- summary (string corto)
-- issues (array; cada item con issue)
-
-No re-analices. No re-leas el diff. Solo re-emití tu veredicto previo en el formato correcto."
+      local reformat_prompt
+      reformat_prompt=$(common::render_template \
+        "$RAFITA_SCRIPTS_DIR/prompts/final-reformat.tmpl" \
+        LAST_OUTPUT="$out")
 
       out=$(worker::run "$reformat_prompt" "final-review-reformat-${retry}" "reviewer")
       rc=$?

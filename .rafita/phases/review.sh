@@ -54,26 +54,22 @@ phase::review() {
   source=$(common::json_get "$verdict" source 2>/dev/null || echo "")
 
   # Retry loop for unparseable verdicts. Reuses the reviewer's session so it
-  # already has the spec + diff context — we only ask it to reformat its
-  # answer into the required <review>{...}</review> envelope. 2 retries
-  # max; after that, hard-fail the task instead of feeding garbage fixes
-  # to the dev (which would cause the dev to "fix" the verdict parser
-  # instead of real code).
+  # has the spec + diff context — we only ask it to reformat its answer
+  # into the required <review>{...}</review> envelope. The template
+  # includes the previous output verbatim so the reviewer transcribes
+  # instead of re-analyzing. 2 retries max; after that, hard-fail the
+  # task instead of feeding garbage fixes to the dev (which would loop
+  # forever "fixing" the verdict parser instead of real code).
   local retry=0
   local max_retries=2
   while [[ "$source" == "parse_error" ]] && (( retry < max_retries )); do
     retry=$((retry + 1))
     common::log WARN "review verdict unparseable (attempt $retry/$max_retries); asking reviewer to reformat"
     ui::phase "REVIEW" "verdict unparseable; reformat (retry ${retry}/${max_retries})..."
-    local reformat_prompt="Tu respuesta anterior no contiene un bloque <review>{...}</review> con JSON válido.
-
-Re-emití EL MISMO veredicto que ya formaste, con el MISMO análisis y los MISMOS fixes. Lo único que tenés que arreglar es el envoltorio: el verdict tiene que ir dentro de <review>...</review> con JSON válido y los campos:
-
-- approved (boolean)
-- summary (string corto)
-- fixes (array; cada item con file, issue, suggestion)
-
-No re-analices. No re-leas el diff. Solo re-emití tu veredicto previo en el formato correcto."
+    local reformat_prompt
+    reformat_prompt=$(common::render_template \
+      "$RAFITA_SCRIPTS_DIR/prompts/review-reformat.tmpl" \
+      LAST_OUTPUT="$out")
 
     out=$(worker::run "$reformat_prompt" "review-round-${round}-reformat-${retry}" "reviewer")
     rc=$?

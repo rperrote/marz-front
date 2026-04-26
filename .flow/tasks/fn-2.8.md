@@ -114,7 +114,7 @@ Campos individuales vacíos: aviso inline "información insuficiente para este c
 
 ## Done summary
 
-TBD
+key={tag} correcto: tags son únicos por invariante de addTag, la key es estable ante eliminación del medio. Sin issues pendientes.
 
 ## Evidence
 

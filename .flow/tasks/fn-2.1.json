@@ -1,14 +1,20 @@
 {
-  "assignee": null,
+  "assignee": "rodrigoperrote@gmail.com",
   "claim_note": "",
-  "claimed_at": null,
+  "claimed_at": "2026-04-25T16:04:15.329690Z",
   "created_at": "2026-04-24T22:22:51.796133Z",
   "depends_on": [],
   "epic": "fn-2",
+  "evidence": {
+    "approved": true,
+    "fixes": [],
+    "source": "llm_review",
+    "summary": "Rename limpio de 5 componentes Onboarding* \u2192 Wizard* a shared/ui/wizard/, tests movidos y renombrados, todos los callsites actualizados. OnboardingField no exist\u00eda en el repo (no es omisi\u00f3n). Sin any, tokens, imports innecesarios ni regresiones de bounded context."
+  },
   "id": "fn-2.1",
   "priority": null,
   "spec_path": ".flow/tasks/fn-2.1.md",
-  "status": "todo",
+  "status": "done",
   "title": "F.0 \u2014 Lift wizard shells de onboarding a src/shared/ui/wizard/",
-  "updated_at": "2026-04-24T22:26:30.103836Z"
+  "updated_at": "2026-04-25T16:11:55.542716Z"
 }

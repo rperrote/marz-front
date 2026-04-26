@@ -63,7 +63,7 @@ Steps 4 y 5 pueden mostrarse con animación de delay UI (250ms entre push) si lo
 
 ## Done summary
 
-TBD
+role="alert" en el div failed es correcto y suficiente. El aria-live="polite" en el contenedor de steps sigue presente. Tests completos: 11 casos cubren todos los acceptance criteria de la spec. Sin issues funcionales ni de accesibilidad.
 
 ## Evidence
 

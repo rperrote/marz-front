@@ -48,6 +48,10 @@ export async function customFetch<T>(
   return handleResponse<T>(res)
 }
 
+function isFormData(body: unknown): body is FormData {
+  return typeof FormData !== 'undefined' && body instanceof FormData
+}
+
 async function doFetch(
   url: string,
   token: string | null,
@@ -57,10 +61,15 @@ async function doFetch(
     ? { Authorization: `Bearer ${token}` }
     : {}
 
+  const contentHeaders: Record<string, string> = isFormData(options?.body)
+    ? {}
+    : { 'Content-Type': 'application/json' }
+
   return fetch(url, {
     ...options,
     headers: {
       Accept: 'application/json',
+      ...contentHeaders,
       ...authHeaders,
       ...options?.headers,
     },

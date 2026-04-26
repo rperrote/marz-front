@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
 import { Input } from '#/components/ui/input'
 import { FieldRow } from '#/shared/ui/form'
-import { OnboardingSectionTitle } from '#/features/identity/onboarding/shared/components'
+import { WizardSectionTitle } from '#/shared/ui/wizard'
 import { useBrandOnboardingStore } from '../store'
 import { useBrandEnrichment } from '#/shared/api/generated/onboarding/onboarding'
 import type { BrandfetchSnapshot } from '#/shared/api/generated/model/brandfetchSnapshot'
@@ -64,7 +64,7 @@ export function B1IdentityScreen() {
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
-      <OnboardingSectionTitle
+      <WizardSectionTitle
         title={t`¿Cómo se llama tu marca?`}
         subtitle={t`Ingresá el nombre y la web de tu marca para comenzar.`}
       />

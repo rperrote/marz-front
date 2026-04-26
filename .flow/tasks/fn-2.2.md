@@ -40,7 +40,7 @@
 
 ## Done summary
 
-TBD
+FormData detection y header omission correctos; 4 tests nuevos cubren todos los acceptance criteria de la spec sin regressions
 
 ## Evidence
 

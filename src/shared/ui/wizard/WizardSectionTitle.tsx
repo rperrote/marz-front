@@ -1,16 +1,16 @@
 import { cn } from '#/lib/utils'
 
-interface OnboardingSectionTitleProps {
+interface WizardSectionTitleProps {
   title: string
   subtitle?: string
   className?: string
 }
 
-export function OnboardingSectionTitle({
+export function WizardSectionTitle({
   title,
   subtitle,
   className,
-}: OnboardingSectionTitleProps) {
+}: WizardSectionTitleProps) {
   return (
     <div
       className={cn('flex max-w-[560px] flex-col gap-3 text-center', className)}

@@ -88,7 +88,7 @@ Reusable: lo importa F.7 (ruta standalone).
 
 ## Done summary
 
-TBD
+Fix 1 (useEffect dep array vacío) y Fix 2 (navigate tipado con cast + TODO) correctos. La lógica de idempotency key, estados de UI (pending/error/success), retry con mismo key, fallback de marketplace, y el Dialog de BriefSummaryView son sólidos. Los tests cubren los paths críticos y el mock de useCreateCampaign es válido para las aserciones que hacen. Sin issues pendientes.
 
 ## Evidence
 
