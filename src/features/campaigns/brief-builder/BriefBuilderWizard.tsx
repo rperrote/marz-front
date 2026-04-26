@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Outlet, useParams, useRouter } from '@tanstack/react-router'
 
 import { WizardShell } from '#/shared/ui/wizard'
@@ -10,6 +10,9 @@ import {
   useStepValidatorRef,
   useCallStepValidator,
 } from './validation'
+import { useLeaveGuard } from './hooks/useLeaveGuard'
+import { LeaveConfirmDialog } from './components/LeaveConfirmDialog'
+import { trackBriefBuilderAbandoned } from './analytics/brief-builder-analytics'
 
 function useNextDisabled(phaseIndex: number): boolean {
   const store = useBriefBuilderStore()
@@ -57,6 +60,14 @@ export function BriefBuilderWizard() {
 
   const validationCtx = useMemo(() => ({ validatorRef }), [validatorRef])
 
+  const { blocker } = useLeaveGuard()
+
+  useEffect(() => {
+    return () => {
+      useBriefBuilderStore.getState().reset()
+    }
+  }, [])
+
   if (currentIndex === -1) {
     return (
       <WizardStepValidationContext.Provider value={validationCtx}>
@@ -103,8 +114,29 @@ export function BriefBuilderWizard() {
     void router.navigate({ to: '/campaigns' })
   }
 
+  const handleBlockerConfirm = () => {
+    if (blocker.status === 'blocked') {
+      trackBriefBuilderAbandoned({
+        phase: store.currentPhase,
+        processing_token: store.processingToken,
+      })
+      blocker.proceed()
+    }
+  }
+
+  const handleBlockerCancel = () => {
+    if (blocker.status === 'blocked') {
+      blocker.reset()
+    }
+  }
+
   return (
     <WizardStepValidationContext.Provider value={validationCtx}>
+      <LeaveConfirmDialog
+        open={blocker.status === 'blocked'}
+        onConfirm={handleBlockerConfirm}
+        onCancel={handleBlockerCancel}
+      />
       <WizardShell
         stepLabel={stepLabel}
         percent={percent}

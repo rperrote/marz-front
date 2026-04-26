@@ -22,6 +22,10 @@ vi.mock('@lingui/core/macro', () => ({
 const mockMutate = vi.fn()
 let mockIsPending = false
 
+vi.mock('../analytics/brief-builder-analytics', () => ({
+  trackBriefBuilderStarted: vi.fn(),
+}))
+
 vi.mock('../hooks/useProcessBrief', () => ({
   useProcessBrief: () => ({
     mutate: mockMutate,

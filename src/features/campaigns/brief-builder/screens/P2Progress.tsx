@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { WizardSectionTitle } from '#/shared/ui/wizard'
 import { Button } from '#/components/ui/button'
 import { useBriefBuilderStore } from '../store'
+import { trackBriefBuilderStarted } from '../analytics/brief-builder-analytics'
 import { useBriefBuilderWS } from '../hooks/useBriefBuilderWS'
 import { useProcessBrief } from '../hooks/useProcessBrief'
 import { BriefProcessingStep } from '../components/BriefProcessingStep'
@@ -15,6 +16,19 @@ export function P2Progress() {
   const goTo = useBriefBuilderStore((s) => s.goTo)
   const ws = useBriefBuilderWS(processingToken)
   const processBrief = useProcessBrief()
+
+  const hasTrackedStarted = useRef(false)
+
+  useEffect(() => {
+    if (processingToken && !hasTrackedStarted.current) {
+      hasTrackedStarted.current = true
+      trackBriefBuilderStarted({
+        // TODO(fn-2.11): obtener brandWorkspaceId del auth context cuando Identity lo exponga en session
+        workspace_id: 'default',
+        processing_token: processingToken,
+      })
+    }
+  }, [processingToken])
 
   useEffect(() => {
     if (
