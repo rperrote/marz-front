@@ -1,0 +1,14 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-26T17:15:43.477602Z",
+  "depends_on": ["fn-5-feat-005-send-offer-single-offer.1"],
+  "epic": "fn-5-feat-005-send-offer-single-offer",
+  "id": "fn-5-feat-005-send-offer-single-offer.2",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-5-feat-005-send-offer-single-offer.2.md",
+  "status": "todo",
+  "title": "F.2 \u2014 SendOfferSidesheet + TanStack Form + Zod + useCreateSingleOffer",
+  "updated_at": "2026-04-26T17:16:51.573640Z"
+}

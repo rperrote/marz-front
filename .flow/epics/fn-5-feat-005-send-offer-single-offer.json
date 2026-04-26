@@ -1,0 +1,21 @@
+{
+  "branch_name": "fn-5-feat-005-send-offer-single-offer",
+  "completion_review_status": "unknown",
+  "completion_reviewed_at": null,
+  "created_at": "2026-04-26T17:14:25.999778Z",
+  "default_impl": null,
+  "default_review": null,
+  "default_sync": null,
+  "depends_on_epics": [
+    "fn-3-feat-003-workspace-shell-conversation",
+    "fn-4-feat-004-chat-messaging-text-frontend"
+  ],
+  "id": "fn-5-feat-005-send-offer-single-offer",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-5-feat-005-send-offer-single-offer.md",
+  "status": "open",
+  "title": "FEAT-005: Send Offer (single) + Offer Lifecycle \u2014 Frontend",
+  "updated_at": "2026-04-26T17:15:33.193169Z"
+}

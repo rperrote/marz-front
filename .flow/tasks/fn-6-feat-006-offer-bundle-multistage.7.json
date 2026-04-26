@@ -1,0 +1,18 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-26T17:22:00.983139Z",
+  "depends_on": [
+    "fn-6-feat-006-offer-bundle-multistage.1",
+    "fn-6-feat-006-offer-bundle-multistage.5",
+    "fn-6-feat-006-offer-bundle-multistage.6"
+  ],
+  "epic": "fn-6-feat-006-offer-bundle-multistage",
+  "id": "fn-6-feat-006-offer-bundle-multistage.7",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-6-feat-006-offer-bundle-multistage.7.md",
+  "status": "todo",
+  "title": "ChatTimeline switch + WS subscriber para StageOpened/StageApproved",
+  "updated_at": "2026-04-26T17:24:31.869115Z"
+}

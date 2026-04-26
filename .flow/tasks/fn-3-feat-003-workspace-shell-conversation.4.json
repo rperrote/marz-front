@@ -1,0 +1,14 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-26T17:05:42.339696Z",
+  "depends_on": ["fn-3-feat-003-workspace-shell-conversation.3"],
+  "epic": "fn-3-feat-003-workspace-shell-conversation",
+  "id": "fn-3-feat-003-workspace-shell-conversation.4",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-3-feat-003-workspace-shell-conversation.4.md",
+  "status": "todo",
+  "title": "F.4 \u2014 Search input + ConversationFilterTabs (search params)",
+  "updated_at": "2026-04-26T17:06:54.795530Z"
+}

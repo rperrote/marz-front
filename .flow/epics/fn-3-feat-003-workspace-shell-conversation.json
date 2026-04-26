@@ -1,0 +1,18 @@
+{
+  "branch_name": "fn-3-feat-003-workspace-shell-conversation",
+  "completion_review_status": "unknown",
+  "completion_reviewed_at": null,
+  "created_at": "2026-04-26T17:04:37.477308Z",
+  "default_impl": null,
+  "default_review": null,
+  "default_sync": null,
+  "depends_on_epics": [],
+  "id": "fn-3-feat-003-workspace-shell-conversation",
+  "next_task": 1,
+  "plan_review_status": "unknown",
+  "plan_reviewed_at": null,
+  "spec_path": ".flow/specs/fn-3-feat-003-workspace-shell-conversation.md",
+  "status": "open",
+  "title": "FEAT-003: Workspace Shell + Conversation Rail (Frontend)",
+  "updated_at": "2026-04-26T17:05:31.957441Z"
+}

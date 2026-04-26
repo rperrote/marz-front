@@ -1,0 +1,18 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-26T17:05:42.924404Z",
+  "depends_on": [
+    "fn-3-feat-003-workspace-shell-conversation.3",
+    "fn-3-feat-003-workspace-shell-conversation.4",
+    "fn-3-feat-003-workspace-shell-conversation.5"
+  ],
+  "epic": "fn-3-feat-003-workspace-shell-conversation",
+  "id": "fn-3-feat-003-workspace-shell-conversation.8",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-3-feat-003-workspace-shell-conversation.8.md",
+  "status": "todo",
+  "title": "F.8 \u2014 Analytics tracking (4 eventos)",
+  "updated_at": "2026-04-26T17:07:56.581267Z"
+}

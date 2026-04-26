@@ -1,0 +1,17 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-26T17:34:13.315102Z",
+  "depends_on": [
+    "fn-8-feat-008-draft-request-changes.2",
+    "fn-8-feat-008-draft-request-changes.3"
+  ],
+  "epic": "fn-8-feat-008-draft-request-changes",
+  "id": "fn-8-feat-008-draft-request-changes.6",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-8-feat-008-draft-request-changes.6.md",
+  "status": "todo",
+  "title": "F.6: Analytics events client-side (7 trackers)",
+  "updated_at": "2026-04-26T17:37:03.350005Z"
+}

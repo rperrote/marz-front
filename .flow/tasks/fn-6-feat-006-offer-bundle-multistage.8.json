@@ -1,0 +1,14 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-04-26T17:22:01.127727Z",
+  "depends_on": ["fn-6-feat-006-offer-bundle-multistage.1"],
+  "epic": "fn-6-feat-006-offer-bundle-multistage",
+  "id": "fn-6-feat-006-offer-bundle-multistage.8",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-6-feat-006-offer-bundle-multistage.8.md",
+  "status": "todo",
+  "title": "OffersArchiveBlock con badge de tipo",
+  "updated_at": "2026-04-26T17:25:01.656949Z"
+}
