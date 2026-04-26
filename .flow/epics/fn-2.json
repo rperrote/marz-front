@@ -7,7 +7,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-2.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-002: Brief Builder (Frontend) \u2014 wizard 4 fases con WS de progreso IA",
-  "updated_at": "2026-04-24T22:22:40.337839Z"
+  "updated_at": "2026-04-26T21:57:19.783601Z"
 }
