@@ -99,6 +99,22 @@ print(d.get("title",""))
 '
 }
 
+# CSV of epic ids this epic depends on. Empty if none. Used by
+# git::setup_epic_branch to base the new branch on its dependency branches
+# instead of plain prBase, so dependent epics see each other's code without
+# waiting for the previous PR to merge.
+flowctl::epic_depends_on() {
+  local epic="$1"
+  local bin; bin=$(flowctl::_bin)
+  "$bin" show "$epic" --json 2>/dev/null | python3 -c '
+import json, sys
+try: d = json.load(sys.stdin)
+except Exception: sys.exit(0)
+deps = d.get("depends_on_epics") or []
+print(",".join(deps))
+'
+}
+
 # CSV of task ids in an epic with status=done. Used by --closer-only to
 # reconstruct the task list rafita would have built incrementally.
 flowctl::done_tasks_csv() {

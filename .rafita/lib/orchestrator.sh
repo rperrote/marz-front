@@ -239,7 +239,10 @@ orchestrator::run_epic() {
   export RAFITA_CURRENT_EPIC="$epic"
   common::record_epic "$epic"
   ui::epic_start "$epic"
-  git::setup_epic_branch "$epic"
+  if ! git::setup_epic_branch "$epic"; then
+    ui::error "no pude armar la rama base de ${epic} (ver warns arriba); saltando"
+    return 1
+  fi
 
   local completed=()
   export RAFITA_COMPLETED_CSV=""
@@ -354,7 +357,10 @@ orchestrator::run_closer_only() {
   common::record_epic "$epic"
   ui::epic_start "$epic"
   ui::info "closer-only mode: skipping DEV/REVIEW; running CLOSER+FINAL only"
-  git::setup_epic_branch "$epic"
+  if ! git::setup_epic_branch "$epic"; then
+    ui::error "no pude armar la rama base de ${epic} (ver warns arriba); abort closer-only"
+    return 1
+  fi
 
   # Build the completed list from flowctl (everything already done in this
   # epic). Without this we have no task ids to feed into close_epic_loop /

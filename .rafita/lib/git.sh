@@ -35,6 +35,61 @@ git::current_branch() {
   git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD
 }
 
+# git::_branch_local_exists <branch>
+git::_branch_local_exists() {
+  git rev-parse --verify --quiet "refs/heads/$1" >/dev/null 2>&1
+}
+
+# git::_branch_remote_exists <branch>  (in origin/)
+git::_branch_remote_exists() {
+  git rev-parse --verify --quiet "refs/remotes/origin/$1" >/dev/null 2>&1
+}
+
+# git::_sync_branch_with_origin <branch>
+# Fast-forward local <branch> to origin/<branch> if possible. If they diverge,
+# warn and keep the local tip (don't lose user commits). No-op if no remote
+# or no remote tracking branch. Caller must ensure <branch> exists locally.
+git::_sync_branch_with_origin() {
+  local branch="$1"
+  git::has_remote || return 0
+  git fetch -q origin "$branch" 2>/dev/null || true
+  git::_branch_remote_exists "$branch" || return 0
+  # Save current branch so we can restore.
+  local prev; prev=$(git::current_branch)
+  git checkout -q "$branch" 2>/dev/null || return 0
+  if ! git merge -q --ff-only "origin/${branch}" 2>/dev/null; then
+    common::warn "${branch} diverged from origin/${branch}; using local tip"
+  fi
+  [[ "$prev" != "$branch" ]] && git checkout -q "$prev" 2>/dev/null || true
+}
+
+# git::_resolve_dep_branch <dep_epic_id>
+# Returns the local branch name to use as base for a dep, or empty if not
+# resolvable. Side effect: creates a local tracking branch from origin/<...>
+# if only the remote exists. Updates the local copy from origin if possible.
+git::_resolve_dep_branch() {
+  local dep_epic="$1"
+  local prefix="${RAFITA_BRANCH_PREFIX:-feature/claude/}"
+  local dep_branch="${prefix}${dep_epic}"
+
+  if git::_branch_local_exists "$dep_branch"; then
+    git::_sync_branch_with_origin "$dep_branch"
+    printf '%s' "$dep_branch"
+    return 0
+  fi
+  # Local missing — try to fetch from origin.
+  if git::has_remote; then
+    git fetch -q origin "$dep_branch" 2>/dev/null || true
+    if git::_branch_remote_exists "$dep_branch"; then
+      git branch -q "$dep_branch" "origin/${dep_branch}" 2>/dev/null || true
+      printf '%s' "$dep_branch"
+      return 0
+    fi
+  fi
+  printf ''
+  return 1
+}
+
 git::setup_epic_branch() {
   # Args: epic_id. Creates (or switches to) <prefix><epic_id>. No-op in 'current' mode.
   local epic="$1"
@@ -44,24 +99,91 @@ git::setup_epic_branch() {
   fi
   local prefix="${RAFITA_BRANCH_PREFIX:-feature/claude/}"
   local branch="${prefix}${epic}"
-  if git rev-parse --verify --quiet "$branch" >/dev/null; then
+
+  # Branch already exists → just switch and try to sync with origin so we
+  # work on top of the latest published state, not a stale local snapshot.
+  if git::_branch_local_exists "$branch"; then
     git checkout -q "$branch"
+    git::_sync_branch_with_origin "$branch"
     return 0
   fi
-  # Branch doesn't exist yet — fetch + checkout prBase first so the new branch
-  # starts from the correct base, not from wherever HEAD happens to be.
-  # We also fast-forward the local base to origin/<base> when possible so
-  # subsequent epics in the same run start from the latest published code,
-  # not a stale local tip.
-  local base; base=$(vcs::_resolve_pr_base)
-  if git::has_remote; then
-    git fetch -q origin "$base" 2>/dev/null || common::warn "fetch ${base} failed; branching from local"
+
+  # Branch doesn't exist. Pick the right base.
+  #   - No deps         → prBase (dev / main / master).
+  #   - 1 dep           → branch of that dep (so we inherit its commits).
+  #   - N deps          → temp branch with all deps merged together; abort
+  #                       this epic (rc=1) if a merge conflict appears so
+  #                       the user can resolve it manually.
+  local deps_csv; deps_csv=$(flowctl::epic_depends_on "$epic")
+  local base=""
+  if [[ -z "$deps_csv" ]]; then
+    base=$(vcs::_resolve_pr_base)
+    if git::has_remote; then
+      git fetch -q origin "$base" 2>/dev/null \
+        || common::warn "fetch ${base} failed; branching from local"
+    fi
+    git checkout -q "$base" 2>/dev/null \
+      || common::warn "checkout ${base} failed; branching from current HEAD"
+    git::_sync_branch_with_origin "$base"
+  else
+    # Resolve every dep branch first.
+    local IFS=','
+    local -a deps
+    # shellcheck disable=SC2206
+    deps=( $deps_csv )
+    unset IFS
+
+    local -a resolved_branches=()
+    local d resolved
+    for d in "${deps[@]}"; do
+      [[ -z "$d" ]] && continue
+      resolved=$(git::_resolve_dep_branch "$d") || true
+      if [[ -z "$resolved" ]]; then
+        common::warn "epic ${epic} depende de ${d} pero no encontré rama '${prefix}${d}' (ni local ni en origin)"
+        common::warn "abortando setup de ${epic}; corré la dep primero o creá la rama manualmente"
+        return 1
+      fi
+      resolved_branches+=("$resolved")
+    done
+
+    if (( ${#resolved_branches[@]} == 1 )); then
+      base="${resolved_branches[0]}"
+      git checkout -q "$base" \
+        || { common::warn "checkout ${base} failed"; return 1; }
+      common::log INFO "epic ${epic} basa en dep branch: ${base}"
+      ui::info "branch base = ${base} (dep única)"
+    else
+      # Multiple deps → auto-merge into a throwaway temp branch.
+      base="rafita-tmp-base/${epic}"
+      # Clean up any leftover from a previous interrupted attempt.
+      if git::_branch_local_exists "$base"; then
+        git branch -qD "$base" 2>/dev/null || true
+      fi
+      # Start temp from the first dep.
+      git checkout -q "${resolved_branches[0]}" \
+        || { common::warn "checkout ${resolved_branches[0]} failed"; return 1; }
+      git checkout -q -b "$base" \
+        || { common::warn "creating temp base ${base} failed"; return 1; }
+      # Merge the rest.
+      local i
+      for (( i=1; i<${#resolved_branches[@]}; i++ )); do
+        local other="${resolved_branches[$i]}"
+        if ! git merge -q --no-ff -m "rafita: merge ${other} into base for ${epic}" "$other" 2>/dev/null; then
+          common::warn "merge conflict combinando deps de ${epic} (${other} sobre ${resolved_branches[0]} ...)"
+          common::warn "abortá el merge a mano (git merge --abort) y resolvé las deps antes de re-correr"
+          # Abort the in-progress merge so we leave the worktree clean.
+          git merge --abort 2>/dev/null || true
+          # Drop temp branch so a retry can rebuild it cleanly.
+          git checkout -q "${resolved_branches[0]}" 2>/dev/null || true
+          git branch -qD "$base" 2>/dev/null || true
+          return 1
+        fi
+      done
+      common::log INFO "epic ${epic} basa en merge de deps: ${resolved_branches[*]}"
+      ui::info "branch base = ${base} (auto-merge de ${#resolved_branches[@]} deps)"
+    fi
   fi
-  git checkout -q "$base" 2>/dev/null || common::warn "checkout ${base} failed; branching from current HEAD"
-  if git::has_remote && git rev-parse --verify --quiet "origin/${base}" >/dev/null 2>&1; then
-    git merge -q --ff-only "origin/${base}" 2>/dev/null \
-      || common::warn "${base} not fast-forward to origin/${base}; using local tip"
-  fi
+
   git checkout -q -b "$branch"
   common::log INFO "branch: $branch (from ${base})"
 }
