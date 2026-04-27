@@ -116,9 +116,8 @@ Full design system: leer tokens en `src/styles.css` antes de implementar.
 - [ ] Smoke manual: integrado a una ruta de prueba (puede ser un harness temporal en `_creator/workspace/$conversationId.tsx`), el creator puede subir un `.mp4` y ver el `done`.
 
 ## Done summary
-
-_To be filled by the worker._
-
+CompleteDraftUploadResponse eliminada correctamente, useCompleteDraftUploadMutation tipado como ApiResponse<Draft>, acceso a completeRes.data consistente, tests ajustados a la nueva forma. Sin observaciones.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

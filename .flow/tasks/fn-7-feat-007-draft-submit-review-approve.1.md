@@ -57,8 +57,11 @@ Regenerar el cliente API tipado (Orval) contra el backend dev con los nuevos end
 - [ ] Smoke import en un archivo cualquiera de los 6 hooks sin errores de tipo.
 
 ## Done summary
+
 Los 4 interfaces de payload (DraftSubmittedWSPayload, DraftApprovedWSPayload, DeliverableChangedWSPayload, StageApprovedWSPayload) y los 2 snapshots auxiliares (DraftSubmittedSnapshot, DraftApprovedSnapshot) matchean campo a campo con §4.2 del solution doc FEAT-007. Los tipos snake_case, nullabilidad y required/optional son correctos. deliverable: unknown en DeliverableChangedWSPayload es aceptable y está justificado (B.6 no deployado, se tipará cuando Orval regenere). La extensión del discriminated union DomainWsEvent sigue el patrón existente sin romper nada. El comentario en DeliverableChangedWSPayload es el único comentario en el archivo y documenta una restricción técnica real (blocker externo), no estado de tarea. Sin observaciones.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
