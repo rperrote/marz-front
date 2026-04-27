@@ -5,12 +5,10 @@ import {
   fetchConversationDetail,
   fetchMessages,
   getConversationDetailQueryKey,
-  getMessagesQueryKey,
 } from '#/features/chat/queries'
-import {
-  fetchConversationDeliverables,
-  getConversationDeliverablesQueryKey,
-} from '#/features/deliverables/api/conversationDeliverables'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
+import { fetchConversationDeliverables } from '#/features/deliverables/api/conversationDeliverables'
+import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { DeliverableListPanel } from '#/features/deliverables/components/DeliverableListPanel'
 import { useCanSendOffer } from '#/features/offers/hooks/useCanSendOffer'
 import { useSendOfferSheetStore } from '#/features/offers/store/sendOfferSheetStore'

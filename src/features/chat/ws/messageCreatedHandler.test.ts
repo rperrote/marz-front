@@ -4,7 +4,7 @@ import { describe, expect, it, beforeEach, vi } from 'vitest'
 
 import type { DomainEventEnvelope } from '#/shared/ws/events'
 import type { MessageCreatedPayload } from '#/shared/ws/types'
-import { getMessagesQueryKey } from '#/features/chat/queries'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
 import type { MessagesResponse } from '#/features/chat/types'
 
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'

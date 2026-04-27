@@ -2,7 +2,7 @@ import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 
 import type { DomainEventEnvelope } from '#/shared/ws/events'
 import type { MessageCreatedPayload } from '#/shared/ws/types'
-import { getMessagesQueryKey } from '#/features/chat/queries'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
 import type { MessageItem, MessagesResponse } from '#/features/chat/types'

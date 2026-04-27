@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 
 import { customFetch, ApiError } from '#/shared/api/mutator'
-import { getMessagesQueryKey } from '#/features/chat/queries'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
 import type { MessageItem, MessagesResponse } from '#/features/chat/types'
 import { trackChatEvent, toLengthBucket } from '#/features/chat/analytics/track'
 
