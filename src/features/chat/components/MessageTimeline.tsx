@@ -20,6 +20,9 @@ import { DEFAULT_TOLERANCE_PX } from '#/features/chat/hooks/useViewportAtBottom'
 import type { TimelineItem } from '../utils/groupByDay'
 import { groupByDay } from '../utils/groupByDay'
 
+import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
+import { OfferTimelineEntry } from '#/features/offers/components/OfferTimelineEntry'
+
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
 import type { EventSeverity } from './EventBubble'
@@ -120,6 +123,18 @@ export function MessageTimeline({
       const message = item.message
 
       if (message.type === 'system_event') {
+        if (OFFER_EVENT_TYPES.has(message.event_type ?? '')) {
+          return (
+            <OfferTimelineEntry
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+            />
+          )
+        }
+
         const label =
           (message.payload?.['display_text'] as string | undefined) ??
           message.event_type ??

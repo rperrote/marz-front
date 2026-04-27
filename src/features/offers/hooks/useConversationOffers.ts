@@ -1,7 +1,10 @@
 import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
+import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 import type { OfferStatus, OfferSpeedBonus } from '#/features/offers/types'
+
+export { getConversationOffersQueryKey }
 
 export interface ConversationOfferDTO {
   id: string
@@ -48,10 +51,6 @@ export interface ConversationOffersResponse {
 interface ApiResponse {
   data: ConversationOffersResponse
   status: number
-}
-
-export function getConversationOffersQueryKey(conversationId: string) {
-  return ['conversations', conversationId, 'offers'] as const
 }
 
 async function fetchConversationOffers(
