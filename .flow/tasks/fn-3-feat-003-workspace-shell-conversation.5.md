@@ -46,9 +46,8 @@ Pencil `XSdsQ` muestra el select arriba del rail entre header y lista. Sigue el 
 - [ ] `pnpm typecheck` y `pnpm lint` verdes.
 
 ## Done summary
-
-_To be filled by the worker on completion._
-
+done-placeholder
 ## Evidence
-
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

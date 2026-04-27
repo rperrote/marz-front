@@ -12,7 +12,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-3-feat-003-workspace-shell-conversation.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-003: Workspace Shell + Conversation Rail (Frontend)",
-  "updated_at": "2026-04-26T17:05:31.957441Z"
+  "updated_at": "2026-04-27T18:45:20.063552Z"
 }

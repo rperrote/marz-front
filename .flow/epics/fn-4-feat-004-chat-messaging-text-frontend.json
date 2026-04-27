@@ -6,13 +6,15 @@
   "default_impl": null,
   "default_review": null,
   "default_sync": null,
-  "depends_on_epics": ["fn-3-feat-003-workspace-shell-conversation"],
+  "depends_on_epics": [
+    "fn-3-feat-003-workspace-shell-conversation"
+  ],
   "id": "fn-4-feat-004-chat-messaging-text-frontend",
   "next_task": 1,
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-4-feat-004-chat-messaging-text-frontend.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-004: Chat Messaging (text) \u2014 Frontend",
-  "updated_at": "2026-04-26T17:09:58.854335Z"
+  "updated_at": "2026-04-27T18:37:52.978765Z"
 }
