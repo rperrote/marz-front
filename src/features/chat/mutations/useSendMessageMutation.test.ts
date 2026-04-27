@@ -42,7 +42,7 @@ function makeCache(messages: MessagesResponse['data'][]): MessagesInfiniteData {
 }
 
 describe('appendMessageToCache', () => {
-  it('appends message to first page', () => {
+  it('prepends message to first page (descending order)', () => {
     const existing = makeMessage({ id: 'msg-1' })
     const newMsg = makeMessage({ id: 'msg-2', text_content: 'world' })
     const cache = makeCache([[existing]])
@@ -50,7 +50,8 @@ describe('appendMessageToCache', () => {
     const result = appendMessageToCache(cache, newMsg)
 
     expect(result?.pages[0]?.data.data).toHaveLength(2)
-    expect(result?.pages[0]?.data.data[1]?.id).toBe('msg-2')
+    expect(result?.pages[0]?.data.data[0]?.id).toBe('msg-2')
+    expect(result?.pages[0]?.data.data[1]?.id).toBe('msg-1')
   })
 
   it('returns undefined cache as-is', () => {

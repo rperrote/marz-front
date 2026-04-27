@@ -63,7 +63,7 @@ function appendMessageToCache(
     ...firstPage,
     data: {
       ...firstPage.data,
-      data: [...firstPage.data.data, message],
+      data: [message, ...firstPage.data.data],
     },
   }
 

@@ -9,7 +9,7 @@ import {
 } from '#/features/chat/queries'
 
 export const Route = createFileRoute(
-  '/workspace/conversations/$conversationId',
+  '/_brand/workspace/conversations/$conversationId',
 )({
   loader: async ({ context, params }) => {
     const { queryClient } = context

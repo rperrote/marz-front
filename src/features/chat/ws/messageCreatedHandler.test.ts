@@ -112,6 +112,31 @@ describe('handleMessageCreated', () => {
     expect(messages?.[0]?.read_by_self).toBe(false)
   })
 
+  it('prepends incoming message before existing messages (descending order)', () => {
+    seedCache(queryClient, [
+      {
+        id: 'old-msg',
+        conversation_id: CONVERSATION_ID,
+        author_account_id: 'acc-other',
+        type: 'text',
+        text_content: 'older message',
+        event_type: null,
+        payload: null,
+        created_at: '2026-03-31T00:00:00Z',
+        read_by_self: true,
+      },
+    ])
+
+    handleMessageCreated(queryClient, makeEnvelope(), 'acc-1')
+
+    const key = getMessagesQueryKey(CONVERSATION_ID)
+    const cache = queryClient.getQueryData<MessagesInfiniteData>(key)
+    const messages = cache?.pages[0]?.data.data
+    expect(messages).toHaveLength(2)
+    expect(messages?.[0]?.id).toBe('server-msg-1')
+    expect(messages?.[1]?.id).toBe('old-msg')
+  })
+
   it('sets read_by_self true for own messages', () => {
     seedCache(queryClient, [])
 

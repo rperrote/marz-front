@@ -80,7 +80,7 @@ function appendToFirstPage(
     ...firstPage,
     data: {
       ...firstPage.data,
-      data: [...firstPage.data.data, message],
+      data: [message, ...firstPage.data.data],
     },
   }
   return { ...cache, pages }
