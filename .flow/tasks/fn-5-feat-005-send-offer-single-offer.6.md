@@ -52,9 +52,12 @@ Tokens: botón primary (`var(--primary)`), `rounded-md`. Posición en el header 
 - [ ] E2E del flujo completo "send-receive-accept" cubre la aparición del botón (cubierto en F.3).
 
 ## Done summary
-
 _To be filled by worker on completion._
 
+Blocked:
+reset manual
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:
