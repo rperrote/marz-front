@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { customFetch } from '#/shared/api/mutator'
-import { trackChatEvent, toLengthBucket, estimateLatencyMs } from '../track'
+import { trackChatEvent, toLengthBucket, estimateLatencyMs } from './track'
 
 vi.mock('#/shared/api/mutator', () => ({
   customFetch: vi.fn().mockResolvedValue(undefined),

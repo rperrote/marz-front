@@ -4,7 +4,7 @@ import { axe } from 'vitest-axe'
 
 import { TooltipProvider } from '#/components/ui/tooltip'
 import { usePresenceStore } from '#/features/chat/stores/presenceStore'
-import { PresenceBadge } from '../PresenceBadge'
+import { PresenceBadge } from './PresenceBadge'
 
 function renderBadge(accountId: string) {
   return render(

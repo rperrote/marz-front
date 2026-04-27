@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { axe } from 'vitest-axe'
 
-import { MessageComposer } from '../MessageComposer'
+import { MessageComposer } from './MessageComposer'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(

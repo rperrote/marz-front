@@ -48,8 +48,11 @@ Emitir 5 eventos analíticos al endpoint existente `POST /api/v1/analytics/event
 - [ ] `text_content` nunca aparece en payloads (test de regresión).
 
 ## Done summary
+
 Race condition fix en conversation_opened es correcto: React 18+ garantiza orden de effects dentro del mismo flush, unreadCountRef se estabiliza antes del tracking. Los demás eventos (message_sent, message_received_live, history_page_loaded, presence_state_changed) están correctamente integrados sin side effects sobre UX. track.ts tipado y fire-and-forget bien documentado.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

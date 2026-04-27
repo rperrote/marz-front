@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { axe } from 'vitest-axe'
 
 import { useTypingStore } from '#/features/chat/stores/typingStore'
-import { TypingIndicator } from '../TypingIndicator'
+import { TypingIndicator } from './TypingIndicator'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(

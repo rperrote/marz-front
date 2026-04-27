@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 
-import { usePresenceStore } from '../presenceStore'
+import { usePresenceStore } from './presenceStore'
 
 beforeEach(() => {
   usePresenceStore.setState({ entries: {} })

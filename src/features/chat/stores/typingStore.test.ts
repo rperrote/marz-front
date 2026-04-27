@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 
-import { useTypingStore } from '../typingStore'
+import { useTypingStore } from './typingStore'
 
 beforeEach(() => {
   useTypingStore.setState({ entries: {} })

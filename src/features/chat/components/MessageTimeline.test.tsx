@@ -10,8 +10,8 @@ import type {
   MessagesResponse,
 } from '#/features/chat/types'
 
-import { MessageBubble } from '../MessageBubble'
-import { MessageTimeline } from '../MessageTimeline'
+import { MessageBubble } from './MessageBubble'
+import { MessageTimeline } from './MessageTimeline'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
