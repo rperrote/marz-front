@@ -7,7 +7,10 @@ import { getServerMe } from '#/shared/auth/getServerMe'
 import type { ServerMeBody } from '#/shared/auth/getServerMe'
 import { BrandWorkspacePage } from '#/features/chat/workspace/BrandWorkspacePage'
 import { CreatorWorkspacePage } from '#/features/chat/workspace/CreatorWorkspacePage'
-import { brandWorkspaceSearchSchema } from '#/features/chat/workspace/workspaceSearchSchema'
+import {
+  brandWorkspaceSearchSchema,
+  creatorWorkspaceSearchSchema,
+} from '#/features/chat/workspace/workspaceSearchSchema'
 
 const STALE_TIME = 30_000
 
@@ -70,10 +73,12 @@ export const Route = createFileRoute('/workspace')({
 
 function WorkspacePage() {
   const { accountKind } = Route.useRouteContext()
+  const rawSearch = Route.useSearch()
 
   if (accountKind === 'brand') {
-    return <BrandWorkspacePage />
+    return <BrandWorkspacePage search={rawSearch} />
   }
 
-  return <CreatorWorkspacePage />
+  const creatorSearch = creatorWorkspaceSearchSchema.parse(rawSearch)
+  return <CreatorWorkspacePage search={creatorSearch} />
 }

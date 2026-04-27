@@ -37,7 +37,7 @@ describe('WorkspaceLayout', () => {
       { wrapper: createWrapper() },
     )
 
-    const rail = screen.getByRole('region', { name: /conversations/i })
+    const rail = screen.getByRole('region', { name: /conversaciones/i })
     expect(rail).toBeInTheDocument()
     expect(screen.getByTestId('rail-content')).toBeInTheDocument()
     expect(screen.getByTestId('outlet-content')).toBeInTheDocument()
@@ -51,7 +51,7 @@ describe('WorkspaceLayout', () => {
       { wrapper: createWrapper() },
     )
 
-    const rail = screen.getByRole('region', { name: /conversations/i })
+    const rail = screen.getByRole('region', { name: /conversaciones/i })
     expect(rail.className).toContain('w-80')
     expect(rail.className).toContain('shrink-0')
   })

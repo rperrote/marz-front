@@ -6,10 +6,13 @@ import { ConversationRailEmpty } from './ConversationRailEmpty'
 import { ConversationRailItem } from './ConversationRailItem'
 import { ConversationSearchInput } from './ConversationSearchInput'
 import { useConversationsQuery } from './useConversationsQuery'
-import type { BrandWorkspaceSearch } from './workspaceSearchSchema'
+import type {
+  BrandWorkspaceSearch,
+  CreatorWorkspaceSearch,
+} from './workspaceSearchSchema'
 
 interface ConversationRailProps {
-  search: BrandWorkspaceSearch
+  search: BrandWorkspaceSearch | CreatorWorkspaceSearch
   activeConversationId?: string
   onSelectConversation?: (conversationId: string) => void
 }
@@ -30,7 +33,7 @@ export function ConversationRail({
   } = useConversationsQuery({
     filter: search.filter,
     search: search.search,
-    campaignId: search.campaign_id,
+    campaignId: 'campaign_id' in search ? search.campaign_id : undefined,
   })
 
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -98,7 +101,8 @@ export function ConversationRail({
   if (conversations.length === 0) {
     const hasSearch = search.search !== undefined && search.search !== ''
     const hasActiveFilter =
-      search.filter !== 'all' || search.campaign_id !== undefined
+      search.filter !== 'all' ||
+      ('campaign_id' in search && search.campaign_id !== undefined)
 
     let emptyVariant:
       | 'no_conversations'

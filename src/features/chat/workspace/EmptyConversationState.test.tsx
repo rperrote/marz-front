@@ -17,7 +17,7 @@ describe('EmptyConversationState', () => {
     render(<EmptyConversationState />)
 
     const heading = screen.getByRole('heading', { level: 2 })
-    expect(heading).toHaveTextContent('Select a conversation')
+    expect(heading).toHaveTextContent('Seleccioná una conversación')
   })
 
   it('is axe-clean', async () => {

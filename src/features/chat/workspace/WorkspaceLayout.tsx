@@ -15,7 +15,7 @@ export function WorkspaceLayout({ rail, children }: WorkspaceLayoutProps) {
     <div className="flex h-full">
       <aside
         role="region"
-        aria-label={t`Conversations`}
+        aria-label={t`Conversaciones`}
         className="w-80 shrink-0 border-r border-border bg-background"
       >
         {rail}
