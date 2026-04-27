@@ -81,8 +81,11 @@ Agregar tracking client-side de los 8 analytics events declarados en §10 del so
 - [ ] Errores de la red de analytics no rompen la UX (verificable mockeando 500 → `useDraftUploadFlow` sigue completando OK).
 
 ## Done summary
+
 Todos los cambios son correctos. analytics.ts usa event_name/occurred_at consistente con el contrato. trackUploadFailed se llama en onabort con reason 'cancelled'. Tests actualizados con los campos correctos sin typos. StageOpenedWSPayload tipado y exportado. handlers.ts dispara analytics solo para sessionKind === 'brand'. InlineVideoPlayer deduplica por draftId con módulo-level Set. DraftSubmittedCard usa IntersectionObserver con seenRef para disparar una sola vez. ApproveDraftButton recibe draftId y trackea en onSuccess. Sin deuda técnica.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

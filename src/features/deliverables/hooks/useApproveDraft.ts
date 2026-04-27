@@ -4,6 +4,8 @@ import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 
 import { useApproveDraftMutation } from '#/features/deliverables/api/draftUpload'
+import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
 
 export function useApproveDraft(deliverableId: string, conversationId: string) {
   const queryClient = useQueryClient()
@@ -17,10 +19,10 @@ export function useApproveDraft(deliverableId: string, conversationId: string) {
       mutation.mutate(undefined, {
         onSuccess: () => {
           void queryClient.invalidateQueries({
-            queryKey: ['conversation-deliverables', conversationId],
+            queryKey: getConversationDeliverablesQueryKey(conversationId),
           })
           void queryClient.invalidateQueries({
-            queryKey: ['conversation-messages', conversationId],
+            queryKey: getMessagesQueryKey(conversationId),
           })
           options?.onSuccess?.()
         },
