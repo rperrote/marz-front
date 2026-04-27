@@ -47,8 +47,11 @@ Hook `useWorkspaceRailSubscription` que se suscribe al topic WS `workspace_rail`
 - [ ] `pnpm typecheck` y `pnpm lint` verdes.
 
 ## Done summary
+
 Corrección precisa: payload.conversation_id es string non-nullable en ConversationActivityPayload, el optional chain era un error de tipo. Guard typeof en línea 32 correcto para narrowing post-cast. Tests actualizados con QueryClientProvider wrapper requerido por useQueryClient en el hook. Sin issues.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

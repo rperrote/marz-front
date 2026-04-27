@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { t } from '@lingui/core/macro'
 
 import { ConversationFilterTabs } from './ConversationFilterTabs'
+import { ConversationRailEmpty } from './ConversationRailEmpty'
 import { ConversationRailItem } from './ConversationRailItem'
 import { ConversationSearchInput } from './ConversationSearchInput'
 import { useConversationsQuery } from './useConversationsQuery'
@@ -11,14 +12,12 @@ interface ConversationRailProps {
   search: BrandWorkspaceSearch
   activeConversationId?: string
   onSelectConversation?: (conversationId: string) => void
-  emptySlot?: React.ReactNode
 }
 
 export function ConversationRail({
   search,
   activeConversationId,
   onSelectConversation,
-  emptySlot,
 }: ConversationRailProps) {
   const {
     data,
@@ -97,10 +96,29 @@ export function ConversationRail({
   const conversations = data?.pages.flatMap((page) => page.data.data) ?? []
 
   if (conversations.length === 0) {
+    const hasSearch = search.search !== undefined && search.search !== ''
+    const hasActiveFilter =
+      search.filter !== 'all' || search.campaign_id !== undefined
+
+    let emptyVariant:
+      | 'no_conversations'
+      | 'no_search_results'
+      | 'no_filter_results'
+    if (hasSearch) {
+      emptyVariant = 'no_search_results'
+    } else if (hasActiveFilter) {
+      emptyVariant = 'no_filter_results'
+    } else {
+      emptyVariant = 'no_conversations'
+    }
+
     return (
       <>
         {railHeader}
-        {emptySlot}
+        <ConversationRailEmpty
+          variant={emptyVariant}
+          activeFilter={search.filter}
+        />
       </>
     )
   }

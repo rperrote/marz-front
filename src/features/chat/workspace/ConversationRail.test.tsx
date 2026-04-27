@@ -111,19 +111,19 @@ describe('ConversationRail', () => {
     expect(screen.getByText('Juan Pérez')).toBeInTheDocument()
   })
 
-  it('renders empty slot when no conversations', async () => {
+  it('renders no_conversations empty state when list is empty with default filters', async () => {
     mockCustomFetch.mockResolvedValueOnce(makeResponse([]))
 
-    render(
-      <ConversationRail
-        search={defaultSearch}
-        emptySlot={<div data-testid="empty">No hay conversaciones</div>}
-      />,
-      { wrapper: createWrapper() },
-    )
+    render(<ConversationRail search={defaultSearch} />, {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
-      expect(screen.getByTestId('empty')).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'Las conversaciones aparecen cuando se inicia una colaboración (vía Match, Application, Invite u Offer)',
+        ),
+      ).toBeInTheDocument()
     })
   })
 
@@ -140,6 +140,52 @@ describe('ConversationRail', () => {
       ).toBeInTheDocument()
     })
     expect(screen.getByText('Reintentar')).toBeInTheDocument()
+  })
+
+  it('renders no_search_results empty state when search is active', async () => {
+    mockCustomFetch.mockResolvedValueOnce(makeResponse([]))
+
+    render(<ConversationRail search={{ ...defaultSearch, search: 'foo' }} />, {
+      wrapper: createWrapper(),
+    })
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('No hay conversaciones que coincidan'),
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('renders campaign empty state when campaign_id is set and no conversations', async () => {
+    mockCustomFetch.mockResolvedValueOnce(makeResponse([]))
+
+    render(
+      <ConversationRail
+        search={{ filter: 'all', search: undefined, campaign_id: 'camp-1' }}
+      />,
+      { wrapper: createWrapper() },
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('No hay conversaciones para esta campaña'),
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('renders no_filter_results empty state when filter is active', async () => {
+    mockCustomFetch.mockResolvedValueOnce(makeResponse([]))
+
+    render(
+      <ConversationRail search={{ ...defaultSearch, filter: 'unread' }} />,
+      { wrapper: createWrapper() },
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('No hay conversaciones no leídas'),
+      ).toBeInTheDocument()
+    })
   })
 
   it('renders list role for accessibility', async () => {
