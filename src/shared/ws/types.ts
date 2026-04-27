@@ -65,6 +65,70 @@ export interface ConversationActivityUpdatedPayload {
   unread_count_delta: number
 }
 
+export interface DraftSubmittedSnapshot {
+  event_type: 'DraftSubmitted'
+  deliverable_id: string
+  deliverable_platform: string
+  deliverable_format: string
+  deliverable_offer_stage_id: string | null
+  draft_id: string
+  version: number
+  original_filename: string
+  file_size_bytes: number
+  duration_sec: number | null
+  mime_type: string | null
+  thumbnail_url: string | null
+  playback_url: string
+  playback_url_expires_at: string
+  submitted_at: string
+  submitted_by_account_id: string
+}
+
+export interface DraftApprovedSnapshot {
+  event_type: 'DraftApproved'
+  deliverable_id: string
+  deliverable_platform: string
+  deliverable_format: string
+  deliverable_offer_stage_id: string | null
+  draft_id: string
+  version: number
+  approved_at: string
+  approved_by_account_id: string
+}
+
+export interface DraftSubmittedWSPayload {
+  conversation_id: string
+  deliverable_id: string
+  draft_id: string
+  version: number
+  message_id: string
+  snapshot: DraftSubmittedSnapshot
+}
+
+export interface DraftApprovedWSPayload {
+  conversation_id: string
+  deliverable_id: string
+  draft_id: string
+  version: number
+  message_id: string
+  snapshot: DraftApprovedSnapshot
+}
+
+export interface DeliverableChangedWSPayload {
+  conversation_id: string
+  // Will be typed as DeliverableDTO once B.6 is deployed and Orval regenerates.
+  deliverable: unknown
+}
+
+export interface StageApprovedWSPayload {
+  conversation_id: string
+  offer_id: string
+  stage_id: string
+  position: number
+  total_stages: number
+  approved_at: string
+}
+
 export type DomainWsEvent =
   | (DomainEventEnvelope<MessageCreatedPayload> & {
       event_type: 'message.created'
@@ -83,4 +147,16 @@ export type DomainWsEvent =
     })
   | (DomainEventEnvelope<ConversationActivityUpdatedPayload> & {
       event_type: 'conversation.activity_updated'
+    })
+  | (DomainEventEnvelope<DraftSubmittedWSPayload> & {
+      event_type: 'draft.submitted'
+    })
+  | (DomainEventEnvelope<DraftApprovedWSPayload> & {
+      event_type: 'draft.approved'
+    })
+  | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
+      event_type: 'deliverable.changed'
+    })
+  | (DomainEventEnvelope<StageApprovedWSPayload> & {
+      event_type: 'stage.approved'
     })
