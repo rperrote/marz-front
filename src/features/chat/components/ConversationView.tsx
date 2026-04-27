@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import {
@@ -7,11 +7,15 @@ import {
 } from '#/features/chat/queries'
 import { useChatWsListeners } from '#/features/chat/ws/useChatWsListeners'
 import { handleMessageCreated } from '#/features/chat/ws/messageCreatedHandler'
+import { useAutoMarkRead } from '#/features/chat/hooks/useAutoMarkRead'
+import { useViewportAtBottom } from '#/features/chat/hooks/useViewportAtBottom'
 
 import { ConversationHeader } from './ConversationHeader'
 import { EmptyConversationFallback } from './EmptyConversationFallback'
+import type { MessageTimelineHandle } from './MessageTimeline'
 import { MessageTimeline } from './MessageTimeline'
 import { MessageComposer } from './MessageComposer'
+import { NewMessagesPill } from './NewMessagesPill'
 
 interface ConversationViewProps {
   conversationId: string
@@ -24,20 +28,34 @@ export function ConversationView({
 }: ConversationViewProps) {
   const queryClient = useQueryClient()
   const detailQuery = useConversationDetailQuery(conversationId)
+  const timelineRef = useRef<MessageTimelineHandle>(null)
+  const { isAtBottom, onAtBottomStateChange } = useViewportAtBottom()
 
   useMessagesInfiniteQuery(conversationId)
+
+  const { unreadCount, clearUnread, handleIncomingMessage } = useAutoMarkRead({
+    conversationId,
+    currentAccountId,
+    isAtBottom,
+  })
 
   const onMessageCreated = useCallback(
     (envelope: Parameters<typeof handleMessageCreated>[1]) => {
       handleMessageCreated(queryClient, envelope, currentAccountId)
+      handleIncomingMessage(envelope.payload.author_account_id)
     },
-    [queryClient, currentAccountId],
+    [queryClient, currentAccountId, handleIncomingMessage],
   )
 
   useChatWsListeners(conversationId, {
     enabled: true,
     onMessageCreated,
   })
+
+  const handlePillClick = useCallback(() => {
+    timelineRef.current?.scrollToBottom()
+    clearUnread()
+  }, [clearUnread])
 
   if (detailQuery.isLoading) {
     return <ConversationViewSkeleton />
@@ -56,10 +74,15 @@ export function ConversationView({
     <div className="flex h-full flex-col">
       <ConversationHeader conversation={conversation} />
 
-      <MessageTimeline
-        conversationId={conversationId}
-        currentAccountId={currentAccountId}
-      />
+      <div className="relative flex-1 overflow-hidden">
+        <MessageTimeline
+          conversationId={conversationId}
+          currentAccountId={currentAccountId}
+          onAtBottomStateChange={onAtBottomStateChange}
+          timelineRef={timelineRef}
+        />
+        <NewMessagesPill count={unreadCount} onClick={handlePillClick} />
+      </div>
 
       <MessageComposer
         conversationId={conversationId}

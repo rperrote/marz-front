@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef, useImperativeHandle } from 'react'
 import type { VirtuosoHandle } from 'react-virtuoso'
 import { Virtuoso } from 'react-virtuoso'
 
@@ -9,6 +9,7 @@ import {
 } from '#/features/chat/queries'
 import type { MessageItem } from '#/features/chat/types'
 
+import { DEFAULT_TOLERANCE_PX } from '#/features/chat/hooks/useViewportAtBottom'
 import type { TimelineItem } from '../utils/groupByDay'
 import { groupByDay } from '../utils/groupByDay'
 
@@ -20,9 +21,15 @@ import { MessageBubble } from './MessageBubble'
 // for chat history pagination. TanStack Virtual would require manual scroll-height
 // compensation and sentinel management.
 
+export interface MessageTimelineHandle {
+  scrollToBottom: () => void
+}
+
 interface MessageTimelineProps {
   conversationId: string
   currentAccountId: string
+  onAtBottomStateChange?: (atBottom: boolean) => void
+  timelineRef?: React.Ref<MessageTimelineHandle>
 }
 
 const START_INDEX = 1_000_000
@@ -30,6 +37,8 @@ const START_INDEX = 1_000_000
 export function MessageTimeline({
   conversationId,
   currentAccountId,
+  onAtBottomStateChange,
+  timelineRef,
 }: MessageTimelineProps) {
   const virtuosoRef = useRef<VirtuosoHandle>(null)
 
@@ -61,6 +70,15 @@ export function MessageTimeline({
 
   const hasReachedBeginning = !hasNextPage && (data?.pages.length ?? 0) > 0
 
+  useImperativeHandle(timelineRef, () => ({
+    scrollToBottom: () => {
+      virtuosoRef.current?.scrollToIndex({
+        index: 'LAST',
+        behavior: 'smooth',
+      })
+    },
+  }))
+
   const handleStartReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       void fetchNextPage()
@@ -81,7 +99,7 @@ export function MessageTimeline({
       const isOwn = message.author_account_id === currentAccountId
       const direction = isOwn ? 'out' : 'in'
       const authorDisplayName = isOwn
-        ? 'Tú'
+        ? t`Tú`
         : (conversationDetail?.counterpart.display_name ?? '')
 
       return (
@@ -107,10 +125,7 @@ export function MessageTimeline({
   }
 
   return (
-    <div
-      className="relative flex-1 overflow-hidden"
-      data-testid="message-timeline"
-    >
+    <div className="flex-1 overflow-hidden" data-testid="message-timeline">
       <Virtuoso
         ref={virtuosoRef}
         data={timelineItems}
@@ -118,6 +133,8 @@ export function MessageTimeline({
         initialTopMostItemIndex={timelineItems.length - 1}
         startReached={handleStartReached}
         followOutput="smooth"
+        atBottomStateChange={onAtBottomStateChange}
+        atBottomThreshold={DEFAULT_TOLERANCE_PX}
         itemContent={renderItem}
         components={{
           Header: () =>

@@ -65,8 +65,11 @@ Counter como utility text token (`text-muted-foreground`); transición suave a `
 - [ ] A11y: `<label>` + `aria-describedby` para counter; render texto plano (XSS test cubierto en F.4 sigue verde).
 
 ## Done summary
+
 Todos los fixes aplicados correctamente. TanStack Form + Zod reemplaza el useState manual. read_by_self calculado dinámicamente desde currentAccountId. createPendingMessage acepta nowIso inyectable. Tests cubren retry 422, timeout WS y read_by_self propio. Contexto accountId propagado correctamente del beforeLoad padre a la ruta hija via useRouteContext.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
