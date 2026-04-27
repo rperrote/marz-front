@@ -1,5 +1,11 @@
 import { t } from '@lingui/core/macro'
-import { useCallback, useMemo, useRef, useImperativeHandle } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useImperativeHandle,
+} from 'react'
 import type { VirtuosoHandle } from 'react-virtuoso'
 import { Virtuoso } from 'react-virtuoso'
 
@@ -8,6 +14,7 @@ import {
   useMessagesInfiniteQuery,
 } from '#/features/chat/queries'
 import type { MessageItem } from '#/features/chat/types'
+import { trackChatEvent } from '#/features/chat/analytics/track'
 
 import { DEFAULT_TOLERANCE_PX } from '#/features/chat/hooks/useViewportAtBottom'
 import type { TimelineItem } from '../utils/groupByDay'
@@ -69,6 +76,23 @@ export function MessageTimeline({
   )
 
   const hasReachedBeginning = !hasNextPage && (data?.pages.length ?? 0) > 0
+
+  const trackedPageCountRef = useRef(0)
+
+  useEffect(() => {
+    const pageCount = data?.pages.length ?? 0
+    if (pageCount <= trackedPageCountRef.current) return
+    const newPageIndex = pageCount - 1
+    const latestPage = data?.pages[newPageIndex]
+    trackedPageCountRef.current = pageCount
+    if (newPageIndex > 0 && latestPage) {
+      trackChatEvent('history_page_loaded', {
+        conversation_id: conversationId,
+        page_index: newPageIndex,
+        items_count: latestPage.data.data.length,
+      })
+    }
+  }, [data?.pages, conversationId])
 
   useImperativeHandle(timelineRef, () => ({
     scrollToBottom: () => {

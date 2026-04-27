@@ -6,6 +6,7 @@ import { t } from '@lingui/core/macro'
 import { customFetch, ApiError } from '#/shared/api/mutator'
 import { getMessagesQueryKey } from '#/features/chat/queries'
 import type { MessageItem, MessagesResponse } from '#/features/chat/types'
+import { trackChatEvent, toLengthBucket } from '#/features/chat/analytics/track'
 
 const MAX_RETRIES = 3
 const RETRY_BASE_MS = 1000
@@ -117,12 +118,18 @@ export function useSendMessageMutation(conversationId: string) {
       return { previousMessages, clientMessageId, confirmationTimeout }
     },
 
-    onSuccess: (data, _variables, context) => {
+    onSuccess: (data, variables, context) => {
       clearTimeout(context.confirmationTimeout)
 
       queryClient.setQueryData<MessagesInfiniteData>(messagesKey, (old) => {
         if (!old) return old
         return reconcileMessage(old, context.clientMessageId, data.message)
+      })
+
+      trackChatEvent('message_sent', {
+        conversation_id: conversationId,
+        length_bucket: toLengthBucket(variables.text.length),
+        idempotent_replay: data.idempotentReplay,
       })
     },
 

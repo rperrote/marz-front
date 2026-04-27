@@ -11,6 +11,10 @@ import { useAutoMarkRead } from '#/features/chat/hooks/useAutoMarkRead'
 import { useViewportAtBottom } from '#/features/chat/hooks/useViewportAtBottom'
 import { usePresenceStore } from '#/features/chat/stores/presenceStore'
 import { useTypingStore } from '#/features/chat/stores/typingStore'
+import {
+  trackChatEvent,
+  estimateLatencyMs,
+} from '#/features/chat/analytics/track'
 
 import { ConversationHeader } from './ConversationHeader'
 import { EmptyConversationFallback } from './EmptyConversationFallback'
@@ -45,17 +49,39 @@ export function ConversationView({
     isAtBottom,
   })
 
+  const openedTrackedRef = useRef(false)
+  const unreadCountRef = useRef(unreadCount)
+  useEffect(() => {
+    unreadCountRef.current = unreadCount
+  }, [unreadCount])
+
   useEffect(() => {
     if (!detailQuery.data) return
     const { counterpart, presence } = detailQuery.data
     setPresence(counterpart.id, presence.state)
-  }, [detailQuery.data, setPresence])
+
+    if (!openedTrackedRef.current) {
+      openedTrackedRef.current = true
+      trackChatEvent('conversation_opened', {
+        conversation_id: conversationId,
+        counterpart_kind: counterpart.kind,
+        has_unread: unreadCountRef.current > 0,
+      })
+    }
+  }, [detailQuery.data, setPresence, conversationId])
 
   const onMessageCreated = useCallback(
     (envelope: Parameters<typeof handleMessageCreated>[1]) => {
       handleMessageCreated(queryClient, envelope, currentAccountId)
       handleIncomingMessage(envelope.payload.author_account_id)
       clearTyping(conversationId, envelope.payload.author_account_id)
+
+      if (envelope.payload.author_account_id !== currentAccountId) {
+        trackChatEvent('message_received_live', {
+          conversation_id: conversationId,
+          latency_ms_estimate: estimateLatencyMs(envelope.payload.created_at),
+        })
+      }
     },
     [
       queryClient,
@@ -88,8 +114,13 @@ export function ConversationView({
       }
     }) => {
       setPresence(envelope.payload.counterpart_id, envelope.payload.state)
+      trackChatEvent('presence_state_changed', {
+        conversation_id: conversationId,
+        counterpart_account_id: envelope.payload.counterpart_id,
+        state: envelope.payload.state,
+      })
     },
-    [setPresence],
+    [setPresence, conversationId],
   )
 
   const { send: wsSend } = useChatWsListeners(conversationId, {
