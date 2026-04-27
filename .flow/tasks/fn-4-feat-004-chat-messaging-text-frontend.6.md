@@ -56,8 +56,10 @@ Pill flotante con corner radius generoso, sticky-bottom-center, slight shadow. T
 
 ## Done summary
 
-_To be filled by the worker on completion._
+DEFAULT_TOLERANCE_PX importado correctamente desde useViewportAtBottom y usado en atBottomThreshold. Elimina la duplicación del literal 50. Sin otros cambios funcionales.
 
 ## Evidence
 
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

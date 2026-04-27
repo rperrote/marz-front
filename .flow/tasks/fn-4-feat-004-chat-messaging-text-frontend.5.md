@@ -66,8 +66,10 @@ Counter como utility text token (`text-muted-foreground`); transición suave a `
 
 ## Done summary
 
-_To be filled by the worker on completion._
+Todos los fixes aplicados correctamente. TanStack Form + Zod reemplaza el useState manual. read_by_self calculado dinámicamente desde currentAccountId. createPendingMessage acepta nowIso inyectable. Tests cubren retry 422, timeout WS y read_by_self propio. Contexto accountId propagado correctamente del beforeLoad padre a la ruta hija via useRouteContext.
 
 ## Evidence
 
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

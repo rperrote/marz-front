@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro'
 
 import { ChatRailItem } from '#/features/chat/components/ChatRailItem'
+import { usePresence } from '#/features/chat/stores/presenceStore'
 
 import { formatRelativeTime } from './formatRelativeTime'
 import type { ConversationListItem } from './types'
@@ -19,6 +20,9 @@ export function ConversationRailItem({
   const { counterpart, last_message_preview, unread_count, last_activity_at } =
     conversation
 
+  const presenceState = usePresence(counterpart.id)
+  const online = presenceState === 'online'
+
   const preview = resolvePreview(
     last_message_preview.kind,
     last_message_preview.text,
@@ -33,6 +37,7 @@ export function ConversationRailItem({
         preview={`${timestamp} · ${preview}`}
         avatarUrl={counterpart.avatar_url ?? undefined}
         avatarFallback={fallback}
+        online={online}
         active={active}
         unread={unread_count > 0}
         onClick={() => onClick?.(conversation.id)}

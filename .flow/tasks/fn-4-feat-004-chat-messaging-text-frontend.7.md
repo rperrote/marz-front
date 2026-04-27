@@ -65,8 +65,10 @@ Frame del header con dot junto al avatar (frames `moaXA`/`mRJ63`). Animación ty
 
 ## Done summary
 
-_To be filled by the worker on completion._
+Los tres cambios del dev son correctos. presenceStore elimina la guardia que impedía transiciones desde disconnected — semánticamente correcto porque disconnected es estado de conexión, no de cuenta. useTypingPing implementa throttle leading limpio: dispara en primer keystroke, bloquea durante DEBOUNCE_MS, sendRef evita stale closure. Test de presenceStore actualizado coherentemente. El resto de la implementación (PresenceBadge, TypingIndicator, typingStore, wiring en ConversationView) no presenta issues: tipos WS inline son subset correcto de los tipos reales, canSend combina can_send && is_active correctamente, clearTyping sobre author_account_id es type-safe (string no nullable en MessageCreatedPayload), TooltipProvider en ConversationHeader scope correcto.
 
 ## Evidence
 
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

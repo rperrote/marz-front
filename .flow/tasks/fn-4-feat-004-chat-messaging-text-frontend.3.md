@@ -68,8 +68,10 @@ UI redondeada (corner radii del token system, nunca cuadrada). Light + Dark from
 
 ## Done summary
 
-_To be filled by the worker on completion._
+Inlining de BrandWorkspacePage/CreatorWorkspacePage en workspace.tsx correcta y sin regresión. Eliminación de dead code limpia. ConversationView.tsx colapsado correctamente. Estructura de subrutas /workspace/ e /workspace/conversations/$conversationId consistente con el layout-con-Outlet. routeTree.gen.ts auto-generado y coherente.
 
 ## Evidence
 
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

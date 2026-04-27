@@ -11,6 +11,12 @@ export const brandWorkspaceSearchSchema = z.object({
   campaign_id: z.string().optional().catch(undefined),
 })
 
+export const workspaceSearchSchema = z.object({
+  filter: workspaceFilterSchema,
+  search: z.string().optional().catch(undefined),
+  campaign_id: z.string().optional().catch(undefined),
+})
+
 export const creatorWorkspaceSearchSchema = z.object({
   filter: workspaceFilterSchema,
   search: z.string().optional().catch(undefined),
