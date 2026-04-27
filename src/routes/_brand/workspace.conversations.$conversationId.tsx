@@ -7,6 +7,7 @@ import {
   getConversationDetailQueryKey,
   getMessagesQueryKey,
 } from '#/features/chat/queries'
+import { ConversationOffersPanel } from '#/features/offers/components/ConversationOffersPanel'
 
 export const Route = createFileRoute(
   '/_brand/workspace/conversations/$conversationId',
@@ -35,9 +36,14 @@ function ConversationRoute() {
   const { conversationId } = Route.useParams()
   const { accountId } = Route.useRouteContext()
   return (
-    <ConversationView
-      conversationId={conversationId}
-      currentAccountId={accountId}
-    />
+    <div className="flex h-full">
+      <div className="flex-1 overflow-hidden">
+        <ConversationView
+          conversationId={conversationId}
+          currentAccountId={accountId}
+        />
+      </div>
+      <ConversationOffersPanel conversationId={conversationId} />
+    </div>
   )
 }

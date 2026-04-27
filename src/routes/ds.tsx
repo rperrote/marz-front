@@ -67,7 +67,7 @@ import { RequestChangesCard } from '#/features/deliverables/components/RequestCh
 import { RequestChangesModal } from '#/features/deliverables/components/RequestChangesModal'
 import { StageCard } from '#/features/deliverables/components/StageCard'
 import { BrandHeaderCard } from '#/features/identity/components/BrandHeaderCard'
-import { ContextPanel } from '#/features/identity/components/ContextPanel'
+import { ContextPanel } from '#/shared/ui/ContextPanel'
 import { CreatorHeaderCard } from '#/features/identity/components/CreatorHeaderCard'
 import { SidebarItem } from '#/features/identity/components/SidebarItem'
 import { SidebarTooltip } from '#/features/identity/components/SidebarTooltip'
