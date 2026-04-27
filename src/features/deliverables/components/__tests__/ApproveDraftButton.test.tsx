@@ -23,13 +23,6 @@ vi.mock('../../hooks/useApproveDraft', () => ({
   }),
 }))
 
-const mockUseGetConversationDeliverablesQuery = vi.fn()
-
-vi.mock('../../api/draftUpload', () => ({
-  useGetConversationDeliverablesQuery: (...args: unknown[]) =>
-    mockUseGetConversationDeliverablesQuery(...args),
-}))
-
 function createWrapper() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -49,6 +42,7 @@ function renderButton(
       deliverableId="del-1"
       conversationId="conv-1"
       version={1}
+      currentVersion={1}
       {...props}
     />,
     { wrapper: createWrapper() },
@@ -58,9 +52,6 @@ function renderButton(
 describe('ApproveDraftButton', () => {
   beforeEach(() => {
     mockMutate.mockClear()
-    mockUseGetConversationDeliverablesQuery.mockReturnValue({
-      data: { data: { data: [{ id: 'del-1', current_version: 1 }] } },
-    })
   })
 
   it('renders enabled when version matches current', () => {
@@ -73,11 +64,7 @@ describe('ApproveDraftButton', () => {
   })
 
   it('is disabled when version is stale', () => {
-    mockUseGetConversationDeliverablesQuery.mockReturnValue({
-      data: { data: { data: [{ id: 'del-1', current_version: 2 }] } },
-    })
-
-    renderButton()
+    renderButton({ currentVersion: 2 })
 
     const button = screen.getByRole('button', { name: /approve draft/i })
     expect(button).toHaveAttribute('aria-disabled', 'true')
@@ -102,11 +89,7 @@ describe('ApproveDraftButton', () => {
 
   it('does not invoke mutate when disabled (stale version)', async () => {
     const user = userEvent.setup()
-    mockUseGetConversationDeliverablesQuery.mockReturnValue({
-      data: { data: { data: [{ id: 'del-1', current_version: 2 }] } },
-    })
-
-    renderButton()
+    renderButton({ currentVersion: 2 })
 
     const button = screen.getByRole('button', { name: /approve draft/i })
     await user.click(button)
@@ -114,12 +97,8 @@ describe('ApproveDraftButton', () => {
     expect(mockMutate).not.toHaveBeenCalled()
   })
 
-  it('defaults to enabled when deliverables cache is empty', () => {
-    mockUseGetConversationDeliverablesQuery.mockReturnValue({
-      data: undefined,
-    })
-
-    renderButton()
+  it('defaults to enabled when currentVersion is null', () => {
+    renderButton({ currentVersion: null })
 
     const button = screen.getByRole('button', { name: /approve draft/i })
     expect(button).toBeInTheDocument()

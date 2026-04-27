@@ -7,7 +7,11 @@ import {
   getConversationDetailQueryKey,
   getMessagesQueryKey,
 } from '#/features/chat/queries'
-import { ConversationOffersPanel } from '#/features/offers/components/ConversationOffersPanel'
+import {
+  fetchConversationDeliverables,
+  getConversationDeliverablesQueryKey,
+} from '#/features/deliverables/api/conversationDeliverables'
+import { DeliverableListPanel } from '#/features/deliverables/components/DeliverableListPanel'
 import { useCanSendOffer } from '#/features/offers/hooks/useCanSendOffer'
 import { useSendOfferSheetStore } from '#/features/offers/store/sendOfferSheetStore'
 
@@ -27,6 +31,10 @@ export const Route = createFileRoute(
         queryKey: getMessagesQueryKey(conversationId),
         queryFn: () => fetchMessages({ conversationId }),
       }),
+      queryClient.ensureQueryData({
+        queryKey: getConversationDeliverablesQueryKey(conversationId),
+        queryFn: () => fetchConversationDeliverables(conversationId),
+      }),
     ]).catch(() => {
       // 404/403 handled by the component
     })
@@ -34,6 +42,11 @@ export const Route = createFileRoute(
   component: ConversationRoute,
 })
 
+// RAFITA:BLOCKER: Creator workspace route at the same /workspace/... paths cannot
+// coexist with brand workspace routes in TanStack Router file-based routing
+// (both _brand and _creator are pathless layouts; duplicate full paths are rejected).
+// To mount DeliverableListPanel for creators, unify workspace routes into a single
+// kind-agnostic layout (e.g. src/routes/workspace.tsx) or use distinct paths.
 function ConversationRoute() {
   const { conversationId } = Route.useParams()
   const { accountId, sessionKind } = Route.useRouteContext()
@@ -51,7 +64,12 @@ function ConversationRoute() {
           onSendOffer={() => openSheet(conversationId)}
         />
       </div>
-      <ConversationOffersPanel conversationId={conversationId} />
+      <aside className="flex w-[340px] shrink-0 flex-col border-l border-border bg-background">
+        <DeliverableListPanel
+          conversationId={conversationId}
+          sessionKind={sessionKind}
+        />
+      </aside>
     </div>
   )
 }

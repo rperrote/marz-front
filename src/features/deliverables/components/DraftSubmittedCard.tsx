@@ -3,6 +3,7 @@ import { Upload, Film, Timer } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
 import { InlineVideoPlayer } from './InlineVideoPlayer'
 import { ApproveDraftButton } from './ApproveDraftButton'
 import type { DraftTimelineMessage } from '../types'
@@ -60,9 +61,16 @@ export function DraftSubmittedCard({
     [message.payload],
   )
 
+  const deliverablesQuery = useGetConversationDeliverablesQuery(conversationId)
+
   if (!snapshot) return null
 
   const isBrand = sessionKind === 'brand'
+
+  const currentVersion =
+    deliverablesQuery.data?.deliverables.find(
+      (d) => d.id === snapshot.deliverable_id,
+    )?.current_version ?? null
 
   const isCurrentUser = snapshot.submitted_by_account_id === currentAccountId
   const submitterName = isCurrentUser ? t`Tú` : counterpartDisplayName || ''
@@ -121,6 +129,7 @@ export function DraftSubmittedCard({
             deliverableId={snapshot.deliverable_id}
             conversationId={conversationId}
             version={snapshot.version}
+            currentVersion={currentVersion}
           />
         )}
       </div>

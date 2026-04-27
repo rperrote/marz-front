@@ -4,12 +4,12 @@ import { t } from '@lingui/core/macro'
 import { cn } from '#/lib/utils'
 import { Button } from '#/components/ui/button'
 import { useApproveDraft } from '#/features/deliverables/hooks/useApproveDraft'
-import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/draftUpload'
 
 interface ApproveDraftButtonProps {
   deliverableId: string
   conversationId: string
   version: number
+  currentVersion: number | null
   onApproved?: () => void
 }
 
@@ -17,17 +17,13 @@ export function ApproveDraftButton({
   deliverableId,
   conversationId,
   version,
+  currentVersion,
   onApproved,
 }: ApproveDraftButtonProps) {
   const approveDraft = useApproveDraft(deliverableId, conversationId)
-  const deliverablesQuery = useGetConversationDeliverablesQuery(conversationId)
 
-  const deliverables = deliverablesQuery.data?.data.data ?? []
-
-  const currentVersion =
-    deliverables.find((d) => d.id === deliverableId)?.current_version ?? version
-
-  const isStale = version !== currentVersion
+  const resolvedCurrentVersion = currentVersion ?? version
+  const isStale = version !== resolvedCurrentVersion
   const isPending = approveDraft.isPending
   const tooltipId = `approve-draft-tooltip-${deliverableId}`
 

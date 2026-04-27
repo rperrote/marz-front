@@ -97,9 +97,8 @@ Full design system: `src/styles.css`.
 - [ ] Validación visual Pencil ≥95% sobre `J6Q0y` y `zKjTc`, light + dark.
 
 ## Done summary
-
-_To be filled by the worker._
-
+Refactoring limpio y correcto. La query de deliverables se movió a su propio módulo con tipos consolidados en types.ts. El stale guard fue lifted correctamente a DraftSubmittedCard (que ya tiene el query context) y pasado como prop a ApproveDraftButton, que queda stateless. El loader preinicia el cache con la misma query key que el hook, eliminando el fetch duplicado. Tests actualizados en consecuencia. Typecheck, lint y 775 tests pasan.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:
