@@ -129,6 +129,13 @@ export interface StageApprovedWSPayload {
   approved_at: string
 }
 
+export interface StageOpenedWSPayload {
+  conversation_id: string
+  offer_id: string
+  stage_id: string
+  position: number
+}
+
 export type DomainWsEvent =
   | (DomainEventEnvelope<MessageCreatedPayload> & {
       event_type: 'message.created'
@@ -159,4 +166,7 @@ export type DomainWsEvent =
     })
   | (DomainEventEnvelope<StageApprovedWSPayload> & {
       event_type: 'stage.approved'
+    })
+  | (DomainEventEnvelope<StageOpenedWSPayload> & {
+      event_type: 'stage.opened'
     })

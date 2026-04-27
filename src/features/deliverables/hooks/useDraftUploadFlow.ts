@@ -10,6 +10,12 @@ import type {
   Draft,
   UploadError,
 } from '#/features/deliverables/api/draftUpload'
+import {
+  trackUploadStarted,
+  trackUploadProgress,
+  trackUploadCompleted,
+  trackUploadFailed,
+} from '#/features/deliverables/analytics'
 
 type UploadStatus =
   | 'idle'
@@ -74,6 +80,8 @@ export function useDraftUploadFlow(deliverableId: string) {
 
   const xhrRef = useRef<XMLHttpRequest | null>(null)
   const intentIdRef = useRef<string | null>(null)
+  const seenMilestonesRef = useRef<Set<number>>(new Set())
+  const startedAtRef = useRef<number>(0)
 
   const requestMutation = useRequestDraftUploadMutation(deliverableId)
   const completeMutation = useCompleteDraftUploadMutation()
@@ -83,6 +91,8 @@ export function useDraftUploadFlow(deliverableId: string) {
     xhrRef.current?.abort()
     xhrRef.current = null
     intentIdRef.current = null
+    seenMilestonesRef.current.clear()
+    startedAtRef.current = 0
     setState({
       status: 'idle',
       progress: 0,
@@ -126,6 +136,7 @@ export function useDraftUploadFlow(deliverableId: string) {
           intentId: null,
           draft: null,
         })
+        trackUploadFailed({ deliverable_id: deliverableId, reason: 'format' })
         return
       }
 
@@ -140,8 +151,17 @@ export function useDraftUploadFlow(deliverableId: string) {
           intentId: null,
           draft: null,
         })
+        trackUploadFailed({ deliverable_id: deliverableId, reason: 'size' })
         return
       }
+
+      startedAtRef.current = Date.now()
+      seenMilestonesRef.current.clear()
+      trackUploadStarted({
+        deliverable_id: deliverableId,
+        file_size_bytes: file.size,
+        content_type: file.type,
+      })
 
       setState({
         status: 'requesting',
@@ -165,13 +185,15 @@ export function useDraftUploadFlow(deliverableId: string) {
           headers: response.data.headers,
         }
       } catch (err) {
+        const error = apiErrorToUploadError(err)
         setState({
           status: 'error',
           progress: 0,
-          error: apiErrorToUploadError(err),
+          error,
           intentId: null,
           draft: null,
         })
+        trackUploadFailed({ deliverable_id: deliverableId, reason: error.kind })
         return
       }
 
@@ -189,6 +211,17 @@ export function useDraftUploadFlow(deliverableId: string) {
         if (event.lengthComputable) {
           const percent = Math.round((event.loaded / event.total) * 100)
           setState((prev) => ({ ...prev, progress: percent }))
+
+          const milestone: 25 | 50 | 75 | null =
+            percent >= 75 ? 75 : percent >= 50 ? 50 : percent >= 25 ? 25 : null
+
+          if (milestone && !seenMilestonesRef.current.has(milestone)) {
+            seenMilestonesRef.current.add(milestone)
+            trackUploadProgress({
+              deliverable_id: deliverableId,
+              milestone,
+            })
+          }
         }
       }
 
@@ -204,6 +237,10 @@ export function useDraftUploadFlow(deliverableId: string) {
             },
             intentId: intent.intent_id,
             draft: null,
+          })
+          trackUploadFailed({
+            deliverable_id: deliverableId,
+            reason: 'network',
           })
           return
         }
@@ -224,6 +261,13 @@ export function useDraftUploadFlow(deliverableId: string) {
             body: { duration_sec: durationSec },
           })
 
+          trackUploadCompleted({
+            deliverable_id: deliverableId,
+            draft_id: completeRes.data.id,
+            version: completeRes.data.version,
+            duration_ms: Date.now() - startedAtRef.current,
+          })
+
           setState({
             status: 'done',
             progress: 100,
@@ -232,12 +276,17 @@ export function useDraftUploadFlow(deliverableId: string) {
             draft: completeRes.data,
           })
         } catch (err) {
+          const error = apiErrorToUploadError(err)
           setState({
             status: 'error',
             progress: 0,
-            error: apiErrorToUploadError(err),
+            error,
             intentId: intent.intent_id,
             draft: null,
+          })
+          trackUploadFailed({
+            deliverable_id: deliverableId,
+            reason: error.kind,
           })
         }
       }
@@ -254,6 +303,10 @@ export function useDraftUploadFlow(deliverableId: string) {
           intentId: intent.intent_id,
           draft: null,
         })
+        trackUploadFailed({
+          deliverable_id: deliverableId,
+          reason: 'network',
+        })
       }
 
       xhr.onabort = () => {
@@ -269,6 +322,10 @@ export function useDraftUploadFlow(deliverableId: string) {
                 draft: null,
               },
         )
+        trackUploadFailed({
+          deliverable_id: deliverableId,
+          reason: 'cancelled',
+        })
       }
 
       xhr.open('PUT', intent.upload_url)

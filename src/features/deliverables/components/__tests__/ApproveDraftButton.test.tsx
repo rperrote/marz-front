@@ -23,6 +23,10 @@ vi.mock('../../hooks/useApproveDraft', () => ({
   }),
 }))
 
+vi.mock('../../analytics', () => ({
+  trackDraftApproved: vi.fn(),
+}))
+
 function createWrapper() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -43,6 +47,7 @@ function renderButton(
       conversationId="conv-1"
       version={1}
       currentVersion={1}
+      draftId="draft-1"
       {...props}
     />,
     { wrapper: createWrapper() },

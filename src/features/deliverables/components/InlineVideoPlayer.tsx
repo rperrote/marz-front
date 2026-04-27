@@ -2,6 +2,9 @@ import { useState, useCallback } from 'react'
 import { t } from '@lingui/core/macro'
 
 import { cn } from '#/lib/utils'
+import { trackDraftPlayerPlayed } from '#/features/deliverables/analytics'
+
+const playedDrafts = new Set<string>()
 
 interface InlineVideoPlayerProps {
   playbackUrl: string
@@ -10,6 +13,8 @@ interface InlineVideoPlayerProps {
   aspect?: 'landscape' | 'portrait'
   onPlay?: () => void
   onPause?: () => void
+  deliverableId?: string
+  draftId?: string
 }
 
 export function InlineVideoPlayer({
@@ -19,12 +24,21 @@ export function InlineVideoPlayer({
   aspect = 'landscape',
   onPlay,
   onPause,
+  deliverableId,
+  draftId,
 }: InlineVideoPlayerProps) {
   const [hasError, setHasError] = useState(false)
 
   const handlePlay = useCallback(() => {
+    if (deliverableId && draftId && !playedDrafts.has(draftId)) {
+      playedDrafts.add(draftId)
+      trackDraftPlayerPlayed({
+        deliverable_id: deliverableId,
+        draft_id: draftId,
+      })
+    }
     onPlay?.()
-  }, [onPlay])
+  }, [onPlay, deliverableId, draftId])
 
   const handlePause = useCallback(() => {
     onPause?.()

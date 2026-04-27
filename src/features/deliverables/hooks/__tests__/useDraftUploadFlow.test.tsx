@@ -29,6 +29,13 @@ vi.mock('../../api/draftUpload', async (importOriginal) => {
   }
 })
 
+vi.mock('../../analytics', () => ({
+  trackUploadStarted: vi.fn(),
+  trackUploadProgress: vi.fn(),
+  trackUploadCompleted: vi.fn(),
+  trackUploadFailed: vi.fn(),
+}))
+
 class FakeXMLHttpRequest {
   static instances: FakeXMLHttpRequest[] = []
 

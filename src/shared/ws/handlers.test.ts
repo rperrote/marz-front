@@ -13,7 +13,15 @@ import type {
   DraftApprovedWSPayload,
   DeliverableChangedWSPayload,
   StageApprovedWSPayload,
+  StageOpenedWSPayload,
 } from './types'
+
+const mockTrackMultistageStageUnlocked = vi.fn()
+
+vi.mock('#/features/deliverables/analytics', () => ({
+  trackMultistageStageUnlocked: (...args: unknown[]) =>
+    mockTrackMultistageStageUnlocked(...args),
+}))
 
 function makeEnvelope<TPayload>(
   eventType: string,
@@ -202,15 +210,70 @@ describe('createWsHandlers', () => {
   describe('stage.opened', () => {
     it('invalidates conversation deliverables', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
-      const envelope = makeEnvelope('stage.opened', {
+      const payload: StageOpenedWSPayload = {
         conversation_id: 'conv-1',
-      })
+        offer_id: 'off-1',
+        stage_id: 'stage-2',
+        position: 2,
+      }
+      const envelope = makeEnvelope('stage.opened', payload)
 
       handlers['stage.opened']!(envelope)
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversation-deliverables', 'conv-1'],
       })
+    })
+
+    it('fires analytics when sessionKind is brand', () => {
+      mockTrackMultistageStageUnlocked.mockClear()
+      const brandHandlers = createWsHandlers(queryClient, 'brand')
+      const payload: StageOpenedWSPayload = {
+        conversation_id: 'conv-1',
+        offer_id: 'off-1',
+        stage_id: 'stage-2',
+        position: 2,
+      }
+      const envelope = makeEnvelope('stage.opened', payload)
+
+      brandHandlers['stage.opened']!(envelope)
+
+      expect(mockTrackMultistageStageUnlocked).toHaveBeenCalledWith({
+        offer_id: 'off-1',
+        stage_id: 'stage-2',
+        position: 2,
+      })
+    })
+
+    it('does not fire analytics when sessionKind is creator', () => {
+      mockTrackMultistageStageUnlocked.mockClear()
+      const creatorHandlers = createWsHandlers(queryClient, 'creator')
+      const payload: StageOpenedWSPayload = {
+        conversation_id: 'conv-1',
+        offer_id: 'off-1',
+        stage_id: 'stage-2',
+        position: 2,
+      }
+      const envelope = makeEnvelope('stage.opened', payload)
+
+      creatorHandlers['stage.opened']!(envelope)
+
+      expect(mockTrackMultistageStageUnlocked).not.toHaveBeenCalled()
+    })
+
+    it('does not fire analytics when sessionKind is undefined', () => {
+      mockTrackMultistageStageUnlocked.mockClear()
+      const payload: StageOpenedWSPayload = {
+        conversation_id: 'conv-1',
+        offer_id: 'off-1',
+        stage_id: 'stage-2',
+        position: 2,
+      }
+      const envelope = makeEnvelope('stage.opened', payload)
+
+      handlers['stage.opened']!(envelope)
+
+      expect(mockTrackMultistageStageUnlocked).not.toHaveBeenCalled()
     })
   })
 

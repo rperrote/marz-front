@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 
 import type { DeliverableDTO } from '#/features/deliverables/types'
+import { trackMultistageStageUnlocked } from '#/features/deliverables/analytics'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
 import { getOfferQueryKey } from '#/shared/queries/offers'
@@ -11,6 +12,7 @@ import type {
   DraftSubmittedWSPayload,
   DeliverableChangedWSPayload,
   StageApprovedWSPayload,
+  StageOpenedWSPayload,
 } from './types'
 
 /**
@@ -19,6 +21,7 @@ import type {
  */
 export function createWsHandlers(
   queryClient: QueryClient,
+  sessionKind?: 'brand' | 'creator',
 ): Record<string, EventHandler> {
   return {
     'draft.submitted': (envelope) => {
@@ -87,7 +90,16 @@ export function createWsHandlers(
     },
 
     'stage.opened': (envelope) => {
-      const payload = envelope.payload as { conversation_id: string }
+      const payload = (envelope as DomainEventEnvelope<StageOpenedWSPayload>)
+        .payload
+
+      if (sessionKind === 'brand') {
+        trackMultistageStageUnlocked({
+          offer_id: payload.offer_id,
+          stage_id: payload.stage_id,
+          position: payload.position,
+        })
+      }
 
       void queryClient.invalidateQueries({
         queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),

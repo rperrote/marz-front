@@ -64,8 +64,11 @@ Agregar handlers para los 4 nuevos `event_type` WS (`draft.submitted`, `draft.ap
 - [ ] `pnpm tsc --noEmit` y `pnpm lint` pasan.
 
 ## Done summary
+
 Refactoring limpio. Los tres módulos shared/queries/{messages,deliverables,offers}.ts son consistentes: todos retornan tuplas readonly con as const. getConversationDeliverablesQueryKey ya usa as const alineando el comportamiento con messages y offers. Todos los consumers actualizaron sus imports correctamente. getOfferQueryKey agregado en el lugar correcto. Sin deuda técnica nueva.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

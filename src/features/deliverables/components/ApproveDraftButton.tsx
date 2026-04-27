@@ -4,12 +4,14 @@ import { t } from '@lingui/core/macro'
 import { cn } from '#/lib/utils'
 import { Button } from '#/components/ui/button'
 import { useApproveDraft } from '#/features/deliverables/hooks/useApproveDraft'
+import { trackDraftApproved } from '#/features/deliverables/analytics'
 
 interface ApproveDraftButtonProps {
   deliverableId: string
   conversationId: string
   version: number
   currentVersion: number | null
+  draftId: string
   onApproved?: () => void
 }
 
@@ -18,6 +20,7 @@ export function ApproveDraftButton({
   conversationId,
   version,
   currentVersion,
+  draftId,
   onApproved,
 }: ApproveDraftButtonProps) {
   const approveDraft = useApproveDraft(deliverableId, conversationId)
@@ -29,8 +32,17 @@ export function ApproveDraftButton({
 
   const handleClick = useCallback(() => {
     if (isStale) return
-    approveDraft.mutate({ onSuccess: onApproved })
-  }, [isStale, approveDraft, onApproved])
+    approveDraft.mutate({
+      onSuccess: () => {
+        trackDraftApproved({
+          deliverable_id: deliverableId,
+          draft_id: draftId,
+          version,
+        })
+        onApproved?.()
+      },
+    })
+  }, [isStale, approveDraft, onApproved, deliverableId, draftId, version])
 
   return (
     <div className="relative">
