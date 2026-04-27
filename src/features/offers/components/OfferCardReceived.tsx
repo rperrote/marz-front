@@ -1,9 +1,11 @@
+import { useRef } from 'react'
 import { Sparkles } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
 import { SystemEventCard, StatTile } from '#/shared/ui/SystemEventCard'
 import { useNow } from '#/shared/hooks/useNow'
+import { useViewedOnce } from '#/shared/hooks/useViewedOnce'
 import type { OfferSnapshot, OfferStatus } from '../types'
 import {
   formatOfferAmount,
@@ -12,6 +14,7 @@ import {
   formatExpiresIn,
   isOfferExpired,
 } from '../utils/formatOffer'
+import { trackOfferEvent, markOfferSeen } from '../analytics'
 
 interface OfferCardReceivedProps {
   snapshot: OfferSnapshot
@@ -38,8 +41,22 @@ export function OfferCardReceived({
   const actionsEnabled = status === 'sent' && !expired
   const expiresLabel = formatExpiresIn(snapshot.expires_at, now)
 
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  useViewedOnce(cardRef, () => {
+    if (!markOfferSeen(snapshot.offer_id, 'offer_received_seen')) return
+    const offerAgeSeconds = Math.floor(
+      (Date.now() - new Date(snapshot.sent_at).getTime()) / 1000,
+    )
+    trackOfferEvent('offer_received_seen', {
+      actor_kind: 'creator',
+      offer_age_seconds: offerAgeSeconds,
+    })
+  })
+
   return (
     <div
+      ref={cardRef}
       role="article"
       aria-label={t`Campaign offer received, total ${amount}, deadline ${deadline}`}
     >

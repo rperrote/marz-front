@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
 
+import { trackOfferEvent, toAmountBucket, daysFromNow } from '../analytics'
+
 export interface CreateSingleOfferRequest {
   campaign_id: string
   conversation_id: string
@@ -56,5 +58,18 @@ export function useCreateSingleOffer() {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+    onSuccess: (_data, variables) => {
+      const amount = parseFloat(variables.amount)
+      const hasSpeedBonus =
+        variables.speed_bonus !== undefined && variables.speed_bonus !== null
+      trackOfferEvent('offer_sent', {
+        actor_kind: 'brand',
+        offer_type: 'single',
+        platform: variables.platform,
+        has_speed_bonus: hasSpeedBonus,
+        amount_bucket: toAmountBucket(amount, 'USD'),
+        deadline_days_from_now: daysFromNow(variables.deadline),
+      })
+    },
   })
 }

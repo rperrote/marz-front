@@ -1,3 +1,5 @@
+import { useMe } from '#/shared/api/generated/accounts/accounts'
+
 import type {
   OfferSnapshot,
   OfferAcceptedSnap,
@@ -38,6 +40,10 @@ export function OfferTimelineEntry({
   currentAccountId,
   counterpartDisplayName,
 }: OfferTimelineEntryProps) {
+  const meQuery = useMe()
+  const actorKind =
+    meQuery.data?.status === 200 ? meQuery.data.data.kind : undefined
+
   const offerEvent = EVENT_TYPE_MAP[message.event_type ?? '']
   if (!offerEvent) return null
 
@@ -78,7 +84,18 @@ export function OfferTimelineEntry({
     case 'OfferRejected':
       return <OfferRejectedBubble viewerSide={viewerSide} />
 
-    case 'OfferExpired':
-      return <OfferExpiredBubble viewerSide={viewerSide} />
+    case 'OfferExpired': {
+      if (!actorKind) return null
+      const parsed = offerSnapshotSchema.safeParse(snapshot)
+      const snap = parsed.success ? parsed.data : null
+      return (
+        <OfferExpiredBubble
+          viewerSide={viewerSide}
+          offerId={snap?.offer_id}
+          sentAt={snap?.sent_at}
+          actorKind={actorKind}
+        />
+      )
+    }
   }
 }

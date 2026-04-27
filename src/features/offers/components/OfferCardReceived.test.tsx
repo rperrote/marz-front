@@ -18,6 +18,24 @@ vi.mock('#/shared/hooks/useNow', () => ({
   useNow: () => new Date('2026-04-26T12:00:00Z'),
 }))
 
+vi.mock('../analytics', () => ({
+  trackOfferEvent: vi.fn(),
+  markOfferSeen: vi.fn(() => true),
+}))
+
+const mockObserve = vi.fn()
+const mockDisconnect = vi.fn()
+
+beforeEach(() => {
+  vi.stubGlobal(
+    'IntersectionObserver',
+    vi.fn(() => ({
+      observe: mockObserve,
+      disconnect: mockDisconnect,
+    })),
+  )
+})
+
 const baseSnapshot: OfferSnapshot = {
   offer_id: 'offer-1',
   campaign_id: 'camp-1',

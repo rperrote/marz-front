@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { t } from '@lingui/core/macro'
 
 import { Badge } from '#/components/ui/badge'
@@ -8,6 +9,8 @@ import {
   formatOfferPlatform,
 } from '#/features/offers/utils/formatOffer'
 import type { OfferStatus } from '#/features/offers/types'
+import { trackOfferEvent } from '../analytics'
+import type { ActorKind } from '../analytics'
 
 const statusConfig: Record<
   OfferStatus,
@@ -24,6 +27,7 @@ const statusConfig: Record<
 
 interface CurrentOfferBlockProps {
   offer: ConversationOfferDTO | null
+  actorKind: ActorKind
 }
 
 function EmptyState() {
@@ -36,7 +40,22 @@ function EmptyState() {
   )
 }
 
-export function CurrentOfferBlock({ offer }: CurrentOfferBlockProps) {
+export function CurrentOfferBlock({
+  offer,
+  actorKind,
+}: CurrentOfferBlockProps) {
+  const trackedRef = useRef(false)
+
+  useEffect(() => {
+    if (offer && !trackedRef.current) {
+      trackedRef.current = true
+      trackOfferEvent('offer_panel_viewed', {
+        actor_kind: actorKind,
+        offer_state: offer.status,
+      })
+    }
+  }, [offer, actorKind])
+
   if (!offer) {
     return <EmptyState />
   }

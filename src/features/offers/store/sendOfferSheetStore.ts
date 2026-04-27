@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+import { trackOfferEvent } from '../analytics'
+
 interface SendOfferSheetState {
   isOpen: boolean
   conversationId: string | null
@@ -10,6 +12,12 @@ interface SendOfferSheetState {
 export const useSendOfferSheetStore = create<SendOfferSheetState>()((set) => ({
   isOpen: false,
   conversationId: null,
-  open: (conversationId) => set({ isOpen: true, conversationId }),
+  open: (conversationId) => {
+    trackOfferEvent('offer_sidesheet_opened', {
+      actor_kind: 'brand',
+      source: 'conversation',
+    })
+    set({ isOpen: true, conversationId })
+  },
   close: () => set({ isOpen: false, conversationId: null }),
 }))

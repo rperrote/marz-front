@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import { useOfferActions } from './useOfferActions'
 import { ApiError } from '#/shared/api/mutator'
+import { trackOfferEvent } from '../analytics'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -21,6 +22,12 @@ vi.mock('sonner', () => ({
     success: vi.fn(),
   },
 }))
+
+vi.mock('../analytics', () => ({
+  trackOfferEvent: vi.fn(),
+}))
+
+const mockTrackOfferEvent = vi.mocked(trackOfferEvent)
 
 let mockFetchResponse: unknown = {
   data: { id: 'offer-1', status: 'accepted' },
@@ -65,17 +72,28 @@ describe('useOfferActions', () => {
     }
   })
 
-  it('accept mutation succeeds', async () => {
+  it('accept mutation succeeds and fires offer_accepted analytics', async () => {
     const { result } = renderHook(
       () => useOfferActions({ conversationId: 'conv-1' }),
       { wrapper: createWrapper() },
     )
 
-    result.current.accept.mutate('offer-1')
+    result.current.accept.mutate({
+      offerId: 'offer-1',
+      sentAt: new Date().toISOString(),
+    })
 
     await waitFor(() => {
       expect(result.current.accept.isSuccess).toBe(true)
     })
+
+    expect(mockTrackOfferEvent).toHaveBeenCalledWith(
+      'offer_accepted',
+      expect.objectContaining({
+        actor_kind: 'creator',
+        time_to_response_seconds: expect.any(Number),
+      }),
+    )
   })
 
   it('accept mutation handles 409 with toast', async () => {
@@ -91,7 +109,10 @@ describe('useOfferActions', () => {
       { wrapper: createWrapper() },
     )
 
-    result.current.accept.mutate('offer-1')
+    result.current.accept.mutate({
+      offerId: 'offer-1',
+      sentAt: new Date().toISOString(),
+    })
 
     await waitFor(() => {
       expect(result.current.accept.isError).toBe(true)
@@ -99,7 +120,7 @@ describe('useOfferActions', () => {
     expect(toast.error).toHaveBeenCalledWith('Offer expired')
   })
 
-  it('reject mutation succeeds', async () => {
+  it('reject mutation succeeds and fires offer_rejected analytics', async () => {
     mockFetchResponse = {
       data: { id: 'offer-1', status: 'rejected' },
       status: 200,
@@ -112,12 +133,21 @@ describe('useOfferActions', () => {
 
     result.current.reject.mutate({
       offerId: 'offer-1',
+      sentAt: new Date().toISOString(),
       reason: 'Not interested',
     })
 
     await waitFor(() => {
       expect(result.current.reject.isSuccess).toBe(true)
     })
+
+    expect(mockTrackOfferEvent).toHaveBeenCalledWith(
+      'offer_rejected',
+      expect.objectContaining({
+        actor_kind: 'creator',
+        time_to_response_seconds: expect.any(Number),
+      }),
+    )
   })
 
   it('reject mutation handles 409 with toast', async () => {
@@ -133,7 +163,10 @@ describe('useOfferActions', () => {
       { wrapper: createWrapper() },
     )
 
-    result.current.reject.mutate({ offerId: 'offer-1' })
+    result.current.reject.mutate({
+      offerId: 'offer-1',
+      sentAt: new Date().toISOString(),
+    })
 
     await waitFor(() => {
       expect(result.current.reject.isError).toBe(true)
@@ -170,7 +203,10 @@ describe('useOfferActions', () => {
       { wrapper: createWrapper(queryClient) },
     )
 
-    result.current.accept.mutate('offer-1')
+    result.current.accept.mutate({
+      offerId: 'offer-1',
+      sentAt: new Date().toISOString(),
+    })
 
     await waitFor(() => {
       expect(result.current.accept.isError).toBe(true)

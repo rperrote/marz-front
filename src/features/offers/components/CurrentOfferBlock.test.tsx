@@ -42,12 +42,12 @@ const baseOffer: ConversationOfferDTO = {
 
 describe('CurrentOfferBlock', () => {
   it('renders empty state when current is null', () => {
-    render(<CurrentOfferBlock offer={null} />)
+    render(<CurrentOfferBlock offer={null} actorKind="brand" />)
     expect(screen.getByText('No active offer')).toBeInTheDocument()
   })
 
   it('renders offer with sent badge', () => {
-    render(<CurrentOfferBlock offer={baseOffer} />)
+    render(<CurrentOfferBlock offer={baseOffer} actorKind="brand" />)
     expect(screen.getByText('Current Offer')).toBeInTheDocument()
     expect(screen.getByText('Sent')).toBeInTheDocument()
     expect(screen.getByText('$4,500.00')).toBeInTheDocument()
@@ -60,7 +60,7 @@ describe('CurrentOfferBlock', () => {
       status: 'accepted' as const,
       accepted_at: '2024-09-02T12:00:00Z',
     }
-    render(<CurrentOfferBlock offer={accepted} />)
+    render(<CurrentOfferBlock offer={accepted} actorKind="brand" />)
     expect(screen.getByText('Accepted')).toBeInTheDocument()
   })
 
@@ -73,18 +73,20 @@ describe('CurrentOfferBlock', () => {
         currency: 'USD',
       },
     }
-    render(<CurrentOfferBlock offer={withBonus} />)
+    render(<CurrentOfferBlock offer={withBonus} actorKind="brand" />)
     expect(screen.getByText('Speed bonus')).toBeInTheDocument()
     expect(screen.getByText('+$675.00')).toBeInTheDocument()
   })
 
   it('renders platform deliverable', () => {
-    render(<CurrentOfferBlock offer={baseOffer} />)
+    render(<CurrentOfferBlock offer={baseOffer} actorKind="brand" />)
     expect(screen.getByText('YouTube Video')).toBeInTheDocument()
   })
 
   it('is axe-clean', async () => {
-    const { container } = render(<CurrentOfferBlock offer={baseOffer} />)
+    const { container } = render(
+      <CurrentOfferBlock offer={baseOffer} actorKind="brand" />,
+    )
     expect(await axe(container)).toHaveNoViolations()
   })
 })

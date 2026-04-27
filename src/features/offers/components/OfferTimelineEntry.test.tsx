@@ -1,8 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createElement } from 'react'
 
 import type { OfferTimelineMessage } from './OfferTimelineEntry'
 import { OfferTimelineEntry } from './OfferTimelineEntry'
+
+vi.mock('#/shared/api/generated/accounts/accounts', () => ({
+  useMe: () => ({
+    data: { status: 200, data: { kind: 'brand' } },
+  }),
+}))
 
 vi.mock('./OfferCardSent', () => ({
   OfferCardSent: (props: Record<string, unknown>) => (
@@ -30,6 +38,14 @@ vi.mock('./OfferExpiredBubble', () => ({
     <div data-testid="offer-expired-bubble" data-side={props.viewerSide} />
   ),
 }))
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+})
+
+function Wrapper({ children }: { children: React.ReactNode }) {
+  return createElement(QueryClientProvider, { client: queryClient }, children)
+}
 
 const VALID_SNAPSHOT = {
   offer_id: 'off-1',
@@ -68,6 +84,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(getByTestId('offer-card-sent')).toBeDefined()
   })
@@ -79,6 +96,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId="acc-other"
         counterpartDisplayName="Brand Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(getByTestId('offer-card-received')).toBeDefined()
   })
@@ -98,6 +116,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(getByTestId('offer-accepted-card-in')).toBeDefined()
   })
@@ -117,6 +136,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId="acc-other"
         counterpartDisplayName="Brand Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(getByTestId('offer-accepted-card-out')).toBeDefined()
   })
@@ -128,6 +148,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(getByTestId('offer-rejected-bubble')).toBeDefined()
   })
@@ -139,6 +160,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(getByTestId('offer-expired-bubble')).toBeDefined()
   })
@@ -150,6 +172,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(container.innerHTML).toBe('')
   })
@@ -161,6 +184,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(container.innerHTML).toBe('')
   })
@@ -175,6 +199,7 @@ describe('OfferTimelineEntry', () => {
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
+      { wrapper: Wrapper },
     )
     expect(container.innerHTML).toBe('')
   })

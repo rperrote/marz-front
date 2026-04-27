@@ -35,19 +35,33 @@ const archiveItems: ArchiveOfferItem[] = [
 
 describe('OffersArchiveBlock', () => {
   it('renders empty state when no items', () => {
-    render(<OffersArchiveBlock items={[]} nextCursor={null} />)
+    render(
+      <OffersArchiveBlock items={[]} nextCursor={null} actorKind="brand" />,
+    )
     expect(screen.getByText('No past offers')).toBeInTheDocument()
   })
 
   it('is collapsed by default', () => {
-    render(<OffersArchiveBlock items={archiveItems} nextCursor={null} />)
+    render(
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
     expect(screen.getByText('2')).toBeInTheDocument()
     expect(screen.queryByText('#offer-1')).not.toBeInTheDocument()
   })
 
   it('expands on click and shows items', async () => {
     const user = userEvent.setup()
-    render(<OffersArchiveBlock items={archiveItems} nextCursor={null} />)
+    render(
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
     await user.click(screen.getByRole('button', { expanded: false }))
     expect(screen.getByText('#offer-1')).toBeInTheDocument()
     expect(screen.getByText('#offer-2')).toBeInTheDocument()
@@ -55,7 +69,13 @@ describe('OffersArchiveBlock', () => {
 
   it('shows pending badge for past sent offers', async () => {
     const user = userEvent.setup()
-    render(<OffersArchiveBlock items={archiveItems} nextCursor={null} />)
+    render(
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
     await user.click(screen.getByRole('button', { expanded: false }))
     expect(screen.getByText('Pending')).toBeInTheDocument()
     expect(screen.getByText('Accepted')).toBeInTheDocument()
@@ -69,6 +89,7 @@ describe('OffersArchiveBlock', () => {
         items={archiveItems}
         nextCursor="cursor-abc"
         onLoadMore={onLoadMore}
+        actorKind="brand"
       />,
     )
     await user.click(screen.getByRole('button', { expanded: false }))
@@ -80,7 +101,13 @@ describe('OffersArchiveBlock', () => {
 
   it('does not show load more when next_cursor is null', async () => {
     const user = userEvent.setup()
-    render(<OffersArchiveBlock items={archiveItems} nextCursor={null} />)
+    render(
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
     await user.click(screen.getByRole('button', { expanded: false }))
     expect(
       screen.queryByRole('button', { name: /load more/i }),
@@ -88,7 +115,13 @@ describe('OffersArchiveBlock', () => {
   })
 
   it('has aria-expanded attribute', () => {
-    render(<OffersArchiveBlock items={archiveItems} nextCursor={null} />)
+    render(
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
     const trigger = screen.getByRole('button', { expanded: false })
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
@@ -96,7 +129,11 @@ describe('OffersArchiveBlock', () => {
   it('is axe-clean when expanded', async () => {
     const user = userEvent.setup()
     const { container } = render(
-      <OffersArchiveBlock items={archiveItems} nextCursor={null} />,
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+      />,
     )
     await user.click(screen.getByRole('button', { expanded: false }))
     expect(await axe(container)).toHaveNoViolations()

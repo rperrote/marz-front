@@ -3,6 +3,8 @@ import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 import { customFetch, ApiError } from '#/shared/api/mutator'
 
+import { trackOfferEvent } from '../analytics'
+
 interface AcceptOfferResponse {
   data: {
     id: string
@@ -21,8 +23,23 @@ interface RejectOfferResponse {
   status: number
 }
 
+interface AcceptVariables {
+  offerId: string
+  sentAt: string
+}
+
+interface RejectVariables {
+  offerId: string
+  sentAt: string
+  reason?: string
+}
+
 interface UseOfferActionsOptions {
   conversationId: string
+}
+
+function timeToResponseSeconds(sentAt: string): number {
+  return Math.floor((Date.now() - new Date(sentAt).getTime()) / 1000)
 }
 
 // RAFITA:BLOCKER: Orval hooks `useAcceptOffer` / `useRejectOffer` not yet generated.
@@ -36,14 +53,14 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
   const acceptMutation = useMutation<
     AcceptOfferResponse,
     Error,
-    string,
+    AcceptVariables,
     { snapshot: unknown }
   >({
-    mutationFn: (offerId) =>
+    mutationFn: ({ offerId }) =>
       customFetch<AcceptOfferResponse>(`/v1/offers/${offerId}/accept`, {
         method: 'POST',
       }),
-    onMutate: async (offerId) => {
+    onMutate: async ({ offerId }) => {
       await queryClient.cancelQueries({ queryKey: offersQueryKey })
       const snapshot = queryClient.getQueryData(offersQueryKey)
       queryClient.setQueryData(offersQueryKey, (old: unknown) => {
@@ -54,10 +71,14 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
       })
       return { snapshot }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      trackOfferEvent('offer_accepted', {
+        actor_kind: 'creator',
+        time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
+      })
       queryClient.invalidateQueries({ queryKey: offersQueryKey })
     },
-    onError: (error, _offerId, context) => {
+    onError: (error, _vars, context) => {
       if (context?.snapshot !== undefined) {
         queryClient.setQueryData(offersQueryKey, context.snapshot)
       }
@@ -73,7 +94,7 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
   const rejectMutation = useMutation<
     RejectOfferResponse,
     Error,
-    { offerId: string; reason?: string },
+    RejectVariables,
     { snapshot: unknown }
   >({
     mutationFn: ({ offerId, reason }) =>
@@ -92,7 +113,11 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
       })
       return { snapshot }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      trackOfferEvent('offer_rejected', {
+        actor_kind: 'creator',
+        time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
+      })
       queryClient.invalidateQueries({ queryKey: offersQueryKey })
     },
     onError: (error, _vars, context) => {
