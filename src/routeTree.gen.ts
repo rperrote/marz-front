@@ -17,6 +17,7 @@ import { Route as DesktopOnlyRouteImport } from './routes/desktop-only'
 import { Route as CreatorRouteImport } from './routes/_creator'
 import { Route as BrandRouteImport } from './routes/_brand'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkspaceIndexRouteImport } from './routes/workspace/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as OnboardingCreatorRouteImport } from './routes/onboarding/creator'
 import { Route as OnboardingBrandRouteImport } from './routes/onboarding/brand'
@@ -29,6 +30,7 @@ import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
 import { Route as OnboardingCreatorIndexRouteImport } from './routes/onboarding/creator.index'
 import { Route as OnboardingBrandIndexRouteImport } from './routes/onboarding/brand.index'
 import { Route as BrandCampaignsIndexRouteImport } from './routes/_brand/campaigns.index'
+import { Route as WorkspaceConversationsConversationIdRouteImport } from './routes/workspace/conversations.$conversationId'
 import { Route as OnboardingCreatorStepRouteImport } from './routes/onboarding/creator.$step'
 import { Route as OnboardingBrandStepRouteImport } from './routes/onboarding/brand.$step'
 import { Route as BrandCampaignsNewRouteImport } from './routes/_brand/campaigns.new'
@@ -73,6 +75,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkspaceRoute,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/auth/',
@@ -134,6 +141,12 @@ const BrandCampaignsIndexRoute = BrandCampaignsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BrandCampaignsRoute,
 } as any)
+const WorkspaceConversationsConversationIdRoute =
+  WorkspaceConversationsConversationIdRouteImport.update({
+    id: '/conversations/$conversationId',
+    path: '/conversations/$conversationId',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
 const OnboardingCreatorStepRoute = OnboardingCreatorStepRouteImport.update({
   id: '/$step',
   path: '/$step',
@@ -172,7 +185,7 @@ export interface FileRoutesByFullPath {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
-  '/workspace': typeof WorkspaceRoute
+  '/workspace': typeof WorkspaceRouteWithChildren
   '/campaigns': typeof BrandCampaignsRouteWithChildren
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -182,9 +195,11 @@ export interface FileRoutesByFullPath {
   '/onboarding/brand': typeof OnboardingBrandRouteWithChildren
   '/onboarding/creator': typeof OnboardingCreatorRouteWithChildren
   '/auth/': typeof AuthIndexRoute
+  '/workspace/': typeof WorkspaceIndexRoute
   '/campaigns/new': typeof BrandCampaignsNewRouteWithChildren
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
+  '/workspace/conversations/$conversationId': typeof WorkspaceConversationsConversationIdRoute
   '/campaigns/': typeof BrandCampaignsIndexRoute
   '/onboarding/brand/': typeof OnboardingBrandIndexRoute
   '/onboarding/creator/': typeof OnboardingCreatorIndexRoute
@@ -198,15 +213,16 @@ export interface FileRoutesByTo {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
-  '/workspace': typeof WorkspaceRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
   '/auth/kind': typeof AuthKindRoute
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth': typeof AuthIndexRoute
+  '/workspace': typeof WorkspaceIndexRoute
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
+  '/workspace/conversations/$conversationId': typeof WorkspaceConversationsConversationIdRoute
   '/campaigns': typeof BrandCampaignsIndexRoute
   '/onboarding/brand': typeof OnboardingBrandIndexRoute
   '/onboarding/creator': typeof OnboardingCreatorIndexRoute
@@ -223,7 +239,7 @@ export interface FileRoutesById {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
-  '/workspace': typeof WorkspaceRoute
+  '/workspace': typeof WorkspaceRouteWithChildren
   '/_brand/campaigns': typeof BrandCampaignsRouteWithChildren
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -233,9 +249,11 @@ export interface FileRoutesById {
   '/onboarding/brand': typeof OnboardingBrandRouteWithChildren
   '/onboarding/creator': typeof OnboardingCreatorRouteWithChildren
   '/auth/': typeof AuthIndexRoute
+  '/workspace/': typeof WorkspaceIndexRoute
   '/_brand/campaigns/new': typeof BrandCampaignsNewRouteWithChildren
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
+  '/workspace/conversations/$conversationId': typeof WorkspaceConversationsConversationIdRoute
   '/_brand/campaigns/': typeof BrandCampaignsIndexRoute
   '/onboarding/brand/': typeof OnboardingBrandIndexRoute
   '/onboarding/creator/': typeof OnboardingCreatorIndexRoute
@@ -261,9 +279,11 @@ export interface FileRouteTypes {
     | '/onboarding/brand'
     | '/onboarding/creator'
     | '/auth/'
+    | '/workspace/'
     | '/campaigns/new'
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
+    | '/workspace/conversations/$conversationId'
     | '/campaigns/'
     | '/onboarding/brand/'
     | '/onboarding/creator/'
@@ -277,15 +297,16 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
-    | '/workspace'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
     | '/auth/kind'
     | '/auth/link-invalid'
     | '/auth'
+    | '/workspace'
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
+    | '/workspace/conversations/$conversationId'
     | '/campaigns'
     | '/onboarding/brand'
     | '/onboarding/creator'
@@ -311,9 +332,11 @@ export interface FileRouteTypes {
     | '/onboarding/brand'
     | '/onboarding/creator'
     | '/auth/'
+    | '/workspace/'
     | '/_brand/campaigns/new'
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
+    | '/workspace/conversations/$conversationId'
     | '/_brand/campaigns/'
     | '/onboarding/brand/'
     | '/onboarding/creator/'
@@ -330,7 +353,7 @@ export interface RootRouteChildren {
   DsRoute: typeof DsRoute
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
-  WorkspaceRoute: typeof WorkspaceRoute
+  WorkspaceRoute: typeof WorkspaceRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
   AuthKindRoute: typeof AuthKindRoute
@@ -397,6 +420,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/workspace/': {
+      id: '/workspace/'
+      path: '/'
+      fullPath: '/workspace/'
+      preLoaderRoute: typeof WorkspaceIndexRouteImport
+      parentRoute: typeof WorkspaceRoute
     }
     '/auth/': {
       id: '/auth/'
@@ -481,6 +511,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/campaigns/'
       preLoaderRoute: typeof BrandCampaignsIndexRouteImport
       parentRoute: typeof BrandCampaignsRoute
+    }
+    '/workspace/conversations/$conversationId': {
+      id: '/workspace/conversations/$conversationId'
+      path: '/conversations/$conversationId'
+      fullPath: '/workspace/conversations/$conversationId'
+      preLoaderRoute: typeof WorkspaceConversationsConversationIdRouteImport
+      parentRoute: typeof WorkspaceRoute
     }
     '/onboarding/creator/$step': {
       id: '/onboarding/creator/$step'
@@ -577,6 +614,21 @@ const CreatorRouteChildren: CreatorRouteChildren = {
 const CreatorRouteWithChildren =
   CreatorRoute._addFileChildren(CreatorRouteChildren)
 
+interface WorkspaceRouteChildren {
+  WorkspaceIndexRoute: typeof WorkspaceIndexRoute
+  WorkspaceConversationsConversationIdRoute: typeof WorkspaceConversationsConversationIdRoute
+}
+
+const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceIndexRoute: WorkspaceIndexRoute,
+  WorkspaceConversationsConversationIdRoute:
+    WorkspaceConversationsConversationIdRoute,
+}
+
+const WorkspaceRouteWithChildren = WorkspaceRoute._addFileChildren(
+  WorkspaceRouteChildren,
+)
+
 interface OnboardingBrandRouteChildren {
   OnboardingBrandStepRoute: typeof OnboardingBrandStepRoute
   OnboardingBrandIndexRoute: typeof OnboardingBrandIndexRoute
@@ -612,7 +664,7 @@ const rootRouteChildren: RootRouteChildren = {
   DsRoute: DsRoute,
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
-  WorkspaceRoute: WorkspaceRoute,
+  WorkspaceRoute: WorkspaceRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,
   AuthKindRoute: AuthKindRoute,

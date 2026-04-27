@@ -1,12 +1,14 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { track } from '#/shared/analytics/track'
 import { getMeQueryKey } from '#/shared/api/generated/accounts/accounts'
 import type { meResponse } from '#/shared/api/generated/accounts/accounts'
 import { getServerMe } from '#/shared/auth/getServerMe'
 import type { ServerMeBody } from '#/shared/auth/getServerMe'
-import { BrandWorkspacePage } from '#/features/chat/workspace/BrandWorkspacePage'
-import { CreatorWorkspacePage } from '#/features/chat/workspace/CreatorWorkspacePage'
+import { BrandShell } from '#/features/identity/components/BrandShell'
+import { CreatorShell } from '#/features/identity/components/CreatorShell'
+import { ConversationRail } from '#/features/chat/workspace/ConversationRail'
+import { WorkspaceLayout } from '#/features/chat/workspace/WorkspaceLayout'
 import {
   brandWorkspaceSearchSchema,
   creatorWorkspaceSearchSchema,
@@ -68,17 +70,25 @@ export const Route = createFileRoute('/workspace')({
 
     return { accountKind: me.kind }
   },
-  component: WorkspacePage,
+  component: WorkspaceLayoutRoute,
 })
 
-function WorkspacePage() {
+function WorkspaceLayoutRoute() {
   const { accountKind } = Route.useRouteContext()
   const rawSearch = Route.useSearch()
 
-  if (accountKind === 'brand') {
-    return <BrandWorkspacePage search={rawSearch} />
-  }
+  const search =
+    accountKind === 'creator'
+      ? creatorWorkspaceSearchSchema.parse(rawSearch)
+      : rawSearch
 
-  const creatorSearch = creatorWorkspaceSearchSchema.parse(rawSearch)
-  return <CreatorWorkspacePage search={creatorSearch} />
+  const Shell = accountKind === 'brand' ? BrandShell : CreatorShell
+
+  return (
+    <Shell>
+      <WorkspaceLayout rail={<ConversationRail search={search} />}>
+        <Outlet />
+      </WorkspaceLayout>
+    </Shell>
+  )
 }

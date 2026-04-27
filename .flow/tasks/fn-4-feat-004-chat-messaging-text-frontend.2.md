@@ -46,8 +46,11 @@ Extender la union `DomainWsEvent` con los 5 eventos nuevos del chat (`message.cr
 - [ ] `pnpm typecheck` verde sin `any` en la union.
 
 ## Done summary
+
 Tres fixes aplicados correctamente: (1) ConversationActivityUpdatedPayload agregado a DomainWsEvent con tipado coherente; (2) ChatEventTypes derivado de DomainWsEvent elimina el dead-code tipado; (3) guard de runtime en makeConversationGuard verifica conversation_id antes del cast. Comentario en useChatWsListeners documenta la limitación conocida sin ser ruido. Sin issues funcionales.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
