@@ -645,7 +645,11 @@ function ReusableSection() {
       </ShowcaseGroup>
 
       <ShowcaseGroup title="Chat · header actions" context="features/chat">
-        <ChatHeaderActions />
+        <ChatHeaderActions
+          conversationId="ds-conv-1"
+          canSendOffer={{ visible: true, disabled: false }}
+          onSendOffer={() => {}}
+        />
       </ShowcaseGroup>
 
       <ShowcaseGroup title="Shell · sidebar" context="features/identity">

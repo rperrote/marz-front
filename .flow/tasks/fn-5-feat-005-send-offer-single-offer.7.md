@@ -57,10 +57,12 @@ Emitir los 8 analytics events client-side definidos en spec §Analítica vía `P
 - [ ] E2E de network intercept: navegar el flujo completo y verificar que los 8 eventos aparecen con shape correcta.
 
 ## Done summary
+
 _To be filled by worker on completion._
 
 Blocked:
 reset manual
+
 ## Evidence
 
 - Commits:

@@ -42,8 +42,11 @@ Instrumentar los 4 eventos de analytics del spec § Analítica usando el helper 
 - [ ] `pnpm typecheck` y `pnpm lint` verdes.
 
 ## Done summary
+
 done-placeholder
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

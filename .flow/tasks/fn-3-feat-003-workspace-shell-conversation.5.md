@@ -46,8 +46,11 @@ Pencil `XSdsQ` muestra el select arriba del rail entre header y lista. Sigue el 
 - [ ] `pnpm typecheck` y `pnpm lint` verdes.
 
 ## Done summary
+
 done-placeholder
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

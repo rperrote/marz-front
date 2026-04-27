@@ -8,6 +8,8 @@ import {
   getMessagesQueryKey,
 } from '#/features/chat/queries'
 import { ConversationOffersPanel } from '#/features/offers/components/ConversationOffersPanel'
+import { useCanSendOffer } from '#/features/offers/hooks/useCanSendOffer'
+import { useSendOfferSheetStore } from '#/features/offers/store/sendOfferSheetStore'
 
 export const Route = createFileRoute(
   '/_brand/workspace/conversations/$conversationId',
@@ -35,12 +37,17 @@ export const Route = createFileRoute(
 function ConversationRoute() {
   const { conversationId } = Route.useParams()
   const { accountId } = Route.useRouteContext()
+  const canSendOffer = useCanSendOffer({ conversationId })
+  const openSheet = useSendOfferSheetStore((s) => s.open)
+
   return (
     <div className="flex h-full">
       <div className="flex-1 overflow-hidden">
         <ConversationView
           conversationId={conversationId}
           currentAccountId={accountId}
+          canSendOffer={canSendOffer}
+          onSendOffer={() => openSheet(conversationId)}
         />
       </div>
       <ConversationOffersPanel conversationId={conversationId} />

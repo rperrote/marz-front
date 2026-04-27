@@ -52,12 +52,8 @@ Tokens: botón primary (`var(--primary)`), `rounded-md`. Posición en el header 
 - [ ] E2E del flujo completo "send-receive-accept" cubre la aparición del botón (cubierto en F.3).
 
 ## Done summary
-_To be filled by worker on completion._
-
-Blocked:
-reset manual
+Cambio correcto y minimal. reason?: 'no-active-campaigns' convierte el campo en literal discriminante — el compilador ahora puede verificar exhaustivamente la rama en ChatHeaderActions.tsx:62. Sin regresiones. Resto del diff es ruido de formato en archivos .flow/
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

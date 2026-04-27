@@ -59,8 +59,11 @@ Wirear los 4 nuevos `event_type` (`OfferSent`, `OfferAccepted`, `OfferRejected`,
 - [ ] A11y: bubbles `role="status"` para anunciar a screen readers cambios de estado.
 
 ## Done summary
+
 BC violations resueltas correctamente: queryKey y constantes de tipos de offer movidos a shared/, sin imports cruzados entre features. Union discriminada en types.ts con never-fields garantiza type safety en el handler. safeParse Zod en OfferTimelineEntry elimina double-cast. Invalidación de offers ocurre fuera del setQueryData correctamente. Cobertura de tests completa: todas las ramas del switch + casos degenerados + deduplicación + invalidación condicional.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

@@ -6,9 +6,7 @@
   "default_impl": null,
   "default_review": null,
   "default_sync": null,
-  "depends_on_epics": [
-    "fn-3-feat-003-workspace-shell-conversation"
-  ],
+  "depends_on_epics": ["fn-3-feat-003-workspace-shell-conversation"],
   "id": "fn-4-feat-004-chat-messaging-text-frontend",
   "next_task": 1,
   "plan_review_status": "unknown",
