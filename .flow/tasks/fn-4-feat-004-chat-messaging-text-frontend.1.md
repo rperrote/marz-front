@@ -39,9 +39,8 @@ Regenerar el cliente Orval contra el backend de dev una vez que B.8 (HTTP adapte
 - [ ] Commit incluye `openapi/spec.json` y los archivos en `src/shared/api/generated/`.
 
 ## Done summary
-
-_To be filled by the worker on completion._
-
+Task correctamente marcada como bloqueada: B.8 no deployado en dev, evidencia verificada, no se tocó código ni spec generado.
 ## Evidence
-
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:
