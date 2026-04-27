@@ -71,9 +71,8 @@ Tokens: `var(--primary)` para Accept CTA, `var(--destructive)` para Reject. Radi
 - [ ] A11y: cada card `role="article"` con `aria-label` descriptivo; botones reales; bubbles `role="status"`.
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+Dead code eliminado correctamente. EventBubble reubicado a shared/ui con re-export limpio desde el path anterior. Sin issues.
 ## Evidence
-
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

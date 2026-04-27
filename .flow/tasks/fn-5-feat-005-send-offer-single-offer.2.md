@@ -71,8 +71,11 @@ DESIGN.md no existe en este repo. Tokens y referencias visuales viven en `marz-d
 - [ ] A11y: focus trap operativo, ESC cierra, todos los inputs con label, errores con `aria-live`. Verificado con `vitest-axe` o equivalente del repo.
 
 ## Done summary
+
 Fix correcto. El branch campaignsQuery.isError ahora se evalúa antes que el check de empty state (!hasCampaigns && !isLoading), eliminando el falso negativo donde un error de red mostraba el mensaje de 'no campaigns'. El mensaje de error usa text-destructive, el botón Retry llama refetch() con void para suprimir la promesa flotante, y el orden de precedencia (isError → empty → form) es el correcto.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
