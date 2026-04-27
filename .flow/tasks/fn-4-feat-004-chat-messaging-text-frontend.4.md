@@ -68,9 +68,8 @@ UI redondeada siempre; bubbles con corner radius asimétrico estilo chat (esquin
 - [ ] A11y: cada bubble con `aria-label` informativo.
 
 ## Done summary
-
-_To be filled by the worker on completion._
-
+Todos los cambios son correctos. groupByDay usa hora local via toLocaleDateString('sv'), timezone-safe. Tests ajustados a 12:00Z garantizan separación de días independiente del offset local. MessageTimeline resuelve display name desde conversationDetail con fallback vacío durante loading. Mocks del test discriminan por URL correctamente. E2E usa ruta correcta y assertions basadas en condiciones observables en vez de timeouts fijos.
 ## Evidence
-
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

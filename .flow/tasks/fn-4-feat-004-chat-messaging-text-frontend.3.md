@@ -67,8 +67,11 @@ UI redondeada (corner radii del token system, nunca cuadrada). Light + Dark from
 - [ ] `pnpm typecheck` + `pnpm lint` verdes.
 
 ## Done summary
+
 Inlining de BrandWorkspacePage/CreatorWorkspacePage en workspace.tsx correcta y sin regresión. Eliminación de dead code limpia. ConversationView.tsx colapsado correctamente. Estructura de subrutas /workspace/ e /workspace/conversations/$conversationId consistente con el layout-con-Outlet. routeTree.gen.ts auto-generado y coherente.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
