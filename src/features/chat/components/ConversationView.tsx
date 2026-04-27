@@ -28,6 +28,7 @@ import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 interface ConversationViewProps {
   conversationId: string
   currentAccountId: string
+  sessionKind: 'brand' | 'creator' | undefined
   canSendOffer?: CanSendOfferMeta
   onSendOffer?: () => void
 }
@@ -35,6 +36,7 @@ interface ConversationViewProps {
 export function ConversationView({
   conversationId,
   currentAccountId,
+  sessionKind,
   canSendOffer,
   onSendOffer,
 }: ConversationViewProps) {
@@ -168,6 +170,7 @@ export function ConversationView({
         <MessageTimeline
           conversationId={conversationId}
           currentAccountId={currentAccountId}
+          sessionKind={sessionKind}
           onAtBottomStateChange={onAtBottomStateChange}
           timelineRef={timelineRef}
         />

@@ -83,9 +83,8 @@ Full design system: `src/styles.css`.
 - [ ] A11y: el botón disabled comunica el motivo via `aria-disabled` + `aria-describedby` apuntando al tooltip.
 
 ## Done summary
-
-_To be filled by the worker._
-
+Implementación completa y correcta. sessionKind llega por prop desde el route context (workspace.tsx inyecta 'brand' as const, el route hijo lo lee con useRouteContext y lo pasa a ConversationView → MessageTimeline). DraftSubmittedCard y DraftApprovedCard consumen snapshots autocontenidos desde message.payload, sin re-fetch del aggregate. ApproveDraftButton implementa stale-version guard consultando /v1/conversations/:id/deliverables e invalidando ambas queryKeys (conversation-deliverables + conversation-messages) post-aprobación. InlineVideoPlayer recibe aspect prop para 9/16 vs 16/9. Tests cubren los 4 casos críticos del botón. TypeScript, lint y 768 tests pasan.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

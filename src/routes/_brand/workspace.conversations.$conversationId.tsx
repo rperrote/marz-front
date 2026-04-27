@@ -36,7 +36,7 @@ export const Route = createFileRoute(
 
 function ConversationRoute() {
   const { conversationId } = Route.useParams()
-  const { accountId } = Route.useRouteContext()
+  const { accountId, sessionKind } = Route.useRouteContext()
   const canSendOffer = useCanSendOffer({ conversationId })
   const openSheet = useSendOfferSheetStore((s) => s.open)
 
@@ -46,6 +46,7 @@ function ConversationRoute() {
         <ConversationView
           conversationId={conversationId}
           currentAccountId={accountId}
+          sessionKind={sessionKind}
           canSendOffer={canSendOffer}
           onSendOffer={() => openSheet(conversationId)}
         />

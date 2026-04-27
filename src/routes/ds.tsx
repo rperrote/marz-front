@@ -788,18 +788,68 @@ function ReusableSection() {
       >
         <div className="grid gap-4 md:grid-cols-2">
           <DraftSubmittedCard
-            audience="creator"
-            message="Here's the draft for the YouTube video. Let me know if you'd like any changes."
-            filename="echo_wireless_draft_v1.mp4"
-            sizeLabel="142 MB"
-            duration="3:24"
+            message={{
+              id: 'msg-1',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  original_filename: 'echo_wireless_draft_v1.mp4',
+                  file_size_bytes: 148897152,
+                  duration_sec: 204,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/video.mp4',
+                  playback_url_expires_at: new Date().toISOString(),
+                  submitted_at: new Date().toISOString(),
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="creator-1"
+            counterpartDisplayName="Brand Name"
+            conversationId="conv-1"
+            sessionKind="creator"
           />
           <DraftSubmittedCard
-            audience="brand"
-            message="Here's the draft for the YouTube video. Let me know if you'd like any changes."
-            filename="echo_wireless_draft_v1.mp4"
-            sizeLabel="142 MB"
-            duration="3:24"
+            message={{
+              id: 'msg-2',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  original_filename: 'echo_wireless_draft_v1.mp4',
+                  file_size_bytes: 148897152,
+                  duration_sec: 204,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/video.mp4',
+                  playback_url_expires_at: new Date().toISOString(),
+                  submitted_at: new Date().toISOString(),
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
+            conversationId="conv-1"
+            sessionKind="brand"
           />
         </div>
       </ShowcaseGroup>
@@ -810,12 +860,36 @@ function ReusableSection() {
       >
         <div className="max-w-xs">
           <DraftSubmittedCard
-            audience="brand"
-            aspect="portrait"
-            message="Here's the Reel! Took some liberties with the transitions."
-            filename="reel_draft.mp4"
-            sizeLabel="38 MB"
-            duration="0:45"
+            message={{
+              id: 'msg-3',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-2',
+                  deliverable_platform: 'instagram',
+                  deliverable_format: 'reel',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-2',
+                  version: 1,
+                  original_filename: 'reel_draft.mp4',
+                  file_size_bytes: 39845888,
+                  duration_sec: 45,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/reel.mp4',
+                  playback_url_expires_at: new Date().toISOString(),
+                  submitted_at: new Date().toISOString(),
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
+            conversationId="conv-1"
+            sessionKind="brand"
           />
         </div>
       </ShowcaseGroup>
@@ -823,10 +897,27 @@ function ReusableSection() {
       <ShowcaseGroup title="Draft approved" context="features/deliverables">
         <div className="max-w-md">
           <DraftApprovedCard
-            message="Here's v2 — made the changes you requested. Let me know!"
-            filename="echo_wireless_draft_v2.mp4"
-            sizeLabel="148 MB"
-            duration="3:22"
+            message={{
+              id: 'msg-4',
+              author_account_id: 'brand-1',
+              event_type: 'DraftApproved',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftApproved',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  approved_at: new Date().toISOString(),
+                  approved_by_account_id: 'brand-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
           />
         </div>
       </ShowcaseGroup>

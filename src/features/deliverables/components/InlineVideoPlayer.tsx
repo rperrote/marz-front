@@ -7,6 +7,7 @@ interface InlineVideoPlayerProps {
   playbackUrl: string
   thumbnailUrl?: string
   durationSec?: number
+  aspect?: 'landscape' | 'portrait'
   onPlay?: () => void
   onPause?: () => void
 }
@@ -15,6 +16,7 @@ export function InlineVideoPlayer({
   playbackUrl,
   thumbnailUrl,
   durationSec,
+  aspect = 'landscape',
   onPlay,
   onPause,
 }: InlineVideoPlayerProps) {
@@ -32,7 +34,7 @@ export function InlineVideoPlayer({
     <div
       className={cn(
         'relative w-full overflow-hidden rounded-lg bg-muted',
-        'aspect-video',
+        aspect === 'portrait' ? 'aspect-[9/16]' : 'aspect-video',
       )}
     >
       {hasError ? (

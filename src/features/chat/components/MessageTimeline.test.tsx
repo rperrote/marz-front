@@ -144,7 +144,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -170,7 +174,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -184,7 +192,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -211,7 +223,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -236,7 +252,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 

@@ -22,6 +22,8 @@ import { groupByDay } from '../utils/groupByDay'
 
 import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
 import { OfferTimelineEntry } from '#/features/offers/components/OfferTimelineEntry'
+import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
+import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
 
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
@@ -40,6 +42,7 @@ export interface MessageTimelineHandle {
 interface MessageTimelineProps {
   conversationId: string
   currentAccountId: string
+  sessionKind: 'brand' | 'creator' | undefined
   onAtBottomStateChange?: (atBottom: boolean) => void
   timelineRef?: React.Ref<MessageTimelineHandle>
 }
@@ -49,6 +52,7 @@ const START_INDEX = 1_000_000
 export function MessageTimeline({
   conversationId,
   currentAccountId,
+  sessionKind,
   onAtBottomStateChange,
   timelineRef,
 }: MessageTimelineProps) {
@@ -123,6 +127,32 @@ export function MessageTimeline({
       const message = item.message
 
       if (message.type === 'system_event') {
+        if (message.event_type === 'DraftSubmitted') {
+          return (
+            <DraftSubmittedCard
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+              conversationId={conversationId}
+              sessionKind={sessionKind}
+            />
+          )
+        }
+
+        if (message.event_type === 'DraftApproved') {
+          return (
+            <DraftApprovedCard
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+            />
+          )
+        }
+
         if (OFFER_EVENT_TYPES.has(message.event_type ?? '')) {
           return (
             <OfferTimelineEntry
@@ -170,7 +200,12 @@ export function MessageTimeline({
         />
       )
     },
-    [currentAccountId, conversationDetail?.counterpart.display_name],
+    [
+      currentAccountId,
+      conversationDetail?.counterpart.display_name,
+      conversationId,
+      sessionKind,
+    ],
   )
 
   if (timelineItems.length === 0) {

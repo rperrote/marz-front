@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { customFetch, ApiError } from '#/shared/api/mutator'
 
 // RAFITA:BLOCKER: Backend dev (localhost:8080) does not yet expose deliverable/draft
@@ -31,6 +31,11 @@ type ApiResponse<T> = { data: T; status: number }
 
 export interface CompleteDraftUploadBody {
   duration_sec?: number | null
+}
+
+export interface ConversationDeliverable {
+  id: string
+  current_version: number
 }
 
 export function useRequestDraftUploadMutation(deliverableId: string) {
@@ -67,6 +72,27 @@ export function useCancelDraftUploadMutation() {
         `/v1/deliverables/${encodeURIComponent(deliverableId)}/drafts/${encodeURIComponent(intentId)}`,
         { method: 'DELETE' },
       ),
+  })
+}
+
+export function useApproveDraftMutation(deliverableId: string) {
+  return useMutation<ApiResponse<void>, Error, void>({
+    mutationFn: () =>
+      customFetch<ApiResponse<void>>(
+        `/v1/deliverables/${encodeURIComponent(deliverableId)}/approve`,
+        { method: 'POST' },
+      ),
+  })
+}
+
+export function useGetConversationDeliverablesQuery(conversationId: string) {
+  return useQuery<ApiResponse<{ data: ConversationDeliverable[] }>>({
+    queryKey: ['conversation-deliverables', conversationId],
+    queryFn: () =>
+      customFetch<ApiResponse<{ data: ConversationDeliverable[] }>>(
+        `/v1/conversations/${encodeURIComponent(conversationId)}/deliverables`,
+      ),
+    enabled: !!conversationId,
   })
 }
 
