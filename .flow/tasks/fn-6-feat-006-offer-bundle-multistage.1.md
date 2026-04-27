@@ -50,8 +50,31 @@ Regenerar el cliente API tras backend mergea OpenAPI extendido (B.5) en dev. Val
 
 ## Done summary
 
-_To be filled by the worker._
+`pnpm api:sync` corrió limpio contra backend dev el 2026-04-27. Se regeneraron los endpoints existentes (accounts, campaigns, onboarding, system, test, webhooks) y se actualizó `openapi/spec.json` con el snapshot actual. No se detectaron breaking changes en types existentes.
+
+**Bloqueado por B.5:** El spec descargado de `localhost:8080` aún no contiene endpoints ni schemas de offers (`CreateOfferRequest`, `OfferDTO`, `OfferSnapshot`, `StageOpenedSnap`). Sin el contrato extendido no es posible:
+
+1. Generar los tipos polimórficos en `src/shared/api/generated/`.
+2. Migrar `useCreateSingleOffer` → `useCreateOffer`.
+3. Validar que las uniones discriminadas compilen en TS estricto.
+
+`useCreateSingleOffer` se mantiene como hook manual con RAFITA:BLOCKER documentado. No se rompieron call sites de FEAT-005.
+
+Task marcada como **blocked** en flowctl hasta que backend mergee B.5.
 
 ## Evidence
 
-_Logs, screenshots, or test output go here._
+```
+$ pnpm typecheck
+> marz-front@ typecheck
+> tsc --noEmit
+(pasa limpio)
+
+$ pnpm test src/shared/api
+> vitest run src/shared/api
+ RUN  v3.2.4
+ ✓ src/shared/api/mutator.test.ts (11 tests) 7ms
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Duration  795ms
+```

@@ -49,8 +49,9 @@ interface CreateOfferResponse {
   status: number
 }
 
-// RAFITA:BLOCKER: Orval hook `useCreateSingleOffer` not yet generated (backend hasn't deployed offers endpoints).
-// Replace with Orval-generated hook after `pnpm api:sync`.
+// RAFITA:BLOCKER: Backend dev (localhost:8080) still does not expose the extended OpenAPI spec (B.5).
+// `pnpm api:sync` ran clean but the spec contains no offer endpoints or polymorphic types.
+// Coordinate with backend to merge the extended contract before regenerating the Orval client.
 export function useCreateSingleOffer() {
   return useMutation<CreateOfferResponse, Error, CreateSingleOfferRequest>({
     mutationFn: (data) =>

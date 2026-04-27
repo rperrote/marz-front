@@ -566,6 +566,574 @@
           }
         }
       }
+    },
+    "/v1/campaigns/brief-builder/init": {
+      "post": {
+        "operationId": "initBriefBuilder",
+        "tags": ["campaigns"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["brand_workspace_id", "website_url"],
+                "properties": {
+                  "brand_workspace_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "website_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 500
+                  },
+                  "description_text": {
+                    "type": "string"
+                  },
+                  "pdf": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefBuilderInitResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: not_brand_owner. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload Too Large. Possible codes: pdf_too_large. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: invalid_website_url, description_required, pdf_unreadable. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: init_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaigns/brief-builder/process": {
+      "post": {
+        "operationId": "processBrief",
+        "tags": ["campaigns"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BriefBuilderProcessRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefBuilderProcessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: not_brand_owner. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. Possible codes: token_not_found. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Possible codes: already_processed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: process_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaigns": {
+      "post": {
+        "operationId": "createCampaign",
+        "tags": ["campaigns"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCampaignResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: not_brand_owner. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: brief_validation_failed, validation_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: create_campaign_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaigns/{campaign_id}/brief": {
+      "get": {
+        "operationId": "getCampaignBrief",
+        "tags": ["campaigns"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignBriefResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: not_brand_owner. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. Possible codes: campaign_not_found. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: get_brief_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/test/accounts": {
+      "post": {
+        "operationId": "createTestAccount",
+        "tags": ["test"],
+        "description": "Test-only. Creates a test account or returns an existing one.\nRequires `X-Test-Secret` header. Never available in production.\n",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Test-Secret",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: test_secret_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: create_test_account_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/test/accounts/{clerk_user_id}/onboarding": {
+      "post": {
+        "operationId": "setTestOnboardingState",
+        "tags": ["test"],
+        "description": "Test-only. Forces a test account into a specific onboarding state.\nRequires `X-Test-Secret` header. Never available in production.\n",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Test-Secret",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "clerk_user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTestOnboardingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body, invalid_status, invalid_kind. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: test_secret_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. Possible codes: account_not_found. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: set_onboarding_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/test/accounts/{clerk_user_id}": {
+      "delete": {
+        "operationId": "deleteTestAccount",
+        "tags": ["test"],
+        "description": "Test-only. Soft-deletes a test account.\nRequires `X-Test-Secret` header. Never available in production.\n",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Test-Secret",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "clerk_user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: test_secret_invalid. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: delete_test_account_failed. See §4.1.8.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1235,6 +1803,384 @@
                 "type": "string"
               }
             }
+          }
+        }
+      },
+      "BriefBuilderInitResponse": {
+        "type": "object",
+        "required": ["processing_token"],
+        "properties": {
+          "processing_token": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "BriefBuilderProcessRequest": {
+        "type": "object",
+        "required": ["processing_token"],
+        "properties": {
+          "processing_token": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "BriefBuilderProcessResponse": {
+        "type": "object",
+        "required": ["processing_token"],
+        "properties": {
+          "processing_token": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "BriefScoringDimension": {
+        "type": "object",
+        "required": ["name", "weight_pct"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "weight_pct": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      },
+      "BriefHardFilter": {
+        "type": "object",
+        "required": ["field", "operator", "value"],
+        "properties": {
+          "field": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "operator": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      },
+      "CampaignBriefInput": {
+        "type": "object",
+        "required": ["brief_source_url", "scoring_dimensions", "hard_filters"],
+        "properties": {
+          "tone": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200
+          },
+          "key_messages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
+          "do_list": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
+          "dont_list": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
+          "reference_links": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            }
+          },
+          "brief_source_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 500
+          },
+          "brief_source_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "brief_pdf_s3_key": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "icp_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "icp_age_min": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 120
+          },
+          "icp_age_max": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 120
+          },
+          "icp_genders": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 50
+            }
+          },
+          "icp_countries": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 2
+            }
+          },
+          "icp_platforms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 50
+            }
+          },
+          "icp_interests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          "scoring_dimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefScoringDimension"
+            }
+          },
+          "hard_filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefHardFilter"
+            }
+          },
+          "disqualifiers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
+        }
+      },
+      "CreateCampaignRequest": {
+        "type": "object",
+        "required": [
+          "brand_workspace_id",
+          "name",
+          "objective",
+          "budget_amount",
+          "budget_currency",
+          "brief"
+        ],
+        "properties": {
+          "brand_workspace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 150
+          },
+          "objective": {
+            "type": "string",
+            "enum": ["brand_awareness", "conversion", "engagement", "reach"]
+          },
+          "budget_amount": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "budget_currency": {
+            "type": "string",
+            "maxLength": 3
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "brief": {
+            "$ref": "#/components/schemas/CampaignBriefInput"
+          }
+        }
+      },
+      "CreateCampaignResponse": {
+        "type": "object",
+        "required": ["campaign_id", "status", "created_at", "brief"],
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "brief": {
+            "$ref": "#/components/schemas/CampaignBriefResponse"
+          }
+        }
+      },
+      "CampaignBriefResponse": {
+        "type": "object",
+        "required": [
+          "campaign_id",
+          "brief_source_url",
+          "scoring_dimensions",
+          "hard_filters"
+        ],
+        "properties": {
+          "campaign_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tone": {
+            "type": "string",
+            "nullable": true
+          },
+          "key_messages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "do_list": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dont_list": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reference_links": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "brief_source_url": {
+            "type": "string"
+          },
+          "brief_source_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "brief_pdf_s3_key": {
+            "type": "string",
+            "nullable": true
+          },
+          "icp_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "icp_age_min": {
+            "type": "integer",
+            "nullable": true
+          },
+          "icp_age_max": {
+            "type": "integer",
+            "nullable": true
+          },
+          "icp_genders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "icp_countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "icp_platforms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "icp_interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scoring_dimensions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefScoringDimension"
+            }
+          },
+          "hard_filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefHardFilter"
+            }
+          },
+          "disqualifiers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateTestAccountRequest": {
+        "type": "object",
+        "required": ["clerk_user_id", "email", "full_name"],
+        "properties": {
+          "clerk_user_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "full_name": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "SetTestOnboardingRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/OnboardingStatus"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/AccountKind"
           }
         }
       }
