@@ -33,5 +33,11 @@ export const Route = createFileRoute(
 
 function ConversationRoute() {
   const { conversationId } = Route.useParams()
-  return <ConversationView conversationId={conversationId} />
+  const { accountId } = Route.useRouteContext()
+  return (
+    <ConversationView
+      conversationId={conversationId}
+      currentAccountId={accountId}
+    />
+  )
 }

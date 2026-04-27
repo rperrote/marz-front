@@ -68,7 +68,7 @@ export const Route = createFileRoute('/workspace')({
       throw redirect({ to: '/auth' })
     }
 
-    return { accountKind: me.kind }
+    return { accountKind: me.kind, accountId: me.id }
   },
   component: WorkspaceLayoutRoute,
 })

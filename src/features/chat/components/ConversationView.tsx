@@ -1,22 +1,43 @@
-import { t } from '@lingui/core/macro'
+import { useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 import {
   useConversationDetailQuery,
   useMessagesInfiniteQuery,
 } from '#/features/chat/queries'
+import { useChatWsListeners } from '#/features/chat/ws/useChatWsListeners'
+import { handleMessageCreated } from '#/features/chat/ws/messageCreatedHandler'
 
 import { ConversationHeader } from './ConversationHeader'
 import { EmptyConversationFallback } from './EmptyConversationFallback'
+import { MessageTimeline } from './MessageTimeline'
+import { MessageComposer } from './MessageComposer'
 
 interface ConversationViewProps {
   conversationId: string
+  currentAccountId: string
 }
 
-export function ConversationView({ conversationId }: ConversationViewProps) {
+export function ConversationView({
+  conversationId,
+  currentAccountId,
+}: ConversationViewProps) {
+  const queryClient = useQueryClient()
   const detailQuery = useConversationDetailQuery(conversationId)
 
-  // Prefetch messages alongside detail
   useMessagesInfiniteQuery(conversationId)
+
+  const onMessageCreated = useCallback(
+    (envelope: Parameters<typeof handleMessageCreated>[1]) => {
+      handleMessageCreated(queryClient, envelope, currentAccountId)
+    },
+    [queryClient, currentAccountId],
+  )
+
+  useChatWsListeners(conversationId, {
+    enabled: true,
+    onMessageCreated,
+  })
 
   if (detailQuery.isLoading) {
     return <ConversationViewSkeleton />
@@ -35,21 +56,16 @@ export function ConversationView({ conversationId }: ConversationViewProps) {
     <div className="flex h-full flex-col">
       <ConversationHeader conversation={conversation} />
 
-      {/* Timeline placeholder — wired in F.4 */}
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-muted-foreground">
-          {t`Timeline de mensajes`}
-        </p>
-      </div>
+      <MessageTimeline
+        conversationId={conversationId}
+        currentAccountId={currentAccountId}
+      />
 
-      {/* Composer placeholder — wired in F.5 */}
-      <div className="flex shrink-0 items-center border-t border-border px-5 py-3">
-        <div className="flex h-10 flex-1 items-center rounded-full border border-border bg-background px-4">
-          <span className="text-sm text-muted-foreground">
-            {t`Escribí un mensaje...`}
-          </span>
-        </div>
-      </div>
+      <MessageComposer
+        conversationId={conversationId}
+        currentAccountId={currentAccountId}
+        canSend={conversation.can_send}
+      />
     </div>
   )
 }
