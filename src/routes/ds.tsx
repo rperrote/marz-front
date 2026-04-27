@@ -949,12 +949,29 @@ function ReusableSection() {
       >
         <div className="max-w-md">
           <RequestChangesCard
-            intro="The video looks good overall but we need:"
-            changes={[
-              'Product placement more prominent in intro',
-              'Add discount code overlay at 2:15',
-            ]}
-            closing="Can you revise and resubmit?"
+            message={{
+              id: 'msg-rc-1',
+              author_account_id: 'acc-brand',
+              event_type: 'ChangesRequested',
+              payload: {
+                event_type: 'ChangesRequested',
+                deliverable_id: 'del-1',
+                deliverable_platform: 'youtube',
+                deliverable_format: 'long_form',
+                deliverable_offer_stage_id: null,
+                draft_id: 'draft-1',
+                draft_version: 1,
+                draft_thumbnail_url: null,
+                categories: ['product_placement', 'audio'],
+                notes:
+                  'Product placement more prominent in intro. Add discount code overlay at 2:15.',
+                requested_at: '2026-04-27T12:00:00Z',
+                requested_by_account_id: 'acc-brand',
+              },
+              created_at: '2026-04-27T12:00:00Z',
+            }}
+            currentAccountId="acc-brand"
+            counterpartDisplayName="María García"
           />
         </div>
       </ShowcaseGroup>

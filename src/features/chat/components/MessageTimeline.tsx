@@ -24,6 +24,7 @@ import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
 import { OfferTimelineEntry } from '#/features/offers/components/OfferTimelineEntry'
 import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
 import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
+import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
 
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
@@ -144,6 +145,18 @@ export function MessageTimeline({
         if (message.event_type === 'DraftApproved') {
           return (
             <DraftApprovedCard
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+            />
+          )
+        }
+
+        if (message.event_type === 'ChangesRequested') {
+          return (
+            <RequestChangesCard
               message={message}
               currentAccountId={currentAccountId}
               counterpartDisplayName={

@@ -77,9 +77,8 @@ Frames Pencil: `a4UgN`/`txulr` (brand post-send card outgoing), `nK6FB`/`H2DA6` 
 - [ ] Validación visual Pencil ≥95% contra `a4UgN`, `txulr`, `nK6FB`, `H2DA6`, `BIuqZ`, `y54vb`, `Xu3OI` (light + dark).
 
 ## Done summary
-
-_Pendiente de implementación._
-
+Round limpio. Los issues del round anterior están resueltos. formatMessageDateTime centraliza y fija el locale. Guards de extractSnapshot correctos. Lógica isStale con fallback a snapshot.version es correcta y está testeada. showRequestChangesButton acotado a draft_submitted. aria-describedby + sr-only tooltip accesible. ChangeCategoryChip readOnly semánticamente correcto. Tests cubren todos los paths críticos.
 ## Evidence
-
-_Pendiente de implementación._
+- Commits:
+- Tests:
+- PRs:

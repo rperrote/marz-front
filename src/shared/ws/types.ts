@@ -96,6 +96,21 @@ export interface DraftApprovedSnapshot {
   approved_by_account_id: string
 }
 
+export interface ChangesRequestedSnapshot {
+  event_type: 'ChangesRequested'
+  deliverable_id: string
+  deliverable_platform: string
+  deliverable_format: string
+  deliverable_offer_stage_id: string | null
+  draft_id: string
+  draft_version: number
+  draft_thumbnail_url: string | null
+  categories: string[]
+  notes: string | null
+  requested_at: string
+  requested_by_account_id: string
+}
+
 export interface DraftSubmittedWSPayload {
   conversation_id: string
   deliverable_id: string
@@ -112,6 +127,15 @@ export interface DraftApprovedWSPayload {
   version: number
   message_id: string
   snapshot: DraftApprovedSnapshot
+}
+
+export interface ChangesRequestedWSPayload {
+  conversation_id: string
+  deliverable_id: string
+  draft_id: string
+  version: number
+  message_id: string
+  snapshot: ChangesRequestedSnapshot
 }
 
 export interface DeliverableChangedWSPayload {
@@ -160,6 +184,9 @@ export type DomainWsEvent =
     })
   | (DomainEventEnvelope<DraftApprovedWSPayload> & {
       event_type: 'draft.approved'
+    })
+  | (DomainEventEnvelope<ChangesRequestedWSPayload> & {
+      event_type: 'changes.requested'
     })
   | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
       event_type: 'deliverable.changed'

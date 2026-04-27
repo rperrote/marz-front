@@ -42,6 +42,7 @@ interface RequestChangesModalProps {
   inline?: boolean
   onClose?: () => void
   onSubmitted?: () => void
+  trigger?: React.ReactNode
 }
 
 export function RequestChangesModal({
@@ -56,6 +57,7 @@ export function RequestChangesModal({
   inline = false,
   onClose,
   onSubmitted,
+  trigger,
 }: RequestChangesModalProps) {
   const isReal = deliverableId != null && draftId != null
 
@@ -295,7 +297,7 @@ export function RequestChangesModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline">{triggerLabel}</Button>
+        {trigger ?? <Button variant="outline">{triggerLabel}</Button>}
       </DialogTrigger>
       <DialogContent className="max-w-xl">
         <DialogTitle className="sr-only">{title}</DialogTitle>

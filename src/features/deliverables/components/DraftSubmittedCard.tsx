@@ -2,10 +2,13 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Upload, Film, Timer } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
+import { Button } from '#/components/ui/button'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import { formatMessageDateTime } from '#/shared/ui/formatMessageDateTime'
 import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
 import { InlineVideoPlayer } from './InlineVideoPlayer'
 import { ApproveDraftButton } from './ApproveDraftButton'
+import { RequestChangesModal } from './RequestChangesModal'
 import { trackDraftSubmittedCardSeen } from '#/features/deliverables/analytics'
 import type { DraftTimelineMessage } from '../types'
 import type { DraftSubmittedSnapshot } from '#/shared/ws/types'
@@ -94,10 +97,21 @@ export function DraftSubmittedCard({
 
   const isBrand = sessionKind === 'brand'
 
-  const currentVersion =
+  const deliverable =
     deliverablesQuery.data?.deliverables.find(
       (d) => d.id === snapshot.deliverable_id,
-    )?.current_version ?? null
+    ) ?? null
+
+  const currentVersion = deliverable?.current_version ?? null
+  const deliverableStatus = deliverable?.status ?? null
+
+  const resolvedCurrentVersion = currentVersion ?? snapshot.version
+  const isStale = snapshot.version !== resolvedCurrentVersion
+
+  // RAFITA:BLOCKER: ServerMeBody / MeResponse no expone membership.role todavía.
+  // Cuando esté disponible, agregar chequeo de viewer_role === 'owner'.
+  const showRequestChangesButton =
+    isBrand && deliverableStatus === 'draft_submitted'
 
   const isCurrentUser = snapshot.submitted_by_account_id === currentAccountId
   const submitterName = isCurrentUser ? t`Tú` : counterpartDisplayName || ''
@@ -120,7 +134,7 @@ export function DraftSubmittedCard({
             <span className="font-medium text-foreground">{submitterName}</span>
             <span className="text-muted-foreground">·</span>
             <span className="text-muted-foreground">
-              {new Date(message.created_at).toLocaleString()}
+              {formatMessageDateTime(message.created_at)}
             </span>
           </div>
 
@@ -155,13 +169,55 @@ export function DraftSubmittedCard({
           )}
 
           {isBrand && (
-            <ApproveDraftButton
-              deliverableId={snapshot.deliverable_id}
-              conversationId={conversationId}
-              version={snapshot.version}
-              currentVersion={currentVersion}
-              draftId={snapshot.draft_id}
-            />
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <ApproveDraftButton
+                  deliverableId={snapshot.deliverable_id}
+                  conversationId={conversationId}
+                  version={snapshot.version}
+                  currentVersion={currentVersion}
+                  draftId={snapshot.draft_id}
+                />
+              </div>
+              {showRequestChangesButton && (
+                <div className="relative flex-1">
+                  {isStale ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="w-full opacity-50"
+                        disabled
+                        aria-describedby={`request-changes-tooltip-${snapshot.deliverable_id}`}
+                      >
+                        {t`Request changes`}
+                      </Button>
+                      <span
+                        id={`request-changes-tooltip-${snapshot.deliverable_id}`}
+                        role="tooltip"
+                        className="sr-only"
+                      >
+                        {t`A newer version was submitted`}
+                      </span>
+                    </>
+                  ) : (
+                    <RequestChangesModal
+                      title={t`Request changes`}
+                      deliverableId={snapshot.deliverable_id}
+                      draftId={snapshot.draft_id}
+                      playbackUrl={snapshot.playback_url}
+                      thumbnailUrl={snapshot.thumbnail_url ?? undefined}
+                      durationSec={snapshot.duration_sec ?? undefined}
+                      aspect={deriveAspect(snapshot.deliverable_format)}
+                      trigger={
+                        <Button variant="outline" className="w-full">
+                          {t`Request changes`}
+                        </Button>
+                      }
+                    />
+                  )}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </SystemEventCard>
