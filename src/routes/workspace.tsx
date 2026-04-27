@@ -1,4 +1,11 @@
-import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useNavigate,
+  useParams,
+} from '@tanstack/react-router'
+import { useCallback } from 'react'
 
 import { track } from '#/shared/analytics/track'
 import { getMeQueryKey } from '#/shared/api/generated/accounts/accounts'
@@ -10,14 +17,14 @@ import { CreatorShell } from '#/features/identity/components/CreatorShell'
 import { ConversationRail } from '#/features/chat/workspace/ConversationRail'
 import { WorkspaceLayout } from '#/features/chat/workspace/WorkspaceLayout'
 import {
-  brandWorkspaceSearchSchema,
+  workspaceSearchSchema,
   creatorWorkspaceSearchSchema,
 } from '#/features/chat/workspace/workspaceSearchSchema'
 
 const STALE_TIME = 30_000
 
 export const Route = createFileRoute('/workspace')({
-  validateSearch: brandWorkspaceSearchSchema,
+  validateSearch: workspaceSearchSchema,
   beforeLoad: async ({ context, location }) => {
     const { queryClient } = context
 
@@ -84,9 +91,37 @@ function WorkspaceLayoutRoute() {
 
   const Shell = accountKind === 'brand' ? BrandShell : CreatorShell
 
+  const navigate = useNavigate()
+
+  const { conversationId: activeConversationId } = useParams({
+    strict: false,
+    select: (params) => ({
+      conversationId: (params as { conversationId?: string }).conversationId,
+    }),
+  })
+
+  const handleSelectConversation = useCallback(
+    (conversationId: string) => {
+      void navigate({
+        to: '/workspace/conversations/$conversationId',
+        params: { conversationId },
+        search: rawSearch,
+      })
+    },
+    [navigate, rawSearch],
+  )
+
   return (
     <Shell>
-      <WorkspaceLayout rail={<ConversationRail search={search} />}>
+      <WorkspaceLayout
+        rail={
+          <ConversationRail
+            search={search}
+            activeConversationId={activeConversationId}
+            onSelectConversation={handleSelectConversation}
+          />
+        }
+      >
         <Outlet />
       </WorkspaceLayout>
     </Shell>

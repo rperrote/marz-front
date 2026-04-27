@@ -21,6 +21,8 @@ import type { TimelineItem } from '../utils/groupByDay'
 import { groupByDay } from '../utils/groupByDay'
 
 import { DaySeparator } from './DaySeparator'
+import { EventBubble } from './EventBubble'
+import type { EventSeverity } from './EventBubble'
 import { MessageBubble } from './MessageBubble'
 
 // react-virtuoso chosen over @tanstack/react-virtual: built-in reverse list mode,
@@ -116,7 +118,25 @@ export function MessageTimeline({
       }
 
       const message = item.message
-      if (message.type !== 'text' || !message.text_content) {
+
+      if (message.type === 'system_event') {
+        const label =
+          (message.payload?.['display_text'] as string | undefined) ??
+          message.event_type ??
+          t`Evento del sistema`
+        return (
+          <div className="flex justify-center py-1">
+            <EventBubble
+              severity={resolveEventSeverity(message.event_type)}
+              direction="out"
+            >
+              {label}
+            </EventBubble>
+          </div>
+        )
+      }
+
+      if (!message.text_content) {
         return null
       }
 
@@ -167,6 +187,25 @@ export function MessageTimeline({
       />
     </div>
   )
+}
+
+const EVENT_SEVERITY_MAP: Record<string, EventSeverity> = {
+  offer_accepted: 'success',
+  offer_completed: 'success',
+  deliverable_approved: 'success',
+  payment_released: 'success',
+  offer_rejected: 'destructive',
+  offer_cancelled: 'destructive',
+  deliverable_rejected: 'destructive',
+  offer_sent: 'info',
+  deliverable_submitted: 'info',
+  offer_expired: 'warning',
+  revision_requested: 'warning',
+}
+
+function resolveEventSeverity(eventType: string | null): EventSeverity {
+  if (!eventType) return 'info'
+  return EVENT_SEVERITY_MAP[eventType] ?? 'info'
 }
 
 function ConversationBeginningPill() {

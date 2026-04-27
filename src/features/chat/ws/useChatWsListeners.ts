@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 
 import { useWebSocket } from '#/shared/ws/useWebSocket'
+import { useTypingStore } from '#/features/chat/stores/typingStore'
 import type { ChatWsHandlers } from './types'
 import { buildChatHandlers } from './listeners'
 
@@ -49,6 +50,14 @@ export function useChatWsListeners(
     handlers: stableHandlers,
     enabled,
   })
+
+  const clearAllTyping = useTypingStore((s) => s.clearAll)
+
+  useEffect(() => {
+    if (status === 'closed') {
+      clearAllTyping()
+    }
+  }, [status, clearAllTyping])
 
   useEffect(() => {
     if (status !== 'open') return
