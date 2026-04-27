@@ -1,181 +1,443 @@
-import { Plus, Trash2, X as XIcon, Zap } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useState, useMemo } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { t } from '@lingui/core/macro'
+import { z } from 'zod'
+import { toast } from 'sonner'
 
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from '#/components/ui/sheet'
 import { Button } from '#/components/ui/button'
-import { Label } from '#/components/ui/label'
-import { Switch } from '#/components/ui/switch'
-import { IconButton } from '#/shared/ui/IconButton'
+import { useAppForm, applyBackendFieldErrors } from '#/shared/ui/form'
+import { ApiError } from '#/shared/api/mutator'
 
-import { BundlePlatformRow } from './BundlePlatformRow'
-import { DeadlineField } from './DeadlineField'
-import { OfferTypeChooser } from './OfferTypeChooser'
-import type { OfferType } from './OfferTypeChooser'
-import { StageEditor } from './StageEditor'
-import { SummaryTotalRow } from './SummaryTotalRow'
+import { useSendOfferSheetStore } from '../store/sendOfferSheetStore'
+import { useActiveCampaigns } from '../hooks/useActiveCampaigns'
+import { useCreateSingleOffer } from '../hooks/useCreateSingleOffer'
+import { SpeedBonusFields } from './SpeedBonusFields'
+import { DeliverableSummaryRow } from './DeliverableSummaryRow'
 
-/**
- * Full send-offer form. Mode determines which body the form shows:
- *   - single: main platform + replica chips + budget/deadline + speed bonus
- *   - bundle: list of per-platform rows with total + deadline + speed bonus
- *   - multistage: list of StageEditors + campaign total
- *
- * The DS preview uses mock state; wiring to a real form/store lands with the
- * send-offer feature.
- */
+function todayString(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function getPlatformOptions() {
+  return [
+    { value: 'youtube', label: t`YouTube` },
+    { value: 'instagram', label: t`Instagram` },
+    { value: 'tiktok', label: t`TikTok` },
+  ] as const
+}
+
+function getFormatOptionsByPlatform(): Record<
+  string,
+  Array<{ value: string; label: string }>
+> {
+  return {
+    youtube: [
+      { value: 'yt_long', label: t`Long Video` },
+      { value: 'yt_short', label: t`Short` },
+    ],
+    instagram: [
+      { value: 'ig_reel', label: t`Reel` },
+      { value: 'ig_story', label: t`Story` },
+      { value: 'ig_post', label: t`Post` },
+    ],
+    tiktok: [{ value: 'tiktok_post', label: t`Post` }],
+  }
+}
+
+function createSendOfferSchemas() {
+  const sendOfferBaseSchema = z.object({
+    campaign_id: z.string().min(1, t`Select a campaign`),
+    platform: z.enum(['youtube', 'instagram', 'tiktok'], {
+      error: t`Select a platform`,
+    }),
+    format: z.enum(
+      ['yt_long', 'yt_short', 'ig_reel', 'ig_story', 'ig_post', 'tiktok_post'],
+      { error: t`Select a format` },
+    ),
+    amount: z
+      .string()
+      .min(1, t`Enter an amount`)
+      .regex(/^\d+\.\d{2}$/, t`Use format 0.00`)
+      .refine((v) => parseFloat(v) > 0, t`Amount must be greater than 0`),
+    deadline: z
+      .string()
+      .min(1, t`Select a deadline`)
+      .refine((v) => v > todayString(), t`Deadline must be a future date`),
+    speed_bonus_enabled: z.boolean(),
+    speed_bonus: z
+      .object({
+        early_deadline: z.string(),
+        bonus_amount: z.string(),
+      })
+      .nullable(),
+  })
+
+  const sendOfferSubmitSchema = sendOfferBaseSchema
+    .refine(
+      (data) => {
+        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
+        return (
+          data.speed_bonus.early_deadline.length > 0 &&
+          data.speed_bonus.early_deadline > todayString()
+        )
+      },
+      {
+        message: t`Early deadline must be a future date`,
+        path: ['speed_bonus', 'early_deadline'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
+        return data.speed_bonus.early_deadline < data.deadline
+      },
+      {
+        message: t`Early deadline must be before the deadline`,
+        path: ['speed_bonus', 'early_deadline'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
+        const amount = parseFloat(data.speed_bonus.bonus_amount)
+        return !isNaN(amount) && amount > 0
+      },
+      {
+        message: t`Bonus amount must be greater than 0`,
+        path: ['speed_bonus', 'bonus_amount'],
+      },
+    )
+
+  return { sendOfferBaseSchema, sendOfferSubmitSchema }
+}
+
 interface SendOfferSidesheetProps {
   creatorName: string
-  mode: OfferType
-  onChangeMode?: (mode: OfferType) => void
-  onCancel?: () => void
-  onSubmit?: () => void
-  children: ReactNode
 }
 
-export function SendOfferSidesheet({
-  creatorName,
-  mode,
-  onChangeMode,
-  onCancel,
-  onSubmit,
-  children,
-}: SendOfferSidesheetProps) {
-  return (
-    <div className="flex max-w-xl flex-col rounded-2xl border border-border bg-card">
-      <header className="flex items-start justify-between gap-4 border-b border-border p-5">
-        <div>
-          <h2 className="text-2xl font-semibold text-foreground">Send Offer</h2>
-          <p className="text-sm text-muted-foreground">To {creatorName}</p>
-        </div>
-        <IconButton shape="circle" aria-label="Close" onClick={onCancel}>
-          <XIcon />
-        </IconButton>
-      </header>
-
-      <div className="space-y-5 p-5">
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Offer Type</Label>
-          <OfferTypeChooser value={mode} onChange={onChangeMode} />
-        </div>
-
-        {children}
-      </div>
-
-      <footer className="flex items-center justify-end gap-3 border-t border-border p-5">
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={onSubmit}>Send Offer</Button>
-      </footer>
-    </div>
-  )
+const defaultValues = {
+  campaign_id: '',
+  platform: '' as '' | 'youtube' | 'instagram' | 'tiktok',
+  format: '',
+  amount: '',
+  deadline: '',
+  speed_bonus_enabled: false,
+  speed_bonus: null as {
+    early_deadline: string
+    bonus_amount: string
+  } | null,
 }
 
-export interface SpeedBonusTier {
-  id: string
-  /** Within N units. */
-  value: number
-  unit: 'hours' | 'days'
-  /** Reward mode: percent of budget or absolute amount. */
-  mode: 'percent' | 'amount'
-  amount: number
-}
+export function SendOfferSidesheet({ creatorName }: SendOfferSidesheetProps) {
+  const { isOpen, conversationId, close } = useSendOfferSheetStore()
+  const campaignsQuery = useActiveCampaigns()
+  const mutation = useCreateSingleOffer()
+  const [backendBanner, setBackendBanner] = useState<string | null>(null)
 
-export function SpeedBonusBlock({
-  enabled,
-  onToggle,
-  tiers,
-  onAddTier,
-  onRemoveTier,
-}: {
-  enabled: boolean
-  onToggle?: (enabled: boolean) => void
-  tiers: Array<SpeedBonusTier>
-  onAddTier?: () => void
-  onRemoveTier?: (id: string) => void
-}) {
-  return (
-    <section className="rounded-2xl bg-muted p-4">
-      <header className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Zap className="size-5 text-warning" />
-          <span className="text-base font-semibold text-foreground">
-            Speed Bonus
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">
-            Reward faster delivery
-          </span>
-          <Switch checked={enabled} onCheckedChange={onToggle} />
-        </div>
-      </header>
+  const campaigns = campaignsQuery.data ?? []
+  const hasCampaigns = campaigns.length > 0
 
-      {enabled ? (
-        <div className="mt-3 space-y-2">
-          {tiers.map((tier) => (
-            <TierRow
-              key={tier.id}
-              tier={tier}
-              onRemove={() => onRemoveTier?.(tier.id)}
-            />
-          ))}
-          <button
-            type="button"
-            onClick={onAddTier}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border py-2.5 text-sm text-muted-foreground hover:bg-surface-hover"
-          >
-            <Plus className="size-4" />
-            Add bonus tier
-          </button>
-        </div>
-      ) : null}
-    </section>
-  )
-}
+  const { sendOfferBaseSchema, sendOfferSubmitSchema } =
+    createSendOfferSchemas()
 
-function TierRow({
-  tier,
-  onRemove,
-}: {
-  tier: SpeedBonusTier
-  onRemove?: () => void
-}) {
-  const reward =
-    tier.mode === 'percent' ? `+ ${tier.amount}%` : `+$ ${tier.amount}`
-  return (
-    <div className="flex items-center gap-3 rounded-full bg-background px-3 py-1.5">
-      <span className="text-sm text-muted-foreground">Within</span>
-      <span className="rounded-full bg-muted px-2.5 py-1 font-mono text-sm font-semibold text-foreground">
-        {tier.value}
-      </span>
-      <span className="text-sm text-muted-foreground">{tier.unit}</span>
-      <div className="ml-auto flex items-center gap-1 rounded-full bg-muted p-1">
-        <ModeToggle active={tier.mode === 'percent'} label="%" />
-        <ModeToggle active={tier.mode === 'amount'} label="$" />
-      </div>
-      <span className="font-mono text-sm font-semibold text-success">
-        {reward}
-      </span>
-      <IconButton size="sm" aria-label="Remove tier" onClick={onRemove}>
-        <Trash2 />
-      </IconButton>
-    </div>
-  )
-}
+  const platformOptions = getPlatformOptions()
+  const formatOptionsByPlatform = getFormatOptionsByPlatform()
 
-function ModeToggle({ active, label }: { active: boolean; label: string }) {
-  return (
-    <span
-      className={
-        active
-          ? 'flex size-6 items-center justify-center rounded-full bg-background font-mono text-xs font-semibold'
-          : 'flex size-6 items-center justify-center rounded-full font-mono text-xs text-muted-foreground'
+  const form = useAppForm({
+    defaultValues,
+    validators: {
+      onChange: sendOfferBaseSchema,
+      onSubmit: sendOfferSubmitSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (!conversationId) return
+      setBackendBanner(null)
+
+      const payload = {
+        campaign_id: value.campaign_id,
+        conversation_id: conversationId,
+        platform: value.platform as 'youtube' | 'instagram' | 'tiktok',
+        format: value.format as
+          | 'yt_long'
+          | 'yt_short'
+          | 'ig_reel'
+          | 'ig_story'
+          | 'ig_post'
+          | 'tiktok_post',
+        amount: value.amount,
+        deadline: value.deadline,
+        speed_bonus:
+          value.speed_bonus_enabled && value.speed_bonus
+            ? {
+                early_deadline: value.speed_bonus.early_deadline,
+                bonus_amount: value.speed_bonus.bonus_amount,
+              }
+            : undefined,
       }
+
+      try {
+        await mutation.mutateAsync(payload)
+        handleClose()
+        toast.success(t`Offer sent`)
+      } catch (error) {
+        if (error instanceof ApiError && error.code === 'campaign_not_active') {
+          setBackendBanner(t`This campaign is no longer active`)
+          return
+        }
+        applyBackendFieldErrors(form, error, {
+          fallback: (msg) => toast.error(msg),
+        })
+      }
+    },
+  })
+
+  const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
+  const selectedPlatform = useStore(form.store, (s) => s.values.platform)
+  const amountValue = useStore(form.store, (s) => s.values.amount)
+  const speedBonusEnabled = useStore(
+    form.store,
+    (s) => s.values.speed_bonus_enabled,
+  )
+  const speedBonusValues = useStore(form.store, (s) => s.values.speed_bonus)
+
+  const selectedCampaign = useMemo(
+    () => campaigns.find((c) => c.id === selectedCampaignId),
+    [campaigns, selectedCampaignId],
+  )
+
+  const currency = selectedCampaign?.budget_currency ?? 'USD'
+  const budgetRemaining = selectedCampaign
+    ? parseFloat(selectedCampaign.budget_remaining)
+    : Infinity
+
+  const parsedAmount = parseFloat(amountValue) || 0
+  const parsedBonus =
+    speedBonusEnabled && speedBonusValues
+      ? parseFloat(speedBonusValues.bonus_amount) || 0
+      : 0
+  const totalAmount = parsedAmount + parsedBonus
+  const exceedsBudget =
+    isFinite(budgetRemaining) && parsedAmount > budgetRemaining
+
+  const campaignOptions = campaigns.map((c) => ({
+    value: c.id,
+    label: c.name,
+  }))
+
+  const currentFormatOptions = selectedPlatform
+    ? (formatOptionsByPlatform[selectedPlatform] ?? [])
+    : []
+
+  function handleSpeedBonusToggle(enabled: boolean) {
+    form.setFieldValue('speed_bonus_enabled', enabled)
+    if (enabled) {
+      form.setFieldValue('speed_bonus', {
+        early_deadline: '',
+        bonus_amount: '',
+      })
+    } else {
+      form.setFieldValue('speed_bonus', null)
+    }
+  }
+
+  function handleClose() {
+    form.reset()
+    setBackendBanner(null)
+    close()
+  }
+
+  return (
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) handleClose()
+      }}
     >
-      {label}
-    </span>
+      <SheetContent
+        side="right"
+        showCloseButton={false}
+        className="flex h-full w-full flex-col sm:max-w-lg"
+      >
+        <SheetTitle className="sr-only">{t`Send Offer`}</SheetTitle>
+        <SheetDescription className="sr-only">
+          {t`Send an offer to ${creatorName}`}
+        </SheetDescription>
+
+        {campaignsQuery.isError ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+            <p className="text-center text-sm text-destructive">
+              {t`Failed to load campaigns. Please try again.`}
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => void campaignsQuery.refetch()}
+            >
+              {t`Retry`}
+            </Button>
+          </div>
+        ) : !hasCampaigns && !campaignsQuery.isLoading ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+            <p className="text-center text-sm text-muted-foreground">
+              {t`You don't have any active campaigns. Create a campaign first to send offers.`}
+            </p>
+            <Button variant="outline" onClick={handleClose}>
+              {t`Close`}
+            </Button>
+          </div>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              void form.handleSubmit()
+            }}
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            <header className="flex items-start justify-between gap-4 border-b border-border p-5">
+              <div>
+                <h2 className="text-2xl font-semibold text-foreground">
+                  {t`Send Offer`}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {t`To ${creatorName}`}
+                </p>
+              </div>
+            </header>
+
+            <div className="flex-1 space-y-5 overflow-y-auto p-5">
+              {backendBanner ? (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
+                >
+                  {backendBanner}
+                </div>
+              ) : null}
+
+              <form.AppField name="campaign_id">
+                {(field) => (
+                  <field.SelectField
+                    label={t`Campaign`}
+                    placeholder={t`Select a campaign`}
+                    options={campaignOptions}
+                  />
+                )}
+              </form.AppField>
+
+              {selectedCampaign ? (
+                <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+                  <span>{t`Currency`}:</span>
+                  <span className="font-semibold text-foreground">
+                    {currency}
+                  </span>
+                </div>
+              ) : null}
+
+              <form.AppField
+                name="platform"
+                listeners={{
+                  onChange: () => {
+                    form.setFieldValue('format', '')
+                  },
+                }}
+              >
+                {(field) => (
+                  <field.SelectField
+                    label={t`Platform`}
+                    placeholder={t`Select a platform`}
+                    options={[...platformOptions]}
+                  />
+                )}
+              </form.AppField>
+
+              <form.AppField name="format">
+                {(field) => (
+                  <field.SelectField
+                    label={t`Format`}
+                    placeholder={t`Select a format`}
+                    options={currentFormatOptions}
+                  />
+                )}
+              </form.AppField>
+
+              <form.AppField name="amount">
+                {(field) => (
+                  <field.TextField
+                    label={t`Amount (${currency})`}
+                    placeholder="0.00"
+                    inputMode="decimal"
+                  />
+                )}
+              </form.AppField>
+
+              {exceedsBudget ? (
+                <p className="text-sm text-warning" aria-live="polite">
+                  {t`This amount exceeds the campaign's remaining budget (${currency} ${selectedCampaign?.budget_remaining ?? '0.00'})`}
+                </p>
+              ) : null}
+
+              <form.AppField name="deadline">
+                {(field) => (
+                  <field.TextField
+                    label={t`Deadline`}
+                    type="date"
+                    min={todayString()}
+                  />
+                )}
+              </form.AppField>
+
+              <SpeedBonusFields
+                enabled={speedBonusEnabled}
+                onToggle={handleSpeedBonusToggle}
+              >
+                <form.AppField name="speed_bonus.early_deadline">
+                  {(field) => (
+                    <field.TextField
+                      label={t`Early deadline`}
+                      type="date"
+                      min={todayString()}
+                    />
+                  )}
+                </form.AppField>
+
+                <form.AppField name="speed_bonus.bonus_amount">
+                  {(field) => (
+                    <field.TextField
+                      label={t`Bonus amount (${currency})`}
+                      placeholder="0.00"
+                      inputMode="decimal"
+                    />
+                  )}
+                </form.AppField>
+              </SpeedBonusFields>
+
+              <DeliverableSummaryRow
+                label={t`Total`}
+                amount={totalAmount > 0 ? totalAmount.toFixed(2) : '0.00'}
+                currency={currency}
+                emphasis="strong"
+              />
+            </div>
+
+            <footer className="flex items-center justify-end gap-3 border-t border-border p-5">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                {t`Cancel`}
+              </Button>
+              <form.AppForm>
+                <form.SubmitButton
+                  label={t`Send Offer`}
+                  loadingLabel={t`Sending...`}
+                />
+              </form.AppForm>
+            </footer>
+          </form>
+        )}
+      </SheetContent>
+    </Sheet>
   )
 }
-
-/** Convenience exports of row primitives used to compose modes in /ds. */
-export { BundlePlatformRow, DeadlineField, StageEditor, SummaryTotalRow }

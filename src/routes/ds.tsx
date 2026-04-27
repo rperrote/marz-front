@@ -82,9 +82,9 @@ import { OfferAcceptedCard } from '#/features/offers/components/OfferAcceptedCar
 import { OfferBlock } from '#/features/offers/components/OfferBlock'
 import { OfferTypeChooser } from '#/features/offers/components/OfferTypeChooser'
 import {
-  SendOfferSidesheet,
+  SendOfferSidesheetPreview as SendOfferSidesheet,
   SpeedBonusBlock,
-} from '#/features/offers/components/SendOfferSidesheet'
+} from '#/features/offers/components/SendOfferSidesheetPreview'
 import { StageEditor } from '#/features/offers/components/StageEditor'
 import { SummaryTotalRow } from '#/features/offers/components/SummaryTotalRow'
 import { PaymentCard } from '#/features/payments/components/PaymentCard'
