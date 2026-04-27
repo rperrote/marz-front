@@ -51,8 +51,11 @@ No aplica — task de tipos/build, sin UI.
 - [ ] Diff del PR muestra solo: regenerated client + 2 ediciones manuales en `ws/`.
 
 ## Done summary
+
 Diff vacío. El dev revirtió correctamente los cambios fuera de scope (tipos WS especulativos). No hay código que revisar.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

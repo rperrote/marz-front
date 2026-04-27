@@ -71,9 +71,8 @@ Frames de referencia (Pencil): `EJfv5`, `nTTdM` (modal Request Changes light/dar
 - [ ] Validación visual Pencil ≥95% contra `EJfv5` y `nTTdM` (light + dark) con screenshots adjuntos al PR.
 
 ## Done summary
-
-_Pendiente de implementación._
-
+Todos los issues del round anterior resueltos. Labels lazy con () => t`...` correctos para i18n. useId() con derivación de IDs semánticamente correcto. role="button" eliminado del botón nativo. Mock de crypto.randomUUID con contador incremental resuelve la aserción de unicidad. 62/62 tests verdes. Sin deuda técnica introducida.
 ## Evidence
-
-_Pendiente de implementación._
+- Commits:
+- Tests:
+- PRs:
