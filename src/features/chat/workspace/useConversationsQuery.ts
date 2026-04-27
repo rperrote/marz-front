@@ -4,7 +4,7 @@ import { customFetch } from '#/shared/api/mutator'
 
 import type { ConversationListParams, ConversationListResponse } from './types'
 
-const CONVERSATIONS_QUERY_KEY = 'conversations'
+export const CONVERSATIONS_QUERY_KEY = 'conversations'
 const DEFAULT_LIMIT = 30
 const GC_TIME = 5 * 60 * 1000
 

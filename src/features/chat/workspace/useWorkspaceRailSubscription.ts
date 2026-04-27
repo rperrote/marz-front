@@ -8,8 +8,7 @@ import type { DomainEventEnvelope, EventHandler } from '#/shared/ws/events'
 import type { ConversationListResponse } from './types'
 import type { ConversationActivityPayload } from './conversationRailPatcher'
 import { applyActivityUpdate } from './conversationRailPatcher'
-
-const CONVERSATIONS_BASE_KEY = 'conversations'
+import { CONVERSATIONS_QUERY_KEY } from './useConversationsQuery'
 
 interface UseWorkspaceRailSubscriptionOptions {
   enabled?: boolean
@@ -32,7 +31,7 @@ export function useWorkspaceRailSubscription({
         if (typeof typed.payload.conversation_id !== 'string') return
         queryClientRef.current.setQueriesData<
           InfiniteData<{ data: ConversationListResponse }, string | undefined>
-        >({ queryKey: [CONVERSATIONS_BASE_KEY] }, (old) => {
+        >({ queryKey: [CONVERSATIONS_QUERY_KEY] }, (old) => {
           if (!old) return old
           return applyActivityUpdate(old, typed.payload)
         })
@@ -50,7 +49,7 @@ export function useWorkspaceRailSubscription({
   useEffect(() => {
     if (previousStatusRef.current === 'closed' && status === 'open') {
       queryClientRef.current.invalidateQueries({
-        queryKey: [CONVERSATIONS_BASE_KEY],
+        queryKey: [CONVERSATIONS_QUERY_KEY],
       })
     }
     previousStatusRef.current = status
@@ -61,7 +60,7 @@ export function useWorkspaceRailSubscription({
 
     function handleFocus() {
       queryClientRef.current.invalidateQueries({
-        queryKey: [CONVERSATIONS_BASE_KEY],
+        queryKey: [CONVERSATIONS_QUERY_KEY],
       })
     }
 
