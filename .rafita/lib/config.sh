@@ -39,6 +39,7 @@ config::_defaults_json() {
   "closerEnabled": false,
   "closerProvider": "",
   "closerModel": "",
+  "closerSkipFinalReview": false,
   "maxFinalRounds": 3,
   "profileExtensions": {
     "dev": "",

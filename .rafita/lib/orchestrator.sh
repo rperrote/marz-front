@@ -471,6 +471,13 @@ print(json.dumps({"status":"fail","issues":[{"file":"(gates)","issue":body[:2000
     # the committed state and publish_epic can push them. Empty diff → no-op.
     git::commit_closer "$epic" "$round" || true
 
+    # Skip final review when configured (closer-only mode without reviewer).
+    if [[ "${RAFITA_CLOSER_SKIP_FINAL_REVIEW:-0}" == "1" ]]; then
+      verdict='{"status":"pass","issues":[],"summary":"closer approved (final review skipped by config)"}'
+      common::log INFO "closer loop: skipping final review (closerSkipFinalReview=true)"
+      break
+    fi
+
     export RAFITA_CURRENT_PHASE="final"
     verdict=$(phase::final_review "$epic" "$source_branch" "$tasks_csv")
     local status; status=$(common::json_get "$verdict" status)
