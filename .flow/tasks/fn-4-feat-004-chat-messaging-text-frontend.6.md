@@ -55,8 +55,11 @@ Pill flotante con corner radius generoso, sticky-bottom-center, slight shadow. T
 - [ ] Sin loops: recibir el `message.read.batch` propio NO redispara mark-read.
 
 ## Done summary
+
 DEFAULT_TOLERANCE_PX importado correctamente desde useViewportAtBottom y usado en atBottomThreshold. Elimina la duplicación del literal 50. Sin otros cambios funcionales.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

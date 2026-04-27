@@ -51,6 +51,7 @@ describe('MessageComposer', () => {
         conversationId="conv-1"
         currentAccountId="acc-1"
         canSend={true}
+        wsSend={vi.fn()}
       />,
       { wrapper: createWrapper() },
     )
@@ -69,6 +70,7 @@ describe('MessageComposer', () => {
         conversationId="conv-1"
         currentAccountId="acc-1"
         canSend={true}
+        wsSend={vi.fn()}
       />,
       { wrapper: createWrapper() },
     )
@@ -85,6 +87,7 @@ describe('MessageComposer', () => {
         conversationId="conv-1"
         currentAccountId="acc-1"
         canSend={true}
+        wsSend={vi.fn()}
       />,
       { wrapper: createWrapper() },
     )
@@ -106,6 +109,7 @@ describe('MessageComposer', () => {
         conversationId="conv-1"
         currentAccountId="acc-1"
         canSend={true}
+        wsSend={vi.fn()}
       />,
       { wrapper: createWrapper() },
     )
@@ -133,6 +137,7 @@ describe('MessageComposer', () => {
         conversationId="conv-1"
         currentAccountId="acc-1"
         canSend={false}
+        wsSend={vi.fn()}
       />,
       { wrapper: createWrapper() },
     )
@@ -148,6 +153,7 @@ describe('MessageComposer', () => {
         conversationId="conv-1"
         currentAccountId="acc-1"
         canSend={true}
+        wsSend={vi.fn()}
       />,
       { wrapper: createWrapper() },
     )

@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import {
@@ -9,6 +9,8 @@ import { useChatWsListeners } from '#/features/chat/ws/useChatWsListeners'
 import { handleMessageCreated } from '#/features/chat/ws/messageCreatedHandler'
 import { useAutoMarkRead } from '#/features/chat/hooks/useAutoMarkRead'
 import { useViewportAtBottom } from '#/features/chat/hooks/useViewportAtBottom'
+import { usePresenceStore } from '#/features/chat/stores/presenceStore'
+import { useTypingStore } from '#/features/chat/stores/typingStore'
 
 import { ConversationHeader } from './ConversationHeader'
 import { EmptyConversationFallback } from './EmptyConversationFallback'
@@ -16,6 +18,7 @@ import type { MessageTimelineHandle } from './MessageTimeline'
 import { MessageTimeline } from './MessageTimeline'
 import { MessageComposer } from './MessageComposer'
 import { NewMessagesPill } from './NewMessagesPill'
+import { TypingIndicator } from './TypingIndicator'
 
 interface ConversationViewProps {
   conversationId: string
@@ -30,6 +33,9 @@ export function ConversationView({
   const detailQuery = useConversationDetailQuery(conversationId)
   const timelineRef = useRef<MessageTimelineHandle>(null)
   const { isAtBottom, onAtBottomStateChange } = useViewportAtBottom()
+  const setPresence = usePresenceStore((s) => s.setPresence)
+  const setTyping = useTypingStore((s) => s.setTyping)
+  const clearTyping = useTypingStore((s) => s.clearTyping)
 
   useMessagesInfiniteQuery(conversationId)
 
@@ -39,17 +45,59 @@ export function ConversationView({
     isAtBottom,
   })
 
+  useEffect(() => {
+    if (!detailQuery.data) return
+    const { counterpart, presence } = detailQuery.data
+    setPresence(counterpart.id, presence.state)
+  }, [detailQuery.data, setPresence])
+
   const onMessageCreated = useCallback(
     (envelope: Parameters<typeof handleMessageCreated>[1]) => {
       handleMessageCreated(queryClient, envelope, currentAccountId)
       handleIncomingMessage(envelope.payload.author_account_id)
+      clearTyping(conversationId, envelope.payload.author_account_id)
     },
-    [queryClient, currentAccountId, handleIncomingMessage],
+    [
+      queryClient,
+      currentAccountId,
+      handleIncomingMessage,
+      clearTyping,
+      conversationId,
+    ],
   )
 
-  useChatWsListeners(conversationId, {
+  const onTypingStarted = useCallback(
+    (envelope: { payload: { actor_account_id: string } }) => {
+      setTyping(conversationId, envelope.payload.actor_account_id)
+    },
+    [conversationId, setTyping],
+  )
+
+  const onTypingStopped = useCallback(
+    (envelope: { payload: { actor_account_id: string } }) => {
+      clearTyping(conversationId, envelope.payload.actor_account_id)
+    },
+    [conversationId, clearTyping],
+  )
+
+  const onPresenceUpdated = useCallback(
+    (envelope: {
+      payload: {
+        counterpart_id: string
+        state: 'online' | 'offline' | 'disconnected'
+      }
+    }) => {
+      setPresence(envelope.payload.counterpart_id, envelope.payload.state)
+    },
+    [setPresence],
+  )
+
+  const { send: wsSend } = useChatWsListeners(conversationId, {
     enabled: true,
     onMessageCreated,
+    onTypingStarted,
+    onTypingStopped,
+    onPresenceUpdated,
   })
 
   const handlePillClick = useCallback(() => {
@@ -70,6 +118,8 @@ export function ConversationView({
     return <EmptyConversationFallback />
   }
 
+  const canSend = conversation.can_send && conversation.counterpart.is_active
+
   return (
     <div className="flex h-full flex-col">
       <ConversationHeader conversation={conversation} />
@@ -84,10 +134,15 @@ export function ConversationView({
         <NewMessagesPill count={unreadCount} onClick={handlePillClick} />
       </div>
 
+      <TypingIndicator
+        conversationId={conversationId}
+        currentAccountId={currentAccountId}
+      />
       <MessageComposer
         conversationId={conversationId}
         currentAccountId={currentAccountId}
-        canSend={conversation.can_send}
+        canSend={canSend}
+        wsSend={wsSend}
       />
     </div>
   )

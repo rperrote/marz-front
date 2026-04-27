@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { cn } from '#/lib/utils'
 import { generateClientMessageId } from '#/features/chat/utils/clientMessageId'
 import { useSendMessageMutation } from '#/features/chat/mutations/useSendMessageMutation'
+import { useTypingPing } from '#/features/chat/hooks/useTypingPing'
 
 const MAX_LENGTH = 4096
 const COUNTER_VISIBLE_THRESHOLD = 3500
@@ -20,12 +21,14 @@ interface MessageComposerProps {
   conversationId: string
   currentAccountId: string
   canSend: boolean
+  wsSend: (payload: unknown) => void
 }
 
 export function MessageComposer({
   conversationId,
   currentAccountId,
   canSend,
+  wsSend,
 }: MessageComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const labelId = useId()
@@ -33,6 +36,11 @@ export function MessageComposer({
   const counterId = useId()
 
   const mutation = useSendMessageMutation(conversationId)
+  const { ping: typingPing } = useTypingPing({
+    conversationId,
+    send: wsSend,
+    enabled: canSend,
+  })
 
   const form = useForm({
     defaultValues: { text: '' },
@@ -60,6 +68,9 @@ export function MessageComposer({
     const value = e.target.value
     if (value.length <= MAX_LENGTH) {
       form.setFieldValue('text', value)
+      if (value.trim().length > 0) {
+        typingPing()
+      }
     }
   }
 
@@ -162,7 +173,9 @@ export function MessageComposer({
           onClick={() => void form.handleSubmit()}
           disabled={isSubmitDisabled}
           aria-label={t`Enviar mensaje`}
-          title={!canSend ? t`No se puede enviar mensajes` : undefined}
+          title={
+            !canSend ? t`No se puede enviar a una cuenta inactiva` : undefined
+          }
           className={cn(
             'flex size-10 shrink-0 items-center justify-center rounded-full transition-colors',
             'bg-primary text-primary-foreground',

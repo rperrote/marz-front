@@ -71,5 +71,5 @@ export function useChatWsListeners(
     }
   }, [status, send, conversationId])
 
-  return { status }
+  return { status, send }
 }
