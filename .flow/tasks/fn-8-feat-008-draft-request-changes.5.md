@@ -54,8 +54,11 @@ No aplica — task de plomería WS.
 - [ ] `pnpm tsc --noEmit` pasa (exhaustive check del switch).
 
 ## Done summary
+
 done manual
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

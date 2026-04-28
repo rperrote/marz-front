@@ -80,8 +80,11 @@ Frame **pendiente** (Pencil): la spec marca que `DraftVersionList` no tiene fram
 - [ ] Screenshots adjuntos al PR para futura reconciliación con el frame Pencil pendiente.
 
 ## Done summary
+
 Diff limpio. DraftDTO/ChangeRequestDTO/DeliverableDTO extendidos correctamente. DraftVersionList con clasificación per-draft (approved/changes_requested/submitted) y test suite completo incluyendo axe. Lógica canUpload/isUploadDisabled en DeliverableListItem correcta — draft_submitted excluido de canUpload, mostrado como disabled. Badge de rounds condicional. UploadDraftDialog acepta title opcional. Tests de DeliverableListPanel cubren todos los nuevos paths. Fixture updates en handlers.test.ts y DraftSubmittedCard.test.tsx consistentes. MessageTimeline test para ChangesRequested presente. E2E implementados (skip a nivel describe para cuando haya backend). Core de la task (RequestChangesCard, Timeline branching, DraftSubmittedCard con botón Request changes) ya estaba implementado en rounds anteriores y está correcto.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

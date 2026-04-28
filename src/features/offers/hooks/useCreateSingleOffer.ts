@@ -50,7 +50,8 @@ interface CreateOfferResponse {
 }
 
 // RAFITA:BLOCKER: Backend dev (localhost:8080) still does not expose the extended OpenAPI spec (B.5).
-// `pnpm api:sync` ran clean but the spec contains no offer endpoints or polymorphic types.
+// `pnpm api:sync` ran clean on 2026-04-28 but the spec contains no offer endpoints or polymorphic types
+// (CreateOfferRequest, OfferDTO, OfferSnapshot, StageOpenedSnap are absent).
 // Coordinate with backend to merge the extended contract before regenerating the Orval client.
 export function useCreateSingleOffer() {
   return useMutation<CreateOfferResponse, Error, CreateSingleOfferRequest>({
