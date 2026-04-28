@@ -7,7 +7,7 @@ import { Switch } from '#/components/ui/switch'
 import { IconButton } from '#/shared/ui/IconButton'
 
 import { OfferTypeChooser } from './OfferTypeChooser'
-import type { OfferType } from './OfferTypeChooser'
+import type { OfferType } from '../store/sendOfferSheetStore'
 
 interface SendOfferSidesheetPreviewProps {
   creatorName: string

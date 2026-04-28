@@ -49,8 +49,11 @@ Regenerar el cliente API tras backend mergea OpenAPI extendido (B.5) en dev. Val
 - [ ] `openapi/spec.json` snapshot actualizado y committeado.
 
 ## Done summary
+
 Diff de una línea: comentario RAFITA:BLOCKER expandido con nombres de tipos ausentes y fecha del intento — cambio correcto y mínimo dado el blocker real de B.5
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

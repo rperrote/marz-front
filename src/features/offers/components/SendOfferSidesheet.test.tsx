@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -68,6 +68,9 @@ function renderSheet() {
   useSendOfferSheetStore.setState({
     isOpen: true,
     conversationId: 'conv-1',
+    offerType: 'single',
+    pendingOfferType: null,
+    isTypeChangeConfirmationOpen: false,
   })
   return render(<SendOfferSidesheet creatorName="Test Creator" />, {
     wrapper: createWrapper(),
@@ -89,6 +92,9 @@ beforeEach(() => {
   useSendOfferSheetStore.setState({
     isOpen: false,
     conversationId: null,
+    offerType: 'single',
+    pendingOfferType: null,
+    isTypeChangeConfirmationOpen: false,
   })
 })
 
@@ -263,6 +269,58 @@ describe('SendOfferSidesheet', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Network failure')
+      })
+    })
+  })
+
+  describe('offer type change', () => {
+    it('shows confirmation modal when changing type with data', async () => {
+      const user = userEvent.setup()
+      renderSheet()
+
+      await user.type(screen.getByLabelText(/amount/i), '1000.00')
+      await user.click(screen.getByRole('radio', { name: /bundle/i }))
+
+      expect(screen.getByText(/discard the entered data/i)).toBeInTheDocument()
+    })
+
+    it('keeps previous type and data when cancelling', async () => {
+      const user = userEvent.setup()
+      renderSheet()
+
+      const amountInput = screen.getByLabelText(/amount/i)
+      await user.type(amountInput, '1000.00')
+      await user.click(screen.getByRole('radio', { name: /bundle/i }))
+
+      const dialog = screen.getByRole('dialog')
+      await user.click(within(dialog).getByRole('button', { name: /cancel/i }))
+
+      expect(useSendOfferSheetStore.getState().offerType).toBe('single')
+      expect(amountInput).toHaveValue('1000.00')
+    })
+
+    it('resets form when type change is confirmed', async () => {
+      const user = userEvent.setup()
+      renderSheet()
+
+      await user.type(screen.getByLabelText(/amount/i), '1000.00')
+      await user.click(screen.getByRole('radio', { name: /bundle/i }))
+
+      const dialog = screen.getByRole('dialog')
+      await user.click(
+        within(dialog).getByRole('button', { name: /continue/i }),
+      )
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole('dialog', { name: /change offer type/i }),
+        ).not.toBeInTheDocument()
+      })
+
+      await user.click(screen.getByRole('radio', { name: /single/i }))
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/amount/i)).toHaveValue('')
       })
     })
   })
