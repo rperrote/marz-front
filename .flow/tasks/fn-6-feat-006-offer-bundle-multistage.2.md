@@ -56,8 +56,11 @@ Relevante DESIGN.md / tokens:
 - [ ] Store Zustand expone `offerType` y `setOfferType` con la logica de confirmacion encapsulada.
 
 ## Done summary
+
 key={offerType} en SingleEditor garantiza remount completo al cambiar tipo, resolviendo el reset del form. La máquina de estados del store es correcta y con guardas adecuados. OfferTypeChooser usa semántica HTML nativa accesible. Tests cubren los tres escenarios del flujo de confirmación.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

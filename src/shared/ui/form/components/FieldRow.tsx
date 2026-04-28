@@ -51,7 +51,8 @@ export function FieldRow({
       {error ? (
         <p
           id={errorId}
-          role="alert"
+          role="status"
+          aria-live="polite"
           className="text-[length:var(--font-size-xs)] text-destructive"
         >
           {error}

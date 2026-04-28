@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
-import { z } from 'zod'
 import { toast } from 'sonner'
+import { Plus } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
 import { useAppForm, applyBackendFieldErrors } from '#/shared/ui/form'
@@ -10,10 +10,15 @@ import { ApiError } from '#/shared/api/mutator'
 
 import { useSendOfferSheetStore } from '../store/sendOfferSheetStore'
 import { useActiveCampaigns } from '../hooks/useActiveCampaigns'
-import { useCreateSingleOffer } from '../hooks/useCreateSingleOffer'
+import { useCreateBundleOffer } from '../hooks/useCreateBundleOffer'
 import { todayString } from '../utils/dateUtils'
 import { SpeedBonusFields } from './SpeedBonusFields'
 import { DeliverableSummaryRow } from './DeliverableSummaryRow'
+import { BundlePlatformRow } from './BundlePlatformRow'
+import {
+  bundleEditorBaseSchema,
+  bundleEditorSubmitSchema,
+} from '../schemas/bundleEditor'
 
 function getPlatformOptions() {
   return [
@@ -41,103 +46,37 @@ function getFormatOptionsByPlatform(): Record<
   }
 }
 
-export function createSendOfferSchemas() {
-  const sendOfferBaseSchema = z.object({
-    campaign_id: z.string().min(1, t`Select a campaign`),
-    platform: z.enum(['youtube', 'instagram', 'tiktok'], {
-      error: t`Select a platform`,
-    }),
-    format: z.enum(
-      ['yt_long', 'yt_short', 'ig_reel', 'ig_story', 'ig_post', 'tiktok_post'],
-      { error: t`Select a format` },
-    ),
-    amount: z
-      .string()
-      .min(1, t`Enter an amount`)
-      .regex(/^\d+\.\d{2}$/, t`Use format 0.00`)
-      .refine((v) => parseFloat(v) > 0, t`Amount must be greater than 0`),
-    deadline: z
-      .string()
-      .min(1, t`Select a deadline`)
-      .refine((v) => v > todayString(), t`Deadline must be a future date`),
-    speed_bonus_enabled: z.boolean(),
-    speed_bonus: z
-      .object({
-        early_deadline: z.string(),
-        bonus_amount: z.string(),
-      })
-      .nullable(),
-  })
-
-  const sendOfferSubmitSchema = sendOfferBaseSchema
-    .refine(
-      (data) => {
-        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-        return (
-          data.speed_bonus.early_deadline.length > 0 &&
-          data.speed_bonus.early_deadline > todayString()
-        )
-      },
-      {
-        message: t`Early deadline must be a future date`,
-        path: ['speed_bonus', 'early_deadline'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-        return data.speed_bonus.early_deadline < data.deadline
-      },
-      {
-        message: t`Early deadline must be before the deadline`,
-        path: ['speed_bonus', 'early_deadline'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-        const amount = parseFloat(data.speed_bonus.bonus_amount)
-        return !isNaN(amount) && amount > 0
-      },
-      {
-        message: t`Bonus amount must be greater than 0`,
-        path: ['speed_bonus', 'bonus_amount'],
-      },
-    )
-
-  return { sendOfferBaseSchema, sendOfferSubmitSchema }
-}
-
 export const defaultValues = {
   campaign_id: '',
-  platform: '' as '' | 'youtube' | 'instagram' | 'tiktok',
-  format: '',
-  amount: '',
+  total_amount: '',
   deadline: '',
   speed_bonus_enabled: false,
-  speed_bonus: null as {
-    early_deadline: string
-    bonus_amount: string
-  } | null,
+  speed_bonus: null as { early_deadline: string; bonus_amount: string } | null,
+  deliverables: [
+    {
+      id: crypto.randomUUID() as string,
+      platform: '',
+      format: '',
+      quantity: 1,
+      amount: '',
+    },
+  ],
 }
 
-export type SendOfferFormValues = typeof defaultValues
+export type BundleEditorFormValues = typeof defaultValues
 
-interface SingleEditorProps {
+interface BundleEditorProps {
   onClose: () => void
   onDirtyChange?: (dirty: boolean) => void
 }
 
-export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
+export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
   const { conversationId } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
-  const mutation = useCreateSingleOffer()
+  const mutation = useCreateBundleOffer()
   const [backendBanner, setBackendBanner] = useState<string | null>(null)
 
   const campaigns = campaignsQuery.data ?? []
-
-  const { sendOfferBaseSchema, sendOfferSubmitSchema } =
-    createSendOfferSchemas()
 
   const platformOptions = getPlatformOptions()
   const formatOptionsByPlatform = getFormatOptionsByPlatform()
@@ -145,25 +84,18 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
   const form = useAppForm({
     defaultValues,
     validators: {
-      onChange: sendOfferBaseSchema,
-      onSubmit: sendOfferSubmitSchema,
+      onChange: bundleEditorBaseSchema,
+      onSubmit: bundleEditorSubmitSchema,
     },
     onSubmit: async ({ value }) => {
       if (!conversationId) return
       setBackendBanner(null)
 
       const payload = {
+        type: 'bundle' as const,
         campaign_id: value.campaign_id,
         conversation_id: conversationId,
-        platform: value.platform as 'youtube' | 'instagram' | 'tiktok',
-        format: value.format as
-          | 'yt_long'
-          | 'yt_short'
-          | 'ig_reel'
-          | 'ig_story'
-          | 'ig_post'
-          | 'tiktok_post',
-        amount: value.amount,
+        total_amount: value.total_amount,
         deadline: value.deadline,
         speed_bonus:
           value.speed_bonus_enabled && value.speed_bonus
@@ -172,6 +104,12 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
                 bonus_amount: value.speed_bonus.bonus_amount,
               }
             : undefined,
+        deliverables: value.deliverables.map((d) => ({
+          platform: d.platform as 'youtube' | 'instagram' | 'tiktok',
+          format: d.format,
+          quantity: d.quantity,
+          amount: d.amount.length > 0 ? d.amount : undefined,
+        })),
       }
 
       try {
@@ -197,13 +135,12 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
   }, [isDirty, onDirtyChange])
 
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
-  const selectedPlatform = useStore(form.store, (s) => s.values.platform)
-  const amountValue = useStore(form.store, (s) => s.values.amount)
   const speedBonusEnabled = useStore(
     form.store,
     (s) => s.values.speed_bonus_enabled,
   )
-  const speedBonusValues = useStore(form.store, (s) => s.values.speed_bonus)
+  const totalAmountValue = useStore(form.store, (s) => s.values.total_amount)
+  const deliverables = useStore(form.store, (s) => s.values.deliverables)
 
   const selectedCampaign = useMemo(
     () => campaigns.find((c) => c.id === selectedCampaignId),
@@ -215,23 +152,14 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
     ? parseFloat(selectedCampaign.budget_remaining)
     : Infinity
 
-  const parsedAmount = parseFloat(amountValue) || 0
-  const parsedBonus =
-    speedBonusEnabled && speedBonusValues
-      ? parseFloat(speedBonusValues.bonus_amount) || 0
-      : 0
-  const totalAmount = parsedAmount + parsedBonus
+  const parsedTotal = parseFloat(totalAmountValue) || 0
   const exceedsBudget =
-    isFinite(budgetRemaining) && parsedAmount > budgetRemaining
+    isFinite(budgetRemaining) && parsedTotal > budgetRemaining
 
   const campaignOptions = campaigns.map((c) => ({
     value: c.id,
     label: c.name,
   }))
-
-  const currentFormatOptions = selectedPlatform
-    ? (formatOptionsByPlatform[selectedPlatform] ?? [])
-    : []
 
   function handleSpeedBonusToggle(enabled: boolean) {
     form.setFieldValue('speed_bonus_enabled', enabled)
@@ -280,37 +208,10 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
           </div>
         ) : null}
 
-        <form.AppField
-          name="platform"
-          listeners={{
-            onChange: () => {
-              form.setFieldValue('format', '')
-            },
-          }}
-        >
-          {(field) => (
-            <field.SelectField
-              label={t`Platform`}
-              placeholder={t`Select a platform`}
-              options={[...platformOptions]}
-            />
-          )}
-        </form.AppField>
-
-        <form.AppField name="format">
-          {(field) => (
-            <field.SelectField
-              label={t`Format`}
-              placeholder={t`Select a format`}
-              options={currentFormatOptions}
-            />
-          )}
-        </form.AppField>
-
-        <form.AppField name="amount">
+        <form.AppField name="total_amount">
           {(field) => (
             <field.TextField
-              label={t`Amount (${currency})`}
+              label={t`Total amount (${currency})`}
               placeholder="0.00"
               inputMode="decimal"
             />
@@ -332,6 +233,116 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
             />
           )}
         </form.AppField>
+
+        <div className="space-y-4">
+          <form.AppField name="deliverables" mode="array">
+            {(field) => (
+              <div className="space-y-4">
+                {deliverables.map((item, index) => {
+                  const itemPlatform = item.platform
+                  return (
+                    <BundlePlatformRow
+                      key={item.id}
+                      platform={itemPlatform}
+                      index={index}
+                      onRemove={() => field.removeValue(index)}
+                    >
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <form.AppField
+                          name={`deliverables[${index}].platform`}
+                          listeners={{
+                            onChange: () => {
+                              form.setFieldValue(
+                                `deliverables[${index}].format`,
+                                '',
+                              )
+                            },
+                          }}
+                        >
+                          {(f) => (
+                            <f.SelectField
+                              label={t`Platform`}
+                              placeholder={t`Select a platform`}
+                              options={[...platformOptions]}
+                            />
+                          )}
+                        </form.AppField>
+
+                        <form.AppField
+                          key={`deliverables.${index}.format.${itemPlatform}`}
+                          name={`deliverables[${index}].format`}
+                        >
+                          {(f) => (
+                            <f.SelectField
+                              label={t`Format`}
+                              placeholder={t`Select a format`}
+                              options={
+                                itemPlatform
+                                  ? (formatOptionsByPlatform[itemPlatform] ??
+                                    [])
+                                  : []
+                              }
+                            />
+                          )}
+                        </form.AppField>
+
+                        <form.AppField name={`deliverables[${index}].quantity`}>
+                          {(f) => (
+                            <f.NumberField
+                              label={t`Quantity`}
+                              placeholder="1"
+                              min={1}
+                            />
+                          )}
+                        </form.AppField>
+
+                        <form.AppField name={`deliverables[${index}].amount`}>
+                          {(f) => (
+                            <f.TextField
+                              label={t`Amount (${currency})`}
+                              placeholder="0.00"
+                              inputMode="decimal"
+                            />
+                          )}
+                        </form.AppField>
+                      </div>
+                    </BundlePlatformRow>
+                  )
+                })}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() =>
+                    field.pushValue({
+                      id: crypto.randomUUID() as string,
+                      platform: '',
+                      format: '',
+                      quantity: 1,
+                      amount: '',
+                    })
+                  }
+                >
+                  <Plus className="mr-2 size-4" />
+                  {t`Add deliverable`}
+                </Button>
+
+                {field.state.meta.errors.length > 0 && (
+                  <p aria-live="polite" className="text-sm text-destructive">
+                    {
+                      (
+                        field.state.meta.errors[0] as
+                          | { message?: string }
+                          | undefined
+                      )?.message
+                    }
+                  </p>
+                )}
+              </div>
+            )}
+          </form.AppField>
+        </div>
 
         <SpeedBonusFields
           enabled={speedBonusEnabled}
@@ -360,7 +371,7 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
 
         <DeliverableSummaryRow
           label={t`Total`}
-          amount={totalAmount > 0 ? totalAmount.toFixed(2) : '0.00'}
+          amount={parsedTotal > 0 ? parsedTotal.toFixed(2) : '0.00'}
           currency={currency}
           emphasis="strong"
         />

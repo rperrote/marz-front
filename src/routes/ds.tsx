@@ -1304,19 +1304,19 @@ function ReusableSection() {
 
       <ShowcaseGroup title="Bundle platform row" context="features/offers">
         <div className="max-w-xl space-y-2">
-          <BundlePlatformRow
+          <DemoBundlePlatformRow
             platform="youtube"
             label="YouTube"
             format="Long-form video"
             amount={2500}
           />
-          <BundlePlatformRow
+          <DemoBundlePlatformRow
             platform="instagram"
             label="Instagram Reels"
             format="Short-form vertical"
             amount={1200}
           />
-          <BundlePlatformRow
+          <DemoBundlePlatformRow
             platform="tiktok"
             label="TikTok"
             format="Short-form vertical"
@@ -1350,7 +1350,7 @@ function ReusableSection() {
             deadline="Oct 12"
             subtotal="$2,500"
           >
-            <BundlePlatformRow
+            <DemoBundlePlatformRow
               platform="youtube"
               label="YouTube video"
               format="Long-form"
@@ -1421,19 +1421,19 @@ function ReusableSection() {
               </div>
               <Badge className="rounded-full">3 platforms</Badge>
             </div>
-            <BundlePlatformRow
+            <DemoBundlePlatformRow
               platform="youtube"
               label="YouTube"
               format="Long-form video"
               amount={2500}
             />
-            <BundlePlatformRow
+            <DemoBundlePlatformRow
               platform="instagram"
               label="Instagram Reels"
               format="Short-form vertical"
               amount={1200}
             />
-            <BundlePlatformRow
+            <DemoBundlePlatformRow
               platform="tiktok"
               label="TikTok"
               format="Short-form vertical"
@@ -1457,7 +1457,7 @@ function ReusableSection() {
               deadline="Oct 12"
               subtotal="$2,500"
             >
-              <BundlePlatformRow
+              <DemoBundlePlatformRow
                 platform="youtube"
                 label="YouTube video"
                 format="Long-form"
@@ -1470,7 +1470,7 @@ function ReusableSection() {
               deadline="Oct 20"
               subtotal="$1,500"
             >
-              <BundlePlatformRow
+              <DemoBundlePlatformRow
                 platform="youtube"
                 label="YouTube video"
                 format="Long-form"
@@ -1488,6 +1488,35 @@ function ReusableSection() {
 
       <MobileSection />
     </section>
+  )
+}
+
+function DemoBundlePlatformRow({
+  platform,
+  label,
+  format,
+  amount,
+}: {
+  platform: string
+  label: string
+  format: string
+  amount: number
+}) {
+  return (
+    <BundlePlatformRow platform={platform} onRemove={() => {}}>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold text-foreground">
+          {label}
+        </div>
+        <div className="truncate text-xs text-muted-foreground">{format}</div>
+      </div>
+      <div className="flex items-center gap-2 rounded-full bg-muted pl-3 pr-1">
+        <span className="text-sm text-muted-foreground">$</span>
+        <span className="w-20 py-2 text-right font-mono text-sm font-semibold text-foreground">
+          {amount.toLocaleString()}
+        </span>
+      </div>
+    </BundlePlatformRow>
   )
 }
 

@@ -19,7 +19,7 @@ interface OfferEventMap {
   }
   offer_sent: {
     actor_kind: 'brand'
-    offer_type: 'single'
+    offer_type: 'single' | 'bundle' | 'multistage'
     platform: string
     has_speed_bonus: boolean
     amount_bucket: AmountBucket

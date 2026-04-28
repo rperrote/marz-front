@@ -57,9 +57,8 @@ satisfies: [R2, R9]
 - [ ] A11y: cada row con `<fieldset>`, errores en `aria-live`, labels asociados.
 
 ## Done summary
-
-_To be filled by the worker._
-
+Implementación del BundleEditor completa y correcta. BundlePlatformRow rediseñado como fieldset composable con semántica ARIA apropiada. Validaciones de schema cubren los casos edge (mínimo 2 deliverables, suma de montos, declaración parcial, deadlines). Tests cubren happy path + 6 edge cases de validación + axe. Extracción de todayString a dateUtils correcta. Analytics actualizado con los 3 offer_type. Los casts as string sobre crypto.randomUUID() son el fix mínimo necesario para el mismatch de tipos template literal.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

@@ -39,7 +39,9 @@ describe('applyBackendFieldErrors', () => {
     })
     render(<Harness error={apiErr} />)
     await user.click(screen.getByText('apply'))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Ya está tomado')
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Ya está tomado',
+    )
     expect(screen.getByLabelText('Handle')).toHaveAttribute(
       'aria-invalid',
       'true',
