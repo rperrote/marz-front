@@ -13,6 +13,7 @@ import { t } from '@lingui/core/macro'
 import { Badge } from '#/components/ui/badge'
 import { cn } from '#/lib/utils'
 import type { DeliverableDTO, StageStatus } from '#/features/deliverables/types'
+import { DraftVersionList } from './DraftVersionList'
 
 const platformIcon: Record<string, LucideIcon> = {
   youtube: Youtube,
@@ -58,7 +59,28 @@ export function DeliverableListItem({
   const badge = statusMeta[deliverable.status]
   const isLocked = stageStatus === 'locked'
   const isNonUploadable = nonUploadableStatuses.has(deliverable.status)
-  const canUpload = sessionKind === 'creator' && !isLocked && !isNonUploadable
+
+  const isCreator = sessionKind === 'creator'
+  const nextVersion = (deliverable.current_version ?? 0) + 1
+
+  const canUpload =
+    isCreator &&
+    !isLocked &&
+    !isNonUploadable &&
+    (deliverable.status === 'pending' ||
+      deliverable.status === 'changes_requested')
+
+  const isUploadDisabled =
+    isCreator &&
+    !isLocked &&
+    !isNonUploadable &&
+    deliverable.status === 'draft_submitted'
+
+  const uploadButtonLabel = (() => {
+    if (deliverable.status === 'draft_submitted')
+      return t`Waiting for brand review`
+    return nextVersion === 1 ? t`Upload draft` : t`Upload draft v${nextVersion}`
+  })()
 
   const handleUploadClick = () => {
     onUploadDraft(deliverable.id)
@@ -79,6 +101,11 @@ export function DeliverableListItem({
               {deliverable.format}
             </span>
             <StatusBadge label={badge.label} tone={badge.tone} />
+            {deliverable.change_requests_count > 0 && (
+              <Badge variant="secondary" className="rounded-full text-[10px]">
+                {deliverable.change_requests_count} {t`rounds`}
+              </Badge>
+            )}
           </div>
           <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
             {deliverable.deadline ? <span>{deliverable.deadline}</span> : null}
@@ -89,14 +116,30 @@ export function DeliverableListItem({
         </div>
       </div>
 
-      {canUpload ? (
+      {deliverable.drafts.length > 0 && (
+        <div className="mt-2.5">
+          <DraftVersionList
+            drafts={deliverable.drafts}
+            changeRequests={deliverable.change_requests}
+            deliverableId={deliverable.id}
+          />
+        </div>
+      )}
+
+      {canUpload || isUploadDisabled ? (
         <button
           type="button"
+          disabled={isUploadDisabled}
           onClick={handleUploadClick}
-          className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          className={cn(
+            'mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium transition-colors',
+            isUploadDisabled
+              ? 'cursor-not-allowed text-muted-foreground opacity-60'
+              : 'text-foreground hover:bg-muted',
+          )}
         >
           <Plus className="size-3.5" />
-          {t`Upload draft`}
+          {uploadButtonLabel}
         </button>
       ) : sessionKind === 'creator' && isLocked ? (
         <div className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium text-muted-foreground opacity-60">

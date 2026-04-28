@@ -268,6 +268,49 @@ describe('MessageTimeline', () => {
     const container = bubble?.parentElement
     expect(container?.className).toContain('justify-end')
   })
+
+  it('renders RequestChangesCard for ChangesRequested system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-rc-1',
+          type: 'system_event',
+          event_type: 'ChangesRequested',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            event_type: 'ChangesRequested',
+            deliverable_id: 'del-1',
+            deliverable_platform: 'youtube',
+            deliverable_format: 'long_form',
+            deliverable_offer_stage_id: null,
+            draft_id: 'draft-1',
+            draft_version: 1,
+            draft_thumbnail_url: null,
+            categories: ['audio'],
+            notes: null,
+            requested_at: '2026-04-27T12:00:00Z',
+            requested_by_account_id: 'acc-other',
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('request-changes-card')).toBeInTheDocument()
+    })
+  })
 })
 
 describe('MessageBubble — XSS prevention', () => {

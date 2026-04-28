@@ -18,6 +18,7 @@ interface UploadDraftDialogProps {
   onOpenChange: (open: boolean) => void
   deliverableId: string
   onSuccess: (draft: Draft) => void
+  title?: string
 }
 
 export function UploadDraftDialog({
@@ -25,6 +26,7 @@ export function UploadDraftDialog({
   onOpenChange,
   deliverableId,
   onSuccess,
+  title,
 }: UploadDraftDialogProps) {
   const { status, progress, error, draft, start, cancel, reset } =
     useDraftUploadFlow(deliverableId)
@@ -116,7 +118,7 @@ export function UploadDraftDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg" aria-labelledby="upload-draft-title">
         <DialogTitle id="upload-draft-title" className="sr-only">
-          {t`Upload draft`}
+          {title ?? t`Upload draft`}
         </DialogTitle>
         <DialogDescription className="sr-only">
           {t`Upload a video draft for review`}

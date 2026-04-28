@@ -8,6 +8,7 @@ import { DeliverableListPanel } from '../DeliverableListPanel'
 import type {
   ConversationDeliverablesResponse,
   DeliverableDTO,
+  DraftDTO,
 } from '#/features/deliverables/types'
 
 vi.mock('@lingui/core/macro', () => ({
@@ -74,11 +75,33 @@ function makeDeliverable(overrides?: Partial<DeliverableDTO>): DeliverableDTO {
     format: 'Video',
     status: 'pending',
     deadline: '2026-05-01',
-    current_version: 1,
+    current_version: null,
     current_draft: null,
-    drafts_count: 1,
+    drafts_count: 0,
+    change_requests_count: 0,
+    drafts: [],
+    latest_change_request: null,
+    change_requests: [],
     created_at: '2026-04-01T00:00:00Z',
     updated_at: '2026-04-01T00:00:00Z',
+    ...overrides,
+  }
+}
+
+function makeDraft(overrides?: Partial<DraftDTO>): DraftDTO {
+  return {
+    id: 'draft-1',
+    version: 1,
+    original_filename: 'video.mp4',
+    file_size_bytes: 1024,
+    duration_sec: 120,
+    mime_type: 'video/mp4',
+    thumbnail_url: null,
+    playback_url: 'https://cdn.example.com/video.mp4',
+    playback_url_expires_at: '2099-01-01T00:00:00Z',
+    submitted_at: '2026-04-01T00:00:00Z',
+    submitted_by_account_id: 'creator-1',
+    approved_at: null,
     ...overrides,
   }
 }
@@ -226,5 +249,115 @@ describe('DeliverableListPanel', () => {
     renderPanel()
 
     expect(screen.getByRole('status')).toBeInTheDocument()
+  })
+
+  it('renders draft version list when deliverable has drafts', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_submitted',
+            current_version: 1,
+            drafts: [makeDraft({ id: 'd1', version: 1 })],
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getByTestId('draft-version-list')).toBeInTheDocument()
+    expect(screen.getByTestId('draft-version-row')).toBeInTheDocument()
+  })
+
+  it('shows change requests count badge when > 0', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'changes_requested',
+            change_requests_count: 3,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getByText('3 rounds')).toBeInTheDocument()
+  })
+
+  it('disables upload button with "Waiting for brand review" when status is draft_submitted', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_submitted',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    const button = screen.getByRole('button', {
+      name: /waiting for brand review/i,
+    })
+    expect(button).toBeDisabled()
+  })
+
+  it('hides upload button when status is draft_approved', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(
+      screen.queryByRole('button', { name: /upload draft/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows enabled upload button with dynamic label for changes_requested', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'changes_requested',
+            current_version: 2,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    const button = screen.getByRole('button', {
+      name: /upload draft v3/i,
+    })
+    expect(button).toBeEnabled()
   })
 })

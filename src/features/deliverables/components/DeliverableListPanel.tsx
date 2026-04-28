@@ -69,8 +69,17 @@ export function DeliverableListPanel({
     deliverableMap.set(d.id, d)
   }
 
+  const uploadDeliverable = uploadDeliverableId
+    ? deliverableMap.get(uploadDeliverableId)
+    : undefined
+
+  const uploadLabel =
+    uploadDeliverable && uploadDeliverable.current_version != null
+      ? t`Upload draft v${uploadDeliverable.current_version + 1}`
+      : t`Upload draft`
+
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" data-testid="deliverable-list-panel">
       <div className="flex-1 space-y-3 overflow-y-auto p-3">
         {data.offer_type === 'multistage' ? (
           data.stages.map((stage) => {
@@ -112,6 +121,7 @@ export function DeliverableListPanel({
           }}
           deliverableId={uploadDeliverableId}
           onSuccess={handleDialogClose}
+          title={uploadLabel}
         />
       )}
     </div>
