@@ -55,8 +55,11 @@ satisfies: [R3, R9]
 - [ ] A11y: textarea labels, errores en `aria-live`, navegacion con teclado.
 
 ## Done summary
+
 Implementación completa y correcta. El parsing de form.state.errors vía prefixSchemaToErrors de TanStack Form 1.29 produce el Record<string, Issue[]> que el regex consume — validado por los tests. Accesibilidad sólida en StageEditor. Integración en SendOfferSidesheet limpia con key={offerType} garantizando unmount. Tests cubren todos los casos críticos de negocio.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:

@@ -50,9 +50,8 @@ satisfies: [R4, R9]
 - [ ] A11y: card como `role="article"`, acciones como `<button>`, status anunciado con `aria-label`.
 
 ## Done summary
-
-_To be filled by the worker._
-
+Extracción de getStatusConfig correcta y sin duplicación residual. Speed bonus en Bundle sigue el patrón visual de CurrentOfferBlock. aria-expanded en el botón de descripción de StageCard implementado correctamente. Tests cubren ambas ramas del speed_bonus y las transiciones de aria-expanded. Schemas y tipos son consistentes con la spec (multistage sin speed_bonus, bundle con él). Sin observaciones.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

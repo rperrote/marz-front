@@ -47,3 +47,44 @@ export type OfferEventType =
   | 'OfferExpired'
 
 export type ViewerSide = 'actor' | 'recipient'
+
+export interface BundleDeliverableSnapshot {
+  platform: string
+  format: string
+  quantity: number
+  amount: string
+}
+
+export interface OfferSnapshotBundle {
+  offer_id: string
+  campaign_id: string
+  campaign_name: string
+  type: 'bundle'
+  total_amount: string
+  currency: string
+  deadline: string
+  speed_bonus: OfferSpeedBonus | null
+  sent_at: string
+  expires_at: string
+  deliverables: BundleDeliverableSnapshot[]
+}
+
+export interface MultiStageItemSnapshot {
+  name: string
+  description: string
+  deadline: string
+  amount: string
+}
+
+export interface OfferSnapshotMultiStage {
+  offer_id: string
+  campaign_id: string
+  campaign_name: string
+  type: 'multistage'
+  total_amount: string
+  currency: string
+  deadline: string
+  sent_at: string
+  expires_at: string
+  stages: MultiStageItemSnapshot[]
+}
