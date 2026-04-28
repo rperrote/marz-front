@@ -22,6 +22,8 @@ import type { OfferType } from '../store/sendOfferSheetStore'
 import { useActiveCampaigns } from '../hooks/useActiveCampaigns'
 import { OfferTypeChooser } from './OfferTypeChooser'
 import { SingleEditor } from './SingleEditor'
+import { BundleEditor } from './BundleEditor'
+import { MultiStageEditor } from './MultiStageEditor'
 
 interface SendOfferSidesheetProps {
   creatorName: string
@@ -38,23 +40,23 @@ export function SendOfferSidesheet({ creatorName }: SendOfferSidesheetProps) {
     cancelTypeChange,
   } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
-  const [singleEditorDirty, setSingleEditorDirty] = useState(false)
+  const [editorDirty, setEditorDirty] = useState(false)
 
   const campaigns = campaignsQuery.data ?? []
   const hasCampaigns = campaigns.length > 0
 
   useEffect(() => {
     if (isOpen) {
-      setSingleEditorDirty(false)
+      setEditorDirty(false)
     }
   }, [isOpen])
 
   useEffect(() => {
-    setSingleEditorDirty(false)
+    setEditorDirty(false)
   }, [offerType])
 
   function handleTypeChange(type: OfferType) {
-    const hasData = singleEditorDirty
+    const hasData = editorDirty
     setOfferType(type, { hasData })
   }
 
@@ -117,7 +119,23 @@ export function SendOfferSidesheet({ creatorName }: SendOfferSidesheetProps) {
               <SingleEditor
                 key={offerType}
                 onClose={close}
-                onDirtyChange={setSingleEditorDirty}
+                onDirtyChange={setEditorDirty}
+              />
+            )}
+
+            {offerType === 'bundle' && (
+              <BundleEditor
+                key={offerType}
+                onClose={close}
+                onDirtyChange={setEditorDirty}
+              />
+            )}
+
+            {offerType === 'multistage' && (
+              <MultiStageEditor
+                key={offerType}
+                onClose={close}
+                onDirtyChange={setEditorDirty}
               />
             )}
           </>

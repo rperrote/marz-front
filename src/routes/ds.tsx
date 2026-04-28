@@ -1347,16 +1347,14 @@ function ReusableSection() {
           <StageEditor
             stageNumber={1}
             name="Launch week"
-            deadline="Oct 12"
-            subtotal="$2,500"
-          >
-            <DemoBundlePlatformRow
-              platform="youtube"
-              label="YouTube video"
-              format="Long-form"
-              amount={1800}
-            />
-          </StageEditor>
+            description="First stage of the campaign"
+            deadline="2024-10-12"
+            amount="2500.00"
+            onChangeName={() => {}}
+            onChangeDescription={() => {}}
+            onChangeDeadline={() => {}}
+            onChangeAmount={() => {}}
+          />
         </div>
       </ShowcaseGroup>
 
@@ -1454,29 +1452,25 @@ function ReusableSection() {
             <StageEditor
               stageNumber={1}
               name="Launch week"
-              deadline="Oct 12"
-              subtotal="$2,500"
-            >
-              <DemoBundlePlatformRow
-                platform="youtube"
-                label="YouTube video"
-                format="Long-form"
-                amount={1800}
-              />
-            </StageEditor>
+              description="Kick-off content"
+              deadline="2024-10-12"
+              amount="2500.00"
+              onChangeName={() => {}}
+              onChangeDescription={() => {}}
+              onChangeDeadline={() => {}}
+              onChangeAmount={() => {}}
+            />
             <StageEditor
               stageNumber={2}
               name="Mid-campaign"
-              deadline="Oct 20"
-              subtotal="$1,500"
-            >
-              <DemoBundlePlatformRow
-                platform="youtube"
-                label="YouTube video"
-                format="Long-form"
-                amount={1800}
-              />
-            </StageEditor>
+              description="Follow-up content"
+              deadline="2024-10-20"
+              amount="1500.00"
+              onChangeName={() => {}}
+              onChangeDescription={() => {}}
+              onChangeDeadline={() => {}}
+              onChangeAmount={() => {}}
+            />
             <SummaryTotalRow
               label="Campaign total"
               amount="$4,500.00"
