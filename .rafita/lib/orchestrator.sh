@@ -59,9 +59,9 @@ orchestrator::run_task() {
   state::save_checkpoint "${RAFITA_CURRENT_EPIC:-}" "$task_id" 0 "start" \
     "$(git::current_branch)" "$snapshot" "${RAFITA_COMPLETED_CSV:-}"
 
+  flowctl::start_task "$task_id"
   local spec; spec=$(flowctl::task_spec "$task_id")
   local task_json; task_json=$(flowctl::task_json "$task_id")
-  flowctl::start_task "$task_id"
 
   local max="${RAFITA_MAX_REVIEW_ROUNDS:-5}"
   local approved=0

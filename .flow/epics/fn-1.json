@@ -7,7 +7,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-1.md",
-  "status": "ready",
+  "status": "done",
   "title": "FEAT-001: Sign-up/Sign-in + Onboarding Completo (Frontend)",
-  "updated_at": "2026-04-22T19:13:54.537791Z"
+  "updated_at": "2026-04-28T01:50:42.743790Z"
 }
