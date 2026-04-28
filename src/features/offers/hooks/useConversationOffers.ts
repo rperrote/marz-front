@@ -6,13 +6,28 @@ import type { OfferStatus, OfferSpeedBonus } from '#/features/offers/types'
 
 export { getConversationOffersQueryKey }
 
-export interface ConversationOfferDTO {
+export interface OfferStageDTO {
+  name: string
+  description: string
+  deadline: string
+  amount: string
+  status: 'locked' | 'open' | 'approved'
+}
+
+export interface ConversationOfferDeliverableDTO {
+  id: string
+  platform: string
+  format: string
+  quantity: number
+  amount: string
+}
+
+export interface ConversationOfferBaseDTO {
   id: string
   campaign_id: string
   campaign_name: string
   brand_workspace_id: string
   creator_account_id: string
-  type: 'single'
   status: OfferStatus
   total_amount: string
   currency: string
@@ -22,14 +37,27 @@ export interface ConversationOfferDTO {
   expires_at: string
   accepted_at: string | null
   rejected_at: string | null
-  deliverables: Array<{
-    id: string
-    platform: string
-    format: string
-    quantity: number
-    amount: string
-  }>
 }
+
+export interface ConversationOfferSingleDTO extends ConversationOfferBaseDTO {
+  type: 'single'
+  deliverables: ConversationOfferDeliverableDTO[]
+}
+
+export interface ConversationOfferBundleDTO extends ConversationOfferBaseDTO {
+  type: 'bundle'
+  deliverables: ConversationOfferDeliverableDTO[]
+}
+
+export interface ConversationOfferMultiStageDTO extends ConversationOfferBaseDTO {
+  type: 'multistage'
+  stages: OfferStageDTO[]
+}
+
+export type ConversationOfferDTO =
+  | ConversationOfferSingleDTO
+  | ConversationOfferBundleDTO
+  | ConversationOfferMultiStageDTO
 
 export interface ArchiveOfferItem {
   id: string

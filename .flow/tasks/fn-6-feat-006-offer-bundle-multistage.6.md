@@ -50,9 +50,8 @@ satisfies: [R6, R9]
 - [ ] A11y: `<details>/<summary>` o `aria-expanded` correcto; navegable con teclado.
 
 ## Done summary
-
-_To be filled by the worker._
-
+Implementación completa: MultiStageStagesList con expansión correcta, switch por type en CurrentOfferBlock, todos los tests requeridos pasan, typecheck y lint limpios
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:
