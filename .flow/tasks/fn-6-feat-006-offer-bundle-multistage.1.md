@@ -64,17 +64,6 @@ Task marcada como **blocked** en flowctl hasta que backend mergee B.5.
 
 ## Evidence
 
-```
-$ pnpm typecheck
-> marz-front@ typecheck
-> tsc --noEmit
-(pasa limpio)
-
-$ pnpm test src/shared/api
-> vitest run src/shared/api
- RUN  v3.2.4
- ✓ src/shared/api/mutator.test.ts (11 tests) 7ms
- Test Files  1 passed (1)
-      Tests  11 passed (11)
-   Duration  795ms
-```
+- Commits:
+- Tests:
+- PRs:
