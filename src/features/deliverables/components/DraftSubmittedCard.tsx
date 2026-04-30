@@ -93,17 +93,48 @@ export function DraftSubmittedCard({
 
   const deliverablesQuery = useGetConversationDeliverablesQuery(conversationId)
 
-  if (!snapshot) return null
-
-  const isBrand = sessionKind === 'brand'
-
+  const snapshotDeliverableId = snapshot?.deliverable_id
+  const snapshotVersion = snapshot?.version
   const deliverable =
-    deliverablesQuery.data?.deliverables.find(
-      (d) => d.id === snapshot.deliverable_id,
-    ) ?? null
+    snapshotDeliverableId != null
+      ? (deliverablesQuery.data?.deliverables.find(
+          (d) => d.id === snapshotDeliverableId,
+        ) ?? null)
+      : null
+  const deliverableIndex =
+    snapshotDeliverableId != null
+      ? (deliverablesQuery.data?.deliverables.findIndex(
+          (d) => d.id === snapshotDeliverableId,
+        ) ?? -1)
+      : -1
 
   const currentVersion = deliverable?.current_version ?? null
   const deliverableStatus = deliverable?.status ?? null
+  const requestChangesAnalytics = useMemo(() => {
+    if (
+      snapshotVersion == null ||
+      deliverablesQuery.data?.offer_type == null ||
+      deliverableIndex < 0
+    ) {
+      return undefined
+    }
+
+    return {
+      offerType: deliverablesQuery.data.offer_type,
+      deliverableIndex,
+      draftVersion: snapshotVersion,
+      roundIndex: (deliverable?.change_requests_count ?? 0) + 1,
+    }
+  }, [
+    deliverablesQuery.data?.offer_type,
+    deliverableIndex,
+    snapshotVersion,
+    deliverable?.change_requests_count,
+  ])
+
+  if (!snapshot) return null
+
+  const isBrand = sessionKind === 'brand'
 
   const resolvedCurrentVersion = currentVersion ?? snapshot.version
   const isStale = snapshot.version !== resolvedCurrentVersion
@@ -208,6 +239,7 @@ export function DraftSubmittedCard({
                       thumbnailUrl={snapshot.thumbnail_url ?? undefined}
                       durationSec={snapshot.duration_sec ?? undefined}
                       aspect={deriveAspect(snapshot.deliverable_format)}
+                      analytics={requestChangesAnalytics}
                       trigger={
                         <Button variant="outline" className="w-full">
                           {t`Request changes`}

@@ -1,7 +1,14 @@
 import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 
-import type { DeliverableDTO } from '#/features/deliverables/types'
-import { trackMultistageStageUnlocked } from '#/features/deliverables/analytics'
+import type {
+  ConversationDeliverablesResponse,
+  DeliverableDTO,
+} from '#/features/deliverables/types'
+import {
+  trackDeliverableTotalRounds,
+  trackMultistageStageUnlocked,
+  trackTimeToResolveRound,
+} from '#/features/deliverables/analytics'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
 import {
@@ -42,6 +49,22 @@ export function createWsHandlers(
     'draft.submitted': (envelope) => {
       const payload = (envelope as DomainEventEnvelope<DraftSubmittedWSPayload>)
         .payload
+      const deliverableAnalytics = getCachedDeliverableAnalytics(
+        queryClient,
+        payload.conversation_id,
+        payload.deliverable_id,
+      )
+      if (deliverableAnalytics?.deliverable.latest_change_request) {
+        trackTimeToResolveRound({
+          deliverable_index: deliverableAnalytics.deliverableIndex,
+          round_index: deliverableAnalytics.deliverable.change_requests_count,
+          resolution: 'another_round',
+          round_duration_seconds: secondsBetween(
+            deliverableAnalytics.deliverable.latest_change_request.requested_at,
+            payload.snapshot.submitted_at,
+          ),
+        })
+      }
 
       void queryClient.invalidateQueries({
         queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
@@ -54,6 +77,29 @@ export function createWsHandlers(
     'draft.approved': (envelope) => {
       const payload = (envelope as DomainEventEnvelope<DraftApprovedWSPayload>)
         .payload
+      const deliverableAnalytics = getCachedDeliverableAnalytics(
+        queryClient,
+        payload.conversation_id,
+        payload.deliverable_id,
+      )
+      if (deliverableAnalytics?.deliverable.latest_change_request) {
+        trackTimeToResolveRound({
+          deliverable_index: deliverableAnalytics.deliverableIndex,
+          round_index: deliverableAnalytics.deliverable.change_requests_count,
+          resolution: 'approved',
+          round_duration_seconds: secondsBetween(
+            deliverableAnalytics.deliverable.latest_change_request.requested_at,
+            payload.snapshot.approved_at,
+          ),
+        })
+      }
+      if (deliverableAnalytics) {
+        trackDeliverableTotalRounds({
+          deliverable_index: deliverableAnalytics.deliverableIndex,
+          total_rounds: deliverableAnalytics.deliverable.change_requests_count,
+          final_outcome: 'approved',
+        })
+      }
 
       void queryClient.invalidateQueries({
         queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
@@ -158,6 +204,36 @@ export function createWsHandlers(
       })
     },
   }
+}
+
+function getCachedDeliverableAnalytics(
+  queryClient: QueryClient,
+  conversationId: string,
+  deliverableId: string,
+):
+  | {
+      deliverable: DeliverableDTO
+      deliverableIndex: number
+    }
+  | undefined {
+  const data = queryClient.getQueryData<ConversationDeliverablesResponse>(
+    getConversationDeliverablesQueryKey(conversationId),
+  )
+  if (!data) return undefined
+
+  const deliverableIndex = data.deliverables.findIndex(
+    (deliverable) => deliverable.id === deliverableId,
+  )
+  if (deliverableIndex < 0) return undefined
+
+  const deliverable = data.deliverables[deliverableIndex]
+  if (!deliverable) return undefined
+
+  return { deliverable, deliverableIndex }
+}
+
+function secondsBetween(startIso: string, endIso: string): number {
+  return Math.max(0, (Date.parse(endIso) - Date.parse(startIso)) / 1000)
 }
 
 type MessagesInfiniteData = InfiniteData<

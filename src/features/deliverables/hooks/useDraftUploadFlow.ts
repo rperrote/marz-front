@@ -15,7 +15,9 @@ import {
   trackUploadProgress,
   trackUploadCompleted,
   trackUploadFailed,
+  trackDraftV2UploadStarted,
 } from '#/features/deliverables/analytics'
+import type { DeliverableDTO, OfferType } from '#/features/deliverables/types'
 
 type UploadStatus =
   | 'idle'
@@ -32,6 +34,14 @@ interface UploadState {
   error: UploadError | null
   intentId: string | null
   draft: Draft | null
+}
+
+interface DraftV2UploadAnalytics {
+  offerType: OfferType
+  deliverableIndex: number
+  deliverableStatus: DeliverableDTO['status']
+  currentVersion: number | null
+  latestChangeRequestedAt: string | null
 }
 
 const ALLOWED_MIME_TYPES = ['video/mp4', 'video/quicktime', 'video/webm']
@@ -69,7 +79,10 @@ function readVideoDuration(file: File): Promise<number | null> {
   })
 }
 
-export function useDraftUploadFlow(deliverableId: string) {
+export function useDraftUploadFlow(
+  deliverableId: string,
+  analytics?: DraftV2UploadAnalytics,
+) {
   const [state, setState] = useState<UploadState>({
     status: 'idle',
     progress: 0,
@@ -162,6 +175,21 @@ export function useDraftUploadFlow(deliverableId: string) {
         file_size_bytes: file.size,
         content_type: file.type,
       })
+      if (
+        analytics?.deliverableStatus === 'changes_requested' &&
+        analytics.latestChangeRequestedAt != null
+      ) {
+        trackDraftV2UploadStarted({
+          actor_kind: 'creator',
+          offer_type: analytics.offerType,
+          deliverable_index: analytics.deliverableIndex,
+          draft_version: (analytics.currentVersion ?? 0) + 1,
+          time_from_request_to_upload_seconds: Math.max(
+            0,
+            (Date.now() - Date.parse(analytics.latestChangeRequestedAt)) / 1000,
+          ),
+        })
+      }
 
       setState({
         status: 'requesting',
@@ -334,7 +362,7 @@ export function useDraftUploadFlow(deliverableId: string) {
       })
       xhr.send(file)
     },
-    [completeMutation, deliverableId, requestMutation],
+    [analytics, completeMutation, deliverableId, requestMutation],
   )
 
   return {

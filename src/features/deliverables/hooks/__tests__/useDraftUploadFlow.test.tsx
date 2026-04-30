@@ -10,6 +10,7 @@ const mocks = {
   requestMutateAsync: vi.fn(),
   completeMutateAsync: vi.fn(),
   cancelMutate: vi.fn(),
+  trackDraftV2UploadStarted: vi.fn(),
 }
 
 vi.mock('../../api/draftUpload', async (importOriginal) => {
@@ -34,6 +35,8 @@ vi.mock('../../analytics', () => ({
   trackUploadProgress: vi.fn(),
   trackUploadCompleted: vi.fn(),
   trackUploadFailed: vi.fn(),
+  trackDraftV2UploadStarted: (...args: unknown[]) =>
+    mocks.trackDraftV2UploadStarted(...args),
 }))
 
 class FakeXMLHttpRequest {
@@ -120,10 +123,12 @@ vi.stubGlobal('XMLHttpRequest', FakeXMLHttpRequest)
 
 describe('useDraftUploadFlow', () => {
   beforeEach(() => {
+    vi.restoreAllMocks()
     FakeXMLHttpRequest.reset()
     mocks.requestMutateAsync.mockReset()
     mocks.completeMutateAsync.mockReset()
     mocks.cancelMutate.mockReset()
+    mocks.trackDraftV2UploadStarted.mockReset()
   })
 
   it('rejects unsupported formats with kind=format', async () => {
@@ -189,6 +194,63 @@ describe('useDraftUploadFlow', () => {
       intentId: 'intent-1',
       body: { duration_sec: null },
     })
+  })
+
+  it('tracks draft_v2_upload_started only for changes_requested deliverables', async () => {
+    vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-04-27T12:05:00Z'))
+    mocks.requestMutateAsync.mockResolvedValueOnce(MOCK_INTENT_RESPONSE)
+
+    const { result } = renderHook(
+      () =>
+        useDraftUploadFlow('del-1', {
+          offerType: 'single',
+          deliverableIndex: 0,
+          deliverableStatus: 'changes_requested',
+          currentVersion: 1,
+          latestChangeRequestedAt: '2026-04-27T12:00:00Z',
+        }),
+      {
+        wrapper: createWrapper(),
+      },
+    )
+
+    act(() => {
+      void result.current.start(makeFile())
+    })
+
+    await waitFor(() => expect(result.current.status).toBe('uploading'))
+    expect(mocks.trackDraftV2UploadStarted).toHaveBeenCalledWith({
+      actor_kind: 'creator',
+      offer_type: 'single',
+      deliverable_index: 0,
+      draft_version: 2,
+      time_from_request_to_upload_seconds: 300,
+    })
+  })
+
+  it('does not track draft_v2_upload_started for first uploads', async () => {
+    mocks.requestMutateAsync.mockResolvedValueOnce(MOCK_INTENT_RESPONSE)
+
+    const { result } = renderHook(
+      () =>
+        useDraftUploadFlow('del-1', {
+          offerType: 'single',
+          deliverableIndex: 0,
+          deliverableStatus: 'pending',
+          currentVersion: null,
+          latestChangeRequestedAt: null,
+        }),
+      {
+        wrapper: createWrapper(),
+      },
+    )
+
+    act(() => {
+      void result.current.start(makeFile())
+    })
+
+    await waitFor(() => expect(result.current.status).toBe('uploading'))
+    expect(mocks.trackDraftV2UploadStarted).not.toHaveBeenCalled()
   })
 
   it('aborts XHR and calls cancel mutation on cancel()', async () => {

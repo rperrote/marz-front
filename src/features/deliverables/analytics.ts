@@ -1,4 +1,9 @@
 import { customFetch } from '#/shared/api/mutator'
+import type { ChangeCategory } from './api/requestChanges'
+import type { OfferType } from './types'
+
+type RoundResolution = 'approved' | 'another_round'
+type FinalOutcome = 'approved' | 'open'
 
 interface DeliverableEventMap {
   upload_started: {
@@ -38,6 +43,48 @@ interface DeliverableEventMap {
     offer_id: string
     stage_id: string
     position: number
+  }
+  request_changes_modal_opened: {
+    actor_kind: 'brand'
+    offer_type: OfferType
+    deliverable_index: number
+    draft_version: number
+  }
+  request_changes_modal_dismissed: {
+    actor_kind: 'brand'
+    time_in_modal_seconds: number
+  }
+  change_request_submitted: {
+    actor_kind: 'brand'
+    offer_type: OfferType
+    deliverable_index: number
+    draft_version: number
+    categories: ChangeCategory[]
+    categories_count: number
+    has_notes: boolean
+    round_index: number
+  }
+  request_changes_card_seen: {
+    actor_kind: 'creator'
+    time_since_request_seconds: number
+  }
+  draft_v2_upload_started: {
+    actor_kind: 'creator'
+    offer_type: OfferType
+    deliverable_index: number
+    draft_version: number
+    time_from_request_to_upload_seconds: number
+  }
+  time_to_resolve_round: {
+    deliverable_index: number
+    round_index: number
+    resolution: RoundResolution
+    round_duration_seconds: number
+  }
+  deliverable_total_rounds: {
+    deliverable_index: number
+    total_rounds: number
+    final_outcome: FinalOutcome
   }
 }
 
@@ -108,4 +155,46 @@ export function trackMultistageStageUnlocked(
   payload: DeliverableEventMap['multistage_stage_unlocked'],
 ): void {
   postAnalyticsEvent('multistage_stage_unlocked', payload)
+}
+
+export function trackRequestChangesModalOpened(
+  payload: DeliverableEventMap['request_changes_modal_opened'],
+): void {
+  postAnalyticsEvent('request_changes_modal_opened', payload)
+}
+
+export function trackRequestChangesModalDismissed(
+  payload: DeliverableEventMap['request_changes_modal_dismissed'],
+): void {
+  postAnalyticsEvent('request_changes_modal_dismissed', payload)
+}
+
+export function trackChangeRequestSubmitted(
+  payload: DeliverableEventMap['change_request_submitted'],
+): void {
+  postAnalyticsEvent('change_request_submitted', payload)
+}
+
+export function trackRequestChangesCardSeen(
+  payload: DeliverableEventMap['request_changes_card_seen'],
+): void {
+  postAnalyticsEvent('request_changes_card_seen', payload)
+}
+
+export function trackDraftV2UploadStarted(
+  payload: DeliverableEventMap['draft_v2_upload_started'],
+): void {
+  postAnalyticsEvent('draft_v2_upload_started', payload)
+}
+
+export function trackTimeToResolveRound(
+  payload: DeliverableEventMap['time_to_resolve_round'],
+): void {
+  postAnalyticsEvent('time_to_resolve_round', payload)
+}
+
+export function trackDeliverableTotalRounds(
+  payload: DeliverableEventMap['deliverable_total_rounds'],
+): void {
+  postAnalyticsEvent('deliverable_total_rounds', payload)
 }

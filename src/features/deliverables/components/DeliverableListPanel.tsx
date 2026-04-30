@@ -77,6 +77,20 @@ export function DeliverableListPanel({
     uploadDeliverable && uploadDeliverable.current_version != null
       ? t`Upload draft v${uploadDeliverable.current_version + 1}`
       : t`Upload draft`
+  const uploadDeliverableIndex = uploadDeliverable
+    ? data.deliverables.findIndex((d) => d.id === uploadDeliverable.id)
+    : -1
+  const uploadAnalytics =
+    uploadDeliverable && data.offer_type != null && uploadDeliverableIndex >= 0
+      ? {
+          offerType: data.offer_type,
+          deliverableIndex: uploadDeliverableIndex,
+          deliverableStatus: uploadDeliverable.status,
+          currentVersion: uploadDeliverable.current_version,
+          latestChangeRequestedAt:
+            uploadDeliverable.latest_change_request?.requested_at ?? null,
+        }
+      : undefined
 
   return (
     <div className="flex h-full flex-col" data-testid="deliverable-list-panel">
@@ -122,6 +136,7 @@ export function DeliverableListPanel({
           deliverableId={uploadDeliverableId}
           onSuccess={handleDialogClose}
           title={uploadLabel}
+          analytics={uploadAnalytics}
         />
       )}
     </div>

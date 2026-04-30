@@ -5,6 +5,8 @@ import { t } from '@lingui/core/macro'
 import { ApiError } from '#/shared/api/mutator'
 import { useRequestChangesMutation } from '#/features/deliverables/api/requestChanges'
 import type { ChangeCategory } from '#/features/deliverables/api/requestChanges'
+import { trackChangeRequestSubmitted } from '#/features/deliverables/analytics'
+import type { OfferType } from '#/features/deliverables/types'
 
 const NOTES_MAX_LENGTH = 4000
 
@@ -35,6 +37,12 @@ export function useRequestChangesFlow(
   options?: {
     onSuccess?: () => void
     onConflict?: () => void
+    analytics?: {
+      offerType: OfferType
+      deliverableIndex: number
+      draftVersion: number
+      roundIndex: number
+    }
   },
 ): RequestChangesFlowState & RequestChangesFlowActions {
   const idempotencyKeyRef = useRef(crypto.randomUUID())
@@ -97,6 +105,18 @@ export function useRequestChangesFlow(
       },
       {
         onSuccess: () => {
+          if (options?.analytics) {
+            trackChangeRequestSubmitted({
+              actor_kind: 'brand',
+              offer_type: options.analytics.offerType,
+              deliverable_index: options.analytics.deliverableIndex,
+              draft_version: options.analytics.draftVersion,
+              categories: sortedCategories,
+              categories_count: sortedCategories.length,
+              has_notes: notes.trim().length > 0,
+              round_index: options.analytics.roundIndex,
+            })
+          }
           setSubmitStatus('success')
           options?.onSuccess?.()
         },

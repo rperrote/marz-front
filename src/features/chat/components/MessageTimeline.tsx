@@ -164,6 +164,7 @@ export function MessageTimeline({
               counterpartDisplayName={
                 conversationDetail?.counterpart.display_name ?? ''
               }
+              sessionKind={sessionKind}
             />
           )
         }

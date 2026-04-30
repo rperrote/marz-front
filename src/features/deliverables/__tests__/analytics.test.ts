@@ -9,6 +9,13 @@ import {
   trackDraftPlayerPlayed,
   trackDraftApproved,
   trackMultistageStageUnlocked,
+  trackRequestChangesModalOpened,
+  trackRequestChangesModalDismissed,
+  trackChangeRequestSubmitted,
+  trackRequestChangesCardSeen,
+  trackDraftV2UploadStarted,
+  trackTimeToResolveRound,
+  trackDeliverableTotalRounds,
 } from '../analytics'
 
 vi.mock('#/shared/api/mutator', () => ({
@@ -163,5 +170,139 @@ describe('fire-and-forget', () => {
         content_type: 'video/mp4',
       }),
     ).not.toThrow()
+  })
+})
+
+describe('request changes analytics', () => {
+  it('sends request_changes_modal_opened without free-text fields', () => {
+    trackRequestChangesModalOpened({
+      actor_kind: 'brand',
+      offer_type: 'single',
+      deliverable_index: 0,
+      draft_version: 1,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event_name).toBe('request_changes_modal_opened')
+    expect(body.properties).toEqual({
+      actor_kind: 'brand',
+      offer_type: 'single',
+      deliverable_index: 0,
+      draft_version: 1,
+    })
+    expect(body.properties).not.toHaveProperty('notes')
+    expect(body.properties).not.toHaveProperty('filename')
+    expect(body.properties).not.toHaveProperty('campaign_name')
+    expect(body.properties).not.toHaveProperty('creator_display_name')
+  })
+
+  it('sends request_changes_modal_dismissed', () => {
+    trackRequestChangesModalDismissed({
+      actor_kind: 'brand',
+      time_in_modal_seconds: 3.5,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event_name).toBe('request_changes_modal_dismissed')
+    expect(body.properties).toEqual({
+      actor_kind: 'brand',
+      time_in_modal_seconds: 3.5,
+    })
+  })
+
+  it('sends change_request_submitted without notes', () => {
+    trackChangeRequestSubmitted({
+      actor_kind: 'brand',
+      offer_type: 'bundle',
+      deliverable_index: 1,
+      draft_version: 2,
+      categories: ['audio', 'other'],
+      categories_count: 2,
+      has_notes: true,
+      round_index: 2,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event_name).toBe('change_request_submitted')
+    expect(body.properties).toEqual({
+      actor_kind: 'brand',
+      offer_type: 'bundle',
+      deliverable_index: 1,
+      draft_version: 2,
+      categories: ['audio', 'other'],
+      categories_count: 2,
+      has_notes: true,
+      round_index: 2,
+    })
+    expect(body.properties).not.toHaveProperty('notes')
+  })
+
+  it('sends request_changes_card_seen', () => {
+    trackRequestChangesCardSeen({
+      actor_kind: 'creator',
+      time_since_request_seconds: 42,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event_name).toBe('request_changes_card_seen')
+    expect(body.properties).toEqual({
+      actor_kind: 'creator',
+      time_since_request_seconds: 42,
+    })
+  })
+
+  it('sends draft_v2_upload_started without filename', () => {
+    trackDraftV2UploadStarted({
+      actor_kind: 'creator',
+      offer_type: 'multistage',
+      deliverable_index: 2,
+      draft_version: 3,
+      time_from_request_to_upload_seconds: 120,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event_name).toBe('draft_v2_upload_started')
+    expect(body.properties).toEqual({
+      actor_kind: 'creator',
+      offer_type: 'multistage',
+      deliverable_index: 2,
+      draft_version: 3,
+      time_from_request_to_upload_seconds: 120,
+    })
+    expect(body.properties).not.toHaveProperty('filename')
+  })
+
+  it('sends time_to_resolve_round', () => {
+    trackTimeToResolveRound({
+      deliverable_index: 0,
+      round_index: 1,
+      resolution: 'approved',
+      round_duration_seconds: 600,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event_name).toBe('time_to_resolve_round')
+    expect(body.properties).toEqual({
+      deliverable_index: 0,
+      round_index: 1,
+      resolution: 'approved',
+      round_duration_seconds: 600,
+    })
+  })
+
+  it('sends deliverable_total_rounds', () => {
+    trackDeliverableTotalRounds({
+      deliverable_index: 0,
+      total_rounds: 2,
+      final_outcome: 'approved',
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event_name).toBe('deliverable_total_rounds')
+    expect(body.properties).toEqual({
+      deliverable_index: 0,
+      total_rounds: 2,
+      final_outcome: 'approved',
+    })
   })
 })

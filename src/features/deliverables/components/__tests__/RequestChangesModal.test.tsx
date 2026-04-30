@@ -15,12 +15,22 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 const mockMutate = vi.fn()
+const mockTrackRequestChangesModalOpened = vi.fn()
+const mockTrackRequestChangesModalDismissed = vi.fn()
 
 vi.mock('#/features/deliverables/api/requestChanges', () => ({
   useRequestChangesMutation: () => ({
     mutate: mockMutate,
     isPending: false,
   }),
+}))
+
+vi.mock('../../analytics', () => ({
+  trackRequestChangesModalOpened: (...args: unknown[]) =>
+    mockTrackRequestChangesModalOpened(...args),
+  trackRequestChangesModalDismissed: (...args: unknown[]) =>
+    mockTrackRequestChangesModalDismissed(...args),
+  trackChangeRequestSubmitted: vi.fn(),
 }))
 
 vi.mock('../InlineVideoPlayer', () => ({
@@ -55,7 +65,10 @@ function renderModal(
 
 describe('RequestChangesModal', () => {
   beforeEach(() => {
-    mockMutate.mockClear()
+    vi.useRealTimers()
+    mockMutate.mockReset()
+    mockTrackRequestChangesModalOpened.mockClear()
+    mockTrackRequestChangesModalDismissed.mockClear()
   })
 
   it('renders trigger button', () => {
@@ -72,6 +85,60 @@ describe('RequestChangesModal', () => {
     await user.click(screen.getByRole('button', { name: /request changes/i }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getAllByText('Test Video').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('tracks opened and dismissed when closed without submit', async () => {
+    const dateNowSpy = vi
+      .spyOn(Date, 'now')
+      .mockReturnValueOnce(Date.parse('2026-04-27T12:00:00Z'))
+      .mockReturnValueOnce(Date.parse('2026-04-27T12:00:02Z'))
+    const user = userEvent.setup()
+    renderModal({
+      analytics: {
+        offerType: 'single',
+        deliverableIndex: 0,
+        draftVersion: 1,
+        roundIndex: 1,
+      },
+    })
+
+    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /cancel/i }))
+
+    expect(mockTrackRequestChangesModalOpened).toHaveBeenCalledWith({
+      actor_kind: 'brand',
+      offer_type: 'single',
+      deliverable_index: 0,
+      draft_version: 1,
+    })
+    expect(mockTrackRequestChangesModalDismissed).toHaveBeenCalledOnce()
+    const dismissedPayload =
+      mockTrackRequestChangesModalDismissed.mock.calls[0]![0]
+    expect(dismissedPayload.actor_kind).toBe('brand')
+    expect(dismissedPayload.time_in_modal_seconds).toBeGreaterThanOrEqual(0)
+    expect(dismissedPayload).not.toHaveProperty('notes')
+    dateNowSpy.mockRestore()
+  })
+
+  it('does not track dismissed after successful submit', async () => {
+    mockMutate.mockImplementation((_vars, options) => {
+      options.onSuccess()
+    })
+    const user = userEvent.setup()
+    renderModal({
+      analytics: {
+        offerType: 'single',
+        deliverableIndex: 0,
+        draftVersion: 1,
+        roundIndex: 1,
+      },
+    })
+
+    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /audio/i }))
+    await user.click(screen.getByRole('button', { name: /send request/i }))
+
+    expect(mockTrackRequestChangesModalDismissed).not.toHaveBeenCalled()
   })
 
   it('closes dialog on cancel click', async () => {

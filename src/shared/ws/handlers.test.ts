@@ -17,10 +17,16 @@ import type {
 } from './types'
 
 const mockTrackMultistageStageUnlocked = vi.fn()
+const mockTrackTimeToResolveRound = vi.fn()
+const mockTrackDeliverableTotalRounds = vi.fn()
 
 vi.mock('#/features/deliverables/analytics', () => ({
   trackMultistageStageUnlocked: (...args: unknown[]) =>
     mockTrackMultistageStageUnlocked(...args),
+  trackTimeToResolveRound: (...args: unknown[]) =>
+    mockTrackTimeToResolveRound(...args),
+  trackDeliverableTotalRounds: (...args: unknown[]) =>
+    mockTrackDeliverableTotalRounds(...args),
 }))
 
 function makeEnvelope<TPayload>(
@@ -69,6 +75,9 @@ describe('createWsHandlers', () => {
       defaultOptions: { queries: { staleTime: Infinity } },
     })
     handlers = createWsHandlers(queryClient)
+    mockTrackMultistageStageUnlocked.mockClear()
+    mockTrackTimeToResolveRound.mockClear()
+    mockTrackDeliverableTotalRounds.mockClear()
   })
 
   describe('draft.submitted', () => {
@@ -110,6 +119,64 @@ describe('createWsHandlers', () => {
         queryKey: ['conversation-messages', 'conv-1'],
       })
     })
+
+    it('fires time_to_resolve_round analytics from cached deliverable', () => {
+      queryClient.setQueryData(['conversation-deliverables', 'conv-1'], {
+        offer_id: 'off-1',
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({ id: 'other-del' }),
+          makeDeliverable({
+            id: 'del-1',
+            status: 'changes_requested',
+            change_requests_count: 2,
+            latest_change_request: {
+              id: 'cr-1',
+              draft_id: 'draft-1',
+              categories: ['audio'],
+              notes: 'Do not track this',
+              requested_at: '2026-04-27T12:00:00Z',
+              requested_by_account_id: 'brand-1',
+            },
+          }),
+        ],
+        stages: [],
+      } satisfies ConversationDeliverablesResponse)
+      const payload: DraftSubmittedWSPayload = {
+        conversation_id: 'conv-1',
+        deliverable_id: 'del-1',
+        draft_id: 'draft-2',
+        version: 2,
+        message_id: 'msg-1',
+        snapshot: {
+          event_type: 'DraftSubmitted',
+          deliverable_id: 'del-1',
+          deliverable_platform: 'youtube',
+          deliverable_format: 'video',
+          deliverable_offer_stage_id: null,
+          draft_id: 'draft-2',
+          version: 2,
+          original_filename: 'video-v2.mp4',
+          file_size_bytes: 1024,
+          duration_sec: 60,
+          mime_type: 'video/mp4',
+          thumbnail_url: null,
+          playback_url: 'https://cdn.test/play',
+          playback_url_expires_at: '2026-04-27T13:00:00Z',
+          submitted_at: '2026-04-27T12:05:00Z',
+          submitted_by_account_id: 'creator-1',
+        },
+      }
+
+      handlers['draft.submitted']!(makeEnvelope('draft.submitted', payload))
+
+      expect(mockTrackTimeToResolveRound).toHaveBeenCalledWith({
+        deliverable_index: 1,
+        round_index: 2,
+        resolution: 'another_round',
+        round_duration_seconds: 300,
+      })
+    })
   })
 
   describe('draft.approved', () => {
@@ -142,6 +209,61 @@ describe('createWsHandlers', () => {
       })
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversation-messages', 'conv-1'],
+      })
+    })
+
+    it('fires round resolution and total rounds analytics from cached deliverable', () => {
+      queryClient.setQueryData(['conversation-deliverables', 'conv-1'], {
+        offer_id: 'off-1',
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_submitted',
+            change_requests_count: 1,
+            latest_change_request: {
+              id: 'cr-1',
+              draft_id: 'draft-1',
+              categories: ['audio'],
+              notes: null,
+              requested_at: '2026-04-27T12:00:00Z',
+              requested_by_account_id: 'brand-1',
+            },
+          }),
+        ],
+        stages: [],
+      } satisfies ConversationDeliverablesResponse)
+      const payload: DraftApprovedWSPayload = {
+        conversation_id: 'conv-1',
+        deliverable_id: 'del-1',
+        draft_id: 'draft-2',
+        version: 2,
+        message_id: 'msg-1',
+        snapshot: {
+          event_type: 'DraftApproved',
+          deliverable_id: 'del-1',
+          deliverable_platform: 'youtube',
+          deliverable_format: 'video',
+          deliverable_offer_stage_id: null,
+          draft_id: 'draft-2',
+          version: 2,
+          approved_at: '2026-04-27T12:10:00Z',
+          approved_by_account_id: 'acc-1',
+        },
+      }
+
+      handlers['draft.approved']!(makeEnvelope('draft.approved', payload))
+
+      expect(mockTrackTimeToResolveRound).toHaveBeenCalledWith({
+        deliverable_index: 0,
+        round_index: 1,
+        resolution: 'approved',
+        round_duration_seconds: 600,
+      })
+      expect(mockTrackDeliverableTotalRounds).toHaveBeenCalledWith({
+        deliverable_index: 0,
+        total_rounds: 1,
+        final_outcome: 'approved',
       })
     })
   })

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 
 import { RequestChangesCard } from '../RequestChangesCard'
@@ -11,6 +11,48 @@ vi.mock('@lingui/core/macro', () => ({
     { __lingui: true },
   ),
 }))
+
+const mockTrackRequestChangesCardSeen = vi.fn()
+
+vi.mock('../../analytics', () => ({
+  trackRequestChangesCardSeen: (...args: unknown[]) =>
+    mockTrackRequestChangesCardSeen(...args),
+}))
+
+class FakeIntersectionObserver {
+  static instances: FakeIntersectionObserver[] = []
+  callback: IntersectionObserverCallback
+  observe = vi.fn()
+  disconnect = vi.fn()
+  unobserve = vi.fn()
+  takeRecords = vi.fn(() => [])
+  root = null
+  rootMargin = ''
+  thresholds = [0.5]
+
+  constructor(callback: IntersectionObserverCallback) {
+    this.callback = callback
+    FakeIntersectionObserver.instances.push(this)
+  }
+
+  trigger(entry: Partial<IntersectionObserverEntry>) {
+    this.callback(
+      [
+        {
+          isIntersecting: false,
+          intersectionRatio: 0,
+          target: document.createElement('div'),
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: 0,
+          ...entry,
+        },
+      ],
+      this,
+    )
+  }
+}
 
 function buildMessage(
   overrides?: Partial<DraftTimelineMessage>,
@@ -39,6 +81,13 @@ function buildMessage(
 }
 
 describe('RequestChangesCard', () => {
+  beforeEach(() => {
+    vi.useRealTimers()
+    vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
+    FakeIntersectionObserver.instances = []
+    mockTrackRequestChangesCardSeen.mockClear()
+  })
+
   it('renders outgoing variant when requested by current user', () => {
     render(
       <RequestChangesCard
@@ -151,5 +200,49 @@ describe('RequestChangesCard', () => {
     )
 
     expect(container.firstChild).toBeNull()
+  })
+
+  it('tracks seen once for creator viewers after visible debounce', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-04-27T12:00:10Z'))
+    render(
+      <RequestChangesCard
+        message={buildMessage()}
+        currentAccountId="acc-creator"
+        counterpartDisplayName="María García"
+        sessionKind="creator"
+      />,
+    )
+
+    FakeIntersectionObserver.instances[0]?.trigger({
+      isIntersecting: true,
+      intersectionRatio: 0.5,
+    })
+    vi.advanceTimersByTime(250)
+    FakeIntersectionObserver.instances[0]?.trigger({
+      isIntersecting: true,
+      intersectionRatio: 1,
+    })
+    vi.advanceTimersByTime(250)
+
+    expect(mockTrackRequestChangesCardSeen).toHaveBeenCalledTimes(1)
+    expect(mockTrackRequestChangesCardSeen).toHaveBeenCalledWith({
+      actor_kind: 'creator',
+      time_since_request_seconds: 10.25,
+    })
+  })
+
+  it('does not track seen for brand viewers', () => {
+    render(
+      <RequestChangesCard
+        message={buildMessage()}
+        currentAccountId="acc-brand"
+        counterpartDisplayName="María García"
+        sessionKind="brand"
+      />,
+    )
+
+    expect(FakeIntersectionObserver.instances).toHaveLength(0)
+    expect(mockTrackRequestChangesCardSeen).not.toHaveBeenCalled()
   })
 })

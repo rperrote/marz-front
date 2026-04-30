@@ -15,12 +15,18 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 const mockMutate = vi.fn()
+const mockTrackChangeRequestSubmitted = vi.fn()
 
 vi.mock('#/features/deliverables/api/requestChanges', () => ({
   useRequestChangesMutation: () => ({
     mutate: mockMutate,
     isPending: false,
   }),
+}))
+
+vi.mock('../../analytics', () => ({
+  trackChangeRequestSubmitted: (...args: unknown[]) =>
+    mockTrackChangeRequestSubmitted(...args),
 }))
 
 function createWrapper() {
@@ -36,7 +42,8 @@ function createWrapper() {
 
 describe('useRequestChangesFlow', () => {
   beforeEach(() => {
-    mockMutate.mockClear()
+    mockMutate.mockReset()
+    mockTrackChangeRequestSubmitted.mockClear()
     let callCount = 0
     vi.stubGlobal('crypto', {
       randomUUID: () => `test-uuid-${++callCount}`,
@@ -217,6 +224,46 @@ describe('useRequestChangesFlow', () => {
     expect(mockMutate).toHaveBeenCalledTimes(1)
     const body = mockMutate.mock.calls[0]![0].body
     expect(body.categories).toEqual(['audio', 'pacing', 'product_placement'])
+  })
+
+  it('tracks successful submit without raw notes', () => {
+    mockMutate.mockImplementation((_vars, options) => {
+      options.onSuccess()
+    })
+    const { result } = renderHook(
+      () =>
+        useRequestChangesFlow('del-1', 'draft-1', {
+          analytics: {
+            offerType: 'single',
+            deliverableIndex: 0,
+            draftVersion: 1,
+            roundIndex: 1,
+          },
+        }),
+      { wrapper: createWrapper() },
+    )
+
+    act(() => {
+      result.current.toggleCategory('other')
+      result.current.setNotes('Do not track raw notes')
+    })
+    act(() => {
+      result.current.submit()
+    })
+
+    expect(mockTrackChangeRequestSubmitted).toHaveBeenCalledWith({
+      actor_kind: 'brand',
+      offer_type: 'single',
+      deliverable_index: 0,
+      draft_version: 1,
+      categories: ['other'],
+      categories_count: 1,
+      has_notes: true,
+      round_index: 1,
+    })
+    expect(
+      mockTrackChangeRequestSubmitted.mock.calls[0]![0],
+    ).not.toHaveProperty('notes')
   })
 
   it('maps 422 validation_error to field error', async () => {

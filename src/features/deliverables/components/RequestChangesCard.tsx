@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
@@ -6,6 +6,7 @@ import { cn } from '#/lib/utils'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
 import { formatMessageDateTime } from '#/shared/ui/formatMessageDateTime'
 import { ChangeCategoryChip } from './ChangeCategoryChip'
+import { trackRequestChangesCardSeen } from '#/features/deliverables/analytics'
 import type { DraftTimelineMessage } from '../types'
 import type { ChangesRequestedSnapshot } from '#/shared/ws/types'
 
@@ -13,6 +14,7 @@ interface RequestChangesCardProps {
   message: DraftTimelineMessage
   currentAccountId: string
   counterpartDisplayName: string
+  sessionKind?: 'brand' | 'creator'
 }
 
 function extractSnapshot(
@@ -38,11 +40,55 @@ export function RequestChangesCard({
   message,
   currentAccountId,
   counterpartDisplayName,
+  sessionKind,
 }: RequestChangesCardProps) {
   const snapshot = useMemo(
     () => extractSnapshot(message.payload),
     [message.payload],
   )
+  const cardRef = useRef<HTMLDivElement>(null)
+  const seenRef = useRef(false)
+
+  useEffect(() => {
+    if (!snapshot || sessionKind !== 'creator' || !cardRef.current) return
+
+    let timeoutId: number | null = null
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isVisible = entries.some(
+          (entry) => entry.isIntersecting && entry.intersectionRatio >= 0.5,
+        )
+        if (!isVisible) {
+          if (timeoutId != null) {
+            window.clearTimeout(timeoutId)
+            timeoutId = null
+          }
+          return
+        }
+        if (seenRef.current || timeoutId != null) return
+
+        timeoutId = window.setTimeout(() => {
+          seenRef.current = true
+          trackRequestChangesCardSeen({
+            actor_kind: 'creator',
+            time_since_request_seconds: Math.max(
+              0,
+              (Date.now() - Date.parse(snapshot.requested_at)) / 1000,
+            ),
+          })
+          observer.disconnect()
+        }, 250)
+      },
+      { threshold: 0.5 },
+    )
+
+    observer.observe(cardRef.current)
+
+    return () => {
+      if (timeoutId != null) window.clearTimeout(timeoutId)
+      observer.disconnect()
+    }
+  }, [sessionKind, snapshot])
 
   if (!snapshot) return null
 
@@ -53,6 +99,7 @@ export function RequestChangesCard({
 
   return (
     <div
+      ref={cardRef}
       data-testid="request-changes-card"
       className={cn(
         'flex px-4 py-0.5',

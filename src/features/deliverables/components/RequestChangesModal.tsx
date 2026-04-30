@@ -1,4 +1,4 @@
-import { useCallback, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
@@ -17,7 +17,12 @@ import { cn } from '#/lib/utils'
 import { InlineVideoPlayer } from './InlineVideoPlayer'
 import { ChangeCategoryChip } from './ChangeCategoryChip'
 import { useRequestChangesFlow } from '#/features/deliverables/hooks/useRequestChangesFlow'
+import {
+  trackRequestChangesModalDismissed,
+  trackRequestChangesModalOpened,
+} from '#/features/deliverables/analytics'
 import type { ChangeCategory } from '#/features/deliverables/api/requestChanges'
+import type { OfferType } from '#/features/deliverables/types'
 
 const CHANGE_CATEGORIES: { value: ChangeCategory; label: () => string }[] = [
   { value: 'product_placement', label: () => t`Product placement` },
@@ -43,6 +48,12 @@ interface RequestChangesModalProps {
   onClose?: () => void
   onSubmitted?: () => void
   trigger?: React.ReactNode
+  analytics?: {
+    offerType: OfferType
+    deliverableIndex: number
+    draftVersion: number
+    roundIndex: number
+  }
 }
 
 export function RequestChangesModal({
@@ -58,17 +69,22 @@ export function RequestChangesModal({
   onClose,
   onSubmitted,
   trigger,
+  analytics,
 }: RequestChangesModalProps) {
   const isReal = deliverableId != null && draftId != null
+  const openedAtRef = useRef<number | null>(null)
+  const submittedRef = useRef(false)
 
   const flow = useRequestChangesFlow(deliverableId ?? '', draftId ?? '', {
     onSuccess: () => {
+      submittedRef.current = true
       onSubmitted?.()
       onClose?.()
     },
     onConflict: () => {
       onClose?.()
     },
+    analytics,
   })
 
   const [localCategories, setLocalCategories] = useState<Set<ChangeCategory>>(
@@ -86,6 +102,31 @@ export function RequestChangesModal({
       localNotes.length <= NOTES_MAX_LENGTH
   const isSubmitting = isReal ? flow.submitStatus === 'submitting' : false
   const error = isReal ? flow.error : null
+  const activeAnalytics = isReal && (inline || open) ? analytics : undefined
+
+  useEffect(() => {
+    if (!activeAnalytics) return
+
+    openedAtRef.current = Date.now()
+    submittedRef.current = false
+    trackRequestChangesModalOpened({
+      actor_kind: 'brand',
+      offer_type: activeAnalytics.offerType,
+      deliverable_index: activeAnalytics.deliverableIndex,
+      draft_version: activeAnalytics.draftVersion,
+    })
+
+    return () => {
+      const openedAt = openedAtRef.current
+      openedAtRef.current = null
+      if (openedAt == null || submittedRef.current) return
+
+      trackRequestChangesModalDismissed({
+        actor_kind: 'brand',
+        time_in_modal_seconds: Math.max(0, (Date.now() - openedAt) / 1000),
+      })
+    }
+  }, [activeAnalytics])
 
   const handleToggle = useCallback(
     (category: ChangeCategory) => {
@@ -137,6 +178,7 @@ export function RequestChangesModal({
         handleCancel()
       } else {
         setOpen(true)
+        submittedRef.current = false
         if (isReal) {
           flow.reset()
         } else {

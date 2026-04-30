@@ -10,6 +10,7 @@ import {
 } from '#/components/ui/dialog'
 import { useDraftUploadFlow } from '#/features/deliverables/hooks/useDraftUploadFlow'
 import type { Draft } from '#/features/deliverables/api/draftUpload'
+import type { DeliverableDTO, OfferType } from '#/features/deliverables/types'
 import { UploadProgressOverlay } from './UploadProgressOverlay'
 import { UploadErrorBanner } from './UploadErrorBanner'
 
@@ -19,6 +20,13 @@ interface UploadDraftDialogProps {
   deliverableId: string
   onSuccess: (draft: Draft) => void
   title?: string
+  analytics?: {
+    offerType: OfferType
+    deliverableIndex: number
+    deliverableStatus: DeliverableDTO['status']
+    currentVersion: number | null
+    latestChangeRequestedAt: string | null
+  }
 }
 
 export function UploadDraftDialog({
@@ -27,9 +35,10 @@ export function UploadDraftDialog({
   deliverableId,
   onSuccess,
   title,
+  analytics,
 }: UploadDraftDialogProps) {
   const { status, progress, error, draft, start, cancel, reset } =
-    useDraftUploadFlow(deliverableId)
+    useDraftUploadFlow(deliverableId, analytics)
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
