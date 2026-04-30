@@ -62,8 +62,11 @@ No aplica — task de instrumentación.
 - [ ] `pnpm tsc --noEmit` y `pnpm lint` pasan.
 
 ## Done summary
+
 useMemo con deps primitivas en DraftSubmittedCard estabiliza la referencia correctamente. Todos los nuevos event trackers (modal opened/dismissed, change_request_submitted, card_seen, draft_v2_upload_started, time_to_resolve_round, deliverable_total_rounds) están bien tipados, no filtran PII, y tienen tests que cubren los paths críticos. La lógica de round_index y total_rounds desde el caché pre-invalidación es semánticamente correcta.
+
 ## Evidence
+
 - Commits:
 - Tests:
 - PRs:
