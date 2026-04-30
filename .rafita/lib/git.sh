@@ -140,7 +140,7 @@ git::setup_epic_branch() {
         common::warn "abortando setup de ${epic}; corré la dep primero o creá la rama manualmente"
         return 1
       fi
-      case " ${resolved_branches[*]} " in
+      case " ${resolved_branches[*]:-} " in
         *" ${resolved} "*) ;;
         *) resolved_branches+=("$resolved") ;;
       esac
