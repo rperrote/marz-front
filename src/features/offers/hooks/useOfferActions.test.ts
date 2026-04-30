@@ -81,6 +81,7 @@ describe('useOfferActions', () => {
     result.current.accept.mutate({
       offerId: 'offer-1',
       sentAt: new Date().toISOString(),
+      offerType: 'single',
     })
 
     await waitFor(() => {
@@ -112,6 +113,7 @@ describe('useOfferActions', () => {
     result.current.accept.mutate({
       offerId: 'offer-1',
       sentAt: new Date().toISOString(),
+      offerType: 'single',
     })
 
     await waitFor(() => {
@@ -134,6 +136,7 @@ describe('useOfferActions', () => {
     result.current.reject.mutate({
       offerId: 'offer-1',
       sentAt: new Date().toISOString(),
+      offerType: 'single',
       reason: 'Not interested',
     })
 
@@ -166,6 +169,7 @@ describe('useOfferActions', () => {
     result.current.reject.mutate({
       offerId: 'offer-1',
       sentAt: new Date().toISOString(),
+      offerType: 'single',
     })
 
     await waitFor(() => {
@@ -206,6 +210,7 @@ describe('useOfferActions', () => {
     result.current.accept.mutate({
       offerId: 'offer-1',
       sentAt: new Date().toISOString(),
+      offerType: 'single',
     })
 
     await waitFor(() => {

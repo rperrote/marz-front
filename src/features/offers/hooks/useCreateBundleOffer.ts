@@ -1,7 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
 
-import { trackOfferEvent, toAmountBucket, daysFromNow } from '../analytics'
+import {
+  trackOfferEvent,
+  toAmountBucket,
+  daysFromNow,
+  toPlatformMix,
+} from '../analytics'
 
 export interface CreateBundleOfferRequest {
   type: 'bundle'
@@ -66,9 +71,10 @@ export function useCreateBundleOffer() {
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'bundle',
-        platform: variables.deliverables[0]?.platform ?? 'unknown',
+        platform_mix: toPlatformMix(variables.deliverables),
+        deliverables_count: variables.deliverables.length,
         has_speed_bonus: hasSpeedBonus,
-        amount_bucket: toAmountBucket(amount, 'USD'),
+        total_amount_bucket: toAmountBucket(amount, 'USD'),
         deadline_days_from_now: daysFromNow(variables.deadline),
       })
     },

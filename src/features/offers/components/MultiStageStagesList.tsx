@@ -9,11 +9,14 @@ import {
 } from '#/features/offers/utils/formatOffer'
 import type { OfferStatus } from '#/features/offers/types'
 import type { OfferStageDTO } from '../hooks/useConversationOffers'
+import { trackOfferEvent } from '../analytics'
+import type { ActorKind } from '../analytics'
 
 interface MultiStageStagesListProps {
   stages: OfferStageDTO[]
   offerStatus: OfferStatus
   currency: string
+  actorKind: ActorKind
 }
 
 function getDefaultExpanded(
@@ -51,10 +54,28 @@ export function MultiStageStagesList({
   stages,
   offerStatus,
   currency,
+  actorKind,
 }: MultiStageStagesListProps) {
   const [openMap, setOpenMap] = useState(() =>
     getDefaultExpanded(stages, offerStatus),
   )
+
+  function handleToggleStage(stageIndex: number) {
+    const isOpen = !(openMap[stageIndex] ?? false)
+    setOpenMap((prev) => {
+      const next = [...prev]
+      next[stageIndex] = isOpen
+      return next
+    })
+    if (isOpen) {
+      trackOfferEvent('stage_expanded', {
+        actor_kind: actorKind,
+        offer_type: 'multistage',
+        stage_index: stageIndex,
+        surface: 'panel',
+      })
+    }
+  }
 
   return (
     <div className="space-y-2">
@@ -71,13 +92,7 @@ export function MultiStageStagesList({
           >
             <button
               type="button"
-              onClick={() =>
-                setOpenMap((prev) => {
-                  const next = [...prev]
-                  next[i] = !next[i]
-                  return next
-                })
-              }
+              onClick={() => handleToggleStage(i)}
               className="flex w-full items-center justify-between px-4 py-3 text-left"
               aria-expanded={isOpen}
               aria-label={t`Toggle stage ${stage.name}`}

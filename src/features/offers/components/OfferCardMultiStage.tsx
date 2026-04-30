@@ -14,6 +14,7 @@ import {
   isOfferExpired,
 } from '../utils/formatOffer'
 import { getStatusConfig } from '../utils/offerStatus'
+import { trackOfferEvent } from '../analytics'
 import { OfferHeader } from './OfferHeader'
 
 interface OfferCardMultiStageProps {
@@ -29,19 +30,34 @@ interface OfferCardMultiStageProps {
 interface StageCardProps {
   stage: OfferSnapshotMultiStage['stages'][number]
   currency: string
+  stageIndex: number
+  actorKind: 'brand' | 'creator'
 }
 
-function StageCard({ stage, currency }: StageCardProps) {
+function StageCard({ stage, currency, stageIndex, actorKind }: StageCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [descExpanded, setDescExpanded] = useState(false)
   const deadline = formatOfferDeadline(stage.deadline)
   const amount = formatOfferAmount(stage.amount, currency)
 
+  function handleToggle() {
+    const next = !expanded
+    setExpanded(next)
+    if (next) {
+      trackOfferEvent('stage_expanded', {
+        actor_kind: actorKind,
+        offer_type: 'multistage',
+        stage_index: stageIndex,
+        surface: 'card',
+      })
+    }
+  }
+
   return (
     <div className="rounded-xl border border-border bg-muted">
       <button
         type="button"
-        onClick={() => setExpanded((v) => !v)}
+        onClick={handleToggle}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
         aria-expanded={expanded}
         aria-label={t`Toggle stage ${stage.name}`}
@@ -108,6 +124,7 @@ export function OfferCardMultiStage({
   const badge = getStatusConfig(status)
   const kicker = side === 'out' ? t`Offer sent` : t`New campaign offer`
   const icon = side === 'out' ? Timer : Sparkles
+  const actorKind = side === 'out' ? 'brand' : 'creator'
 
   return (
     <div
@@ -129,7 +146,13 @@ export function OfferCardMultiStage({
 
           <div className="space-y-2">
             {snapshot.stages.map((stage, i) => (
-              <StageCard key={i} stage={stage} currency={snapshot.currency} />
+              <StageCard
+                key={i}
+                stage={stage}
+                currency={snapshot.currency}
+                stageIndex={i}
+                actorKind={actorKind}
+              />
             ))}
           </div>
 

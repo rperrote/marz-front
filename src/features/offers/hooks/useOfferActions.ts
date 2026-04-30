@@ -4,6 +4,7 @@ import { t } from '@lingui/core/macro'
 import { customFetch, ApiError } from '#/shared/api/mutator'
 
 import { trackOfferEvent } from '../analytics'
+import type { OfferType } from '../analytics'
 
 interface AcceptOfferResponse {
   data: {
@@ -26,11 +27,13 @@ interface RejectOfferResponse {
 interface AcceptVariables {
   offerId: string
   sentAt: string
+  offerType: OfferType
 }
 
 interface RejectVariables {
   offerId: string
   sentAt: string
+  offerType: OfferType
   reason?: string
 }
 
@@ -74,6 +77,7 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
     onSuccess: (_data, variables) => {
       trackOfferEvent('offer_accepted', {
         actor_kind: 'creator',
+        offer_type: variables.offerType,
         time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
       })
       queryClient.invalidateQueries({ queryKey: offersQueryKey })
@@ -116,6 +120,7 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
     onSuccess: (_data, variables) => {
       trackOfferEvent('offer_rejected', {
         actor_kind: 'creator',
+        offer_type: variables.offerType,
         time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
       })
       queryClient.invalidateQueries({ queryKey: offersQueryKey })

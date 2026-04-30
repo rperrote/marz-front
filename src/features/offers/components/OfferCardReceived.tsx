@@ -50,6 +50,7 @@ export function OfferCardReceived({
     )
     trackOfferEvent('offer_received_seen', {
       actor_kind: 'creator',
+      offer_type: snapshot.type,
       offer_age_seconds: offerAgeSeconds,
     })
   })

@@ -11,31 +11,55 @@ export type AmountBucket =
 export type ArchiveSizeBucket = '<5' | '5-10' | '10-20' | '20-50' | '>50'
 
 export type ActorKind = 'brand' | 'creator'
+export type OfferType = 'single' | 'bundle' | 'multistage'
+export type StageExpandedSurface = 'card' | 'panel'
+
+interface OfferSentBasePayload {
+  actor_kind: 'brand'
+  offer_type: OfferType
+  platform_mix: string[]
+  has_speed_bonus: boolean
+  total_amount_bucket: AmountBucket
+  deadline_days_from_now: number
+}
+
+type OfferSentPayload =
+  | (OfferSentBasePayload & {
+      offer_type: 'single'
+    })
+  | (OfferSentBasePayload & {
+      offer_type: 'bundle'
+      deliverables_count?: number
+    })
+  | (OfferSentBasePayload & {
+      offer_type: 'multistage'
+      stages_count?: number
+    })
 
 interface OfferEventMap {
   offer_sidesheet_opened: {
     actor_kind: 'brand'
     source: 'conversation'
   }
-  offer_sent: {
-    actor_kind: 'brand'
-    offer_type: 'single' | 'bundle' | 'multistage'
-    platform: string
-    has_speed_bonus: boolean
-    amount_bucket: AmountBucket
-    deadline_days_from_now: number
-  }
+  offer_sent: OfferSentPayload
   offer_received_seen: {
     actor_kind: 'creator'
+    offer_type: OfferType
     offer_age_seconds: number
   }
   offer_accepted: {
     actor_kind: 'creator'
+    offer_type: OfferType
     time_to_response_seconds: number
   }
   offer_rejected: {
     actor_kind: 'creator'
+    offer_type: OfferType
     time_to_response_seconds: number
+  }
+  offer_expired: {
+    actor_kind: ActorKind
+    offer_type: OfferType
   }
   offer_panel_viewed: {
     actor_kind: ActorKind
@@ -48,6 +72,18 @@ interface OfferEventMap {
   offer_expired_seen: {
     actor_kind: ActorKind
     offer_age_days_at_seen: number
+  }
+  offer_type_changed_in_sidesheet: {
+    actor_kind: 'brand'
+    from_type: OfferType
+    to_type: OfferType
+    had_data: boolean
+  }
+  stage_expanded: {
+    actor_kind: ActorKind
+    offer_type: 'multistage'
+    stage_index: number
+    surface: StageExpandedSurface
   }
 }
 
@@ -108,6 +144,23 @@ export function toArchiveSizeBucket(size: number): ArchiveSizeBucket {
   if (size < 20) return '10-20'
   if (size < 50) return '20-50'
   return '>50'
+}
+
+export function toPlatformMix(
+  deliverables: ReadonlyArray<{ platform: string }>,
+): string[] {
+  return [...new Set(deliverables.map((deliverable) => deliverable.platform))]
+}
+
+export function maxDeadlineFromNow(
+  deadlines: readonly string[],
+  now?: Date,
+): number {
+  const sortedDeadlines = [...deadlines].sort(
+    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
+  )
+  const latestDeadline = sortedDeadlines[0]
+  return latestDeadline ? daysFromNow(latestDeadline, now) : 0
 }
 
 export function daysFromNow(dateString: string, now?: Date): number {

@@ -67,9 +67,9 @@ export function useCreateSingleOffer() {
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'single',
-        platform: variables.platform,
+        platform_mix: [variables.platform],
         has_speed_bonus: hasSpeedBonus,
-        amount_bucket: toAmountBucket(amount, 'USD'),
+        total_amount_bucket: toAmountBucket(amount, 'USD'),
         deadline_days_from_now: daysFromNow(variables.deadline),
       })
     },

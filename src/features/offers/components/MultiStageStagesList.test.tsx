@@ -5,6 +5,7 @@ import { axe } from 'vitest-axe'
 
 import { MultiStageStagesList } from './MultiStageStagesList'
 import type { OfferStageDTO } from '../hooks/useConversationOffers'
+import { trackOfferEvent } from '../analytics'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -13,6 +14,12 @@ vi.mock('@lingui/core/macro', () => ({
     { __lingui: true },
   ),
 }))
+
+vi.mock('../analytics', () => ({
+  trackOfferEvent: vi.fn(),
+}))
+
+const mockTrackOfferEvent = vi.mocked(trackOfferEvent)
 
 const stages: OfferStageDTO[] = [
   {
@@ -51,6 +58,7 @@ describe('MultiStageStagesList', () => {
         stages={stages}
         offerStatus="sent"
         currency="USD"
+        actorKind="brand"
       />,
     )
 
@@ -72,6 +80,7 @@ describe('MultiStageStagesList', () => {
         stages={stages}
         offerStatus="accepted"
         currency="USD"
+        actorKind="brand"
       />,
     )
 
@@ -91,6 +100,7 @@ describe('MultiStageStagesList', () => {
         stages={stages}
         offerStatus="sent"
         currency="USD"
+        actorKind="brand"
       />,
     )
 
@@ -114,11 +124,18 @@ describe('MultiStageStagesList', () => {
         stages={stages}
         offerStatus="sent"
         currency="USD"
+        actorKind="brand"
       />,
     )
 
     const productionToggle = getToggle('production')
     await user.click(productionToggle)
+    expect(mockTrackOfferEvent).toHaveBeenCalledWith('stage_expanded', {
+      actor_kind: 'brand',
+      offer_type: 'multistage',
+      stage_index: 1,
+      surface: 'panel',
+    })
 
     expect(screen.getByText('Film and edit the video.')).toBeInTheDocument()
     expect(screen.getByText('$4,500.00')).toBeInTheDocument()
@@ -131,6 +148,7 @@ describe('MultiStageStagesList', () => {
         stages={stages}
         offerStatus="sent"
         currency="USD"
+        actorKind="brand"
       />,
     )
 
@@ -163,6 +181,7 @@ describe('MultiStageStagesList', () => {
         stages={stages}
         offerStatus="sent"
         currency="USD"
+        actorKind="brand"
       />,
     )
     expect(await axe(container)).toHaveNoViolations()

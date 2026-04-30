@@ -43,9 +43,8 @@ Extender `trackOfferEvent` (FEAT-005) para soportar los nuevos payloads y agrega
 - [ ] Verificacion: `stage_expanded` se dispara cuando el usuario expande una stage en card o panel.
 
 ## Done summary
-
-_To be filled by the worker._
-
+Analytics refactor completo y correcto. OfferSentPayload discriminated union bien tipada con campos opcionales por variante. toPlatformMix y maxDeadlineFromNow extraídas y exportadas con cobertura de tests incluyendo edge cases (array vacío). Analytics movidas fuera de updaters en MultiStageStagesList y OfferCardMultiStage — handleToggleStage/handleToggle leen estado antes del set, sin race condition. pendingOfferTypeHadData se resetea en todos los paths (open, close, cancelTypeChange, confirmTypeChange). offerType requerido en AcceptVariables/RejectVariables propagado a todos los call sites en tests. offer_type agregado en offer_received_seen/offer_accepted/offer_rejected con tipos compatibles. platform_mix, total_amount_bucket y deadline con maxDeadlineFromNow correctos en los tres hooks de creación.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

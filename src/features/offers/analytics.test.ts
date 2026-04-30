@@ -7,6 +7,8 @@ import {
   markOfferSeen,
   resetSeenOffers,
   daysFromNow,
+  toPlatformMix,
+  maxDeadlineFromNow,
 } from './analytics'
 
 vi.mock('#/shared/api/mutator', () => ({
@@ -46,9 +48,9 @@ describe('trackOfferEvent — offer_sent', () => {
     trackOfferEvent('offer_sent', {
       actor_kind: 'brand',
       offer_type: 'single',
-      platform: 'instagram',
+      platform_mix: ['instagram'],
       has_speed_bonus: false,
-      amount_bucket: '<500',
+      total_amount_bucket: '<500',
       deadline_days_from_now: 7,
     })
 
@@ -56,10 +58,58 @@ describe('trackOfferEvent — offer_sent', () => {
     expect(body.event).toBe('offer_sent')
     expect(body.properties.actor_kind).toBe('brand')
     expect(body.properties.offer_type).toBe('single')
-    expect(body.properties.platform).toBe('instagram')
+    expect(body.properties.platform_mix).toEqual(['instagram'])
     expect(body.properties.has_speed_bonus).toBe(false)
-    expect(body.properties.amount_bucket).toBe('<500')
+    expect(body.properties.total_amount_bucket).toBe('<500')
     expect(body.properties.deadline_days_from_now).toBe(7)
+  })
+
+  it('sends bundle payload with platform mix and deliverables count', () => {
+    trackOfferEvent('offer_sent', {
+      actor_kind: 'brand',
+      offer_type: 'bundle',
+      platform_mix: ['instagram', 'tiktok'],
+      deliverables_count: 3,
+      has_speed_bonus: true,
+      total_amount_bucket: '2500-5000',
+      deadline_days_from_now: 14,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event).toBe('offer_sent')
+    expect(body.properties).toMatchObject({
+      actor_kind: 'brand',
+      offer_type: 'bundle',
+      platform_mix: ['instagram', 'tiktok'],
+      deliverables_count: 3,
+      has_speed_bonus: true,
+      total_amount_bucket: '2500-5000',
+      deadline_days_from_now: 14,
+    })
+  })
+
+  it('sends multistage payload with empty platform mix and stages count', () => {
+    trackOfferEvent('offer_sent', {
+      actor_kind: 'brand',
+      offer_type: 'multistage',
+      platform_mix: [],
+      stages_count: 2,
+      has_speed_bonus: false,
+      total_amount_bucket: '5000-10000',
+      deadline_days_from_now: 30,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event).toBe('offer_sent')
+    expect(body.properties).toMatchObject({
+      actor_kind: 'brand',
+      offer_type: 'multistage',
+      platform_mix: [],
+      stages_count: 2,
+      has_speed_bonus: false,
+      total_amount_bucket: '5000-10000',
+      deadline_days_from_now: 30,
+    })
   })
 
   it('does not throw when customFetch fails', () => {
@@ -69,9 +119,9 @@ describe('trackOfferEvent — offer_sent', () => {
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'single',
-        platform: 'instagram',
+        platform_mix: ['instagram'],
         has_speed_bonus: false,
-        amount_bucket: '<500',
+        total_amount_bucket: '<500',
         deadline_days_from_now: 7,
       }),
     ).not.toThrow()
@@ -82,12 +132,14 @@ describe('trackOfferEvent — offer_received_seen', () => {
   it('sends correct payload', () => {
     trackOfferEvent('offer_received_seen', {
       actor_kind: 'creator',
+      offer_type: 'bundle',
       offer_age_seconds: 42,
     })
 
     const body = getLastFetchBody()
     expect(body.event).toBe('offer_received_seen')
     expect(body.properties.actor_kind).toBe('creator')
+    expect(body.properties.offer_type).toBe('bundle')
     expect(body.properties.offer_age_seconds).toBe(42)
   })
 })
@@ -96,12 +148,14 @@ describe('trackOfferEvent — offer_accepted', () => {
   it('sends correct payload', () => {
     trackOfferEvent('offer_accepted', {
       actor_kind: 'creator',
+      offer_type: 'multistage',
       time_to_response_seconds: 3600,
     })
 
     const body = getLastFetchBody()
     expect(body.event).toBe('offer_accepted')
     expect(body.properties.actor_kind).toBe('creator')
+    expect(body.properties.offer_type).toBe('multistage')
     expect(body.properties.time_to_response_seconds).toBe(3600)
   })
 })
@@ -110,13 +164,29 @@ describe('trackOfferEvent — offer_rejected', () => {
   it('sends correct payload', () => {
     trackOfferEvent('offer_rejected', {
       actor_kind: 'creator',
+      offer_type: 'single',
       time_to_response_seconds: 1800,
     })
 
     const body = getLastFetchBody()
     expect(body.event).toBe('offer_rejected')
     expect(body.properties.actor_kind).toBe('creator')
+    expect(body.properties.offer_type).toBe('single')
     expect(body.properties.time_to_response_seconds).toBe(1800)
+  })
+})
+
+describe('trackOfferEvent — offer_expired', () => {
+  it('sends correct payload', () => {
+    trackOfferEvent('offer_expired', {
+      actor_kind: 'brand',
+      offer_type: 'bundle',
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event).toBe('offer_expired')
+    expect(body.properties.actor_kind).toBe('brand')
+    expect(body.properties.offer_type).toBe('bundle')
   })
 })
 
@@ -162,6 +232,46 @@ describe('trackOfferEvent — offer_expired_seen', () => {
   })
 })
 
+describe('trackOfferEvent — offer_type_changed_in_sidesheet', () => {
+  it('sends correct payload', () => {
+    trackOfferEvent('offer_type_changed_in_sidesheet', {
+      actor_kind: 'brand',
+      from_type: 'single',
+      to_type: 'multistage',
+      had_data: true,
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event).toBe('offer_type_changed_in_sidesheet')
+    expect(body.properties).toMatchObject({
+      actor_kind: 'brand',
+      from_type: 'single',
+      to_type: 'multistage',
+      had_data: true,
+    })
+  })
+})
+
+describe('trackOfferEvent — stage_expanded', () => {
+  it('sends correct payload', () => {
+    trackOfferEvent('stage_expanded', {
+      actor_kind: 'creator',
+      offer_type: 'multistage',
+      stage_index: 1,
+      surface: 'panel',
+    })
+
+    const body = getLastFetchBody()
+    expect(body.event).toBe('stage_expanded')
+    expect(body.properties).toMatchObject({
+      actor_kind: 'creator',
+      offer_type: 'multistage',
+      stage_index: 1,
+      surface: 'panel',
+    })
+  })
+})
+
 describe('toAmountBucket', () => {
   it.each([
     [0, 'USD', '<500'],
@@ -188,6 +298,28 @@ describe('toArchiveSizeBucket', () => {
     [100, '>50'],
   ])('maps %s to %s', (size, expected) => {
     expect(toArchiveSizeBucket(size)).toBe(expected)
+  })
+})
+
+describe('toPlatformMix', () => {
+  it('returns unique platforms preserving first-seen order', () => {
+    expect(
+      toPlatformMix([
+        { platform: 'instagram' },
+        { platform: 'tiktok' },
+        { platform: 'instagram' },
+      ]),
+    ).toEqual(['instagram', 'tiktok'])
+  })
+})
+
+describe('maxDeadlineFromNow', () => {
+  it('uses the latest deadline', () => {
+    const now = new Date('2026-04-27T12:00:00Z')
+
+    expect(
+      maxDeadlineFromNow(['2026-05-01', '2026-05-10', '2026-05-03'], now),
+    ).toBe(13)
   })
 })
 

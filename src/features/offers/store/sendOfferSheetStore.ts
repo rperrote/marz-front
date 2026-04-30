@@ -9,6 +9,7 @@ interface SendOfferSheetState {
   conversationId: string | null
   offerType: OfferType
   pendingOfferType: OfferType | null
+  pendingOfferTypeHadData: boolean
   isTypeChangeConfirmationOpen: boolean
   open: (conversationId: string) => void
   close: () => void
@@ -23,6 +24,7 @@ export const useSendOfferSheetStore = create<SendOfferSheetState>()(
     conversationId: null,
     offerType: 'single',
     pendingOfferType: null,
+    pendingOfferTypeHadData: false,
     isTypeChangeConfirmationOpen: false,
     open: (conversationId) => {
       trackOfferEvent('offer_sidesheet_opened', {
@@ -34,6 +36,7 @@ export const useSendOfferSheetStore = create<SendOfferSheetState>()(
         conversationId,
         offerType: 'single',
         pendingOfferType: null,
+        pendingOfferTypeHadData: false,
         isTypeChangeConfirmationOpen: false,
       })
     },
@@ -43,6 +46,7 @@ export const useSendOfferSheetStore = create<SendOfferSheetState>()(
         conversationId: null,
         offerType: 'single',
         pendingOfferType: null,
+        pendingOfferTypeHadData: false,
         isTypeChangeConfirmationOpen: false,
       }),
     setOfferType: (type, options) => {
@@ -50,22 +54,43 @@ export const useSendOfferSheetStore = create<SendOfferSheetState>()(
       if (isTypeChangeConfirmationOpen) return
       if (type === offerType) return
       if (options?.hasData) {
-        set({ pendingOfferType: type, isTypeChangeConfirmationOpen: true })
+        set({
+          pendingOfferType: type,
+          pendingOfferTypeHadData: true,
+          isTypeChangeConfirmationOpen: true,
+        })
       } else {
+        trackOfferEvent('offer_type_changed_in_sidesheet', {
+          actor_kind: 'brand',
+          from_type: offerType,
+          to_type: type,
+          had_data: false,
+        })
         set({ offerType: type, pendingOfferType: null })
       }
     },
     confirmTypeChange: () => {
-      const { pendingOfferType } = get()
+      const { offerType, pendingOfferType, pendingOfferTypeHadData } = get()
       if (pendingOfferType) {
+        trackOfferEvent('offer_type_changed_in_sidesheet', {
+          actor_kind: 'brand',
+          from_type: offerType,
+          to_type: pendingOfferType,
+          had_data: pendingOfferTypeHadData,
+        })
         set({
           offerType: pendingOfferType,
           pendingOfferType: null,
+          pendingOfferTypeHadData: false,
           isTypeChangeConfirmationOpen: false,
         })
       }
     },
     cancelTypeChange: () =>
-      set({ pendingOfferType: null, isTypeChangeConfirmationOpen: false }),
+      set({
+        pendingOfferType: null,
+        pendingOfferTypeHadData: false,
+        isTypeChangeConfirmationOpen: false,
+      }),
   }),
 )

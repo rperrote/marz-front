@@ -5,6 +5,7 @@ import { axe } from 'vitest-axe'
 
 import { OfferCardMultiStage } from './OfferCardMultiStage'
 import type { OfferSnapshotMultiStage, OfferStatus } from '../types'
+import { trackOfferEvent } from '../analytics'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -17,6 +18,12 @@ vi.mock('@lingui/core/macro', () => ({
 vi.mock('#/shared/hooks/useNow', () => ({
   useNow: () => new Date('2026-04-26T12:00:00Z'),
 }))
+
+vi.mock('../analytics', () => ({
+  trackOfferEvent: vi.fn(),
+}))
+
+const mockTrackOfferEvent = vi.mocked(trackOfferEvent)
 
 const baseSnapshot: OfferSnapshotMultiStage = {
   offer_id: 'offer-ms-1',
@@ -128,12 +135,24 @@ describe('OfferCardMultiStage', () => {
     expect(screen.queryByText(/film and edit/i)).not.toBeInTheDocument()
 
     await user.click(stage1Toggle)
+    expect(mockTrackOfferEvent).toHaveBeenCalledWith('stage_expanded', {
+      actor_kind: 'brand',
+      offer_type: 'multistage',
+      stage_index: 0,
+      surface: 'card',
+    })
     expect(stage1Toggle).toHaveAttribute('aria-expanded', 'true')
     expect(stage2Toggle).toHaveAttribute('aria-expanded', 'false')
     expect(screen.getByText(/create the initial concept/i)).toBeInTheDocument()
     expect(screen.queryByText(/film and edit/i)).not.toBeInTheDocument()
 
     await user.click(stage2Toggle)
+    expect(mockTrackOfferEvent).toHaveBeenCalledWith('stage_expanded', {
+      actor_kind: 'brand',
+      offer_type: 'multistage',
+      stage_index: 1,
+      surface: 'card',
+    })
     expect(stage1Toggle).toHaveAttribute('aria-expanded', 'true')
     expect(stage2Toggle).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByText(/create the initial concept/i)).toBeInTheDocument()

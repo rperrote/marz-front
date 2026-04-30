@@ -1,7 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
 
-import { trackOfferEvent, toAmountBucket, daysFromNow } from '../analytics'
+import {
+  trackOfferEvent,
+  toAmountBucket,
+  maxDeadlineFromNow,
+} from '../analytics'
 
 export interface CreateMultistageOfferRequest {
   type: 'multistage'
@@ -57,11 +61,12 @@ export function useCreateMultistageOffer() {
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'multistage',
-        platform: 'unknown',
+        platform_mix: [],
+        stages_count: variables.stages.length,
         has_speed_bonus: false,
-        amount_bucket: toAmountBucket(total, 'USD'),
-        deadline_days_from_now: daysFromNow(
-          variables.stages[0]?.deadline ?? '',
+        total_amount_bucket: toAmountBucket(total, 'USD'),
+        deadline_days_from_now: maxDeadlineFromNow(
+          variables.stages.map((stage) => stage.deadline),
         ),
       })
     },

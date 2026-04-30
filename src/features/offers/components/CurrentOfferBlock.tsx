@@ -31,13 +31,20 @@ interface CurrentOfferBlockProps {
   actorKind: ActorKind
 }
 
-function OfferTypeContent({ offer }: { offer: ConversationOfferDTO }) {
+function OfferTypeContent({
+  offer,
+  actorKind,
+}: {
+  offer: ConversationOfferDTO
+  actorKind: ActorKind
+}) {
   if (offer.type === 'multistage') {
     return (
       <MultiStageStagesList
         stages={offer.stages}
         offerStatus={offer.status}
         currency={offer.currency}
+        actorKind={actorKind}
       />
     )
   }
@@ -164,7 +171,7 @@ export function CurrentOfferBlock({
         ) : null}
       </dl>
 
-      <OfferTypeContent offer={offer} />
+      <OfferTypeContent offer={offer} actorKind={actorKind} />
     </div>
   )
 }
