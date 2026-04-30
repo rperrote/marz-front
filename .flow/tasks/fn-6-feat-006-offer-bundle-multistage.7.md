@@ -66,9 +66,8 @@ Crear `StageOpenedBubble` que consume `StageOpenedSnap`. Texto:
 - [ ] Validacion visual Pencil ≥95% contra bubble refs.
 
 ## Done summary
-
-_To be filled by the worker._
-
+OFFER_STATUS_MAP resuelve correctamente el hardcodeo previo de 'sent'. La extracción de `side` al scope exterior es limpia. Los nuevos tests cubren bundle/multistage para accepted y expired, con snapshots reutilizados por spread sin campos faltantes. La migración en fixtures.ts de @clerk/backend a fetch manual con type guards es correcta y elimina la dependencia externa. Sin issues.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

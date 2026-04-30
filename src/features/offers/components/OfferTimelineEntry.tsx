@@ -6,6 +6,7 @@ import type {
   OfferSnapshotBundle,
   OfferSnapshotMultiStage,
   OfferEventType,
+  OfferStatus,
   ViewerSide,
 } from '../types'
 import {
@@ -27,10 +28,21 @@ import { OfferRejectedBubble } from './OfferRejectedBubble'
 import { OfferExpiredBubble } from './OfferExpiredBubble'
 
 const EVENT_TYPE_MAP: Record<string, OfferEventType> = {
+  OfferSent: 'OfferSent',
+  OfferAccepted: 'OfferAccepted',
+  OfferRejected: 'OfferRejected',
+  OfferExpired: 'OfferExpired',
   offer_sent: 'OfferSent',
   offer_accepted: 'OfferAccepted',
   offer_rejected: 'OfferRejected',
   offer_expired: 'OfferExpired',
+}
+
+const OFFER_STATUS_MAP: Record<OfferEventType, OfferStatus> = {
+  OfferSent: 'sent',
+  OfferAccepted: 'accepted',
+  OfferRejected: 'rejected',
+  OfferExpired: 'expired',
 }
 
 export interface OfferTimelineMessage {
@@ -65,21 +77,32 @@ export function OfferTimelineEntry({
   const snapshot =
     (rawPayload['snapshot'] as Record<string, unknown> | undefined) ??
     rawPayload
+  const side = viewerSide === 'actor' ? 'out' : 'in'
 
   switch (offerEvent) {
     case 'OfferSent': {
       const bundleParsed = offerSnapshotBundleSchema.safeParse(snapshot)
       if (bundleParsed.success) {
         const snap: OfferSnapshotBundle = bundleParsed.data
-        const side = viewerSide === 'actor' ? 'out' : 'in'
-        return <OfferCardBundle snapshot={snap} status="sent" side={side} />
+        return (
+          <OfferCardBundle
+            snapshot={snap}
+            status={OFFER_STATUS_MAP[offerEvent]}
+            side={side}
+          />
+        )
       }
 
       const multiStageParsed = offerSnapshotMultiStageSchema.safeParse(snapshot)
       if (multiStageParsed.success) {
         const snap: OfferSnapshotMultiStage = multiStageParsed.data
-        const side = viewerSide === 'actor' ? 'out' : 'in'
-        return <OfferCardMultiStage snapshot={snap} status="sent" side={side} />
+        return (
+          <OfferCardMultiStage
+            snapshot={snap}
+            status={OFFER_STATUS_MAP[offerEvent]}
+            side={side}
+          />
+        )
       }
 
       const parsed = offerSnapshotSchema.safeParse(snapshot)

@@ -6,9 +6,7 @@
   "default_impl": null,
   "default_review": null,
   "default_sync": null,
-  "depends_on_epics": [
-    "fn-7-feat-007-draft-submit-review-approve"
-  ],
+  "depends_on_epics": ["fn-7-feat-007-draft-submit-review-approve"],
   "id": "fn-8-feat-008-draft-request-changes",
   "next_task": 1,
   "plan_review_status": "unknown",

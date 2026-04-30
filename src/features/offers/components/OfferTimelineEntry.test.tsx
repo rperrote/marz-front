@@ -24,12 +24,20 @@ vi.mock('./OfferCardReceived', () => ({
 }))
 vi.mock('./OfferCardBundle', () => ({
   OfferCardBundle: (props: Record<string, unknown>) => (
-    <div data-testid="offer-card-bundle" data-side={props.side} />
+    <div
+      data-testid="offer-card-bundle"
+      data-side={props.side}
+      data-status={props.status}
+    />
   ),
 }))
 vi.mock('./OfferCardMultiStage', () => ({
   OfferCardMultiStage: (props: Record<string, unknown>) => (
-    <div data-testid="offer-card-multistage" data-side={props.side} />
+    <div
+      data-testid="offer-card-multistage"
+      data-side={props.side}
+      data-status={props.status}
+    />
   ),
 }))
 vi.mock('./OfferAcceptedCardIn', () => ({
@@ -70,6 +78,47 @@ const VALID_SNAPSHOT = {
   speed_bonus: null,
   sent_at: '2026-04-01T00:00:00Z',
   expires_at: '2026-04-08T00:00:00Z',
+}
+
+const BUNDLE_SNAPSHOT = {
+  offer_id: 'off-2',
+  campaign_id: 'camp-1',
+  campaign_name: 'Test Campaign',
+  type: 'bundle' as const,
+  total_amount: '1000.00',
+  currency: 'USD',
+  deadline: '2026-05-01T00:00:00Z',
+  speed_bonus: null,
+  sent_at: '2026-04-01T00:00:00Z',
+  expires_at: '2026-04-08T00:00:00Z',
+  deliverables: [
+    {
+      platform: 'instagram',
+      format: 'reel',
+      quantity: 2,
+      amount: '500.00',
+    },
+  ],
+}
+
+const MULTI_STAGE_SNAPSHOT = {
+  offer_id: 'off-3',
+  campaign_id: 'camp-1',
+  campaign_name: 'Test Campaign',
+  type: 'multistage' as const,
+  total_amount: '1500.00',
+  currency: 'USD',
+  deadline: '2026-05-01T00:00:00Z',
+  sent_at: '2026-04-01T00:00:00Z',
+  expires_at: '2026-04-08T00:00:00Z',
+  stages: [
+    {
+      name: 'Stage 1',
+      description: 'Desc',
+      deadline: '2026-05-01T00:00:00Z',
+      amount: '750.00',
+    },
+  ],
 }
 
 function makeMessage(
@@ -219,35 +268,17 @@ describe('OfferTimelineEntry', () => {
       <OfferTimelineEntry
         message={makeMessage({
           event_type: 'offer_sent',
-          payload: {
-            snapshot: {
-              offer_id: 'off-2',
-              campaign_id: 'camp-1',
-              campaign_name: 'Test Campaign',
-              type: 'bundle',
-              total_amount: '1000.00',
-              currency: 'USD',
-              deadline: '2026-05-01T00:00:00Z',
-              speed_bonus: null,
-              sent_at: '2026-04-01T00:00:00Z',
-              expires_at: '2026-04-08T00:00:00Z',
-              deliverables: [
-                {
-                  platform: 'instagram',
-                  format: 'reel',
-                  quantity: 2,
-                  amount: '500.00',
-                },
-              ],
-            },
-          },
+          payload: { snapshot: BUNDLE_SNAPSHOT },
         })}
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
       { wrapper: Wrapper },
     )
-    expect(getByTestId('offer-card-bundle')).toBeDefined()
+    expect(getByTestId('offer-card-bundle')).toHaveAttribute(
+      'data-status',
+      'sent',
+    )
   })
 
   it('renders OfferCardMultiStage for offer_sent with multistage snapshot', () => {
@@ -255,34 +286,17 @@ describe('OfferTimelineEntry', () => {
       <OfferTimelineEntry
         message={makeMessage({
           event_type: 'offer_sent',
-          payload: {
-            snapshot: {
-              offer_id: 'off-3',
-              campaign_id: 'camp-1',
-              campaign_name: 'Test Campaign',
-              type: 'multistage',
-              total_amount: '1500.00',
-              currency: 'USD',
-              deadline: '2026-05-01T00:00:00Z',
-              sent_at: '2026-04-01T00:00:00Z',
-              expires_at: '2026-04-08T00:00:00Z',
-              stages: [
-                {
-                  name: 'Stage 1',
-                  description: 'Desc',
-                  deadline: '2026-05-01T00:00:00Z',
-                  amount: '750.00',
-                },
-              ],
-            },
-          },
+          payload: { snapshot: MULTI_STAGE_SNAPSHOT },
         })}
         currentAccountId={CURRENT_ACCOUNT}
         counterpartDisplayName="Creator Name"
       />,
       { wrapper: Wrapper },
     )
-    expect(getByTestId('offer-card-multistage')).toBeDefined()
+    expect(getByTestId('offer-card-multistage')).toHaveAttribute(
+      'data-status',
+      'sent',
+    )
   })
 
   it('renders OfferAcceptedCardIn for bundle offer_accepted when viewer is actor', () => {
@@ -292,17 +306,7 @@ describe('OfferTimelineEntry', () => {
           event_type: 'offer_accepted',
           payload: {
             snapshot: {
-              offer_id: 'off-2',
-              campaign_id: 'camp-1',
-              campaign_name: 'Test Campaign',
-              type: 'bundle',
-              total_amount: '1000.00',
-              currency: 'USD',
-              deadline: '2026-05-01T00:00:00Z',
-              speed_bonus: null,
-              sent_at: '2026-04-01T00:00:00Z',
-              expires_at: '2026-04-08T00:00:00Z',
-              deliverables: [],
+              ...BUNDLE_SNAPSHOT,
               accepted_at: '2026-04-02T00:00:00Z',
             },
           },
@@ -315,6 +319,26 @@ describe('OfferTimelineEntry', () => {
     expect(getByTestId('offer-accepted-card-in')).toBeDefined()
   })
 
+  it('renders OfferAcceptedCardOut for multistage offer_accepted when viewer is recipient', () => {
+    const { getByTestId } = render(
+      <OfferTimelineEntry
+        message={makeMessage({
+          event_type: 'offer_accepted',
+          payload: {
+            snapshot: {
+              ...MULTI_STAGE_SNAPSHOT,
+              accepted_at: '2026-04-02T00:00:00Z',
+            },
+          },
+        })}
+        currentAccountId="acc-other"
+        counterpartDisplayName="Creator Name"
+      />,
+      { wrapper: Wrapper },
+    )
+    expect(getByTestId('offer-accepted-card-out')).toBeDefined()
+  })
+
   it('renders OfferExpiredBubble for bundle offer_expired', () => {
     const { getByTestId } = render(
       <OfferTimelineEntry
@@ -322,17 +346,28 @@ describe('OfferTimelineEntry', () => {
           event_type: 'offer_expired',
           payload: {
             snapshot: {
-              offer_id: 'off-2',
-              campaign_id: 'camp-1',
-              campaign_name: 'Test Campaign',
-              type: 'bundle',
-              total_amount: '1000.00',
-              currency: 'USD',
-              deadline: '2026-05-01T00:00:00Z',
-              speed_bonus: null,
-              sent_at: '2026-04-01T00:00:00Z',
-              expires_at: '2026-04-08T00:00:00Z',
-              deliverables: [],
+              ...BUNDLE_SNAPSHOT,
+              expired_at: '2026-04-08T00:00:00Z',
+            },
+          },
+        })}
+        currentAccountId={CURRENT_ACCOUNT}
+        counterpartDisplayName="Creator Name"
+      />,
+      { wrapper: Wrapper },
+    )
+    expect(getByTestId('offer-expired-bubble')).toBeDefined()
+  })
+
+  it('renders OfferExpiredBubble for multistage offer_expired', () => {
+    const { getByTestId } = render(
+      <OfferTimelineEntry
+        message={makeMessage({
+          event_type: 'offer_expired',
+          payload: {
+            snapshot: {
+              ...MULTI_STAGE_SNAPSHOT,
+              expired_at: '2026-04-08T00:00:00Z',
             },
           },
         })}
