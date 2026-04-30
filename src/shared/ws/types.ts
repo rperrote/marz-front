@@ -158,6 +158,9 @@ export interface StageOpenedWSPayload {
   offer_id: string
   stage_id: string
   position: number
+  total_stages: number
+  name: string
+  prev_stage_position: number | null
 }
 
 export type DomainWsEvent =

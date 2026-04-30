@@ -2,11 +2,10 @@ import { Check } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
-import type { OfferAcceptedSnap } from '../types'
 import { formatOfferDeadline } from '../utils/formatOffer'
 
 interface OfferAcceptedCardOutProps {
-  snapshot: OfferAcceptedSnap
+  snapshot: { campaign_name: string; deadline: string }
   creatorName: string
 }
 

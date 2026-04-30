@@ -112,6 +112,7 @@ export function OfferCardMultiStage({
   return (
     <div
       role="article"
+      data-testid="offer-card-multistage"
       aria-label={t`Multi-stage offer, total ${amount}, status ${badge.label}`}
     >
       <SystemEventCard tone="success" kicker={kicker} icon={icon}>

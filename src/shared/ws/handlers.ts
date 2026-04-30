@@ -1,10 +1,13 @@
-import type { QueryClient } from '@tanstack/react-query'
+import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 
 import type { DeliverableDTO } from '#/features/deliverables/types'
 import { trackMultistageStageUnlocked } from '#/features/deliverables/analytics'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
-import { getOfferQueryKey } from '#/shared/queries/offers'
+import {
+  getConversationOffersQueryKey,
+  getOfferQueryKey,
+} from '#/shared/queries/offers'
 
 import type { DomainEventEnvelope, EventHandler } from './events'
 import type {
@@ -14,6 +17,18 @@ import type {
   StageApprovedWSPayload,
   StageOpenedWSPayload,
 } from './types'
+
+interface SystemEventMessage {
+  id: string
+  conversation_id: string
+  author_account_id: string | null
+  type: 'text' | 'system_event'
+  text_content: string | null
+  event_type: string | null
+  payload: Record<string, unknown> | null
+  created_at: string
+  read_by_self: boolean
+}
 
 /**
  * Factory for domain-event handlers keyed by event_type.
@@ -81,11 +96,26 @@ export function createWsHandlers(
       const payload = (envelope as DomainEventEnvelope<StageApprovedWSPayload>)
         .payload
 
+      insertSystemEventMessage(queryClient, {
+        id: envelope.event_id,
+        conversation_id: payload.conversation_id,
+        author_account_id: envelope.actor_account_id ?? null,
+        type: 'system_event',
+        text_content: null,
+        event_type: 'StageApproved',
+        payload: {},
+        created_at: envelope.occurred_at,
+        read_by_self: false,
+      })
+
       void queryClient.invalidateQueries({
         queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
       })
       void queryClient.invalidateQueries({
         queryKey: getOfferQueryKey(payload.offer_id),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: getConversationOffersQueryKey(payload.conversation_id),
       })
     },
 
@@ -101,9 +131,70 @@ export function createWsHandlers(
         })
       }
 
+      insertSystemEventMessage(queryClient, {
+        id: envelope.event_id,
+        conversation_id: payload.conversation_id,
+        author_account_id: envelope.actor_account_id ?? null,
+        type: 'system_event',
+        text_content: null,
+        event_type: 'StageOpened',
+        payload: {
+          snapshot: {
+            position: payload.position,
+            total: payload.total_stages,
+            name: payload.name,
+            prev_stage_position: payload.prev_stage_position,
+          },
+        },
+        created_at: envelope.occurred_at,
+        read_by_self: false,
+      })
+
       void queryClient.invalidateQueries({
         queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
       })
+      void queryClient.invalidateQueries({
+        queryKey: getConversationOffersQueryKey(payload.conversation_id),
+      })
     },
   }
+}
+
+type MessagesInfiniteData = InfiniteData<
+  {
+    data: {
+      data: SystemEventMessage[]
+      next_before_cursor: string | null
+      has_more: boolean
+    }
+    status: number
+  },
+  string | undefined
+>
+
+function insertSystemEventMessage(
+  queryClient: QueryClient,
+  message: SystemEventMessage,
+) {
+  const messagesKey = getMessagesQueryKey(message.conversation_id)
+
+  queryClient.setQueryData<MessagesInfiniteData>(messagesKey, (old) => {
+    if (!old || old.pages.length === 0) return old
+
+    const alreadyExists = old.pages.some((page) =>
+      page.data.data.some((msg) => msg.id === message.id),
+    )
+    if (alreadyExists) return old
+
+    const pages = [...old.pages]
+    const firstPage = pages[0]!
+    pages[0] = {
+      ...firstPage,
+      data: {
+        ...firstPage.data,
+        data: [message, ...firstPage.data.data],
+      },
+    }
+    return { ...old, pages }
+  })
 }

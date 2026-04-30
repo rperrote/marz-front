@@ -3,11 +3,10 @@ import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
-import type { OfferAcceptedSnap } from '../types'
 import { formatOfferDeadline } from '../utils/formatOffer'
 
 interface OfferAcceptedCardInProps {
-  snapshot: OfferAcceptedSnap
+  snapshot: { deadline: string }
   onUploadDraft?: () => void
 }
 

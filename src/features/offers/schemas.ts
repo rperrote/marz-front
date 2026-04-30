@@ -65,3 +65,19 @@ export const offerSnapshotMultiStageSchema = z.object({
   expires_at: z.string(),
   stages: z.array(multiStageItemSnapshotSchema),
 })
+
+export const stageOpenedSnapSchema = z.object({
+  position: z.number(),
+  total: z.number(),
+  name: z.string(),
+  prev_stage_position: z.number().nullable(),
+})
+
+export const offerAcceptedBundleSnapSchema = offerSnapshotBundleSchema.extend({
+  accepted_at: z.string(),
+})
+
+export const offerAcceptedMultiStageSnapSchema =
+  offerSnapshotMultiStageSchema.extend({
+    accepted_at: z.string(),
+  })

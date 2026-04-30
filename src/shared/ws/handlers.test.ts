@@ -188,7 +188,7 @@ describe('createWsHandlers', () => {
   })
 
   describe('stage.approved', () => {
-    it('invalidates conversation deliverables and offer', () => {
+    it('invalidates conversation deliverables, offer, and offers', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
       const payload: StageApprovedWSPayload = {
         conversation_id: 'conv-1',
@@ -208,17 +208,61 @@ describe('createWsHandlers', () => {
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['offer', 'off-1'],
       })
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['conversations', 'conv-1', 'offers'],
+      })
+    })
+
+    it('inserts StageApproved message into cache', () => {
+      const payload: StageApprovedWSPayload = {
+        conversation_id: 'conv-1',
+        offer_id: 'off-1',
+        stage_id: 'stage-1',
+        position: 1,
+        total_stages: 3,
+        approved_at: new Date().toISOString(),
+      }
+      const envelope = makeEnvelope('stage.approved', payload)
+
+      queryClient.setQueryData(['conversation-messages', 'conv-1'], {
+        pages: [
+          {
+            data: {
+              data: [],
+              next_before_cursor: null,
+              has_more: false,
+            },
+            status: 200,
+          },
+        ],
+        pageParams: [undefined],
+      })
+
+      handlers['stage.approved']!(envelope)
+
+      const cache = queryClient.getQueryData<{
+        pages: Array<{
+          data: { data: Array<{ id: string; event_type: string | null }> }
+        }>
+      }>(['conversation-messages', 'conv-1'])
+      const messages = cache?.pages[0]?.data.data
+      expect(messages).toHaveLength(1)
+      expect(messages?.[0]?.id).toBe(envelope.event_id)
+      expect(messages?.[0]?.event_type).toBe('StageApproved')
     })
   })
 
   describe('stage.opened', () => {
-    it('invalidates conversation deliverables', () => {
+    it('invalidates conversation deliverables and offers', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
       const payload: StageOpenedWSPayload = {
         conversation_id: 'conv-1',
         offer_id: 'off-1',
         stage_id: 'stage-2',
         position: 2,
+        total_stages: 3,
+        name: 'Content Creation',
+        prev_stage_position: 1,
       }
       const envelope = makeEnvelope('stage.opened', payload)
 
@@ -227,6 +271,48 @@ describe('createWsHandlers', () => {
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversation-deliverables', 'conv-1'],
       })
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['conversations', 'conv-1', 'offers'],
+      })
+    })
+
+    it('inserts StageOpened message into cache', () => {
+      const payload: StageOpenedWSPayload = {
+        conversation_id: 'conv-1',
+        offer_id: 'off-1',
+        stage_id: 'stage-2',
+        position: 2,
+        total_stages: 3,
+        name: 'Content Creation',
+        prev_stage_position: 1,
+      }
+      const envelope = makeEnvelope('stage.opened', payload)
+
+      queryClient.setQueryData(['conversation-messages', 'conv-1'], {
+        pages: [
+          {
+            data: {
+              data: [],
+              next_before_cursor: null,
+              has_more: false,
+            },
+            status: 200,
+          },
+        ],
+        pageParams: [undefined],
+      })
+
+      handlers['stage.opened']!(envelope)
+
+      const cache = queryClient.getQueryData<{
+        pages: Array<{
+          data: { data: Array<{ id: string; event_type: string | null }> }
+        }>
+      }>(['conversation-messages', 'conv-1'])
+      const messages = cache?.pages[0]?.data.data
+      expect(messages).toHaveLength(1)
+      expect(messages?.[0]?.id).toBe(envelope.event_id)
+      expect(messages?.[0]?.event_type).toBe('StageOpened')
     })
 
     it('fires analytics when sessionKind is brand', () => {
@@ -237,6 +323,9 @@ describe('createWsHandlers', () => {
         offer_id: 'off-1',
         stage_id: 'stage-2',
         position: 2,
+        total_stages: 3,
+        name: 'Content Creation',
+        prev_stage_position: 1,
       }
       const envelope = makeEnvelope('stage.opened', payload)
 
@@ -257,6 +346,9 @@ describe('createWsHandlers', () => {
         offer_id: 'off-1',
         stage_id: 'stage-2',
         position: 2,
+        total_stages: 3,
+        name: 'Content Creation',
+        prev_stage_position: 1,
       }
       const envelope = makeEnvelope('stage.opened', payload)
 
@@ -272,6 +364,9 @@ describe('createWsHandlers', () => {
         offer_id: 'off-1',
         stage_id: 'stage-2',
         position: 2,
+        total_stages: 3,
+        name: 'Content Creation',
+        prev_stage_position: 1,
       }
       const envelope = makeEnvelope('stage.opened', payload)
 

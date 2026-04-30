@@ -22,6 +22,8 @@ import { groupByDay } from '../utils/groupByDay'
 
 import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
 import { OfferTimelineEntry } from '#/features/offers/components/OfferTimelineEntry'
+import { StageOpenedBubble } from '#/features/offers/components/StageOpenedBubble'
+import { stageOpenedSnapSchema } from '#/features/offers/schemas'
 import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
 import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
 import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
@@ -164,6 +166,27 @@ export function MessageTimeline({
               }
             />
           )
+        }
+
+        if (message.event_type === 'StageOpened') {
+          const rawPayload = message.payload ?? {}
+          const snapshot =
+            (rawPayload['snapshot'] as Record<string, unknown> | undefined) ??
+            rawPayload
+          const parsed = stageOpenedSnapSchema.safeParse(snapshot)
+          if (!parsed.success) return null
+          const side =
+            message.author_account_id === currentAccountId ? 'out' : 'in'
+          return (
+            <div className="flex justify-center py-1">
+              <StageOpenedBubble snapshot={parsed.data} side={side} />
+            </div>
+          )
+        }
+
+        if (message.event_type === 'StageApproved') {
+          console.warn('StageApproved rendering not implemented yet (FEAT-009)')
+          return null
         }
 
         if (OFFER_EVENT_TYPES.has(message.event_type ?? '')) {

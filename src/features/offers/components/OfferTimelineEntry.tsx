@@ -3,13 +3,24 @@ import { useMe } from '#/shared/api/generated/accounts/accounts'
 import type {
   OfferSnapshot,
   OfferAcceptedSnap,
+  OfferSnapshotBundle,
+  OfferSnapshotMultiStage,
   OfferEventType,
   ViewerSide,
 } from '../types'
-import { offerSnapshotSchema, offerAcceptedSnapSchema } from '../schemas'
+import {
+  offerSnapshotSchema,
+  offerAcceptedSnapSchema,
+  offerSnapshotBundleSchema,
+  offerSnapshotMultiStageSchema,
+  offerAcceptedBundleSnapSchema,
+  offerAcceptedMultiStageSnapSchema,
+} from '../schemas'
 
 import { OfferCardSent } from './OfferCardSent'
 import { OfferCardReceived } from './OfferCardReceived'
+import { OfferCardBundle } from './OfferCardBundle'
+import { OfferCardMultiStage } from './OfferCardMultiStage'
 import { OfferAcceptedCardOut } from './OfferAcceptedCardOut'
 import { OfferAcceptedCardIn } from './OfferAcceptedCardIn'
 import { OfferRejectedBubble } from './OfferRejectedBubble'
@@ -57,6 +68,20 @@ export function OfferTimelineEntry({
 
   switch (offerEvent) {
     case 'OfferSent': {
+      const bundleParsed = offerSnapshotBundleSchema.safeParse(snapshot)
+      if (bundleParsed.success) {
+        const snap: OfferSnapshotBundle = bundleParsed.data
+        const side = viewerSide === 'actor' ? 'out' : 'in'
+        return <OfferCardBundle snapshot={snap} status="sent" side={side} />
+      }
+
+      const multiStageParsed = offerSnapshotMultiStageSchema.safeParse(snapshot)
+      if (multiStageParsed.success) {
+        const snap: OfferSnapshotMultiStage = multiStageParsed.data
+        const side = viewerSide === 'actor' ? 'out' : 'in'
+        return <OfferCardMultiStage snapshot={snap} status="sent" side={side} />
+      }
+
       const parsed = offerSnapshotSchema.safeParse(snapshot)
       if (!parsed.success) return null
       const snap: OfferSnapshot = parsed.data
@@ -67,6 +92,35 @@ export function OfferTimelineEntry({
     }
 
     case 'OfferAccepted': {
+      const bundleParsed = offerAcceptedBundleSnapSchema.safeParse(snapshot)
+      if (bundleParsed.success) {
+        const snap = bundleParsed.data
+        if (viewerSide === 'actor') {
+          return <OfferAcceptedCardIn snapshot={snap} />
+        }
+        return (
+          <OfferAcceptedCardOut
+            snapshot={snap}
+            creatorName={counterpartDisplayName}
+          />
+        )
+      }
+
+      const multiStageParsed =
+        offerAcceptedMultiStageSnapSchema.safeParse(snapshot)
+      if (multiStageParsed.success) {
+        const snap = multiStageParsed.data
+        if (viewerSide === 'actor') {
+          return <OfferAcceptedCardIn snapshot={snap} />
+        }
+        return (
+          <OfferAcceptedCardOut
+            snapshot={snap}
+            creatorName={counterpartDisplayName}
+          />
+        )
+      }
+
       const parsed = offerAcceptedSnapSchema.safeParse(snapshot)
       if (!parsed.success) return null
       const snap: OfferAcceptedSnap = parsed.data
@@ -86,6 +140,33 @@ export function OfferTimelineEntry({
 
     case 'OfferExpired': {
       if (!actorKind) return null
+
+      const bundleParsed = offerSnapshotBundleSchema.safeParse(snapshot)
+      if (bundleParsed.success) {
+        const snap = bundleParsed.data
+        return (
+          <OfferExpiredBubble
+            viewerSide={viewerSide}
+            offerId={snap.offer_id}
+            sentAt={snap.sent_at}
+            actorKind={actorKind}
+          />
+        )
+      }
+
+      const multiStageParsed = offerSnapshotMultiStageSchema.safeParse(snapshot)
+      if (multiStageParsed.success) {
+        const snap = multiStageParsed.data
+        return (
+          <OfferExpiredBubble
+            viewerSide={viewerSide}
+            offerId={snap.offer_id}
+            sentAt={snap.sent_at}
+            actorKind={actorKind}
+          />
+        )
+      }
+
       const parsed = offerSnapshotSchema.safeParse(snapshot)
       const snap = parsed.success ? parsed.data : null
       return (

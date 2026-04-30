@@ -49,6 +49,7 @@ export function OfferCardBundle({
   return (
     <div
       role="article"
+      data-testid="offer-card-bundle"
       aria-label={t`Bundle offer, total ${amount}, deadline ${deadline}, status ${badge.label}`}
     >
       <SystemEventCard tone="success" kicker={kicker} icon={icon}>

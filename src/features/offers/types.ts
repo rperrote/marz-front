@@ -48,6 +48,13 @@ export type OfferEventType =
 
 export type ViewerSide = 'actor' | 'recipient'
 
+export interface StageOpenedSnap {
+  position: number
+  total: number
+  name: string
+  prev_stage_position: number | null
+}
+
 export interface BundleDeliverableSnapshot {
   platform: string
   format: string
