@@ -15,7 +15,7 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // video: 'retain-on-failure',  // requiere ffmpeg; descomentar si está instalado
   },
   globalSetup: './src/test/e2e/global-setup.ts',
   projects: [
