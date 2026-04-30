@@ -30,13 +30,17 @@ PYEOF
 }
 
 codex::_base_args() {
-  local model="$1"
+  local model="$1" session_mode="${2:-}"
   [[ -n "$model" ]] && printf '%s\0%s\0' "--model" "$model"
   printf '%s\0' "--skip-git-repo-check"
-  local sandbox; sandbox=$(codex::_sandbox)
-  [[ -n "$sandbox" ]] && printf '%s\0%s\0' "--sandbox" "$sandbox"
-  if [[ "${RAFITA_YOLO:-1}" == "1" ]]; then
-    printf '%s\0' "--full-auto"
+  # `codex exec resume` only accepts a narrow flag set; --sandbox and
+  # --full-auto are not allowed there. Skip them on resume.
+  if [[ "$session_mode" != "resume" ]]; then
+    local sandbox; sandbox=$(codex::_sandbox)
+    [[ -n "$sandbox" ]] && printf '%s\0%s\0' "--sandbox" "$sandbox"
+    if [[ "${RAFITA_YOLO:-1}" == "1" ]]; then
+      printf '%s\0' "--full-auto"
+    fi
   fi
 }
 
@@ -63,7 +67,7 @@ codex::_invoke() {
   if [[ "$session_mode" == "resume" && -n "$session_id" ]]; then
     args+=(resume)
   fi
-  while IFS= read -r -d '' arg; do args+=("$arg"); done < <(codex::_base_args "$model")
+  while IFS= read -r -d '' arg; do args+=("$arg"); done < <(codex::_base_args "$model" "$session_mode")
   # Auto-enable JSON streaming when debug>=2, unless explicitly turned off.
   local _stream="${RAFITA_STREAM_OUTPUT:-}"
   if [[ -z "$_stream" ]]; then
