@@ -45,6 +45,12 @@ vi.mock('#/shared/api/mutator', () => ({
   customFetch: (...args: unknown[]) => mockCustomFetch(...args),
 }))
 
+vi.mock('#/shared/api/generated/accounts/accounts', () => ({
+  useMe: () => ({
+    data: { status: 200, data: { kind: 'brand' } },
+  }),
+}))
+
 function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -144,7 +150,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -170,7 +180,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -184,7 +198,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -211,7 +229,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -236,7 +258,11 @@ describe('MessageTimeline', () => {
 
     render(
       <Wrapper>
-        <MessageTimeline conversationId="conv-1" currentAccountId="acc-me" />
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
       </Wrapper>,
     )
 
@@ -247,6 +273,192 @@ describe('MessageTimeline', () => {
     const bubble = screen.getByText('My message').closest('[role="article"]')
     const container = bubble?.parentElement
     expect(container?.className).toContain('justify-end')
+  })
+
+  it('renders RequestChangesCard for ChangesRequested system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-rc-1',
+          type: 'system_event',
+          event_type: 'ChangesRequested',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            event_type: 'ChangesRequested',
+            deliverable_id: 'del-1',
+            deliverable_platform: 'youtube',
+            deliverable_format: 'long_form',
+            deliverable_offer_stage_id: null,
+            draft_id: 'draft-1',
+            draft_version: 1,
+            draft_thumbnail_url: null,
+            categories: ['audio'],
+            notes: null,
+            requested_at: '2026-04-27T12:00:00Z',
+            requested_by_account_id: 'acc-other',
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('request-changes-card')).toBeInTheDocument()
+    })
+  })
+
+  it('renders StageOpenedBubble for StageOpened system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-so-1',
+          type: 'system_event',
+          event_type: 'StageOpened',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            snapshot: {
+              position: 2,
+              total: 3,
+              name: 'Content Creation',
+              prev_stage_position: 1,
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('stage-opened-bubble')).toBeInTheDocument()
+    })
+    expect(
+      screen.getByText(
+        'Previous stage approved — Stage 2: Content Creation is now open',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('renders OfferCardBundle for bundle offer_sent system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-bundle-1',
+          type: 'system_event',
+          event_type: 'offer_sent',
+          text_content: null,
+          author_account_id: 'acc-me',
+          payload: {
+            snapshot: {
+              offer_id: 'off-2',
+              campaign_id: 'camp-1',
+              campaign_name: 'Bundle Campaign',
+              type: 'bundle',
+              total_amount: '1000.00',
+              currency: 'USD',
+              deadline: '2026-05-01T00:00:00Z',
+              speed_bonus: null,
+              sent_at: '2026-04-01T00:00:00Z',
+              expires_at: '2026-04-08T00:00:00Z',
+              deliverables: [
+                {
+                  platform: 'instagram',
+                  format: 'reel',
+                  quantity: 2,
+                  amount: '500.00',
+                },
+              ],
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('offer-card-bundle')).toBeInTheDocument()
+    })
+  })
+
+  it('renders OfferCardMultiStage for multistage offer_sent system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-ms-1',
+          type: 'system_event',
+          event_type: 'offer_sent',
+          text_content: null,
+          author_account_id: 'acc-me',
+          payload: {
+            snapshot: {
+              offer_id: 'off-3',
+              campaign_id: 'camp-1',
+              campaign_name: 'MultiStage Campaign',
+              type: 'multistage',
+              total_amount: '1500.00',
+              currency: 'USD',
+              deadline: '2026-05-01T00:00:00Z',
+              sent_at: '2026-04-01T00:00:00Z',
+              expires_at: '2026-04-08T00:00:00Z',
+              stages: [
+                {
+                  name: 'Stage 1',
+                  description: 'Desc',
+                  deadline: '2026-05-01T00:00:00Z',
+                  amount: '750.00',
+                },
+              ],
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('offer-card-multistage')).toBeInTheDocument()
+    })
   })
 })
 

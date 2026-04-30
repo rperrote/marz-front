@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import { customFetch } from '#/shared/api/mutator'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
 
 import type {
   ConversationDetailResponse,
@@ -9,15 +10,10 @@ import type {
 } from './types'
 
 const CONVERSATION_DETAIL_KEY = 'conversation-detail'
-const MESSAGES_KEY = 'conversation-messages'
 const DEFAULT_MESSAGES_LIMIT = 30
 
 export function getConversationDetailQueryKey(conversationId: string) {
   return [CONVERSATION_DETAIL_KEY, conversationId] as const
-}
-
-export function getMessagesQueryKey(conversationId: string) {
-  return [MESSAGES_KEY, conversationId] as const
 }
 
 // RAFITA:ANY: manual fetcher — conversations endpoints not yet in OpenAPI spec; replace with Orval hook after pnpm api:sync

@@ -65,8 +65,10 @@ Agregar handlers para los 4 nuevos `event_type` WS (`draft.submitted`, `draft.ap
 
 ## Done summary
 
-_To be filled by the worker._
+Refactoring limpio. Los tres módulos shared/queries/{messages,deliverables,offers}.ts son consistentes: todos retornan tuplas readonly con as const. getConversationDeliverablesQueryKey ya usa as const alineando el comportamiento con messages y offers. Todos los consumers actualizaron sus imports correctamente. getOfferQueryKey agregado en el lugar correcto. Sin deuda técnica nueva.
 
 ## Evidence
 
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

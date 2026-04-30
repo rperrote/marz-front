@@ -20,6 +20,14 @@ import { DEFAULT_TOLERANCE_PX } from '#/features/chat/hooks/useViewportAtBottom'
 import type { TimelineItem } from '../utils/groupByDay'
 import { groupByDay } from '../utils/groupByDay'
 
+import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
+import { OfferTimelineEntry } from '#/features/offers/components/OfferTimelineEntry'
+import { StageOpenedBubble } from '#/features/offers/components/StageOpenedBubble'
+import { stageOpenedSnapSchema } from '#/features/offers/schemas'
+import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
+import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
+import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
+
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
 import type { EventSeverity } from './EventBubble'
@@ -37,6 +45,7 @@ export interface MessageTimelineHandle {
 interface MessageTimelineProps {
   conversationId: string
   currentAccountId: string
+  sessionKind: 'brand' | 'creator' | undefined
   onAtBottomStateChange?: (atBottom: boolean) => void
   timelineRef?: React.Ref<MessageTimelineHandle>
 }
@@ -46,6 +55,7 @@ const START_INDEX = 1_000_000
 export function MessageTimeline({
   conversationId,
   currentAccountId,
+  sessionKind,
   onAtBottomStateChange,
   timelineRef,
 }: MessageTimelineProps) {
@@ -120,6 +130,77 @@ export function MessageTimeline({
       const message = item.message
 
       if (message.type === 'system_event') {
+        if (message.event_type === 'DraftSubmitted') {
+          return (
+            <DraftSubmittedCard
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+              conversationId={conversationId}
+              sessionKind={sessionKind}
+            />
+          )
+        }
+
+        if (message.event_type === 'DraftApproved') {
+          return (
+            <DraftApprovedCard
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+            />
+          )
+        }
+
+        if (message.event_type === 'ChangesRequested') {
+          return (
+            <RequestChangesCard
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+            />
+          )
+        }
+
+        if (message.event_type === 'StageOpened') {
+          const rawPayload = message.payload ?? {}
+          const snapshot =
+            (rawPayload['snapshot'] as Record<string, unknown> | undefined) ??
+            rawPayload
+          const parsed = stageOpenedSnapSchema.safeParse(snapshot)
+          if (!parsed.success) return null
+          const side =
+            message.author_account_id === currentAccountId ? 'out' : 'in'
+          return (
+            <div className="flex justify-center py-1">
+              <StageOpenedBubble snapshot={parsed.data} side={side} />
+            </div>
+          )
+        }
+
+        if (message.event_type === 'StageApproved') {
+          console.warn('StageApproved rendering not implemented yet (FEAT-009)')
+          return null
+        }
+
+        if (OFFER_EVENT_TYPES.has(message.event_type ?? '')) {
+          return (
+            <OfferTimelineEntry
+              message={message}
+              currentAccountId={currentAccountId}
+              counterpartDisplayName={
+                conversationDetail?.counterpart.display_name ?? ''
+              }
+            />
+          )
+        }
+
         const label =
           (message.payload?.['display_text'] as string | undefined) ??
           message.event_type ??
@@ -155,7 +236,12 @@ export function MessageTimeline({
         />
       )
     },
-    [currentAccountId, conversationDetail?.counterpart.display_name],
+    [
+      currentAccountId,
+      conversationDetail?.counterpart.display_name,
+      conversationId,
+      sessionKind,
+    ],
   )
 
   if (timelineItems.length === 0) {

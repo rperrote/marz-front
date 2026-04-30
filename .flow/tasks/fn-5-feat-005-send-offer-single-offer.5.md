@@ -60,8 +60,10 @@ Wirear los 4 nuevos `event_type` (`OfferSent`, `OfferAccepted`, `OfferRejected`,
 
 ## Done summary
 
-_To be filled by worker on completion._
+BC violations resueltas correctamente: queryKey y constantes de tipos de offer movidos a shared/, sin imports cruzados entre features. Union discriminada en types.ts con never-fields garantiza type safety en el handler. safeParse Zod en OfferTimelineEntry elimina double-cast. Invalidación de offers ocurre fuera del setQueryData correctamente. Cobertura de tests completa: todas las ramas del switch + casos degenerados + deduplicación + invalidación condicional.
 
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

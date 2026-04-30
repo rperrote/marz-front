@@ -347,7 +347,28 @@ git::diff_since_base() {
     base="HEAD~1"
   fi
 
-  git diff "$base"...HEAD
+  git diff "$base"...HEAD -- $(git::_diff_excludes)
+}
+
+# Emit pathspec excludes for diffs sent to LLM reviewers.
+# Filters lockfiles, generated code, and other noise that adds no review value.
+git::_diff_excludes() {
+  printf '%s ' \
+    ':(exclude)*.sum' \
+    ':(exclude)*.lock' \
+    ':(exclude)package-lock.json' \
+    ':(exclude)pnpm-lock.yaml' \
+    ':(exclude)yarn.lock' \
+    ':(exclude)go.sum' \
+    ':(exclude)Cargo.lock' \
+    ':(exclude)Gemfile.lock' \
+    ':(exclude)poetry.lock' \
+    ':(exclude)*.pb.go' \
+    ':(exclude)*_gen.go' \
+    ':(exclude)*.generated.ts' \
+    ':(exclude)*.generated.tsx' \
+    ':(exclude)dist/**' \
+    ':(exclude).flow/**'
 }
 
 git::push_branch() {

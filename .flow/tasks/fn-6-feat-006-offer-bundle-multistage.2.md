@@ -57,8 +57,10 @@ Relevante DESIGN.md / tokens:
 
 ## Done summary
 
-_To be filled by the worker._
+key={offerType} en SingleEditor garantiza remount completo al cambiar tipo, resolviendo el reset del form. La máquina de estados del store es correcta y con guardas adecuados. OfferTypeChooser usa semántica HTML nativa accesible. Tests cubren los tres escenarios del flujo de confirmación.
 
 ## Evidence
 
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

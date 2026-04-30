@@ -59,9 +59,9 @@ orchestrator::run_task() {
   state::save_checkpoint "${RAFITA_CURRENT_EPIC:-}" "$task_id" 0 "start" \
     "$(git::current_branch)" "$snapshot" "${RAFITA_COMPLETED_CSV:-}"
 
+  flowctl::start_task "$task_id"
   local spec; spec=$(flowctl::task_spec "$task_id")
   local task_json; task_json=$(flowctl::task_json "$task_id")
-  flowctl::start_task "$task_id"
 
   local max="${RAFITA_MAX_REVIEW_ROUNDS:-5}"
   local approved=0
@@ -470,6 +470,13 @@ print(json.dumps({"status":"fail","issues":[{"file":"(gates)","issue":body[:2000
     # Commit any edits the closer introduced so the final-review diff reflects
     # the committed state and publish_epic can push them. Empty diff → no-op.
     git::commit_closer "$epic" "$round" || true
+
+    # Skip final review when configured (closer-only mode without reviewer).
+    if [[ "${RAFITA_CLOSER_SKIP_FINAL_REVIEW:-0}" == "1" ]]; then
+      verdict='{"status":"pass","issues":[],"summary":"closer approved (final review skipped by config)"}'
+      common::log INFO "closer loop: skipping final review (closerSkipFinalReview=true)"
+      break
+    fi
 
     export RAFITA_CURRENT_PHASE="final"
     verdict=$(phase::final_review "$epic" "$source_branch" "$tasks_csv")

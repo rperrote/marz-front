@@ -58,8 +58,10 @@ Emitir los 8 analytics events client-side definidos en spec §Analítica vía `P
 
 ## Done summary
 
-_To be filled by worker on completion._
+Analytics layer completo y correcto. daysFromNow con inyección de now resuelve tests deterministas. markOfferSeen con clave compuesta resuelve la colisión entre eventos sobre el mismo offerId. useViewedOnce con IntersectionObserver es fire-once con cleanup correcto. Todos los callers actualizados, mocks de jsdom presentes, cobertura de los 8 eventos verificada.
 
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

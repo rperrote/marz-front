@@ -80,6 +80,7 @@ DEFAULTS_JSON='{
   "closerEnabled": false,
   "closerProvider": "",
   "closerModel": "",
+  "closerSkipFinalReview": false,
   "maxFinalRounds": 3,
   "profileExtensions": {
     "dev": "",

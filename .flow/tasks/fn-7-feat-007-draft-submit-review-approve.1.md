@@ -58,8 +58,10 @@ Regenerar el cliente API tipado (Orval) contra el backend dev con los nuevos end
 
 ## Done summary
 
-_To be filled by the worker._
+Los 4 interfaces de payload (DraftSubmittedWSPayload, DraftApprovedWSPayload, DeliverableChangedWSPayload, StageApprovedWSPayload) y los 2 snapshots auxiliares (DraftSubmittedSnapshot, DraftApprovedSnapshot) matchean campo a campo con §4.2 del solution doc FEAT-007. Los tipos snake_case, nullabilidad y required/optional son correctos. deliverable: unknown en DeliverableChangedWSPayload es aceptable y está justificado (B.6 no deployado, se tipará cuando Orval regenere). La extensión del discriminated union DomainWsEvent sigue el patrón existente sin romper nada. El comentario en DeliverableChangedWSPayload es el único comentario en el archivo y documenta una restricción técnica real (blocker externo), no estado de tarea. Sin observaciones.
 
 ## Evidence
 
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

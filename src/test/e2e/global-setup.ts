@@ -37,11 +37,20 @@ export default async function globalSetup(_config: FullConfig) {
     process.env.CLERK_PUBLISHABLE_KEY = publishable
   }
 
-  if (process.env.CLERK_SECRET_KEY && publishable) {
-    await clerkSetup()
-    return
+  const testSecret = process.env.MARZ_TEST_SECRET
+  if (!testSecret) {
+    throw new Error(
+      'MARZ_TEST_SECRET no está definido. ' +
+        'Agregalo a .env.local con el valor que coincida con el backend de test.',
+    )
   }
-  console.warn(
-    '[e2e] CLERK_SECRET_KEY o CLERK_PUBLISHABLE_KEY ausentes; saltando clerkSetup. Tests con auth fallarán.',
-  )
+
+  if (!process.env.CLERK_SECRET_KEY || !publishable) {
+    throw new Error(
+      'CLERK_SECRET_KEY y CLERK_PUBLISHABLE_KEY son requeridos para E2E. ' +
+        'Asegurate de tenerlos en .env.local',
+    )
+  }
+
+  await clerkSetup()
 }

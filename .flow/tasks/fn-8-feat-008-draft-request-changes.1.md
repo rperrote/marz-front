@@ -52,8 +52,10 @@ No aplica — task de tipos/build, sin UI.
 
 ## Done summary
 
-_Pendiente de implementación._
+Diff vacío. El dev revirtió correctamente los cambios fuera de scope (tipos WS especulativos). No hay código que revisar.
 
 ## Evidence
 
-_Pendiente de implementación._
+- Commits:
+- Tests:
+- PRs:

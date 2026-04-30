@@ -15,7 +15,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-5-feat-005-send-offer-single-offer.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-005: Send Offer (single) + Offer Lifecycle \u2014 Frontend",
-  "updated_at": "2026-04-26T17:15:33.193169Z"
+  "updated_at": "2026-04-28T01:50:42.197042Z"
 }

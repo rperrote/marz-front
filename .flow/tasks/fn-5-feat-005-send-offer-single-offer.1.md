@@ -50,8 +50,10 @@ Regenerar `src/shared/api/generated/` después de que el backend `marz-api` merg
 
 ## Done summary
 
-_To be filled by worker on completion._
+Task abortada correctamente por blocker externo (backend B.5 sin deployar): evidencia concreta, working tree limpio, protocolo de abort seguido per-spec
 
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

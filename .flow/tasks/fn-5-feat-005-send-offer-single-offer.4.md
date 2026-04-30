@@ -78,8 +78,10 @@ Tokens: `bg-muted` para archive collapsed background, badges con `var(--primary)
 
 ## Done summary
 
-_To be filled by worker on completion._
+Correcciones aplicadas correctamente. Dead code eliminado, ContextPanel movido a shared/ui con imports actualizados en todos los consumidores, labels i18n coherentes (Sent para oferta activa, Pending para archivo), queryKey simplificado. pnpm-lock consistente con package.json. Fix 5 (ruta creator) justificadamente diferido.
 
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

@@ -23,15 +23,22 @@ import { MessageTimeline } from './MessageTimeline'
 import { MessageComposer } from './MessageComposer'
 import { NewMessagesPill } from './NewMessagesPill'
 import { TypingIndicator } from './TypingIndicator'
+import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 
 interface ConversationViewProps {
   conversationId: string
   currentAccountId: string
+  sessionKind: 'brand' | 'creator' | undefined
+  canSendOffer?: CanSendOfferMeta
+  onSendOffer?: () => void
 }
 
 export function ConversationView({
   conversationId,
   currentAccountId,
+  sessionKind,
+  canSendOffer,
+  onSendOffer,
 }: ConversationViewProps) {
   const queryClient = useQueryClient()
   const detailQuery = useConversationDetailQuery(conversationId)
@@ -153,12 +160,17 @@ export function ConversationView({
 
   return (
     <div className="flex h-full flex-col">
-      <ConversationHeader conversation={conversation} />
+      <ConversationHeader
+        conversation={conversation}
+        canSendOffer={canSendOffer}
+        onSendOffer={onSendOffer}
+      />
 
       <div className="relative flex-1 overflow-hidden">
         <MessageTimeline
           conversationId={conversationId}
           currentAccountId={currentAccountId}
+          sessionKind={sessionKind}
           onAtBottomStateChange={onAtBottomStateChange}
           timelineRef={timelineRef}
         />

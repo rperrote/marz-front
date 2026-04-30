@@ -32,7 +32,7 @@ describe('FieldRow', () => {
         {(aria) => <input type="email" {...aria} />}
       </FieldRow>,
     )
-    expect(screen.getByRole('alert')).toHaveTextContent('Email inválido')
+    expect(screen.getByRole('status')).toHaveTextContent('Email inválido')
     expect(screen.queryByText('Hint')).not.toBeInTheDocument()
     const input = screen.getByLabelText('Email')
     expect(input).toHaveAttribute('aria-invalid', 'true')

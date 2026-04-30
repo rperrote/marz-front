@@ -22,7 +22,7 @@ export const Route = createFileRoute('/_brand/workspace')({
       cached && cached.status === 200
         ? (cached.data as unknown as ServerMeBody)
         : null
-    return { accountId: me?.id ?? '' }
+    return { accountId: me?.id ?? '', sessionKind: 'brand' as const }
   },
   component: BrandWorkspaceLayout,
 })

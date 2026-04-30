@@ -16,7 +16,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-7-feat-007-draft-submit-review-approve.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-007: Draft Submit & Review (approve path) \u2014 Frontend",
-  "updated_at": "2026-04-26T17:27:27.517490Z"
+  "updated_at": "2026-04-28T01:50:42.405595Z"
 }

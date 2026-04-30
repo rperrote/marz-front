@@ -1,7 +1,4 @@
 {
-  "assignee": null,
-  "claim_note": "",
-  "claimed_at": null,
   "created_at": "2026-04-26T17:15:44.225371Z",
   "depends_on": [
     "fn-5-feat-005-send-offer-single-offer.2",
@@ -14,5 +11,5 @@
   "spec_path": ".flow/tasks/fn-5-feat-005-send-offer-single-offer.7.md",
   "status": "todo",
   "title": "F.7 \u2014 Analytics tracking (8 eventos client-side)",
-  "updated_at": "2026-04-26T17:19:32.116624Z"
+  "updated_at": "2026-04-27T18:49:44.791408Z"
 }

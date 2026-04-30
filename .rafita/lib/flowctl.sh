@@ -68,7 +68,14 @@ except Exception:
 spec_path = d.get("spec_path")
 if spec_path and os.path.isfile(spec_path):
     with open(spec_path) as f:
-        sys.stdout.write(f.read())
+        content = f.read()
+    # Strip YAML frontmatter (--- ... ---) — metadata like `satisfies` is
+    # traceability for humans, not actionable context for the agent.
+    if content.startswith("---"):
+        end = content.find("---", 3)
+        if end != -1:
+            content = content[end + 3:].lstrip("\n")
+    sys.stdout.write(content)
 else:
     # Fallback: emit the title so DEV at least knows what to do.
     sys.stdout.write(d.get("title",""))
@@ -132,7 +139,11 @@ print(",".join(ids))
 flowctl::start_task() {
   local task="$1"
   local bin; bin=$(flowctl::_bin)
-  "$bin" start "$task" >/dev/null 2>&1 || true
+  local out rc=0
+  out=$("$bin" start "$task" 2>&1) || rc=$?
+  if [[ $rc -ne 0 ]]; then
+    common::log WARN "flowctl start ${task} failed (rc=${rc}): ${out}"
+  fi
 }
 
 flowctl::done_task() {
@@ -141,11 +152,19 @@ flowctl::done_task() {
   local args=(done "$task")
   if [[ -n "$summary" ]]; then args+=(--summary-file "$summary"); fi
   if [[ -n "$evidence" ]]; then args+=(--evidence-json "$evidence"); fi
-  "$bin" "${args[@]}" >/dev/null 2>&1 || true
+  local out rc=0
+  out=$("${bin}" "${args[@]}" 2>&1) || rc=$?
+  if [[ $rc -ne 0 ]]; then
+    common::log WARN "flowctl done ${task} failed (rc=${rc}): ${out}"
+  fi
 }
 
 flowctl::close_epic() {
   local epic="$1"
   local bin; bin=$(flowctl::_bin)
-  "$bin" close-epic "$epic" >/dev/null 2>&1 || true
+  local out rc=0
+  out=$("$bin" epic close "$epic" 2>&1) || rc=$?
+  if [[ $rc -ne 0 ]]; then
+    common::log WARN "flowctl close ${epic} failed (rc=${rc}): ${out}"
+  fi
 }

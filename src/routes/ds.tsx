@@ -67,7 +67,7 @@ import { RequestChangesCard } from '#/features/deliverables/components/RequestCh
 import { RequestChangesModal } from '#/features/deliverables/components/RequestChangesModal'
 import { StageCard } from '#/features/deliverables/components/StageCard'
 import { BrandHeaderCard } from '#/features/identity/components/BrandHeaderCard'
-import { ContextPanel } from '#/features/identity/components/ContextPanel'
+import { ContextPanel } from '#/shared/ui/ContextPanel'
 import { CreatorHeaderCard } from '#/features/identity/components/CreatorHeaderCard'
 import { SidebarItem } from '#/features/identity/components/SidebarItem'
 import { SidebarTooltip } from '#/features/identity/components/SidebarTooltip'
@@ -82,9 +82,9 @@ import { OfferAcceptedCard } from '#/features/offers/components/OfferAcceptedCar
 import { OfferBlock } from '#/features/offers/components/OfferBlock'
 import { OfferTypeChooser } from '#/features/offers/components/OfferTypeChooser'
 import {
-  SendOfferSidesheet,
+  SendOfferSidesheetPreview as SendOfferSidesheet,
   SpeedBonusBlock,
-} from '#/features/offers/components/SendOfferSidesheet'
+} from '#/features/offers/components/SendOfferSidesheetPreview'
 import { StageEditor } from '#/features/offers/components/StageEditor'
 import { SummaryTotalRow } from '#/features/offers/components/SummaryTotalRow'
 import { PaymentCard } from '#/features/payments/components/PaymentCard'
@@ -645,7 +645,11 @@ function ReusableSection() {
       </ShowcaseGroup>
 
       <ShowcaseGroup title="Chat · header actions" context="features/chat">
-        <ChatHeaderActions />
+        <ChatHeaderActions
+          conversationId="ds-conv-1"
+          canSendOffer={{ visible: true, disabled: false }}
+          onSendOffer={() => {}}
+        />
       </ShowcaseGroup>
 
       <ShowcaseGroup title="Shell · sidebar" context="features/identity">
@@ -784,18 +788,68 @@ function ReusableSection() {
       >
         <div className="grid gap-4 md:grid-cols-2">
           <DraftSubmittedCard
-            audience="creator"
-            message="Here's the draft for the YouTube video. Let me know if you'd like any changes."
-            filename="echo_wireless_draft_v1.mp4"
-            sizeLabel="142 MB"
-            duration="3:24"
+            message={{
+              id: 'msg-1',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  original_filename: 'echo_wireless_draft_v1.mp4',
+                  file_size_bytes: 148897152,
+                  duration_sec: 204,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/video.mp4',
+                  playback_url_expires_at: new Date().toISOString(),
+                  submitted_at: new Date().toISOString(),
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="creator-1"
+            counterpartDisplayName="Brand Name"
+            conversationId="conv-1"
+            sessionKind="creator"
           />
           <DraftSubmittedCard
-            audience="brand"
-            message="Here's the draft for the YouTube video. Let me know if you'd like any changes."
-            filename="echo_wireless_draft_v1.mp4"
-            sizeLabel="142 MB"
-            duration="3:24"
+            message={{
+              id: 'msg-2',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  original_filename: 'echo_wireless_draft_v1.mp4',
+                  file_size_bytes: 148897152,
+                  duration_sec: 204,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/video.mp4',
+                  playback_url_expires_at: new Date().toISOString(),
+                  submitted_at: new Date().toISOString(),
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
+            conversationId="conv-1"
+            sessionKind="brand"
           />
         </div>
       </ShowcaseGroup>
@@ -806,12 +860,36 @@ function ReusableSection() {
       >
         <div className="max-w-xs">
           <DraftSubmittedCard
-            audience="brand"
-            aspect="portrait"
-            message="Here's the Reel! Took some liberties with the transitions."
-            filename="reel_draft.mp4"
-            sizeLabel="38 MB"
-            duration="0:45"
+            message={{
+              id: 'msg-3',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-2',
+                  deliverable_platform: 'instagram',
+                  deliverable_format: 'reel',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-2',
+                  version: 1,
+                  original_filename: 'reel_draft.mp4',
+                  file_size_bytes: 39845888,
+                  duration_sec: 45,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/reel.mp4',
+                  playback_url_expires_at: new Date().toISOString(),
+                  submitted_at: new Date().toISOString(),
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
+            conversationId="conv-1"
+            sessionKind="brand"
           />
         </div>
       </ShowcaseGroup>
@@ -819,10 +897,27 @@ function ReusableSection() {
       <ShowcaseGroup title="Draft approved" context="features/deliverables">
         <div className="max-w-md">
           <DraftApprovedCard
-            message="Here's v2 — made the changes you requested. Let me know!"
-            filename="echo_wireless_draft_v2.mp4"
-            sizeLabel="148 MB"
-            duration="3:22"
+            message={{
+              id: 'msg-4',
+              author_account_id: 'brand-1',
+              event_type: 'DraftApproved',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftApproved',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  approved_at: new Date().toISOString(),
+                  approved_by_account_id: 'brand-1',
+                },
+              },
+              created_at: new Date().toISOString(),
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
           />
         </div>
       </ShowcaseGroup>
@@ -854,12 +949,29 @@ function ReusableSection() {
       >
         <div className="max-w-md">
           <RequestChangesCard
-            intro="The video looks good overall but we need:"
-            changes={[
-              'Product placement more prominent in intro',
-              'Add discount code overlay at 2:15',
-            ]}
-            closing="Can you revise and resubmit?"
+            message={{
+              id: 'msg-rc-1',
+              author_account_id: 'acc-brand',
+              event_type: 'ChangesRequested',
+              payload: {
+                event_type: 'ChangesRequested',
+                deliverable_id: 'del-1',
+                deliverable_platform: 'youtube',
+                deliverable_format: 'long_form',
+                deliverable_offer_stage_id: null,
+                draft_id: 'draft-1',
+                draft_version: 1,
+                draft_thumbnail_url: null,
+                categories: ['product_placement', 'audio'],
+                notes:
+                  'Product placement more prominent in intro. Add discount code overlay at 2:15.',
+                requested_at: '2026-04-27T12:00:00Z',
+                requested_by_account_id: 'acc-brand',
+              },
+              created_at: '2026-04-27T12:00:00Z',
+            }}
+            currentAccountId="acc-brand"
+            counterpartDisplayName="María García"
           />
         </div>
       </ShowcaseGroup>
@@ -1192,19 +1304,19 @@ function ReusableSection() {
 
       <ShowcaseGroup title="Bundle platform row" context="features/offers">
         <div className="max-w-xl space-y-2">
-          <BundlePlatformRow
+          <DemoBundlePlatformRow
             platform="youtube"
             label="YouTube"
             format="Long-form video"
             amount={2500}
           />
-          <BundlePlatformRow
+          <DemoBundlePlatformRow
             platform="instagram"
             label="Instagram Reels"
             format="Short-form vertical"
             amount={1200}
           />
-          <BundlePlatformRow
+          <DemoBundlePlatformRow
             platform="tiktok"
             label="TikTok"
             format="Short-form vertical"
@@ -1235,16 +1347,14 @@ function ReusableSection() {
           <StageEditor
             stageNumber={1}
             name="Launch week"
-            deadline="Oct 12"
-            subtotal="$2,500"
-          >
-            <BundlePlatformRow
-              platform="youtube"
-              label="YouTube video"
-              format="Long-form"
-              amount={1800}
-            />
-          </StageEditor>
+            description="First stage of the campaign"
+            deadline="2024-10-12"
+            amount="2500.00"
+            onChangeName={() => {}}
+            onChangeDescription={() => {}}
+            onChangeDeadline={() => {}}
+            onChangeAmount={() => {}}
+          />
         </div>
       </ShowcaseGroup>
 
@@ -1309,19 +1419,19 @@ function ReusableSection() {
               </div>
               <Badge className="rounded-full">3 platforms</Badge>
             </div>
-            <BundlePlatformRow
+            <DemoBundlePlatformRow
               platform="youtube"
               label="YouTube"
               format="Long-form video"
               amount={2500}
             />
-            <BundlePlatformRow
+            <DemoBundlePlatformRow
               platform="instagram"
               label="Instagram Reels"
               format="Short-form vertical"
               amount={1200}
             />
-            <BundlePlatformRow
+            <DemoBundlePlatformRow
               platform="tiktok"
               label="TikTok"
               format="Short-form vertical"
@@ -1342,29 +1452,25 @@ function ReusableSection() {
             <StageEditor
               stageNumber={1}
               name="Launch week"
-              deadline="Oct 12"
-              subtotal="$2,500"
-            >
-              <BundlePlatformRow
-                platform="youtube"
-                label="YouTube video"
-                format="Long-form"
-                amount={1800}
-              />
-            </StageEditor>
+              description="Kick-off content"
+              deadline="2024-10-12"
+              amount="2500.00"
+              onChangeName={() => {}}
+              onChangeDescription={() => {}}
+              onChangeDeadline={() => {}}
+              onChangeAmount={() => {}}
+            />
             <StageEditor
               stageNumber={2}
               name="Mid-campaign"
-              deadline="Oct 20"
-              subtotal="$1,500"
-            >
-              <BundlePlatformRow
-                platform="youtube"
-                label="YouTube video"
-                format="Long-form"
-                amount={1800}
-              />
-            </StageEditor>
+              description="Follow-up content"
+              deadline="2024-10-20"
+              amount="1500.00"
+              onChangeName={() => {}}
+              onChangeDescription={() => {}}
+              onChangeDeadline={() => {}}
+              onChangeAmount={() => {}}
+            />
             <SummaryTotalRow
               label="Campaign total"
               amount="$4,500.00"
@@ -1376,6 +1482,35 @@ function ReusableSection() {
 
       <MobileSection />
     </section>
+  )
+}
+
+function DemoBundlePlatformRow({
+  platform,
+  label,
+  format,
+  amount,
+}: {
+  platform: string
+  label: string
+  format: string
+  amount: number
+}) {
+  return (
+    <BundlePlatformRow platform={platform} onRemove={() => {}}>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold text-foreground">
+          {label}
+        </div>
+        <div className="truncate text-xs text-muted-foreground">{format}</div>
+      </div>
+      <div className="flex items-center gap-2 rounded-full bg-muted pl-3 pr-1">
+        <span className="text-sm text-muted-foreground">$</span>
+        <span className="w-20 py-2 text-right font-mono text-sm font-semibold text-foreground">
+          {amount.toLocaleString()}
+        </span>
+      </div>
+    </BundlePlatformRow>
   )
 }
 
