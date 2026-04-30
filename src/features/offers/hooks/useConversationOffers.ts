@@ -61,6 +61,7 @@ export type ConversationOfferDTO =
 
 export interface ArchiveOfferItem {
   id: string
+  type: 'single' | 'bundle' | 'multistage'
   status: OfferStatus
   total_amount: string
   currency: string

@@ -14,17 +14,21 @@ vi.mock('@lingui/core/macro', () => ({
   ),
 }))
 
+const sentArchiveItem: ArchiveOfferItem = {
+  id: 'offer-1',
+  type: 'bundle',
+  status: 'sent',
+  total_amount: '2800.00',
+  currency: 'USD',
+  sent_at: '2024-09-14T12:00:00Z',
+  campaign_name: 'Q3 Campaign',
+}
+
 const archiveItems: ArchiveOfferItem[] = [
-  {
-    id: 'offer-1',
-    status: 'sent',
-    total_amount: '2800.00',
-    currency: 'USD',
-    sent_at: '2024-09-14T12:00:00Z',
-    campaign_name: 'Q3 Campaign',
-  },
+  sentArchiveItem,
   {
     id: 'offer-2',
+    type: 'multistage',
     status: 'accepted',
     total_amount: '3200.00',
     currency: 'USD',
@@ -79,6 +83,38 @@ describe('OffersArchiveBlock', () => {
     await user.click(screen.getByRole('button', { expanded: false }))
     expect(screen.getByText('Pending')).toBeInTheDocument()
     expect(screen.getByText('Accepted')).toBeInTheDocument()
+  })
+
+  it('rendersTypeBadge', async () => {
+    const user = userEvent.setup()
+    render(
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
+    await user.click(screen.getByRole('button', { expanded: false }))
+    expect(screen.getByText('Bundle')).toBeInTheDocument()
+    expect(screen.getByText('Multi-stage')).toBeInTheDocument()
+  })
+
+  it('coexistingPendingOffersOfDifferentTypes', async () => {
+    const user = userEvent.setup()
+    render(
+      <OffersArchiveBlock
+        items={[
+          { ...sentArchiveItem, id: 'offer-bundle', type: 'bundle' },
+          { ...sentArchiveItem, id: 'offer-single', type: 'single' },
+        ]}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
+    await user.click(screen.getByRole('button', { expanded: false }))
+    expect(screen.getAllByText('Pending')).toHaveLength(2)
+    expect(screen.getByText('Bundle')).toBeInTheDocument()
+    expect(screen.getByText('Single')).toBeInTheDocument()
   })
 
   it('shows load more button when next_cursor exists', async () => {

@@ -45,9 +45,8 @@ Extender `OffersArchiveBlock` (FEAT-005) para agregar un badge de `type` (Single
 - [ ] A11y: badge con `aria-label` descriptivo si solo es color.
 
 ## Done summary
-
-_To be filled by the worker._
-
+Badge de tipo implementado correctamente con coexistencia de badges, a11y via aria-label, tests requeridos pasando, tokens Tailwind sin hardcoding.
 ## Evidence
-
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

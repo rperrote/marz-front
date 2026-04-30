@@ -15,6 +15,7 @@ vi.mock('@lingui/core/macro', () => ({
 
 const sentItem: ArchiveOfferItem = {
   id: 'a1b2c3d4-abcd-1234-abcd-abcdef123456',
+  type: 'bundle',
   status: 'sent',
   total_amount: '2800.00',
   currency: 'USD',
