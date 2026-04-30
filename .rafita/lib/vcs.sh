@@ -3,6 +3,10 @@
 
 vcs::push() {
   local remote="${1:-origin}"
+  if [[ "${RAFITA_PROVIDER:-github}" == "none" ]]; then
+    common::log INFO "provider=none; skipping push"
+    return 0
+  fi
   git::has_remote || { common::log WARN "no git remote; skipping push"; return 0; }
   git::push_branch "$remote" >>"${RAFITA_RUN_LOG:-/dev/null}" 2>&1 || {
     common::warn "push failed"
@@ -18,6 +22,7 @@ vcs::open_or_update_pr() {
   case "$provider" in
     github) vcs::_gh_pr "$epic" "$title" "$body_file" ;;
     gitlab) vcs::_glab_mr "$epic" "$title" "$body_file" ;;
+    none) common::log INFO "provider=none; skipping PR"; return 0 ;;
     *) common::warn "unknown provider: $provider"; return 1 ;;
   esac
 }

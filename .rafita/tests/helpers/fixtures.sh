@@ -114,10 +114,34 @@ elif cmd=="ready":
     else:
         if ready:
             print(f"{ready[0]['id']}\t{ready[0]['title']}")
+elif cmd=="tasks":
+    epic=None
+    status=None
+    if "--epic" in args:
+        epic=args[args.index("--epic")+1]
+    if "--status" in args:
+        status=args[args.index("--status")+1]
+    tasks=[]
+    for tid,t in st.get("tasks",{}).items():
+        if epic and t.get("epic")!=epic: continue
+        if status and t.get("status","todo")!=status: continue
+        tasks.append({"id":tid,"title":t.get("title",""),"status":t.get("status","todo"),"epic":t.get("epic","")})
+    if json_out:
+        print(json.dumps({"success":True,"tasks":tasks,"count":len(tasks)}))
+    else:
+        for t in tasks:
+            print(f"[{t['status']}] {t['id']}: {t['title']}")
 elif cmd=="show":
     # Drop the --json flag when picking the positional id.
     pos=[a for a in args[1:] if not a.startswith("--")]
     tid=pos[0] if pos else ""
+    if tid in st.get("epics",{}):
+        e=st.get("epics",{}).get(tid,{})
+        if json_out:
+            print(json.dumps({"success":True,"id":tid,"title":e.get("title",""),"status":e.get("status","open"),"branch_name":e.get("branch_name"),"depends_on_epics":e.get("depends_on_epics",[]),"tasks":[]}))
+        else:
+            print(e.get("title",""))
+        sys.exit(0)
     t=st.get("tasks",{}).get(tid,{})
     if json_out:
         # Emit a flowctl-shaped object including spec_path pointing at a temp
@@ -158,6 +182,31 @@ elif cmd=="done":
     if tid in st.get("tasks",{}):
         st["tasks"][tid]["status"]="done"
         save()
+elif cmd=="epic":
+    sub=args[1] if len(args)>1 else ""
+    if sub=="set-branch":
+        clean=[]
+        skip=False
+        for a in args[2:]:
+            if skip:
+                skip=False; continue
+            if a=="--branch":
+                skip=True; continue
+            if a.startswith("--"):
+                continue
+            clean.append(a)
+        eid=clean[0] if clean else ""
+        branch=args[args.index("--branch")+1] if "--branch" in args else ""
+        if eid in st.get("epics",{}):
+            st["epics"][eid]["branch_name"]=branch
+            save()
+        if json_out:
+            print(json.dumps({"success":True,"id":eid,"branch_name":branch}))
+    elif sub=="close":
+        eid=args[2] if len(args)>2 else ""
+        if eid in st.get("epics",{}):
+            st["epics"][eid]["status"]="closed"
+            save()
 elif cmd=="close-epic":
     eid=args[1]
     if eid in st.get("epics",{}):
@@ -183,7 +232,33 @@ flow_add_epic() {
 import json, sys
 p=sys.argv[1]
 with open(p) as f: st=json.load(f)
-st.setdefault("epics",{})[sys.argv[2]]={"title":sys.argv[3],"status":"open"}
+st.setdefault("epics",{})[sys.argv[2]]={"title":sys.argv[3],"status":"open","branch_name":None,"depends_on_epics":[]}
+with open(p,'w') as f: json.dump(st,f)
+PYEOF
+}
+
+flow_add_epic_dep() {
+  local eid="$1" dep="$2"
+  python3 - "$FAKE_FLOWCTL_STATE" "$eid" "$dep" << 'PYEOF'
+import json, sys
+p=sys.argv[1]
+with open(p) as f: st=json.load(f)
+e=st.setdefault("epics",{}).setdefault(sys.argv[2],{"title":"","status":"open","branch_name":None,"depends_on_epics":[]})
+deps=e.setdefault("depends_on_epics",[])
+if sys.argv[3] not in deps:
+    deps.append(sys.argv[3])
+with open(p,'w') as f: json.dump(st,f)
+PYEOF
+}
+
+flow_set_task_status() {
+  local tid="$1" status="$2"
+  python3 - "$FAKE_FLOWCTL_STATE" "$tid" "$status" << 'PYEOF'
+import json, sys
+p=sys.argv[1]
+with open(p) as f: st=json.load(f)
+if sys.argv[2] in st.get("tasks",{}):
+    st["tasks"][sys.argv[2]]["status"]=sys.argv[3]
 with open(p,'w') as f: json.dump(st,f)
 PYEOF
 }

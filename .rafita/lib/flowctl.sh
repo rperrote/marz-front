@@ -51,6 +51,32 @@ if ready:
 '
 }
 
+flowctl::in_progress_task_id() {
+  local epic="$1"
+  local bin; bin=$(flowctl::_bin)
+  "$bin" tasks --epic "$epic" --status in_progress --json 2>/dev/null | python3 -c '
+import json, sys
+try: d = json.load(sys.stdin)
+except Exception: sys.exit(0)
+tasks = d.get("tasks") or []
+if tasks:
+    print(tasks[0].get("id",""))
+'
+}
+
+flowctl::in_progress_task_title() {
+  local epic="$1"
+  local bin; bin=$(flowctl::_bin)
+  "$bin" tasks --epic "$epic" --status in_progress --json 2>/dev/null | python3 -c '
+import json, sys
+try: d = json.load(sys.stdin)
+except Exception: sys.exit(0)
+tasks = d.get("tasks") or []
+if tasks:
+    print(tasks[0].get("title",""))
+'
+}
+
 # Spec body: read the file at spec_path (markdown with the task details).
 # Falls back to the title if the spec file is missing.
 flowctl::task_spec() {
@@ -120,6 +146,27 @@ except Exception: sys.exit(0)
 deps = d.get("depends_on_epics") or []
 print(",".join(deps))
 '
+}
+
+flowctl::epic_branch_name() {
+  local epic="$1"
+  local bin; bin=$(flowctl::_bin)
+  "$bin" show "$epic" --json 2>/dev/null | python3 -c '
+import json, sys
+try: d = json.load(sys.stdin)
+except Exception: sys.exit(0)
+print(d.get("branch_name") or "")
+'
+}
+
+flowctl::set_epic_branch() {
+  local epic="$1" branch="$2"
+  local bin; bin=$(flowctl::_bin)
+  local out rc=0
+  out=$("$bin" epic set-branch "$epic" --branch "$branch" --json 2>&1) || rc=$?
+  if [[ $rc -ne 0 ]]; then
+    common::log WARN "flowctl epic set-branch ${epic} failed (rc=${rc}): ${out}"
+  fi
 }
 
 # CSV of task ids in an epic with status=done. Used by --closer-only to

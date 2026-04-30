@@ -45,7 +45,7 @@ ui::config_summary() {
     printf '%sconfig%s\n' "$UI_BOLD" "$UI_RESET"
     printf '  profile         : %s\n' "${RAFITA_PROJECT_TYPE:-generic}"
     printf '  provider        : %s\n' "${RAFITA_PROVIDER:-github}"
-    printf '  branch mode     : %s\n' "${RAFITA_BRANCH_MODE:-new}"
+    printf '  branch by epic  : %s\n' "${RAFITA_BRANCH_BY_EPIC:-0}"
     printf '  dev provider    : %s\n' "${RAFITA_DEV_PROVIDER:-claude}"
     printf '  dev model       : %s\n' "${RAFITA_DEV_MODEL:-default}"
     printf '  reviewer provider: %s\n' "${RAFITA_REVIEWER_PROVIDER:-claude}"

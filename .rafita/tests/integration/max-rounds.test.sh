@@ -2,7 +2,7 @@
 setup() { integration_setup; }
 teardown() { integration_teardown; }
 
-test_max_rounds_reverts_and_skips() {
+test_max_rounds_preserves_changes_and_skips() {
   # Lower maxReviewRounds to 2 for speed.
   python3 - << 'PY'
 import json, os
@@ -34,6 +34,6 @@ exit 0
   # No commits for this task.
   local commits; commits=$(git log --format=%s | grep -c "feat(fn-700.1)" || true)
   assert_eq "0" "$commits"
-  # Working tree must be clean of the wip file (reverted).
-  assert_file_not_exists "$ROOT_DIR_TEST/wip.txt"
+  # Changes are preserved so the user can inspect or continue manually.
+  assert_file_exists "$ROOT_DIR_TEST/wip.txt"
 }

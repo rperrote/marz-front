@@ -19,7 +19,12 @@ args="\$*"
 prompt=""
 while [[ \$# -gt 0 ]]; do
   case "\$1" in
-    -p|--print) shift; prompt="\${1:-}";;
+    -p|--print)
+      if [[ \$# -gt 1 && "\${2:-}" != --* ]]; then
+        shift
+        prompt="\${1:-}"
+      fi
+      ;;
     --model) shift;;
     --dangerously-skip-permissions) ;;
     --output-format|--verbose|--include-partial-messages) ;;

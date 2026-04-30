@@ -1,12 +1,14 @@
 {
-  "branch_name": "fn-8-feat-008-draft-request-changes",
+  "branch_name": "feature/claude/fn-3-feat-003-workspace-shell-conversation",
   "completion_review_status": "unknown",
   "completion_reviewed_at": null,
   "created_at": "2026-04-26T17:32:39.880733Z",
   "default_impl": null,
   "default_review": null,
   "default_sync": null,
-  "depends_on_epics": ["fn-7-feat-007-draft-submit-review-approve"],
+  "depends_on_epics": [
+    "fn-7-feat-007-draft-submit-review-approve"
+  ],
   "id": "fn-8-feat-008-draft-request-changes",
   "next_task": 1,
   "plan_review_status": "unknown",
@@ -14,5 +16,5 @@
   "spec_path": ".flow/specs/fn-8-feat-008-draft-request-changes.md",
   "status": "open",
   "title": "FEAT-008: Draft Request Changes & Versioning (Frontend)",
-  "updated_at": "2026-04-26T17:34:12.437817Z"
+  "updated_at": "2026-04-30T17:18:15.844253Z"
 }

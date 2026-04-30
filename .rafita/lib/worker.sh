@@ -39,6 +39,26 @@ worker::_model_for_role() {
   esac
 }
 
+worker::_model_for_provider_role() {
+  local provider="$1" role="${2:-dev}"
+  local model; model=$(worker::_model_for_role "$role")
+  if [[ "$provider" == "codex" ]]; then
+    # If the role still carries another provider's default model, omit
+    # --model and let Codex use its configured default. Users can override
+    # codexModel globally or set a Codex-compatible role model explicitly.
+    case "$model" in
+      ""|opencode-*/*|anthropic/*|claude-*)
+        printf '%s' "${RAFITA_CODEX_MODEL:-}"
+        ;;
+      *)
+        printf '%s' "$model"
+        ;;
+    esac
+    return 0
+  fi
+  printf '%s' "$model"
+}
+
 # --- public entry -----------------------------------------------------------
 
 # worker::run <prompt> <label> <role>
@@ -49,11 +69,12 @@ worker::_model_for_role() {
 worker::run() {
   local prompt="$1" label="${2:-worker}" role="${3:-dev}"
   local provider; provider=$(worker::_provider_for_role "$role")
-  local model; model=$(worker::_model_for_role "$role")
+  local model; model=$(worker::_model_for_provider_role "$provider" "$role")
   local task_id="${RAFITA_CURRENT_TASK:-_global}"
 
   local session_id="" session_mode=""
   if [[ "$task_id" != "_global" && "$role" != "planner" ]]; then
+    session::ensure_role "$task_id" "$role" "$provider"
     local used; used=$(session::get "$task_id" "$role" "used" 2>/dev/null || echo 0)
     [[ -z "$used" ]] && used=0
     session_id=$(session::get "$task_id" "$role" "id" 2>/dev/null || echo "")
@@ -72,6 +93,9 @@ worker::run() {
     opencode)
       opencode::run "$prompt" "$label" "$model" "$session_id" "$session_mode"
       ;;
+    codex)
+      codex::run "$prompt" "$label" "$model" "$session_id" "$session_mode"
+      ;;
     *)
       common::fail "unknown worker provider: $provider"
       ;;
@@ -82,6 +106,9 @@ worker::run() {
   if [[ "$task_id" != "_global" && "$role" != "planner" && "$rc" == "0" ]]; then
     if [[ "$provider" == "opencode" && "$session_mode" == "new" ]]; then
       session::capture_opencode "$task_id" "$role"
+    fi
+    if [[ "$provider" == "codex" && -n "${RAFITA_CODEX_THREAD_ID:-}" ]]; then
+      session::capture_codex "$task_id" "$role" "$RAFITA_CODEX_THREAD_ID"
     fi
     local sf; sf=$(session::_file "$task_id")
     local file_exists="no"; [[ -f "$sf" ]] && file_exists="yes"

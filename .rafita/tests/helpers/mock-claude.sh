@@ -20,8 +20,10 @@ while [[ $# -gt 0 ]]; do
   args_dump+=("$1")
   case "$1" in
     -p|--print)
-      shift
-      prompt="${1:-}"
+      if [[ $# -gt 1 && "${2:-}" != --* ]]; then
+        shift
+        prompt="${1:-}"
+      fi
       ;;
     --model)
       shift

@@ -9,7 +9,7 @@ export RAFITA_SCRIPTS_DIR="$SCRIPT_DIR"
 export RAFITA_DIR="${RAFITA_DIR:-.rafita}"
 
 # Load libs in dependency order. shellcheck source=/dev/null
-for lib in common ui config state git flowctl vcs stream claude opencode worker review quality notify orchestrator session; do
+for lib in common ui config git flowctl vcs stream claude opencode codex worker review quality notify orchestrator session; do
   # shellcheck source=/dev/null
   source "$SCRIPT_DIR/lib/${lib}.sh"
 done
@@ -30,12 +30,10 @@ Usage:
   rafita.sh [EPIC_ID] [options]
 
 Options:
-  --current-branch   Stay on current branch (override config branchMode)
+  --continue         Finish the first in-progress task, then continue normally
+  --branch-by-epic   Use one branch per epic instead of sharing dependency branches
   --dry-run          Run the loop without invoking claude (for smoke tests)
   --debug[=N]        Debug level: 0 clean, 1 logs (default), 2 stream, 3 raw
-  --resume           Resume from .rafita/state.json if present
-  --resume-task ID   Resume a specific in-progress task (skips next-task lookup)
-  --reset            Clear .rafita/state.json and start fresh
   --closer-only      Skip the DEV/REVIEW loop. Run only CLOSER+FINAL on the
                      already-done tasks of the given epic, then publish.
   -h, --help         This help
@@ -49,16 +47,14 @@ main() {
   local epic_arg=""
   local -a cli_overrides
   cli_overrides=()
-  local resume=0 reset=0 closer_only=0
+  local continue_mode=0 closer_only=0
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      --current-branch) cli_overrides+=("RAFITA_BRANCH_MODE=current"); shift ;;
+      --continue) continue_mode=1; shift ;;
+      --branch-by-epic) cli_overrides+=("RAFITA_BRANCH_BY_EPIC=1"); shift ;;
       --dry-run) cli_overrides+=("RAFITA_DRY_RUN=1"); shift ;;
-      --resume) resume=1; shift ;;
-      --resume-task) export RAFITA_RESUME_TASK_ID="$2"; shift 2 ;;
-      --reset) reset=1; shift ;;
       --closer-only) closer_only=1; shift ;;
       --debug) cli_overrides+=("RAFITA_DEBUG=2"); shift ;;
       --debug=*) cli_overrides+=("RAFITA_DEBUG=${1#--debug=}"); shift ;;
@@ -70,7 +66,7 @@ main() {
     esac
   done
 
-  # Traps: clean up UI timer, persist checkpoint on interrupt.
+  # Traps: clean up UI timer and child worker processes.
   trap 'rafita::_on_interrupt' INT TERM
   trap 'rafita::_on_exit' EXIT
 
@@ -91,23 +87,12 @@ main() {
   # Reap any claude processes left alive by a previous run that crashed.
   rafita::_reap_orphans
 
-  if (( reset )); then state::clear; fi
-
   export RAFITA_SOURCE_BRANCH
   RAFITA_SOURCE_BRANCH=$(git::current_branch)
 
-  # Resume flow.
-  if (( resume )) || state::has_checkpoint; then
-    if state::has_checkpoint; then
-      rafita::_resume_flow
-      return 0
-    fi
-    if (( resume )); then
-      common::fail "--resume requested but no state.json found"
-    fi
+  if (( ! continue_mode )); then
+    git::ensure_clean_tree
   fi
-
-  git::ensure_clean_tree
   git::ensure_gitignore
   common::init_run_dir
   common::counters_init
@@ -130,6 +115,36 @@ main() {
     return 0
   fi
 
+  if (( continue_mode )); then
+    local found_epic="" found_task="" epic
+    for epic in "${epics[@]}"; do
+      found_task=$(flowctl::in_progress_task_id "$epic")
+      if [[ -n "$found_task" ]]; then
+        found_epic="$epic"
+        break
+      fi
+    done
+    if [[ -z "$found_epic" || -z "$found_task" ]]; then
+      common::fail "--continue requested but no in-progress task was found"
+    fi
+    local -a reordered=("$found_epic")
+    for epic in "${epics[@]}"; do
+      [[ "$epic" == "$found_epic" ]] && continue
+      reordered+=("$epic")
+    done
+    epics=("${reordered[@]}")
+    export RAFITA_CONTINUE_FIRST=1
+    export RAFITA_CONTINUE_TASK_ID="$found_task"
+    # When the user did not pin a specific epic, --continue applies to every
+    # epic in the queue: each one retakes its own in-progress task (if any)
+    # before the normal ready loop. With an explicit epic_arg, --continue
+    # only affects that one (legacy one-shot behavior).
+    if [[ -z "$epic_arg" ]]; then
+      export RAFITA_CONTINUE_ALL=1
+    fi
+    common::log INFO "continue mode: first task ${found_task} in epic ${found_epic}${RAFITA_CONTINUE_ALL:+ (all epics)}"
+  fi
+
   for epic in "${epics[@]}"; do
     if (( closer_only )); then
       orchestrator::run_closer_only "$epic" || true
@@ -140,7 +155,6 @@ main() {
     fi
   done
 
-  state::clear
   ui::complete_summary \
     "$RAFITA_TASKS_DONE" \
     "$RAFITA_TASKS_SKIPPED" \
@@ -148,50 +162,6 @@ main() {
     "$(common::elapsed)"
   # Completion notification fires from _on_exit so it also covers errors and
   # interrupts; don't duplicate here.
-}
-
-rafita::_resume_flow() {
-  local state; state=$(state::load_checkpoint)
-  [[ -z "$state" ]] && common::fail "no resume state found"
-  local epic; epic=$(common::json_get "$state" epic_id)
-  local task; task=$(common::json_get "$state" task_id)
-  local branch; branch=$(common::json_get "$state" branch)
-  local snap; snap=$(common::json_get "$state" snapshot_sha)
-  local completed; completed=$(common::json_get "$state" completed_tasks)
-  local run_id; run_id=$(common::json_get "$state" run_id)
-
-  common::init_run_dir "$run_id"
-  common::counters_init
-  ui::header
-  ui::info "resuming run: epic=${epic} task=${task}"
-
-  # Checkout saved branch.
-  if [[ -n "$branch" ]]; then
-    git checkout -q "$branch" 2>/dev/null || common::fail "resume: cannot checkout ${branch}"
-  fi
-  # Validate snapshot reachable.
-  if [[ -n "$snap" ]] && ! git cat-file -e "$snap" 2>/dev/null; then
-    common::fail "resume: snapshot ${snap} not reachable; aborting"
-  fi
-
-  export RAFITA_COMPLETED_CSV
-  RAFITA_COMPLETED_CSV=$(printf '%s' "$completed" | python3 -c 'import sys,json
-try: d=json.loads(sys.stdin.read())
-except: d=[]
-print(",".join(d) if isinstance(d,list) else "")')
-
-  # If state has a specific task, tell the epic runner to resume it first.
-  if [[ -n "$task" ]]; then
-    export RAFITA_RESUME_TASK_ID="$task"
-  fi
-
-  orchestrator::run_epic "$epic" || true
-  state::clear
-  ui::complete_summary \
-    "$RAFITA_TASKS_DONE" \
-    "$RAFITA_TASKS_SKIPPED" \
-    "$RAFITA_TASKS_FAILED" \
-    "$(common::elapsed)"
 }
 
 rafita::_on_interrupt() {
@@ -203,8 +173,8 @@ rafita::_on_interrupt() {
   claude::kill_all_children 2>/dev/null || true
   # Kill any remaining direct children of this shell (timers, python parsers).
   pkill -TERM -P $$ 2>/dev/null || true
-  common::log WARN "interrupted by signal; state preserved at ${RAFITA_DIR}/state.json"
-  ui::error "interrupted — resume with: rafita.sh --resume"
+  common::log WARN "interrupted by signal; rerun with --continue to finish an in-progress task"
+  ui::error "interrupted — continue with: rafita.sh --continue"
   exit 130
 }
 

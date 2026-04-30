@@ -37,12 +37,12 @@ test_config_load_normalizes_booleans() {
   setup_tmp_repo
   export RAFITA_DIR="$ROOT_DIR_TEST/.rafita"
   cat > "$RAFITA_DIR/config.json" << 'JSON'
-{"ui":false,"yolo":true,"resumeEnabled":false}
+{"ui":false,"yolo":true,"branchByEpic":true}
 JSON
   config::load "$RAFITA_DIR/config.json"
   assert_eq "0" "$RAFITA_UI"
   assert_eq "1" "$RAFITA_YOLO"
-  assert_eq "0" "$RAFITA_RESUME_ENABLED"
+  assert_eq "1" "$RAFITA_BRANCH_BY_EPIC"
   teardown_tmp_repo
 }
 

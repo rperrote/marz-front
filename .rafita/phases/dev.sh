@@ -56,6 +56,47 @@ phase::dev_initial() {
   return 0
 }
 
+phase::dev_continue() {
+  local task_id="$1" spec="$2" task_json="$3"
+  ui::phase "DEV" "continuing in-progress task..."
+
+  local skills_hint=""
+  if [[ -n "${RAFITA_PROFILE_SKILLS:-}" ]]; then
+    skills_hint=$(phase::_build_hint "Skills recomendados" "$RAFITA_PROFILE_SKILLS")
+  fi
+  local format_hint=""
+  if [[ -n "${RAFITA_PROFILE_FORMAT_CMD:-}" ]]; then
+    format_hint=$(phase::_build_hint "Formato" "Después de editar archivos, corré: \`${RAFITA_PROFILE_FORMAT_CMD}\`")
+  fi
+  local forbidden_hint=""
+  local forbidden; forbidden=$(config::forbidden_paths_list)
+  if [[ -n "$forbidden" ]]; then
+    forbidden_hint=$(phase::_build_hint "Paths prohibidos" "$(printf '%s\n' "$forbidden" | sed 's/^/- /')")
+  fi
+
+  local prompt
+  prompt=$(common::render_template "$RAFITA_SCRIPTS_DIR/prompts/dev-continue.tmpl" \
+    TASK_ID="$task_id" \
+    TASK_SPEC="$spec" \
+    TASK_JSON="$task_json" \
+    DEV_RULES="${RAFITA_PROFILE_DEV_RULES:-(none)}" \
+    SKILLS_HINT="$skills_hint" \
+    FORMAT_HINT="$format_hint" \
+    FORBIDDEN_HINT="$forbidden_hint" \
+    FLOWCTL="${RAFITA_FLOWCTL:-.flow/bin/flowctl}")
+
+  local out rc
+  out=$(worker::run "$prompt" "dev-round-1" "dev")
+  rc=$?
+  if [[ $rc -eq 42 ]]; then return 3; fi
+  if [[ $rc -ne 0 ]]; then ui::phase_fail "DEV" "worker rc=$rc"; return 2; fi
+
+  phase::_run_formatter
+
+  ui::phase_pass "DEV" "continued implementation applied"
+  return 0
+}
+
 # phase::dev_fix <task_id> <spec> <round> <verdict_json>
 phase::dev_fix() {
   local task_id="$1" spec="$2" round="$3" verdict="$4"

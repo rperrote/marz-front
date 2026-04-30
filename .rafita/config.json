@@ -8,10 +8,10 @@
   "yolo": true,
   "claudeBin": "claude",
   "opencodeBin": "opencode",
-  "devProvider": "opencode",
+  "devProvider": "codex",
   "reviewerProvider": "claude",
   "plannerProvider": "claude",
-  "devModel": "opencode-go/kimi-k2.6",
+  "devModel": "gpt-5.5",
   "reviewerModel": "claude-sonnet-4-6",
   "closerEnabled": true,
   "closerProvider": "claude",
@@ -36,5 +36,9 @@
     "reviewer": "profiles/reviewer.md",
     "closer": "profiles/closer.md",
     "all": ""
-  }
+  },
+  "branchByEpic": false,
+  "codexBin": "codex",
+  "codexModel": "gpt-5.5",
+  "codexSandbox": "workspace-write"
 }

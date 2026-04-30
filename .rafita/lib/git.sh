@@ -18,7 +18,7 @@ git::ensure_clean_tree() {
 git::ensure_gitignore() {
   local ign=".gitignore"
   if [[ ! -f "$ign" ]]; then touch "$ign"; fi
-  local needed=( ".rafita/runs/" ".rafita/state.json" ".rafita/plans/" ".rafita/sessions/" )
+  local needed=( ".rafita/runs/" ".rafita/plans/" ".rafita/sessions/" )
   local changed=0
   for path in "${needed[@]}"; do
     if ! grep -qxF "$path" "$ign" 2>/dev/null; then
@@ -45,22 +45,48 @@ git::_branch_remote_exists() {
   git rev-parse --verify --quiet "refs/remotes/origin/$1" >/dev/null 2>&1
 }
 
+git::_branch_checked_out_elsewhere() {
+  local branch="$1"
+  local current; current=$(git::current_branch 2>/dev/null || echo "")
+  [[ "$current" == "$branch" ]] && return 1
+  git worktree list --porcelain 2>/dev/null \
+    | awk -v b="refs/heads/${branch}" '$1=="branch" && $2==b {found=1} END{exit found?0:1}'
+}
+
 # git::_sync_branch_with_origin <branch>
-# Fast-forward local <branch> to origin/<branch> if possible. If they diverge,
-# warn and keep the local tip (don't lose user commits). No-op if no remote
-# or no remote tracking branch. Caller must ensure <branch> exists locally.
+# Update local <branch> from origin/<branch>. Fast-forward when possible; if
+# local and remote diverged, rebase local commits on top of origin/<branch>.
+# Caller must ensure <branch> exists locally.
 git::_sync_branch_with_origin() {
   local branch="$1"
   git::has_remote || return 0
   git fetch -q origin "$branch" 2>/dev/null || true
   git::_branch_remote_exists "$branch" || return 0
-  # Save current branch so we can restore.
-  local prev; prev=$(git::current_branch)
-  git checkout -q "$branch" 2>/dev/null || return 0
+  if git::_branch_checked_out_elsewhere "$branch"; then
+    common::warn "branch ${branch} is checked out in another worktree; cannot sync here"
+    return 1
+  fi
+  local prev; prev=$(git::current_branch 2>/dev/null || echo "")
+  git checkout -q "$branch" 2>/dev/null || return 1
   if ! git merge -q --ff-only "origin/${branch}" 2>/dev/null; then
-    common::warn "${branch} diverged from origin/${branch}; using local tip"
+    common::log INFO "${branch} diverged from origin/${branch}; rebasing local commits"
+    if ! git rebase "origin/${branch}" >/dev/null 2>&1; then
+      git rebase --abort >/dev/null 2>&1 || true
+      common::warn "rebase failed for ${branch} on origin/${branch}; resolve manually and rerun"
+      return 1
+    fi
   fi
   [[ "$prev" != "$branch" ]] && git checkout -q "$prev" 2>/dev/null || true
+}
+
+git::_local_branch_for_epic() {
+  local epic="$1"
+  local stored; stored=$(flowctl::epic_branch_name "$epic" 2>/dev/null || echo "")
+  if [[ -n "$stored" ]]; then
+    printf '%s' "$stored"
+  else
+    printf '%s%s' "${RAFITA_BRANCH_PREFIX:-feature/claude/}" "$epic"
+  fi
 }
 
 # git::_resolve_dep_branch <dep_epic_id>
@@ -69,11 +95,10 @@ git::_sync_branch_with_origin() {
 # if only the remote exists. Updates the local copy from origin if possible.
 git::_resolve_dep_branch() {
   local dep_epic="$1"
-  local prefix="${RAFITA_BRANCH_PREFIX:-feature/claude/}"
-  local dep_branch="${prefix}${dep_epic}"
+  local dep_branch; dep_branch=$(git::_local_branch_for_epic "$dep_epic")
 
   if git::_branch_local_exists "$dep_branch"; then
-    git::_sync_branch_with_origin "$dep_branch"
+    git::_sync_branch_with_origin "$dep_branch" || return 1
     printf '%s' "$dep_branch"
     return 0
   fi
@@ -91,32 +116,81 @@ git::_resolve_dep_branch() {
 }
 
 git::setup_epic_branch() {
-  # Args: epic_id. Creates (or switches to) <prefix><epic_id>. No-op in 'current' mode.
+  # Args: epic_id. Creates/switches to the branch assigned to the epic. By
+  # default, epics that depend on another epic reuse that dependency branch.
   local epic="$1"
-  if [[ "${RAFITA_BRANCH_MODE:-new}" == "current" ]]; then
-    common::log INFO "branch mode=current, staying on $(git::current_branch)"
+  local own_branch; own_branch=$(git::_local_branch_for_epic "$epic")
+  local branch="$own_branch"
+  local deps_csv; deps_csv=$(flowctl::epic_depends_on "$epic")
+  local -a resolved_branches=()
+
+  if [[ -n "$deps_csv" ]]; then
+    local IFS=','
+    local -a deps
+    # shellcheck disable=SC2206
+    deps=( $deps_csv )
+    unset IFS
+
+    local d resolved
+    for d in "${deps[@]}"; do
+      [[ -z "$d" ]] && continue
+      resolved=$(git::_resolve_dep_branch "$d") || true
+      if [[ -z "$resolved" ]]; then
+        common::warn "epic ${epic} depende de ${d} pero no encontré rama '$(git::_local_branch_for_epic "$d")' (ni local ni en origin)"
+        common::warn "abortando setup de ${epic}; corré la dep primero o creá la rama manualmente"
+        return 1
+      fi
+      case " ${resolved_branches[*]} " in
+        *" ${resolved} "*) ;;
+        *) resolved_branches+=("$resolved") ;;
+      esac
+    done
+
+    if [[ "${RAFITA_BRANCH_BY_EPIC:-0}" != "1" && ${#resolved_branches[@]} -eq 1 ]]; then
+      branch="${resolved_branches[0]}"
+      flowctl::set_epic_branch "$epic" "$branch"
+      if git::_branch_checked_out_elsewhere "$branch"; then
+        common::warn "branch ${branch} is checked out in another worktree; cannot reuse it here"
+        return 1
+      fi
+      git checkout -q "$branch" || return 1
+      git::_sync_branch_with_origin "$branch" || return 1
+      common::log INFO "epic ${epic} reuses dependency branch: ${branch}"
+      ui::info "branch = ${branch} (dep compartida)"
+      return 0
+    fi
+  fi
+
+  flowctl::set_epic_branch "$epic" "$branch"
+
+  if git::_branch_local_exists "$branch"; then
+    if git::_branch_checked_out_elsewhere "$branch"; then
+      common::warn "branch ${branch} is checked out in another worktree; cannot checkout here"
+      return 1
+    fi
+    git checkout -q "$branch" || return 1
+    git::_sync_branch_with_origin "$branch" || return 1
     return 0
   fi
-  local prefix="${RAFITA_BRANCH_PREFIX:-feature/claude/}"
-  local branch="${prefix}${epic}"
 
-  # Branch already exists → just switch and try to sync with origin so we
-  # work on top of the latest published state, not a stale local snapshot.
-  if git::_branch_local_exists "$branch"; then
-    git checkout -q "$branch"
-    git::_sync_branch_with_origin "$branch"
-    return 0
+  if git::has_remote; then
+    git fetch -q origin "$branch" 2>/dev/null || true
+    if git::_branch_remote_exists "$branch"; then
+      git branch -q "$branch" "origin/${branch}" 2>/dev/null || true
+      git checkout -q "$branch" || return 1
+      git::_sync_branch_with_origin "$branch" || return 1
+      return 0
+    fi
   fi
 
   # Branch doesn't exist. Pick the right base.
   #   - No deps         → prBase (dev / main / master).
-  #   - 1 dep           → branch of that dep (so we inherit its commits).
+  #   - 1 dep           → branch of that dep in --branch-by-epic mode.
   #   - N deps          → temp branch with all deps merged together; abort
   #                       this epic (rc=1) if a merge conflict appears so
   #                       the user can resolve it manually.
-  local deps_csv; deps_csv=$(flowctl::epic_depends_on "$epic")
   local base=""
-  if [[ -z "$deps_csv" ]]; then
+  if (( ${#resolved_branches[@]} == 0 )); then
     base=$(vcs::_resolve_pr_base)
     if git::has_remote; then
       git fetch -q origin "$base" 2>/dev/null \
@@ -126,26 +200,6 @@ git::setup_epic_branch() {
       || common::warn "checkout ${base} failed; branching from current HEAD"
     git::_sync_branch_with_origin "$base"
   else
-    # Resolve every dep branch first.
-    local IFS=','
-    local -a deps
-    # shellcheck disable=SC2206
-    deps=( $deps_csv )
-    unset IFS
-
-    local -a resolved_branches=()
-    local d resolved
-    for d in "${deps[@]}"; do
-      [[ -z "$d" ]] && continue
-      resolved=$(git::_resolve_dep_branch "$d") || true
-      if [[ -z "$resolved" ]]; then
-        common::warn "epic ${epic} depende de ${d} pero no encontré rama '${prefix}${d}' (ni local ni en origin)"
-        common::warn "abortando setup de ${epic}; corré la dep primero o creá la rama manualmente"
-        return 1
-      fi
-      resolved_branches+=("$resolved")
-    done
-
     if (( ${#resolved_branches[@]} == 1 )); then
       base="${resolved_branches[0]}"
       git checkout -q "$base" \
@@ -324,9 +378,8 @@ run_id: ${RAFITA_RUN_ID:-?}"
 }
 
 # Diff accumulated on current branch vs base branch (for final review).
-# When --current-branch is used the caller should pass RAFITA_PR_BASE, not
-# the current branch itself. Fallback chain: prBase config → dev → main →
-# master → HEAD~1 (last resort so diff is never against self).
+# Fallback chain: prBase config → dev → main → master → HEAD~1 (last resort
+# so diff is never against self).
 git::diff_since_base() {
   local requested="${1:-}"
   local current; current=$(git::current_branch)
@@ -410,18 +463,9 @@ git::create_run_worktree() {
     common::fail "worktree path already exists: $wt_path"
   fi
 
-  # Pick starting ref. In branchMode=current, mirror the user's current branch
-  # so they can continue work in an isolated checkout. Otherwise start from the
-  # resolved base branch (prBase → dev → main → master).
-  # NOTE: vcs::_resolve_pr_base skips the current branch (correct for PR base
-  # selection — you can't open a PR from dev to dev). For worktree start_ref
-  # that skip is wrong: if user is on dev with prBase=dev, the worktree must
-  # still start from dev, not silently fall through to main (which may be
-  # behind and carry stale .flow/epics/*.json state).
+  # Pick starting ref from prBase → dev → main → master.
   local start_ref
-  if [[ "${RAFITA_BRANCH_MODE:-new}" == "current" ]]; then
-    start_ref=$(git::current_branch)
-  elif [[ -n "${RAFITA_PR_BASE:-}" ]] && git rev-parse --verify --quiet "${RAFITA_PR_BASE}" >/dev/null 2>&1; then
+  if [[ -n "${RAFITA_PR_BASE:-}" ]] && git rev-parse --verify --quiet "${RAFITA_PR_BASE}" >/dev/null 2>&1; then
     start_ref="${RAFITA_PR_BASE}"
   else
     start_ref=$(vcs::_resolve_pr_base)

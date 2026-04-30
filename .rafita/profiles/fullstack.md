@@ -1,7 +1,6 @@
 # Fullstack Project Profile (Next.js + API)
 
 ## DEV Rules
-
 - Leé `CLAUDE.md` y los `README` de cada app/package del monorepo.
 - TypeScript strict en todo el stack.
 - Separá client / server components; no filtrar lógica server al bundle client.
@@ -10,13 +9,11 @@
 - NO uses TodoWrite. NO commitees. Al terminar, `<done/>`.
 
 ## DEV Fix Rules
-
 - Aplicá solo los fixes listados.
 - Si el fix cruza frontend/backend, actualizá el tipo compartido en ambos lados.
 - Al terminar, `<done/>`.
 
 ## Review Rules
-
 - [ ] Tipos compartidos entre client y server están sincronizados.
 - [ ] No hay `any` injustificado.
 - [ ] No hay secrets hardcoded ni en client ni en server.
@@ -27,35 +24,28 @@
 - [ ] Accesibilidad básica en componentes interactivos.
 
 ## Plan Rules
-
 - Identificá paths en frontend, backend, y shared types.
 - Si hay migración de DB, listála aparte con su rollback.
 - Marcá qué tests backend y qué tests frontend se tocan.
 
 ## Format Command
-
 pnpm prettier --write .
 
 ## Test Command
-
 pnpm test --run
 
 ## Lint Command
-
 pnpm lint
 
 ## Typecheck Command
-
 pnpm tsc --noEmit
 
 ## Skills
-
 vercel-react-best-practices, vercel-composition-patterns, react-doctor
 
 ## Forbidden Paths
-
 .env
-.env.\*
+.env.*
 package-lock.json
 pnpm-lock.yaml
 yarn.lock

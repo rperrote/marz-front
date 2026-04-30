@@ -127,11 +127,12 @@ fi
 missing_keys=$(python3 - "$CONFIG_PATH" << 'PYEOF'
 import json, sys
 canonical = {
-    "projectType","provider","branchMode","branchPrefix","maxReviewRounds",
-    "streamOutput","yolo","claudeBin","opencodeBin","devProvider",
+    "projectType","provider","branchByEpic","branchPrefix","maxReviewRounds",
+    "streamOutput","yolo","claudeBin","opencodeBin","codexBin",
+    "codexModel","codexSandbox","devProvider",
     "reviewerProvider","plannerProvider","devModel","reviewerModel","flowctl",
     "ui","notifyWebhook","projectName","skipOnFailedTask","rateLimitTaskRetry",
-    "rateLimitMaxSleep","resumeEnabled","debug","prBase","worktreeBase",
+    "rateLimitMaxSleep","debug","prBase","worktreeBase",
     "closerEnabled","closerProvider","closerModel","maxFinalRounds",
     "profileExtensions",
 }
@@ -300,7 +301,11 @@ if [[ ! -x "$flowctl" ]] && ! has_cmd "$flowctl"; then
 fi
 
 # ───── C16: provider binaries en PATH ──────────────────────────────────────
-for provider in $dev_prov $rev_prov $(get_cfg closerProvider ""); do
+providers_to_check="$dev_prov $rev_prov"
+if [[ "$closer_on" == "True" || "$closer_on" == "true" ]]; then
+  providers_to_check="$providers_to_check $(get_cfg closerProvider "$dev_prov")"
+fi
+for provider in $providers_to_check; do
   case "$provider" in
     claude)
       if ! has_cmd "$(get_cfg claudeBin claude)"; then
@@ -314,6 +319,13 @@ for provider in $dev_prov $rev_prov $(get_cfg closerProvider ""); do
         add_finding error "C16-opencode" \
           "binario 'opencode' no está en PATH pero está configurado como provider" \
           "instalá opencode CLI o ajustá opencodeBin en config.json"
+      fi
+      ;;
+    codex)
+      if ! has_cmd "$(get_cfg codexBin codex)"; then
+        add_finding error "C16-codex" \
+          "binario 'codex' no está en PATH pero está configurado como provider" \
+          "instalá Codex CLI o ajustá codexBin en config.json"
       fi
       ;;
   esac
@@ -510,7 +522,7 @@ fi
 
 # ───── C36: gitignore missing rafita paths ────────────────────────────────
 if [[ -f ".gitignore" ]]; then
-  needed=(".rafita/runs/" ".rafita/state.json" ".rafita/sessions/")
+  needed=(".rafita/runs/" ".rafita/sessions/")
   missing=()
   for p in "${needed[@]}"; do
     if ! grep -qxF "$p" .gitignore 2>/dev/null; then
