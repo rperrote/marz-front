@@ -41,8 +41,12 @@ export function useWorkspaceRailSubscription({
   })
 
   useEffect(() => {
-    if (status === 'open') {
-      send({ type: 'subscribe', topic: 'workspace_rail' })
+    if (status !== 'open') return
+
+    send({ type: 'subscribe', topic: 'workspace_rail' })
+
+    return () => {
+      send({ type: 'unsubscribe', topic: 'workspace_rail' })
     }
   }, [status, send])
 
