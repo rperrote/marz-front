@@ -72,8 +72,10 @@ DESIGN.md no existe en este repo. Tokens y referencias visuales viven en `marz-d
 
 ## Done summary
 
-_To be filled by worker on completion._
+Fix correcto. El branch campaignsQuery.isError ahora se evalúa antes que el check de empty state (!hasCampaigns && !isLoading), eliminando el falso negativo donde un error de red mostraba el mensaje de 'no campaigns'. El mensaje de error usa text-destructive, el botón Retry llama refetch() con void para suprimir la promesa flotante, y el orden de precedencia (isError → empty → form) es el correcto.
 
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

@@ -72,8 +72,10 @@ Tokens: `var(--primary)` para Accept CTA, `var(--destructive)` para Reject. Radi
 
 ## Done summary
 
-_To be filled by worker on completion._
+Dead code eliminado correctamente. EventBubble reubicado a shared/ui con re-export limpio desde el path anterior. Sin issues.
 
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

@@ -1,6 +1,5 @@
 import { test as base, expect } from '@playwright/test'
 import { clerk } from '@clerk/testing/playwright'
-import { createClerkClient } from '@clerk/backend'
 
 const TEST_SECRET = process.env.MARZ_TEST_SECRET
 const API_URL = (process.env.VITE_API_URL ?? 'http://localhost:8080').replace(
@@ -9,9 +8,15 @@ const API_URL = (process.env.VITE_API_URL ?? 'http://localhost:8080').replace(
 )
 const CLERK_SECRET = process.env.CLERK_SECRET_KEY
 
-const clerkClient = CLERK_SECRET
-  ? createClerkClient({ secretKey: CLERK_SECRET })
-  : null
+const CLERK_API_URL = 'https://api.clerk.com/v1'
+
+interface ClerkUser {
+  id: string
+}
+
+interface ClerkUserListResponse {
+  data: ClerkUser[]
+}
 
 async function testApi(method: string, path: string, body?: unknown) {
   const res = await fetch(`${API_URL}${path}`, {
@@ -29,6 +34,80 @@ async function testApi(method: string, path: string, body?: unknown) {
   return res.status === 204 ? null : res.json()
 }
 
+async function clerkApi(path: string, init?: RequestInit): Promise<unknown> {
+  if (!CLERK_SECRET) return null
+
+  const res = await fetch(`${CLERK_API_URL}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${CLERK_SECRET}`,
+      'Content-Type': 'application/json',
+      ...init?.headers,
+    },
+  })
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Clerk API ${path} failed: ${res.status} ${text}`)
+  }
+
+  return res.json()
+}
+
+function isClerkUser(value: unknown): value is ClerkUser {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    typeof value.id === 'string'
+  )
+}
+
+function isClerkUserListResponse(
+  value: unknown,
+): value is ClerkUserListResponse {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'data' in value &&
+    Array.isArray(value.data) &&
+    value.data.every(isClerkUser)
+  )
+}
+
+async function getClerkUserByEmail(email: string): Promise<ClerkUser | null> {
+  const searchParams = new URLSearchParams()
+  searchParams.append('email_address', email)
+
+  const response = await clerkApi(`/users?${searchParams.toString()}`)
+  if (!isClerkUserListResponse(response)) return null
+
+  return response.data[0] ?? null
+}
+
+async function createClerkUser(params: {
+  workerId: string
+  email: string
+  fullName: string
+}): Promise<ClerkUser> {
+  const [firstName = params.fullName, ...rest] = params.fullName.split(' ')
+  const response = await clerkApi('/users', {
+    method: 'POST',
+    body: JSON.stringify({
+      external_id: params.workerId,
+      email_address: [params.email],
+      first_name: firstName,
+      last_name: rest.join(' ') || undefined,
+    }),
+  })
+
+  if (!isClerkUser(response)) {
+    throw new Error('Clerk API create user returned an invalid response')
+  }
+
+  return response
+}
+
 export class TestUser {
   clerkUserId: string
 
@@ -43,29 +122,23 @@ export class TestUser {
 
   async ensureExists() {
     // 1. Ensure user exists in Clerk and get the real Clerk ID
-    if (clerkClient) {
-      const existing = await clerkClient.users.getUserList({
-        emailAddress: [this.email],
-      })
-      if (!existing.data.length) {
-        const [firstName, ...rest] = this.fullName.split(' ')
+    if (CLERK_SECRET) {
+      const existing = await getClerkUserByEmail(this.email)
+      if (!existing) {
         try {
-          const clerkUser = await clerkClient.users.createUser({
-            externalId: this.workerId,
-            emailAddress: [this.email],
-            firstName,
-            lastName: rest.join(' ') || undefined,
+          const clerkUser = await createClerkUser({
+            workerId: this.workerId,
+            email: this.email,
+            fullName: this.fullName,
           })
           this.clerkUserId = clerkUser.id
-        } catch (err: any) {
-          console.error(
-            '[E2E] Failed to create Clerk user:',
-            err.errors || err.message,
-          )
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err)
+          console.error('[E2E] Failed to create Clerk user:', message)
           throw err
         }
       } else {
-        this.clerkUserId = existing.data[0]!.id
+        this.clerkUserId = existing.id
       }
     }
 

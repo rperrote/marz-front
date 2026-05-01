@@ -1,5 +1,5 @@
 {
-  "branch_name": "fn-4-feat-004-chat-messaging-text-frontend",
+  "branch_name": "feature/claude/fn-3-feat-003-workspace-shell-conversation",
   "completion_review_status": "unknown",
   "completion_reviewed_at": null,
   "created_at": "2026-04-26T17:08:41.353664Z",
@@ -12,7 +12,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-4-feat-004-chat-messaging-text-frontend.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-004: Chat Messaging (text) \u2014 Frontend",
-  "updated_at": "2026-04-26T17:09:58.854335Z"
+  "updated_at": "2026-04-30T17:18:15.137505Z"
 }

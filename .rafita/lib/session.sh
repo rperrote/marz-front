@@ -20,70 +20,47 @@ session::_py() {
   rm -f "$tmp"
 }
 
-session::task_init() {
-  local task_id="$1"
+session::ensure_role() {
+  local task_id="$1" role="$2" provider="$3"
   local f; f=$(session::_file "$task_id")
   mkdir -p "$(dirname "$f")"
 
-  local dev_p; dev_p=$(worker::_provider_for_role dev)
-  local rev_p; rev_p=$(worker::_provider_for_role reviewer)
-
-  if [[ -f "$f" ]]; then
-    # File exists: if run_id changed, regenerate all IDs (new run = new sessions).
-    # If same run_id, preserve existing IDs (resume within the same run).
+  if [[ ! -f "$f" ]]; then
     session::_py '
-import json,sys,uuid
-f,run_id,dev_p,rev_p=sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]
-with open(f) as fp: d=json.load(fp)
-same_run = (d.get("_run_id","") == run_id and bool(run_id))
-d["_run_id"]=run_id
-for role,provider in [("dev",dev_p),("reviewer",rev_p)]:
-    v=d.get(role,{})
-    has_id = isinstance(v,dict) and bool(v.get("id"))
-    if same_run and has_id:
-        pass
-    else:
-        if provider=="claude":
-            d[role]={"provider":"claude","id":str(uuid.uuid4()),"used":0}
-        else:
-            d[role]={"provider":provider,"id":"","used":0}
-with open(f,"w") as fp: json.dump(d,fp)
-' "$f" "${RAFITA_RUN_ID:-}" "$dev_p" "$rev_p"
-    return 0
-  fi
-
-  # Fresh start: create file with empty roles.
-  session::_py '
 import json,sys
 f,run_id=sys.argv[1],sys.argv[2]
 with open(f,"w") as fp:
-    json.dump({"_run_id":run_id,"dev":{},"reviewer":{},"planner":{}},fp)
+    json.dump({"_run_id":run_id},fp)
 ' "$f" "${RAFITA_RUN_ID:-}"
-
-  # Pre-generate UUIDs for claude roles.
-  if [[ "$dev_p" == "claude" ]]; then
-    local sid
-    sid=$(python3 -c 'import uuid; print(uuid.uuid4())' 2>/dev/null || uuidgen)
-    session::_py '
-import json,sys
-f,role,sid=sys.argv[1],sys.argv[2],sys.argv[3]
-with open(f) as fp: d=json.load(fp)
-d[role] = {"provider":"claude","id":sid,"used":0}
-with open(f,"w") as fp: json.dump(d,fp)
-' "$f" dev "$sid"
   fi
 
-  if [[ "$rev_p" == "claude" ]]; then
-    local sid
-    sid=$(python3 -c 'import uuid; print(uuid.uuid4())' 2>/dev/null || uuidgen)
-    session::_py '
+  session::_py '
 import json,sys
-f,role,sid=sys.argv[1],sys.argv[2],sys.argv[3]
-with open(f) as fp: d=json.load(fp)
-d[role] = {"provider":"claude","id":sid,"used":0}
-with open(f,"w") as fp: json.dump(d,fp)
-' "$f" reviewer "$sid"
-  fi
+try:
+    import uuid
+    f,run_id,role,provider=sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]
+    with open(f) as fp: d=json.load(fp)
+    same_run = (d.get("_run_id","") == run_id and bool(run_id))
+    d["_run_id"] = run_id
+    v = d.get(role,{})
+    same_role = isinstance(v,dict) and v.get("provider","") == provider
+    if same_run and same_role:
+        pass
+    else:
+        if provider == "claude":
+            d[role] = {"provider":"claude","id":str(uuid.uuid4()),"used":0}
+        else:
+            d[role] = {"provider":provider,"id":"","used":0}
+    with open(f,"w") as fp: json.dump(d,fp)
+except Exception:
+    pass
+' "$f" "${RAFITA_RUN_ID:-}" "$role" "$provider"
+}
+
+session::task_init() {
+  local task_id="$1"
+  session::ensure_role "$task_id" dev "$(worker::_provider_for_role dev)"
+  session::ensure_role "$task_id" reviewer "$(worker::_provider_for_role reviewer)"
 }
 
 # Get a field from the session file for a role. Prints empty on missing.
@@ -176,5 +153,26 @@ f,role,sid=sys.argv[1],sys.argv[2],sys.argv[3]
 with open(f) as fp: d=json.load(fp)
 d[role] = {"provider":"opencode","id":sid,"used":0}
 with open(f,"w") as fp: json.dump(d,fp)
+' "$f" "$role" "$sid"
+}
+
+# Persist the Codex thread id captured from `codex exec --json` or the plain
+# stderr header. Later rounds resume with `codex exec resume <thread_id> -`.
+session::capture_codex() {
+  local task_id="$1" role="$2" sid="$3"
+  [[ -z "$sid" ]] && return 0
+  local f; f=$(session::_file "$task_id")
+  [[ -f "$f" ]] || return 0
+  session::_py '
+import json,sys
+try:
+    f,role,sid=sys.argv[1],sys.argv[2],sys.argv[3]
+    with open(f) as fp: d=json.load(fp)
+    old=d.get(role,{})
+    used=old.get("used",0) if isinstance(old,dict) and old.get("id")==sid else 0
+    d[role] = {"provider":"codex","id":sid,"used":used}
+    with open(f,"w") as fp: json.dump(d,fp)
+except Exception:
+    pass
 ' "$f" "$role" "$sid"
 }

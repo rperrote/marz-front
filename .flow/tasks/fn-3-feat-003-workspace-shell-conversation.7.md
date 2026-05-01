@@ -42,8 +42,10 @@ Centrado vertical en el rail (320px). Tipografía `text-muted-foreground` para s
 
 ## Done summary
 
-_To be filled by the worker on completion._
+Tests de integración completos para los 4 branches de empty state en ConversationRail. Lógica de variantes correcta: search > filter/campaign > no_conversations. Eliminación de emptySlot prop y encapsulamiento en ConversationRailEmpty sin regresiones. Sin issues.
 
 ## Evidence
 
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

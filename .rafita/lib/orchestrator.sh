@@ -2,8 +2,6 @@
 # orchestrator.sh — run_epic, run_task, publish_epic. Coordinates phases,
 # gates, snapshot/revert, budget, state checkpoint.
 
-# --- verdict persistence (for --resume) --------------------------------------
-
 orchestrator::_verdict_file() {
   local task_id="$1"
   printf '%s/%s/verdict.json' "${RAFITA_RUN_DIR:-.rafita}" "$task_id"
@@ -41,14 +39,14 @@ orchestrator::_load_verdict() {
   return 0
 }
 
-# run_task <task_id> <title>
+# run_task <task_id> <title> [mode]
 # Return codes:
 #   0 approved & committed
 #   1 skipped (max rounds)
 #   2 hard failure (caller should abort epic)
 #   3 rate-limit exhausted at task level
 orchestrator::run_task() {
-  local task_id="$1" title="$2"
+  local task_id="$1" title="$2" mode="${3:-normal}"
   export RAFITA_CURRENT_TASK="$task_id"
   ui::task_start "$task_id" "$title"
 
@@ -56,29 +54,16 @@ orchestrator::run_task() {
 
   local snapshot; snapshot=$(git::snapshot_head)
   common::log INFO "task=${task_id} snapshot=${snapshot}"
-  state::save_checkpoint "${RAFITA_CURRENT_EPIC:-}" "$task_id" 0 "start" \
-    "$(git::current_branch)" "$snapshot" "${RAFITA_COMPLETED_CSV:-}"
 
+  flowctl::start_task "$task_id"
   local spec; spec=$(flowctl::task_spec "$task_id")
   local task_json; task_json=$(flowctl::task_json "$task_id")
-  flowctl::start_task "$task_id"
 
   local max="${RAFITA_MAX_REVIEW_ROUNDS:-5}"
   local approved=0
   local verdict=""
 
-  # Load resume state (round + phase) if present.
   local start_round=1
-  local resume_phase=""
-  local state_json; state_json=$(state::load_checkpoint)
-  if [[ -n "$state_json" ]]; then
-    start_round=$(common::json_get "$state_json" "round" 2>/dev/null || echo 1)
-    resume_phase=$(common::json_get "$state_json" "phase" 2>/dev/null || echo "")
-    if [[ "$start_round" =~ ^[0-9]+$ && "$start_round" -gt 1 ]]; then
-      verdict=$(orchestrator::_load_verdict "$task_id")
-      common::log INFO "resuming task=${task_id} from round=${start_round} phase=${resume_phase:-?} verdict_present=$([[ -n "$verdict" ]] && echo 1 || echo 0)"
-    fi
-  fi
 
   # No-progress detector: if the dev replies N rounds in a row with summaries
   # that are pure "ya está / nothing to fix / falsos positivos", the task is
@@ -91,11 +76,11 @@ orchestrator::run_task() {
   for (( round=start_round; round<=max; round++ )); do
     export RAFITA_CURRENT_ROUND="$round"
     export RAFITA_CURRENT_PHASE="dev"
-    state::save_checkpoint "${RAFITA_CURRENT_EPIC:-}" "$task_id" "$round" "dev" \
-      "$(git::current_branch)" "$snapshot" "${RAFITA_COMPLETED_CSV:-}"
     local dev_rc=0
     if [[ -n "$verdict" || $round -gt 1 ]]; then
       phase::dev_fix "$task_id" "$spec" "$round" "$verdict" || dev_rc=$?
+    elif [[ "$mode" == "continue" ]]; then
+      phase::dev_continue "$task_id" "$spec" "$task_json" || dev_rc=$?
     else
       phase::dev_initial "$task_id" "$spec" "$task_json" "" || dev_rc=$?
     fi
@@ -104,8 +89,6 @@ orchestrator::run_task() {
 
     # Gates first (objective).
     export RAFITA_CURRENT_PHASE="gates"
-    state::save_checkpoint "${RAFITA_CURRENT_EPIC:-}" "$task_id" "$round" "gates" \
-      "$(git::current_branch)" "$snapshot" "${RAFITA_COMPLETED_CSV:-}"
     ui::phase "GATES" "running quality gates..."
     local gates_out gates_rc=0
     gates_out=$(quality::run_gates "$task_id" "$round") || gates_rc=$?
@@ -120,8 +103,6 @@ orchestrator::run_task() {
 
     # Subjective review.
     export RAFITA_CURRENT_PHASE="review"
-    state::save_checkpoint "${RAFITA_CURRENT_EPIC:-}" "$task_id" "$round" "review" \
-      "$(git::current_branch)" "$snapshot" "${RAFITA_COMPLETED_CSV:-}"
     local review_start review_end rev_rc=0
     review_start=$(date +%s)
     verdict=$(phase::review "$task_id" "$spec" "$round" "$snapshot") || rev_rc=$?
@@ -129,7 +110,6 @@ orchestrator::run_task() {
     if [[ $rev_rc -eq 3 ]]; then common::log WARN "task ${task_id} rate-limited; changes preserved"; return 3; fi
     if [[ $rev_rc -ne 0 ]]; then common::log WARN "task ${task_id} review failed; changes preserved"; return 2; fi
 
-    # Persist verdict so --resume can pick up from the next round.
     orchestrator::_save_verdict "$task_id" "$verdict"
 
     local is_approved summary nfixes
@@ -208,7 +188,9 @@ print(d.get("summary","task completed"))' "$verdict" > "$summary_tmp"
       # does not block the next task, but it is logged loudly.
       local _br; _br=$(git::current_branch)
       if [[ -n "$_br" ]]; then
-        if git push -u origin "$_br" >/dev/null 2>&1; then
+        if [[ "${RAFITA_PROVIDER:-github}" == "none" ]]; then
+          common::log INFO "provider=none; skipping push of ${_br} after task ${task_id}"
+        elif git push -u origin "$_br" >/dev/null 2>&1; then
           common::log INFO "pushed ${_br} after task ${task_id}"
         else
           common::log WARN "push failed for ${_br} after task ${task_id} (continuing)"
@@ -239,18 +221,46 @@ orchestrator::run_epic() {
   export RAFITA_CURRENT_EPIC="$epic"
   common::record_epic "$epic"
   ui::epic_start "$epic"
-  git::setup_epic_branch "$epic"
+  if ! git::setup_epic_branch "$epic"; then
+    ui::error "no pude armar la rama base de ${epic} (ver warns arriba); saltando"
+    return 1
+  fi
 
   local completed=()
   export RAFITA_COMPLETED_CSV=""
 
-  # If resuming a specific in-progress task, handle it first.
-  if [[ -n "${RAFITA_RESUME_TASK_ID:-}" ]]; then
-    local resume_task="${RAFITA_RESUME_TASK_ID}"
+  # When --continue spans every epic (RAFITA_CONTINUE_ALL=1), reactivate the
+  # one-shot flag for this epic and let it discover its own in-progress task.
+  # The pinned RAFITA_CONTINUE_TASK_ID only applies to the first epic.
+  if [[ "${RAFITA_CONTINUE_ALL:-0}" == "1" && "${RAFITA_CONTINUE_FIRST:-0}" != "1" ]]; then
+    export RAFITA_CONTINUE_FIRST=1
+    unset RAFITA_CONTINUE_TASK_ID
+  fi
+
+  # If requested, continue the first in-progress task before the normal queue.
+  if [[ "${RAFITA_CONTINUE_FIRST:-0}" == "1" ]]; then
+    local resume_task="${RAFITA_CONTINUE_TASK_ID:-}"
+    [[ -z "$resume_task" ]] && resume_task=$(flowctl::in_progress_task_id "$epic")
+    if [[ -z "$resume_task" ]]; then
+      if [[ "${RAFITA_CONTINUE_ALL:-0}" == "1" ]]; then
+        # Multi-epic continue: it is fine for this epic to have no in-progress
+        # task; just fall through to the normal ready loop.
+        common::log INFO "continue mode: epic ${epic} has no in-progress task; falling back to ready queue"
+        unset RAFITA_CONTINUE_FIRST RAFITA_CONTINUE_TASK_ID
+      else
+        ui::error "--continue requested but epic ${epic} has no in-progress task"
+        return 1
+      fi
+    fi
+  fi
+  if [[ "${RAFITA_CONTINUE_FIRST:-0}" == "1" ]]; then
+    local resume_task="${RAFITA_CONTINUE_TASK_ID:-}"
+    [[ -z "$resume_task" ]] && resume_task=$(flowctl::in_progress_task_id "$epic")
     local resume_title; resume_title=$(flowctl::task_title_by_id "$resume_task")
-    common::log INFO "resuming specific task ${resume_task}"
+    [[ -z "$resume_title" ]] && resume_title=$(flowctl::in_progress_task_title "$epic")
+    common::log INFO "continuing in-progress task ${resume_task}"
     local rc=0
-    orchestrator::run_task "$resume_task" "$resume_title" || rc=$?
+    orchestrator::run_task "$resume_task" "$resume_title" "continue" || rc=$?
     case "$rc" in
       0)
         completed+=("$resume_task")
@@ -262,7 +272,11 @@ orchestrator::run_epic() {
       2) common::mark_failed "$resume_task" ;;
       3) common::mark_failed "$resume_task" ;;
     esac
-    unset RAFITA_RESUME_TASK_ID
+    unset RAFITA_CONTINUE_FIRST RAFITA_CONTINUE_TASK_ID
+    if [[ $rc -ne 0 && "${RAFITA_SKIP_ON_FAILED_TASK:-1}" == "1" ]]; then
+      common::log WARN "continued task ${resume_task} did not complete; aborting epic"
+      return 0
+    fi
   fi
 
   while true; do
@@ -334,10 +348,6 @@ orchestrator::run_epic() {
   orchestrator::publish_epic "$epic" "$final_verdict" "${completed[@]}"
   flowctl::close_epic "$epic"
 
-  # Return to source branch if branchMode=new.
-  if [[ "${RAFITA_BRANCH_MODE:-new}" == "new" && -n "${RAFITA_SOURCE_BRANCH:-}" ]]; then
-    git checkout -q "$RAFITA_SOURCE_BRANCH" 2>/dev/null || true
-  fi
 }
 
 # orchestrator::run_closer_only <epic_id>
@@ -354,7 +364,10 @@ orchestrator::run_closer_only() {
   common::record_epic "$epic"
   ui::epic_start "$epic"
   ui::info "closer-only mode: skipping DEV/REVIEW; running CLOSER+FINAL only"
-  git::setup_epic_branch "$epic"
+  if ! git::setup_epic_branch "$epic"; then
+    ui::error "no pude armar la rama base de ${epic} (ver warns arriba); abort closer-only"
+    return 1
+  fi
 
   # Build the completed list from flowctl (everything already done in this
   # epic). Without this we have no task ids to feed into close_epic_loop /
@@ -378,9 +391,6 @@ orchestrator::run_closer_only() {
   orchestrator::publish_epic "$epic" "$final_verdict" "${tasks_array[@]}"
   flowctl::close_epic "$epic"
 
-  if [[ "${RAFITA_BRANCH_MODE:-new}" == "new" && -n "${RAFITA_SOURCE_BRANCH:-}" ]]; then
-    git checkout -q "$RAFITA_SOURCE_BRANCH" 2>/dev/null || true
-  fi
 }
 
 orchestrator::_rate_limit_long_sleep() {
@@ -396,8 +406,6 @@ orchestrator::_rate_limit_long_sleep() {
   (( sleep_for > cap )) && sleep_for=$cap
   common::log INFO "rate-limit long-sleep ${sleep_for}s for task=${task_id}"
   ui::info "rate-limited; sleeping ${sleep_for}s until retry"
-  state::save_checkpoint "${RAFITA_CURRENT_EPIC:-}" "$task_id" 0 "rate_limit_sleep" \
-    "$(git::current_branch)" "$(git::snapshot_head)" "${RAFITA_COMPLETED_CSV:-}"
   sleep "$sleep_for"
   orchestrator::run_task "$task_id" "$title"
   local rc=$?
@@ -465,6 +473,13 @@ print(json.dumps({"status":"fail","issues":[{"file":"(gates)","issue":body[:2000
     # the committed state and publish_epic can push them. Empty diff → no-op.
     git::commit_closer "$epic" "$round" || true
 
+    # Skip final review when configured (closer-only mode without reviewer).
+    if [[ "${RAFITA_CLOSER_SKIP_FINAL_REVIEW:-0}" == "1" ]]; then
+      verdict='{"status":"pass","issues":[],"summary":"closer approved (final review skipped by config)"}'
+      common::log INFO "closer loop: skipping final review (closerSkipFinalReview=true)"
+      break
+    fi
+
     export RAFITA_CURRENT_PHASE="final"
     verdict=$(phase::final_review "$epic" "$source_branch" "$tasks_csv")
     local status; status=$(common::json_get "$verdict" status)
@@ -486,6 +501,10 @@ print(json.dumps({"status":"fail","issues":[{"file":"(gates)","issue":body[:2000
 orchestrator::publish_epic() {
   local epic="$1" final_verdict="$2"; shift 2
   local tasks=("$@")
+  if [[ "${RAFITA_PROVIDER:-github}" == "none" ]]; then
+    common::log INFO "provider=none; skipping push/PR"
+    return 0
+  fi
   if ! git::has_remote; then
     common::log INFO "no remote; skipping push/PR"
     return 0

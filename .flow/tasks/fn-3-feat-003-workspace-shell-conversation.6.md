@@ -48,8 +48,10 @@ Hook `useWorkspaceRailSubscription` que se suscribe al topic WS `workspace_rail`
 
 ## Done summary
 
-_To be filled by the worker on completion._
+Corrección precisa: payload.conversation_id es string non-nullable en ConversationActivityPayload, el optional chain era un error de tipo. Guard typeof en línea 32 correcto para narrowing post-cast. Tests actualizados con QueryClientProvider wrapper requerido por useQueryClient en el hook. Sin issues.
 
 ## Evidence
 
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

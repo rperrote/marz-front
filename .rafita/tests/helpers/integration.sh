@@ -26,9 +26,9 @@ _rl_counter
 _review_state
 _vcs.pr_created
 _opencode-invocations.log
+_codex-invocations.log
 oc_output.txt
 .rafita/runs/
-.rafita/state.json
 .rafita/plans/
 GI
   git add .gitignore
@@ -82,12 +82,15 @@ PF
 {
   "projectType": "generic",
   "provider": "github",
-  "branchMode": "current",
+  "branchByEpic": false,
   "branchPrefix": "feature/claude/",
   "maxReviewRounds": 3,
   "workerTimeout": 30,
   "yolo": false,
   "claudeBin": "claude",
+  "devProvider": "claude",
+  "reviewerProvider": "claude",
+  "closerProvider": "claude",
   "devModel": "claude-opus-4-6",
   "reviewerModel": "claude-sonnet-4-6",
   "flowctl": "$(command -v flowctl)",
@@ -96,7 +99,6 @@ PF
   "skipOnFailedTask": true,
   "rateLimitTaskRetry": false,
   "rateLimitMaxSleep": 3600,
-  "resumeEnabled": true,
   "debug": 1
 }
 JSON
@@ -142,7 +144,12 @@ set -u
 prompt=""; model=""; of="text"
 while [[ \$# -gt 0 ]]; do
   case "\$1" in
-    -p|--print) shift; prompt="\${1:-}" ;;
+    -p|--print)
+      if [[ \$# -gt 1 && "\${2:-}" != --* ]]; then
+        shift
+        prompt="\${1:-}"
+      fi
+      ;;
     --model) shift; model="\${1:-}" ;;
     --output-format) shift; of="\${1:-}" ;;
     --dangerously-skip-permissions|--verbose|--include-partial-messages) ;;

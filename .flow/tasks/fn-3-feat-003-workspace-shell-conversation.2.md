@@ -40,8 +40,10 @@ Sincronizar el cliente Orval con el OpenAPI de dev una vez que el endpoint `GET 
 
 ## Done summary
 
-_To be filled by the worker on completion._
+Task bloqueada correctamente: el worker verificó que el endpoint y el spec no están disponibles en dev, documentó la dependencia (B.4 de marz-api) con evidencia concreta, y no tocó código. No hay entregables de código porque la spec lo prevé explícitamente.
 
 ## Evidence
 
-_To be filled by the worker on completion (commands run, test output, screenshots, etc.)._
+- Commits:
+- Tests:
+- PRs:

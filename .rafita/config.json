@@ -8,14 +8,15 @@
   "yolo": true,
   "claudeBin": "claude",
   "opencodeBin": "opencode",
-  "devProvider": "claude",
+  "devProvider": "codex",
   "reviewerProvider": "claude",
   "plannerProvider": "claude",
-  "devModel": "claude-opus-4-6",
+  "devModel": "gpt-5.5",
   "reviewerModel": "claude-sonnet-4-6",
   "closerEnabled": true,
   "closerProvider": "claude",
   "closerModel": "claude-opus-4-6",
+  "closerSkipFinalReview": true,
   "flowctl": ".flow/bin/flowctl",
   "ui": true,
   "notifyWebhook": "https://discord.com/api/webhooks/1496528752736473240/CQa5mG3AJfD6PVXaCn1zSVKnLWrdXsbhN4Or4PATlKJmowmYi50A7Q-EzH_lc5gK9err",
@@ -35,5 +36,9 @@
     "reviewer": "profiles/reviewer.md",
     "closer": "profiles/closer.md",
     "all": ""
-  }
+  },
+  "branchByEpic": false,
+  "codexBin": "codex",
+  "codexModel": "gpt-5.5",
+  "codexSandbox": "workspace-write"
 }

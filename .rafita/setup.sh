@@ -18,7 +18,6 @@ mkdir -p "$TARGET_DIR"
 if command -v rsync >/dev/null 2>&1; then
   rsync -a --delete \
     --exclude='runs/' \
-    --exclude='state.json' \
     --exclude='plans/' \
     --exclude='sessions/' \
     --exclude='config.json' \
@@ -52,13 +51,16 @@ printf 'installed version: %s\n' "$version"
 DEFAULTS_JSON='{
   "projectType": "generic",
   "provider": "github",
-  "branchMode": "new",
+  "branchByEpic": false,
   "branchPrefix": "feature/claude/",
   "maxReviewRounds": 5,
   "streamOutput": false,
   "yolo": true,
   "claudeBin": "claude",
   "opencodeBin": "opencode",
+  "codexBin": "codex",
+  "codexModel": "",
+  "codexSandbox": "workspace-write",
   "devProvider": "opencode",
   "reviewerProvider": "claude",
   "plannerProvider": "opencode",
@@ -71,7 +73,6 @@ DEFAULTS_JSON='{
   "skipOnFailedTask": true,
   "rateLimitTaskRetry": true,
   "rateLimitMaxSleep": 21600,
-  "resumeEnabled": true,
   "debug": 1,
   "prBase": "",
   "worktreeEnabled": false,
@@ -80,6 +81,7 @@ DEFAULTS_JSON='{
   "closerEnabled": false,
   "closerProvider": "",
   "closerModel": "",
+  "closerSkipFinalReview": false,
   "maxFinalRounds": 3,
   "profileExtensions": {
     "dev": "",
@@ -95,24 +97,60 @@ if [[ ! -f "$config_path" ]]; then
   printf '%s\n' "$DEFAULTS_JSON" > "$config_path"
   printf 'wrote default config: %s\n' "$config_path"
 else
-  printf 'config.json preserved (already existed)\n'
-  # Report keys present in defaults but missing from the existing config.
-  new_keys=$(python3 - "$config_path" << PYEOF
+  # Merge missing default keys into the existing config.json so the user
+  # always sees every available setting. User values are preserved verbatim;
+  # only keys absent from the existing config are appended (with their
+  # defaults). For dict-valued keys (e.g. profileExtensions), missing
+  # sub-keys are filled in too without touching the ones the user already set.
+  merge_report=$(python3 - "$config_path" << PYEOF
 import json, sys
+from collections import OrderedDict
+
 defaults = json.loads('''$DEFAULTS_JSON''')
+path = sys.argv[1]
 try:
-    existing = json.loads(open(sys.argv[1]).read())
+    with open(path) as f:
+        existing = json.load(f, object_pairs_hook=OrderedDict)
 except Exception as e:
-    print(f"  warning: could not parse config.json: {e}", flush=True)
+    print(f"ERR could not parse config.json: {e}")
     sys.exit(0)
-missing = [k for k in defaults if k not in existing]
-for k in missing:
-    print(f"  + {k}: {json.dumps(defaults[k])}")
+
+added_top = []
+added_nested = []
+merged = OrderedDict(existing)
+for k, v in defaults.items():
+    if k not in merged:
+        merged[k] = v
+        added_top.append(k)
+    elif isinstance(v, dict) and isinstance(merged.get(k), dict):
+        sub = OrderedDict(merged[k])
+        for sk, sv in v.items():
+            if sk not in sub:
+                sub[sk] = sv
+                added_nested.append(f"{k}.{sk}")
+        merged[k] = sub
+
+if added_top or added_nested:
+    with open(path, "w") as f:
+        json.dump(merged, f, indent=2)
+        f.write("\n")
+    for k in added_top:
+        print(f"  + {k}: {json.dumps(defaults[k])}")
+    for k in added_nested:
+        top, sub = k.split(".", 1)
+        print(f"  + {k}: {json.dumps(defaults[top][sub])}")
+else:
+    print("OK")
 PYEOF
 )
-  if [[ -n "$new_keys" ]]; then
-    printf 'new config keys available (not in your config.json):\n'
-    printf '%s\n' "$new_keys"
+  if [[ "$merge_report" == "OK" ]]; then
+    printf 'config.json preserved (already up to date)\n'
+  elif [[ "$merge_report" == ERR* ]]; then
+    printf 'config.json preserved (parse error — leaving untouched):\n'
+    printf '  %s\n' "${merge_report#ERR }"
+  else
+    printf 'config.json updated with new default keys:\n'
+    printf '%s\n' "$merge_report"
   fi
 fi
 
@@ -120,7 +158,7 @@ fi
 if [[ -d "$TARGET_DIR/.." && -d "$TARGET_DIR/../.git" ]]; then
   ign="$TARGET_DIR/../.gitignore"
   touch "$ign"
-  for path in ".rafita/runs/" ".rafita/state.json" ".rafita/plans/" ".rafita/sessions/"; do
+  for path in ".rafita/runs/" ".rafita/plans/" ".rafita/sessions/"; do
     if ! grep -qxF "$path" "$ign" 2>/dev/null; then
       echo "$path" >> "$ign"
     fi

@@ -9,6 +9,7 @@ interface ChatRailItemProps {
   online?: boolean
   active?: boolean
   unread?: boolean
+  onClick?: () => void
 }
 
 export function ChatRailItem({
@@ -19,10 +20,12 @@ export function ChatRailItem({
   online = false,
   active = false,
   unread = false,
+  onClick,
 }: ChatRailItemProps) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className={cn(
         'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
         active ? 'bg-surface-active' : 'hover:bg-surface-hover',

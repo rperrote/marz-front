@@ -83,7 +83,7 @@ describe('MagicLinkRequestForm', () => {
     await user.type(await getEmailInput(), 'not-an-email')
     await user.click(await getSubmitButton())
 
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    expect(await screen.findByRole('status')).toBeInTheDocument()
     expect(mockCreate).not.toHaveBeenCalled()
   })
 
@@ -158,7 +158,7 @@ describe('MagicLinkRequestForm', () => {
     await user.type(await getEmailInput(), 'test@example.com')
     await user.click(await getSubmitButton())
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
+    expect(await screen.findByRole('status')).toHaveTextContent(
       'Too many attempts',
     )
     expect(mockSendLink).not.toHaveBeenCalled()
@@ -176,7 +176,7 @@ describe('MagicLinkRequestForm', () => {
     await user.type(await getEmailInput(), 'test@example.com')
     await user.click(await getSubmitButton())
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
+    expect(await screen.findByRole('status')).toHaveTextContent(
       'Email delivery failed',
     )
     expect(mockNavigate).not.toHaveBeenCalled()

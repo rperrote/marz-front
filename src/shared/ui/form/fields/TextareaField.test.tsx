@@ -44,7 +44,7 @@ describe('TextareaField', () => {
     const ta = screen.getByLabelText('Bio')
     await user.type(ta, 'corto')
     await user.tab()
-    expect(await screen.findByRole('alert')).toHaveTextContent(/Mínimo 10/i)
+    expect(await screen.findByRole('status')).toHaveTextContent(/Mínimo 10/i)
   })
 
   it('is axe-clean', async () => {

@@ -8,10 +8,9 @@ phase::review() {
   local task_id="$1" spec="$2" round="$3" snapshot="$4"
   ui::phase "REVIEW" "reviewing diff (round ${round})..."
 
-  # Build diff: snapshot..HEAD plus currently unstaged (in case DEV didn't commit,
-  # which it shouldn't — so the diff is against the snapshot).
+  # Build diff: snapshot..HEAD excluding lockfiles and generated code.
   local diff
-  diff=$(git diff "$snapshot" 2>/dev/null)
+  diff=$(git diff "$snapshot" -- $(git::_diff_excludes) 2>/dev/null)
   # Truncate to avoid prompt bloat.
   if [[ ${#diff} -gt 80000 ]]; then
     diff="${diff:0:80000}

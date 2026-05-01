@@ -167,6 +167,9 @@ common::check_dependencies() {
   providers+="${RAFITA_DEV_PROVIDER:-claude} "
   providers+="${RAFITA_REVIEWER_PROVIDER:-claude} "
   providers+="${RAFITA_PLANNER_PROVIDER:-${RAFITA_DEV_PROVIDER:-claude}} "
+  if [[ "${RAFITA_CLOSER_ENABLED:-0}" == "1" ]]; then
+    providers+="${RAFITA_CLOSER_PROVIDER:-${RAFITA_DEV_PROVIDER:-claude}} "
+  fi
   # Dedupe (bash 3 friendly).
   local seen=""
   for p in $providers; do
@@ -179,6 +182,10 @@ common::check_dependencies() {
         ;;
       opencode)
         local b="${RAFITA_OPENCODE_BIN:-opencode}"
+        command -v "$b" >/dev/null 2>&1 || missing+=("$b")
+        ;;
+      codex)
+        local b="${RAFITA_CODEX_BIN:-codex}"
         command -v "$b" >/dev/null 2>&1 || missing+=("$b")
         ;;
       *)

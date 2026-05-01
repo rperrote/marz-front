@@ -1,5 +1,5 @@
 {
-  "branch_name": "fn-5-feat-005-send-offer-single-offer",
+  "branch_name": "feature/claude/fn-3-feat-003-workspace-shell-conversation",
   "completion_review_status": "unknown",
   "completion_reviewed_at": null,
   "created_at": "2026-04-26T17:14:25.999778Z",
@@ -15,7 +15,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-5-feat-005-send-offer-single-offer.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-005: Send Offer (single) + Offer Lifecycle \u2014 Frontend",
-  "updated_at": "2026-04-26T17:15:33.193169Z"
+  "updated_at": "2026-04-30T17:18:15.316886Z"
 }

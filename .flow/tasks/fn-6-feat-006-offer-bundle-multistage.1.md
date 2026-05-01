@@ -50,8 +50,10 @@ Regenerar el cliente API tras backend mergea OpenAPI extendido (B.5) en dev. Val
 
 ## Done summary
 
-_To be filled by the worker._
+Diff de una línea: comentario RAFITA:BLOCKER expandido con nombres de tipos ausentes y fecha del intento — cambio correcto y mínimo dado el blocker real de B.5
 
 ## Evidence
 
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

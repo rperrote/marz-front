@@ -56,8 +56,10 @@ satisfies: [R3, R9]
 
 ## Done summary
 
-_To be filled by the worker._
+Implementación completa y correcta. El parsing de form.state.errors vía prefixSchemaToErrors de TanStack Form 1.29 produce el Record<string, Issue[]> que el regex consume — validado por los tests. Accesibilidad sólida en StageEditor. Integración en SendOfferSidesheet limpia con key={offerType} garantizando unmount. Tests cubren todos los casos críticos de negocio.
 
 ## Evidence
 
-_Logs, screenshots, or test output go here._
+- Commits:
+- Tests:
+- PRs:

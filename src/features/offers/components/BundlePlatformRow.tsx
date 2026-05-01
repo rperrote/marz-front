@@ -1,58 +1,52 @@
-import { Instagram, Music, Twitter, X as XIcon, Youtube } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { Instagram, Music, Youtube, Trash2 } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { t } from '@lingui/core/macro'
 
 import { IconButton } from '#/shared/ui/IconButton'
 
-const platformIcon: Record<string, LucideIcon> = {
+const platformIcon: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   youtube: Youtube,
   instagram: Instagram,
   tiktok: Music,
-  twitter_x: Twitter,
 }
 
 interface BundlePlatformRowProps {
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'twitter_x'
-  label: string
-  format: string
-  amount: number
-  currency?: string
-  onChangeAmount?: (value: number) => void
-  onRemove?: () => void
+  platform: string
+  index?: number
+  onRemove: () => void
+  children: ReactNode
 }
 
 export function BundlePlatformRow({
   platform,
-  label,
-  format,
-  amount,
-  currency = '$',
-  onChangeAmount,
+  index,
   onRemove,
+  children,
 }: BundlePlatformRowProps) {
   const Icon = platformIcon[platform] ?? Music
+
   return (
-    <div className="flex items-center gap-3 rounded-full border border-border bg-background px-3 py-2">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
-        <Icon className="size-5 text-muted-foreground" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-foreground">
-          {label}
-        </div>
-        <div className="truncate text-xs text-muted-foreground">{format}</div>
+    <fieldset className="rounded-xl border border-border bg-background p-4">
+      <legend className="sr-only">
+        {index !== undefined ? t`Deliverable ${index + 1}` : t`Deliverable`}
+      </legend>
+      <div className="flex items-start gap-3">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted">
+          <Icon className="size-5 text-muted-foreground" />
+        </span>
+        <div className="min-w-0 flex-1 space-y-3">{children}</div>
+        <IconButton
+          size="sm"
+          aria-label={t`Remove deliverable`}
+          onClick={onRemove}
+          className="text-destructive hover:bg-destructive/10"
+        >
+          <Trash2 className="size-4" />
+        </IconButton>
       </div>
-      <div className="flex items-center gap-2 rounded-full bg-muted pl-3 pr-1">
-        <span className="text-sm text-muted-foreground">{currency}</span>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => onChangeAmount?.(Number(e.target.value))}
-          className="w-20 border-0 bg-transparent py-2 text-right font-mono text-sm font-semibold text-foreground outline-none"
-        />
-      </div>
-      <IconButton size="sm" aria-label={`Remove ${label}`} onClick={onRemove}>
-        <XIcon />
-      </IconButton>
-    </div>
+    </fieldset>
   )
 }

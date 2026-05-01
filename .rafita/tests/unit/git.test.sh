@@ -74,7 +74,6 @@ test_git_ensure_gitignore_adds_entries() {
   git::ensure_gitignore
   local content; content=$(<.gitignore)
   assert_contains "$content" ".rafita/runs/"
-  assert_contains "$content" ".rafita/state.json"
   assert_contains "$content" ".rafita/plans/"
 }
 

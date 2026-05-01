@@ -35,9 +35,19 @@ claude::_parse_rate_limit() {
 import sys, re, time, datetime
 msg = sys.argv[1].lower()
 # Quick gate: must look like a rate-limit message.
-if not re.search(r"(usage limit|hit your limit|rate limit)", msg):
+if not re.search(r"(usage limit|hit your limit|rate limit|quota exceeded|retrying in)", msg):
     print(""); sys.exit(0)
-# Extract time token.
+# Format 1: "retrying in Xm Ys" (opencode style).
+m = re.search(r"retrying in\s+(?:(\d+)h\s*)?(?:(\d+)m\s*)?(?:(\d+)s)?", msg)
+if m:
+    h = int(m.group(1) or 0)
+    mi = int(m.group(2) or 0)
+    s = int(m.group(3) or 0)
+    secs = h * 3600 + mi * 60 + s
+    secs = max(60, min(secs, 21600))
+    print(int(time.time()) + secs)
+    sys.exit(0)
+# Format 2: "resets at HH:MM [am|pm]" (claude style).
 m = re.search(r"reset[s]?\s*(?:at)?\s*([0-9]{1,2})(?::([0-9]{2}))?\s*(am|pm)?", msg)
 if not m:
     print(""); sys.exit(0)
@@ -46,16 +56,13 @@ mi = int(m.group(2) or 0)
 ap = m.group(3)
 if ap == "pm" and h < 12: h += 12
 if ap == "am" and h == 12: h = 0
-# Compute next occurrence of this time in local tz.
 now = datetime.datetime.now()
 target = now.replace(hour=h % 24, minute=mi, second=0, microsecond=0)
 if target <= now:
     target = target + datetime.timedelta(days=1)
 secs = int((target - now).total_seconds())
-# Clamp to [60, 21600].
 secs = max(60, min(secs, 21600))
-epoch = int(time.time()) + secs
-print(epoch)
+print(int(time.time()) + secs)
 PYEOF
 }
 

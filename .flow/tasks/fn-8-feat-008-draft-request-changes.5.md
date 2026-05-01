@@ -55,8 +55,10 @@ No aplica — task de plomería WS.
 
 ## Done summary
 
-_Pendiente de implementación._
+done manual
 
 ## Evidence
 
-_Pendiente de implementación._
+- Commits:
+- Tests:
+- PRs:

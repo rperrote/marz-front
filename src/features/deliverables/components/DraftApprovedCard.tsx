@@ -1,41 +1,53 @@
-import { Check, Film } from 'lucide-react'
+import { useMemo } from 'react'
+import { Check } from 'lucide-react'
+import { t } from '@lingui/core/macro'
 
-import { SystemEventCard, VideoPlaceholder } from '#/shared/ui/SystemEventCard'
+import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import type { DraftTimelineMessage } from '../types'
+import type { DraftApprovedSnapshot } from '#/shared/ws/types'
 
 interface DraftApprovedCardProps {
-  message: string
-  filename: string
-  sizeLabel: string
-  duration: string
-  aspect?: 'landscape' | 'portrait'
+  message: DraftTimelineMessage
+  currentAccountId: string
+  counterpartDisplayName: string
+}
+
+function extractSnapshot(
+  payload: Record<string, unknown> | null,
+): DraftApprovedSnapshot | null {
+  if (!payload) return null
+  const snapshot =
+    (payload.snapshot as Record<string, unknown> | undefined) ?? payload
+  if (typeof snapshot.version !== 'number') return null
+  return snapshot as unknown as DraftApprovedSnapshot
 }
 
 export function DraftApprovedCard({
   message,
-  filename,
-  sizeLabel,
-  duration,
-  aspect,
+  currentAccountId,
+  counterpartDisplayName,
 }: DraftApprovedCardProps) {
+  const snapshot = useMemo(
+    () => extractSnapshot(message.payload),
+    [message.payload],
+  )
+
+  if (!snapshot) return null
+
+  const isCurrentUser = snapshot.approved_by_account_id === currentAccountId
+  const approverName = isCurrentUser ? t`Tú` : counterpartDisplayName || ''
+
   return (
     <SystemEventCard
       tone="success"
-      kicker="Draft approved"
+      kicker={t`Draft approved`}
       icon={Check}
       headerVariant="solid"
     >
       <div className="space-y-4">
-        <p className="text-sm text-foreground">{message}</p>
-
-        <VideoPlaceholder duration={duration} aspect={aspect} />
-
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5 font-mono">
-            <Film className="size-4" />
-            {filename}
-          </span>
-          <span className="font-mono">{sizeLabel}</span>
-        </div>
+        <p className="text-sm text-foreground">
+          {t`Approved by ${approverName} on ${new Date(snapshot.approved_at).toLocaleDateString()}`}
+        </p>
       </div>
     </SystemEventCard>
   )

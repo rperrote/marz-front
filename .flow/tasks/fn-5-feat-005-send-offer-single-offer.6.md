@@ -53,8 +53,10 @@ Tokens: botón primary (`var(--primary)`), `rounded-md`. Posición en el header 
 
 ## Done summary
 
-_To be filled by worker on completion._
+Cambio correcto y minimal. reason?: 'no-active-campaigns' convierte el campo en literal discriminante — el compilador ahora puede verificar exhaustivamente la rama en ChatHeaderActions.tsx:62. Sin regresiones. Resto del diff es ruido de formato en archivos .flow/
 
 ## Evidence
 
-_Links to commits, test runs, screenshots, etc._
+- Commits:
+- Tests:
+- PRs:

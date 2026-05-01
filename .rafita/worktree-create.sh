@@ -5,7 +5,7 @@
 # create a worktree.
 #
 # Usage:
-#   ./.rafita/worktree-create.sh             # from current branch
+#   ./.rafita/worktree-create.sh             # detached from configured base
 #   ./.rafita/worktree-create.sh --from dev  # explicit start ref
 #   ./.rafita/worktree-create.sh --name dbg  # custom suffix
 #
@@ -35,7 +35,7 @@ worktree-create.sh — create a git worktree for an isolated rafita run
 Usage: $(basename "$0") [--from <ref>] [--name <suffix>] [-h]
 
 Options:
-  --from <ref>    Start ref for the worktree (default: current branch)
+  --from <ref>    Start ref for the worktree (default: prBase/dev/main/master)
   --name <suffix> Custom suffix for the worktree directory (default: run-<runid>)
   -h, --help      Show this help
 
@@ -64,15 +64,26 @@ main() {
   repo_root=$(git rev-parse --show-toplevel 2>/dev/null) \
     || { echo "worktree-create: not in a git repo" >&2; exit 1; }
 
-  # Read worktreeBase from config or env (no full config loader needed).
+  # Read worktreeBase/prBase from config or env (no full config loader needed).
   local cfg="$repo_root/.rafita/config.json"
   local base_dir="${RAFITA_WORKTREE_BASE:-}"
+  local pr_base="${RAFITA_PR_BASE:-}"
   if [[ -z "$base_dir" && -f "$cfg" ]]; then
     base_dir=$(python3 -c "
 import json,sys
 try:
     d=json.load(open('$cfg'))
     print(d.get('worktreeBase') or '')
+except Exception:
+    pass
+")
+  fi
+  if [[ -z "$pr_base" && -f "$cfg" ]]; then
+    pr_base=$(python3 -c "
+import json,sys
+try:
+    d=json.load(open('$cfg'))
+    print(d.get('prBase') or '')
 except Exception:
     pass
 ")
@@ -91,8 +102,21 @@ except Exception:
 
   # Resolve start_ref.
   if [[ -z "$from_ref" ]]; then
-    from_ref=$(git symbolic-ref --quiet --short HEAD 2>/dev/null \
-      || git rev-parse --short HEAD)
+    local candidate
+    for candidate in "$pr_base" dev main master; do
+      [[ -z "$candidate" ]] && continue
+      if git rev-parse --verify --quiet "origin/${candidate}" >/dev/null 2>&1; then
+        from_ref="origin/${candidate}"
+        break
+      fi
+      if git rev-parse --verify --quiet "$candidate" >/dev/null 2>&1; then
+        from_ref="$candidate"
+        break
+      fi
+    done
+    if [[ -z "$from_ref" ]]; then
+      from_ref=$(git rev-parse --short HEAD)
+    fi
   fi
   git rev-parse --verify --quiet "$from_ref" >/dev/null 2>&1 \
     || { echo "worktree-create: ref not found: $from_ref" >&2; exit 1; }
@@ -112,32 +136,9 @@ except Exception:
     exit 1
   fi
 
-  # If from_ref is a local branch AND it's not checked out anywhere else,
-  # attach the worktree to it (so `git status` inside shows "On branch X",
-  # not detached). Otherwise fall back to detached HEAD pointing at the
-  # same commit.
-  local attach_branch=""
-  if git show-ref --verify --quiet "refs/heads/${from_ref}"; then
-    local in_use
-    in_use=$(git worktree list --porcelain 2>/dev/null \
-      | awk -v b="refs/heads/${from_ref}" '$1=="branch" && $2==b {n++} END{print n+0}')
-    if [[ "$in_use" == "0" ]]; then
-      attach_branch="$from_ref"
-    fi
-  fi
-
-  if [[ -n "$attach_branch" ]]; then
-    echo "worktree-create: creating $wt_path on branch $attach_branch" >&2
-    git worktree add -q "$wt_path" "$attach_branch" \
-      || { echo "worktree-create: git worktree add failed" >&2; exit 1; }
-  else
-    echo "worktree-create: creating $wt_path detached at $from_ref" >&2
-    if git show-ref --verify --quiet "refs/heads/${from_ref}"; then
-      echo "worktree-create: (branch in use elsewhere — using detached HEAD)" >&2
-    fi
-    git worktree add -q --detach "$wt_path" "$from_ref" \
-      || { echo "worktree-create: git worktree add failed" >&2; exit 1; }
-  fi
+  echo "worktree-create: creating $wt_path detached at $from_ref" >&2
+  git worktree add -q --detach "$wt_path" "$from_ref" \
+    || { echo "worktree-create: git worktree add failed" >&2; exit 1; }
 
   echo "worktree-create: ready at $wt_path" >&2
   echo "worktree-create: hint — eval the stdout to enter it, then run rafita" >&2

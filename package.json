@@ -54,6 +54,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-grab": "^0.1.32",
+    "react-virtuoso": "^4.18.6",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.1.18",
@@ -62,7 +63,6 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@clerk/backend": "^3.4.1",
     "@clerk/testing": "^2.0.20",
     "@lingui/cli": "^5.9.5",
     "@lingui/swc-plugin": "^5.11.0",
@@ -80,6 +80,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitejs/plugin-react-swc": "^4.3.0",
+    "eslint": "^10.2.1",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "lint-staged": "^16.4.0",

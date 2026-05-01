@@ -60,7 +60,7 @@ describe('TextField', () => {
     render(<Harness />)
     const input = screen.getByLabelText('Email')
     await user.type(input, 'no-mail')
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
   it('shows error after blur when invalid', async () => {
@@ -69,7 +69,9 @@ describe('TextField', () => {
     const input = screen.getByLabelText('Email')
     await user.type(input, 'no-mail')
     await user.tab()
-    expect(await screen.findByRole('alert')).toHaveTextContent('Email inválido')
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Email inválido',
+    )
     expect(input).toHaveAttribute('aria-invalid', 'true')
   })
 
@@ -79,10 +81,10 @@ describe('TextField', () => {
     const input = screen.getByLabelText('Email')
     await user.type(input, 'no-mail')
     await user.tab()
-    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    expect(await screen.findByRole('status')).toBeInTheDocument()
     await user.clear(input)
     await user.type(input, 'a@b.co')
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
   it('is axe-clean', async () => {
