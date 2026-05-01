@@ -6,13 +6,15 @@
   "default_impl": null,
   "default_review": null,
   "default_sync": null,
-  "depends_on_epics": ["fn-7-feat-007-draft-submit-review-approve"],
+  "depends_on_epics": [
+    "fn-7-feat-007-draft-submit-review-approve"
+  ],
   "id": "fn-8-feat-008-draft-request-changes",
   "next_task": 1,
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-8-feat-008-draft-request-changes.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-008: Draft Request Changes & Versioning (Frontend)",
-  "updated_at": "2026-04-30T18:55:39.140611Z"
+  "updated_at": "2026-04-30T19:18:24.803327Z"
 }
