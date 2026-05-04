@@ -18,8 +18,8 @@ function makeState(
 }
 
 describe('STEPS', () => {
-  it('has 21 steps', () => {
-    expect(STEPS).toHaveLength(21)
+  it('has 20 steps', () => {
+    expect(STEPS).toHaveLength(20)
   })
 
   it('every step has id and component', () => {
@@ -40,7 +40,7 @@ describe('getStepIndex', () => {
   it('returns correct index for valid ids', () => {
     expect(getStepIndex('name-handle')).toBe(0)
     expect(getStepIndex('experience')).toBe(1)
-    expect(getStepIndex('confirmation')).toBe(20)
+    expect(getStepIndex('confirmation')).toBe(19)
   })
 
   it('returns -1 for unknown id', () => {
@@ -52,7 +52,7 @@ describe('getStepIndex', () => {
 describe('getStepId', () => {
   it('returns correct id for valid indices', () => {
     expect(getStepId(0)).toBe('name-handle')
-    expect(getStepId(20)).toBe('confirmation')
+    expect(getStepId(19)).toBe('confirmation')
   })
 
   it('clamps out-of-range indices', () => {
@@ -139,19 +139,8 @@ describe('validate functions', () => {
     expect(STEPS[9]!.validate).toBeUndefined()
   })
 
-  it('C10 best-videos: requires exactly 3 with non-empty URLs', () => {
-    const validate = STEPS[10]!.validate!
-    expect(validate(makeState())).toBe(false)
-    const vid = { url: 'https://example.com/v', kind: 'organic' as const }
-    expect(validate(makeState({ best_videos: [vid, vid] }))).toBe(false)
-    expect(validate(makeState({ best_videos: [vid, vid, vid] }))).toBe(true)
-    expect(
-      validate(
-        makeState({
-          best_videos: [vid, vid, { url: '', kind: 'organic' }],
-        }),
-      ),
-    ).toBe(false)
+  it('C10 best-videos: no validation (optional)', () => {
+    expect(STEPS[10]!.validate).toBeUndefined()
   })
 
   it('C11 birthday: requires YYYY-MM-DD format', () => {
@@ -172,37 +161,33 @@ describe('validate functions', () => {
     expect(validate(makeState({ country: 'arg' }))).toBe(false)
   })
 
-  it('C14 priming-numbers: no validation', () => {
-    expect(STEPS[14]!.validate).toBeUndefined()
-  })
-
   it('C15 whatsapp: requires E.164 format', () => {
-    const validate = STEPS[15]!.validate!
+    const validate = STEPS[14]!.validate!
     expect(validate(makeState())).toBe(false)
     expect(validate(makeState({ whatsapp_e164: '+5491155550000' }))).toBe(true)
     expect(validate(makeState({ whatsapp_e164: '12345' }))).toBe(false)
   })
 
   it('C16 referral: no validation (optional)', () => {
-    expect(STEPS[16]!.validate).toBeUndefined()
+    expect(STEPS[15]!.validate).toBeUndefined()
   })
 
   it('C17 avatar: requires non-empty avatar_s3_key', () => {
-    const validate = STEPS[17]!.validate!
+    const validate = STEPS[16]!.validate!
     expect(validate(makeState())).toBe(false)
     expect(validate(makeState({ avatar_s3_key: '' }))).toBe(false)
     expect(validate(makeState({ avatar_s3_key: 'avatars/123.jpg' }))).toBe(true)
   })
 
   it('C18 priming-earnings: no validation', () => {
-    expect(STEPS[18]!.validate).toBeUndefined()
+    expect(STEPS[17]!.validate).toBeUndefined()
   })
 
   it('C19 priming-social-proof: no validation', () => {
-    expect(STEPS[19]!.validate).toBeUndefined()
+    expect(STEPS[18]!.validate).toBeUndefined()
   })
 
   it('C20 confirmation: no validation', () => {
-    expect(STEPS[20]!.validate).toBeUndefined()
+    expect(STEPS[19]!.validate).toBeUndefined()
   })
 })

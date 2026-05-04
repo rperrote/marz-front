@@ -2882,7 +2882,6 @@
           "whatsapp_e164",
           "experience_level",
           "channels",
-          "best_videos",
           "tier"
         ],
         "properties": {
@@ -2956,7 +2955,7 @@
           },
           "best_videos": {
             "type": "array",
-            "minItems": 3,
+            "minItems": 0,
             "maxItems": 3,
             "items": {
               "$ref": "#/components/schemas/BestVideo"
@@ -3087,7 +3086,7 @@
       },
       "AvatarPresignRequest": {
         "type": "object",
-        "required": ["content_type"],
+        "required": ["content_type", "size_bytes"],
         "properties": {
           "filename": {
             "type": "string",
@@ -3097,6 +3096,12 @@
           "content_type": {
             "type": "string",
             "enum": ["image/jpeg", "image/png", "image/webp"]
+          },
+          "size_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Exact size in bytes; the presigned URL is signed with this Content-Length."
           }
         }
       },

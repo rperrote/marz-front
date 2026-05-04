@@ -49,10 +49,10 @@ export interface CreatorOnboardingPayload {
   /** @minItems 1 */
   channels: CreatorChannel[]
   /**
-   * @minItems 3
+   * @minItems 0
    * @maxItems 3
    */
-  best_videos: BestVideo[]
+  best_videos?: BestVideo[]
   /**
    * @maxLength 2000
    * @nullable

@@ -1,5 +1,12 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { t } from '@lingui/core/macro'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '#/components/ui/select'
 import { FieldRow } from '#/shared/ui/form'
 import { useCreatorOnboardingStore } from '../store'
 
@@ -18,39 +25,49 @@ const MONTHS = [
   'Diciembre',
 ]
 
+function parseBirthday(value: string | undefined) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? '')
+  if (!match) return { year: '', month: '', day: '' }
+  return {
+    year: match[1],
+    month: String(Number(match[2])),
+    day: String(Number(match[3])),
+  }
+}
+
 export function C11BirthdayScreen() {
   const store = useCreatorOnboardingStore()
 
-  const { year, month, day } = useMemo(() => {
-    const b = store.birthday ?? ''
-    const [y, m, d] = b.split('-')
-    return { year: y ?? '', month: m ?? '', day: d ?? '' }
-  }, [store.birthday])
+  const [{ year, month, day }, setParts] = useState(() =>
+    parseBirthday(store.birthday),
+  )
 
   const update = useCallback(
     (patch: { y?: string; m?: string; d?: string }) => {
-      const y = patch.y ?? year
-      const m = patch.m ?? month
-      const d = patch.d ?? day
-      if (y && m && d) {
-        store.setField(
-          'birthday',
-          `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`,
-        )
-      } else {
-        store.setField('birthday', [y, m, d].filter(Boolean).join('-'))
-      }
+      setParts((prev) => {
+        const next = {
+          year: patch.y ?? prev.year,
+          month: patch.m ?? prev.month,
+          day: patch.d ?? prev.day,
+        }
+        if (next.year && next.month && next.day) {
+          store.setField(
+            'birthday',
+            `${next.year}-${next.month.padStart(2, '0')}-${next.day.padStart(2, '0')}`,
+          )
+        } else {
+          store.setField('birthday', '')
+        }
+        return next
+      })
     },
-    [store, year, month, day],
+    [store],
   )
 
   const years = useMemo(() => {
     const current = new Date().getFullYear()
     return Array.from({ length: 80 }, (_, i) => `${current - 13 - i}`)
   }, [])
-
-  const selectClass =
-    'h-11 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40'
 
   return (
     <div className="flex w-full flex-col items-center gap-9">
@@ -66,53 +83,50 @@ export function C11BirthdayScreen() {
       <div className="flex w-full max-w-[520px] gap-3">
         <FieldRow label={t`Día`} className="flex-1">
           {(aria) => (
-            <select
-              {...aria}
-              className={selectClass}
-              value={day}
-              onChange={(e) => update({ d: e.target.value })}
-            >
-              <option value="">—</option>
-              {Array.from({ length: 31 }, (_, i) => `${i + 1}`).map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+            <Select value={day} onValueChange={(v) => update({ d: v })}>
+              <SelectTrigger {...aria} className="w-full">
+                <SelectValue placeholder="—" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 31 }, (_, i) => `${i + 1}`).map((d) => (
+                  <SelectItem key={d} value={d}>
+                    {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </FieldRow>
         <FieldRow label={t`Mes`} className="flex-[1.4]">
           {(aria) => (
-            <select
-              {...aria}
-              className={selectClass}
-              value={month}
-              onChange={(e) => update({ m: e.target.value })}
-            >
-              <option value="">—</option>
-              {MONTHS.map((name, i) => (
-                <option key={name} value={`${i + 1}`}>
-                  {name}
-                </option>
-              ))}
-            </select>
+            <Select value={month} onValueChange={(v) => update({ m: v })}>
+              <SelectTrigger {...aria} className="w-full">
+                <SelectValue placeholder="—" />
+              </SelectTrigger>
+              <SelectContent>
+                {MONTHS.map((name, i) => (
+                  <SelectItem key={name} value={`${i + 1}`}>
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </FieldRow>
         <FieldRow label={t`Año`} className="flex-1">
           {(aria) => (
-            <select
-              {...aria}
-              className={selectClass}
-              value={year}
-              onChange={(e) => update({ y: e.target.value })}
-            >
-              <option value="">—</option>
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
+            <Select value={year} onValueChange={(v) => update({ y: v })}>
+              <SelectTrigger {...aria} className="w-full">
+                <SelectValue placeholder="—" />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map((y) => (
+                  <SelectItem key={y} value={y}>
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </FieldRow>
       </div>

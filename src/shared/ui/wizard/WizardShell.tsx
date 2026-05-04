@@ -45,11 +45,11 @@ export function WizardShell({
       <WizardProgress percent={percent} />
       <main
         className={cn(
-          'flex flex-1 flex-col items-center justify-center overflow-y-auto px-24 py-12',
+          'flex flex-1 flex-col items-center overflow-y-auto px-24 py-12',
           className,
         )}
       >
-        <div className="flex w-full flex-col items-center gap-12">
+        <div className="my-auto flex w-full flex-col items-center gap-12">
           {children}
           {!hideFooter && (
             <WizardFooter

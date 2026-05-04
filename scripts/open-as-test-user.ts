@@ -16,10 +16,9 @@ import {
   ensureUser,
   loadEnvLocal,
   openSignedInBrowser,
-  readEnv
-  
+  readEnv,
 } from './lib/test-user.ts'
-import type {AccountKind} from './lib/test-user.ts';
+import type { AccountKind } from './lib/test-user.ts'
 
 loadEnvLocal(resolve(import.meta.dirname, '..'))
 

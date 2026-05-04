@@ -13,22 +13,35 @@ const ACCEPTED_TYPES: Record<string, AvatarPresignRequestContentType> = {
   'image/png': 'image/png',
   'image/webp': 'image/webp',
 }
+const PREVIEW_STORAGE_KEY = 'marz-creator-onboarding-avatar-preview'
+
+function readStoredPreview(): string | null {
+  if (typeof window === 'undefined') return null
+  return sessionStorage.getItem(PREVIEW_STORAGE_KEY)
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+}
 
 export function C17AvatarScreen() {
   const store = useCreatorOnboardingStore()
   const presign = usePresignCreatorAvatar()
   const inputRef = useRef<HTMLInputElement>(null)
-  const previewUrlRef = useRef<string | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    return () => {
-      if (previewUrlRef.current) {
-        URL.revokeObjectURL(previewUrlRef.current)
-      }
+    if (store.avatar_s3_key) {
+      const stored = readStoredPreview()
+      if (stored) setPreview(stored)
     }
-  }, [])
+  }, [store.avatar_s3_key])
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -48,7 +61,13 @@ export function C17AvatarScreen() {
           Awaited<ReturnType<typeof presign.mutateAsync>>
         >((resolve, reject) => {
           presign.mutate(
-            { data: { filename: file.name, content_type: contentType } },
+            {
+              data: {
+                filename: file.name,
+                content_type: contentType,
+                size_bytes: file.size,
+              },
+            },
             { onSuccess: resolve, onError: reject },
           )
         })
@@ -69,12 +88,9 @@ export function C17AvatarScreen() {
 
         store.setField('avatar_s3_key', result.s3_key)
 
-        if (previewUrlRef.current) {
-          URL.revokeObjectURL(previewUrlRef.current)
-        }
-        const url = URL.createObjectURL(file)
-        previewUrlRef.current = url
-        setPreview(url)
+        const dataUrl = await fileToDataUrl(file)
+        sessionStorage.setItem(PREVIEW_STORAGE_KEY, dataUrl)
+        setPreview(dataUrl)
       } catch {
         toast.error(t`Error al subir la imagen. Intentá de nuevo.`)
       } finally {
@@ -95,10 +111,7 @@ export function C17AvatarScreen() {
 
   const handleRemove = useCallback(() => {
     store.setField('avatar_s3_key', '')
-    if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current)
-      previewUrlRef.current = null
-    }
+    sessionStorage.removeItem(PREVIEW_STORAGE_KEY)
     setPreview(null)
   }, [store])
 

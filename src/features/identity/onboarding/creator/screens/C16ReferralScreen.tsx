@@ -1,16 +1,11 @@
 import { useCallback } from 'react'
 import { t } from '@lingui/core/macro'
-import { useNavigate } from '@tanstack/react-router'
 import { Input } from '#/components/ui/input'
-import { Button } from '#/components/ui/button'
 import { FieldRow } from '#/shared/ui/form'
-import { track } from '#/shared/analytics/track'
 import { useCreatorOnboardingStore } from '../store'
-import { STEPS, getStepId } from '../steps'
 
 export function C16ReferralScreen() {
   const store = useCreatorOnboardingStore()
-  const navigate = useNavigate()
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,23 +13,6 @@ export function C16ReferralScreen() {
     },
     [store],
   )
-
-  const skip = () => {
-    store.setField('referral_text', null)
-    const currentIndex = STEPS.findIndex((s) => s.id === 'referral')
-    if (currentIndex >= 0 && currentIndex < STEPS.length - 1) {
-      const nextIndex = currentIndex + 1
-      track('onboarding_step_skipped', {
-        step: 'referral',
-        index: currentIndex,
-      })
-      store.goTo(nextIndex)
-      void navigate({
-        to: '/onboarding/creator/$step',
-        params: { step: getStepId(nextIndex) },
-      })
-    }
-  }
 
   return (
     <div className="flex w-full flex-col items-center gap-9">
@@ -59,13 +37,6 @@ export function C16ReferralScreen() {
           )}
         </FieldRow>
       </div>
-      <Button
-        variant="ghost"
-        onClick={skip}
-        className="text-xs text-muted-foreground"
-      >
-        {t`Omitir`}
-      </Button>
     </div>
   )
 }

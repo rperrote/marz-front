@@ -82,13 +82,6 @@ export function validateChannels(
 export const CreatorOnboardingPayloadSchema =
   CompleteCreatorOnboardingBody.superRefine((val, ctx) => {
     creatorChannelsRefinement(val.channels, ctx)
-    if (val.best_videos.length !== 3) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['best_videos'],
-        message: 'exactly_three_videos_required',
-      })
-    }
     if (val.niches.length < 1 || val.niches.length > 5) {
       ctx.addIssue({
         code: 'custom',

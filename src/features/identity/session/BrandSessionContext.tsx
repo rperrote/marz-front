@@ -1,5 +1,5 @@
-import { createContext, useContext, useMemo  } from 'react'
-import type {ReactNode} from 'react';
+import { createContext, useContext, useMemo } from 'react'
+import type { ReactNode } from 'react'
 
 import { useMe } from '#/shared/api/generated/accounts/accounts'
 import type { BrandWorkspaceSummary } from '#/shared/api/generated/model/brandWorkspaceSummary'

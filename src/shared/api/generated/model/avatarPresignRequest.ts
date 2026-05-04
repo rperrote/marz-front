@@ -16,4 +16,9 @@ export interface AvatarPresignRequest {
    */
   filename?: string | null
   content_type: AvatarPresignRequestContentType
+  /**
+   * Exact size in bytes; the presigned URL is signed with this Content-Length.
+   * @minimum 1
+   */
+  size_bytes: number
 }

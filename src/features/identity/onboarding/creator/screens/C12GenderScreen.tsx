@@ -1,12 +1,8 @@
 import { t } from '@lingui/core/macro'
-import { useNavigate } from '@tanstack/react-router'
-import { Button } from '#/components/ui/button'
 import { OnboardingOptionChip } from '#/features/identity/onboarding/shared/components'
-import { track } from '#/shared/analytics/track'
 import type { CreatorOnboardingPayloadGender as Gender } from '#/shared/api/generated/model/creatorOnboardingPayloadGender'
 import { CreatorOnboardingPayloadGender } from '#/shared/api/generated/model/creatorOnboardingPayloadGender'
 import { useCreatorOnboardingStore } from '../store'
-import { STEPS, getStepId } from '../steps'
 
 type NonNullGender = Exclude<Gender, null>
 
@@ -25,21 +21,6 @@ const GENDER_OPTIONS: { value: NonNullGender; label: () => string }[] = [
 
 export function C12GenderScreen() {
   const store = useCreatorOnboardingStore()
-  const navigate = useNavigate()
-
-  const skip = () => {
-    store.setField('gender', null)
-    const currentIndex = STEPS.findIndex((s) => s.id === 'gender')
-    if (currentIndex >= 0 && currentIndex < STEPS.length - 1) {
-      const nextIndex = currentIndex + 1
-      track('onboarding_step_skipped', { step: 'gender', index: currentIndex })
-      store.goTo(nextIndex)
-      void navigate({
-        to: '/onboarding/creator/$step',
-        params: { step: getStepId(nextIndex) },
-      })
-    }
-  }
 
   return (
     <div className="flex w-full flex-col items-center gap-9">
@@ -66,13 +47,6 @@ export function C12GenderScreen() {
           />
         ))}
       </div>
-      <Button
-        variant="ghost"
-        onClick={skip}
-        className="text-xs text-muted-foreground"
-      >
-        {t`Omitir`}
-      </Button>
     </div>
   )
 }

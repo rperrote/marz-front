@@ -15,7 +15,6 @@ import {
   C11BirthdayScreen,
   C12GenderScreen,
   C13LocationScreen,
-  C14PrimingNumbers,
   C15WhatsappScreen,
   C16ReferralScreen,
   C17AvatarScreen,
@@ -73,7 +72,14 @@ export const STEPS: CreatorOnboardingStep[] = [
     validate: (s) =>
       Array.isArray(s.channels) &&
       s.channels.length >= 1 &&
-      s.channels.filter((c) => c.is_primary).length === 1,
+      s.channels.filter((c) => c.is_primary).length === 1 &&
+      new Set(s.channels.map((c) => c.platform)).size === s.channels.length &&
+      s.channels.every(
+        (c) =>
+          typeof c.external_handle === 'string' &&
+          c.external_handle.trim().length > 0 &&
+          c.rate_cards.every((rc) => rc.rate_amount.trim() !== ''),
+      ),
   },
   {
     id: 'priming-testimonials',
@@ -90,12 +96,6 @@ export const STEPS: CreatorOnboardingStep[] = [
   {
     id: 'best-videos',
     component: C10BestVideosScreen,
-    validate: (s) =>
-      Array.isArray(s.best_videos) &&
-      s.best_videos.length === 3 &&
-      s.best_videos.every(
-        (v) => typeof v.url === 'string' && v.url.trim().length > 0,
-      ),
   },
   {
     id: 'birthday',
@@ -112,10 +112,6 @@ export const STEPS: CreatorOnboardingStep[] = [
     component: C13LocationScreen,
     validate: (s) =>
       typeof s.country === 'string' && /^[A-Z]{2}$/.test(s.country),
-  },
-  {
-    id: 'priming-numbers',
-    component: C14PrimingNumbers,
   },
   {
     id: 'whatsapp',

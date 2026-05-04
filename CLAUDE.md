@@ -71,4 +71,5 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
-El knowledge del proyecto está en `profiles/knowledge/knowledge.md`.
+- El knowledge del proyecto está en `profiles/knowledge/knowledge.md`.
+- Cuando leas CLAUDE.md avisame que lo leiste.

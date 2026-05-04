@@ -96,11 +96,30 @@ describe('CreatorOnboardingPayloadSchema', () => {
     }
   })
 
-  it('rejects fewer than 3 best_videos', () => {
+  it('accepts fewer than 3 best_videos (optional)', () => {
     const payload = validPayload()
     payload.best_videos = [
       { url: 'https://example.com/1', kind: 'organic' },
       { url: 'https://example.com/2', kind: 'organic' },
+    ]
+    const result = CreatorOnboardingPayloadSchema.safeParse(payload)
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts empty best_videos', () => {
+    const payload = validPayload()
+    payload.best_videos = []
+    const result = CreatorOnboardingPayloadSchema.safeParse(payload)
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects more than 3 best_videos', () => {
+    const payload = validPayload()
+    payload.best_videos = [
+      { url: 'https://example.com/1', kind: 'organic' },
+      { url: 'https://example.com/2', kind: 'organic' },
+      { url: 'https://example.com/3', kind: 'organic' },
+      { url: 'https://example.com/4', kind: 'organic' },
     ]
     const result = CreatorOnboardingPayloadSchema.safeParse(payload)
     expect(result.success).toBe(false)

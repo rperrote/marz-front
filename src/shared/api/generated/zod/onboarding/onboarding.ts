@@ -238,7 +238,7 @@ export const completeCreatorOnboardingBodyChannelsItemRateCardsItemRateCurrencyM
 
 export const completeCreatorOnboardingBodyBestVideosItemUrlMax = 500
 
-export const completeCreatorOnboardingBodyBestVideosMin = 3
+export const completeCreatorOnboardingBodyBestVideosMin = 0
 export const completeCreatorOnboardingBodyBestVideosMax = 3
 
 export const completeCreatorOnboardingBodyReferralTextMax = 2000
@@ -315,7 +315,8 @@ export const CompleteCreatorOnboardingBody = zod.object({
       }),
     )
     .min(completeCreatorOnboardingBodyBestVideosMin)
-    .max(completeCreatorOnboardingBodyBestVideosMax),
+    .max(completeCreatorOnboardingBodyBestVideosMax)
+    .optional(),
   referral_text: zod
     .string()
     .max(completeCreatorOnboardingBodyReferralTextMax)
@@ -452,6 +453,12 @@ export const presignCreatorAvatarBodyFilenameMax = 200
 export const PresignCreatorAvatarBody = zod.object({
   filename: zod.string().max(presignCreatorAvatarBodyFilenameMax).nullish(),
   content_type: zod.enum(['image/jpeg', 'image/png', 'image/webp']),
+  size_bytes: zod
+    .number()
+    .min(1)
+    .describe(
+      'Exact size in bytes; the presigned URL is signed with this Content-Length.',
+    ),
 })
 
 export const PresignCreatorAvatarResponse = zod.object({
