@@ -492,8 +492,8 @@ describe('DeliverableListPanel', () => {
     renderPanel()
 
     expect(
-      screen.queryByRole('button', { name: /re-submit link/i }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('button', { name: /re-submit link/i }),
+    ).toBeEnabled()
   })
 
   it('shows re-submit link copy when an approved draft has previous link changes', () => {

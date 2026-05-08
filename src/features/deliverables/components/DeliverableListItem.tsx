@@ -93,8 +93,13 @@ export function DeliverableListItem({
     !isNonUploadable &&
     deliverable.status === 'draft_submitted'
   const canSubmitLink =
-    isCreator && !isLocked && deliverable.status === 'draft_approved'
-  const submitLinkLabel = hasPreviousLinkChanges
+    isCreator &&
+    !isLocked &&
+    (deliverable.status === 'draft_approved' ||
+      deliverable.status === 'link_submitted')
+  const isLinkResubmission =
+    deliverable.status === 'link_submitted' || hasPreviousLinkChanges
+  const submitLinkLabel = isLinkResubmission
     ? t`Re-submit link`
     : t`Submit link`
   const shouldShowCurrentLink =
@@ -114,7 +119,7 @@ export function DeliverableListItem({
   }
 
   const handleSubmitLinkClick = () => {
-    onSubmitLink?.(deliverable.id, hasPreviousLinkChanges)
+    onSubmitLink?.(deliverable.id, isLinkResubmission)
   }
 
   return (
@@ -257,7 +262,7 @@ function CurrentLinkSummary({
       <a
         href={currentLink.url}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         className="min-w-0 flex-1 truncate text-xs font-medium text-info-foreground hover:underline"
       >
         {currentLink.url}

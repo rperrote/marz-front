@@ -135,7 +135,7 @@ function CurrentLinkSummary({
       <a
         href={link.url}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         className="min-w-0 flex-1 truncate text-xs font-medium text-info-foreground hover:underline"
       >
         {link.url}
