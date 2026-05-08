@@ -28,7 +28,9 @@ import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubm
 import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
 import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
 import { LinkSubmittedCard } from '#/features/deliverables/components/LinkSubmittedCard'
-import type { PublishedLinkPreview } from '#/features/deliverables/types'
+import { LinkApprovedCard } from '#/features/deliverables/components/LinkApprovedCard'
+import { LinkChangesRequestedCard } from '#/features/deliverables/components/LinkChangesRequestedCard'
+import { getRecord, getString } from '#/shared/utils/record'
 
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
@@ -135,69 +137,70 @@ export function MessageTimeline({
       const message = item.message
 
       if (message.type === 'system_event') {
-        if (message.event_type === 'DraftSubmitted') {
-          return (
-            <DraftSubmittedCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              conversationId={conversationId}
-              sessionKind={sessionKind}
-            />
-          )
-        }
+        const deliverableEventType = parseDeliverableSystemEventType(
+          message.event_type,
+        )
 
-        if (message.event_type === 'DraftApproved') {
-          return (
-            <DraftApprovedCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-            />
-          )
-        }
+        if (deliverableEventType) {
+          const counterpartDisplayName =
+            conversationDetail?.counterpart.display_name ?? ''
 
-        if (message.event_type === 'ChangesRequested') {
-          return (
-            <RequestChangesCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              sessionKind={sessionKind}
-            />
-          )
-        }
-
-        if (message.event_type === 'LinkSubmitted') {
-          const snapshot = parseLinkSubmittedSnapshot(message.payload)
-          if (!snapshot) return null
-          if (sessionKind === 'brand') {
-            return (
-              <LinkSubmittedCard
-                audience="brand"
-                message={snapshot.message}
-                url={snapshot.url}
-                platform={snapshot.platform}
-                preview={snapshot.preview}
-                payoutAmount={snapshot.payoutAmount}
-              />
-            )
+          switch (deliverableEventType) {
+            case 'DraftSubmitted':
+              return (
+                <DraftSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  conversationId={conversationId}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'DraftApproved':
+              return (
+                <DraftApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                />
+              )
+            case 'ChangesRequested':
+              return (
+                <RequestChangesCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkSubmitted':
+              return (
+                <LinkSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  brandWorkspaceId={extractBrandWorkspaceId(message.payload)}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkApproved':
+              return (
+                <LinkApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                />
+              )
+            case 'LinkChangesRequested':
+              return (
+                <LinkChangesRequestedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            default:
+              return assertNever(deliverableEventType)
           }
-          return (
-            <LinkSubmittedCard
-              audience="creator"
-              message={snapshot.message}
-              url={snapshot.url}
-              platform={snapshot.platform}
-              preview={snapshot.preview}
-            />
-          )
         }
 
         if (message.event_type === 'StageOpened') {
@@ -316,84 +319,40 @@ export function MessageTimeline({
   )
 }
 
-function parseLinkSubmittedSnapshot(payload: Record<string, unknown> | null): {
-  message: string
-  url: string
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'twitter_x'
-  preview: PublishedLinkPreview | null
-  payoutAmount: string
-} | null {
-  const root = payload ?? {}
-  const snapshot = getRecord(root['snapshot']) ?? root
-  const link = getRecord(snapshot['link']) ?? snapshot
-  const url = getString(link['url']) ?? getString(snapshot['url'])
-  if (!url) return null
-
-  return {
-    message:
-      getString(snapshot['message']) ??
-      getString(root['message']) ??
-      t`Just published! Sharing the link here.`,
-    url,
-    platform: parseLinkPlatform(
-      getString(link['platform']) ?? getString(snapshot['platform']),
-    ),
-    preview:
-      parseLinkPreview(link['preview']) ??
-      parseLinkPreview(snapshot['preview']),
-    payoutAmount:
-      getString(snapshot['payout_amount_formatted']) ??
-      getString(root['payout_amount_formatted']) ??
-      '$0.00',
-  }
+function extractBrandWorkspaceId(
+  payload: Record<string, unknown> | null,
+): string | null {
+  if (!payload) return null
+  const snapshot = getRecord(payload.snapshot)
+  return (
+    getString(payload.brand_workspace_id) ??
+    getString(snapshot?.brand_workspace_id)
+  )
 }
 
-function getRecord(value: unknown): Record<string, unknown> | null {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return null
-  }
-  return value as Record<string, unknown>
+const DELIVERABLE_SYSTEM_EVENT_TYPES = [
+  'DraftSubmitted',
+  'DraftApproved',
+  'ChangesRequested',
+  'LinkSubmitted',
+  'LinkApproved',
+  'LinkChangesRequested',
+] as const
+
+type DeliverableSystemEventType =
+  (typeof DELIVERABLE_SYSTEM_EVENT_TYPES)[number]
+
+function parseDeliverableSystemEventType(
+  eventType: string | null,
+): DeliverableSystemEventType | null {
+  const knownEventTypes: readonly string[] = DELIVERABLE_SYSTEM_EVENT_TYPES
+  return eventType && knownEventTypes.includes(eventType)
+    ? (eventType as DeliverableSystemEventType)
+    : null
 }
 
-function getString(value: unknown): string | null {
-  return typeof value === 'string' && value.length > 0 ? value : null
-}
-
-function parseLinkPlatform(
-  value: string | null,
-): 'youtube' | 'instagram' | 'tiktok' | 'twitter_x' {
-  if (
-    value === 'youtube' ||
-    value === 'instagram' ||
-    value === 'tiktok' ||
-    value === 'twitter_x'
-  ) {
-    return value
-  }
-  return 'youtube'
-}
-
-function parseLinkPreview(value: unknown): PublishedLinkPreview | null {
-  const preview = getRecord(value)
-  const outcome = getString(preview?.['outcome'])
-
-  if (outcome === 'url_only' || outcome === 'failed') {
-    return { outcome }
-  }
-
-  if (outcome !== 'title_and_thumbnail') {
-    return null
-  }
-
-  const title = getString(preview?.['title'])
-  const thumbnailUrl = getString(preview?.['thumbnail_url'])
-  if (!title || !thumbnailUrl) return null
-
-  return {
-    outcome: 'title_and_thumbnail',
-    title,
-    thumbnail_url: thumbnailUrl,
-  }
+function assertNever(value: never): never {
+  throw new Error(`Unhandled deliverable system event: ${String(value)}`)
 }
 
 const EVENT_SEVERITY_MAP: Record<string, EventSeverity> = {

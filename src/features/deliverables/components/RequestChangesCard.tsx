@@ -5,27 +5,65 @@ import { t } from '@lingui/core/macro'
 import { cn } from '#/lib/utils'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
 import { formatMessageDateTime } from '#/shared/ui/formatMessageDateTime'
+import { getRecord, getString } from '#/shared/utils/record'
 import { ChangeCategoryChip } from './ChangeCategoryChip'
 import { trackRequestChangesCardSeen } from '#/features/deliverables/analytics'
 import type { DraftTimelineMessage } from '../types'
-import type { ChangesRequestedSnapshot } from '#/shared/ws/types'
+import type {
+  ChangesRequestedSnapshot,
+  LinkChangesRequestedSnapshot,
+} from '#/shared/ws/types'
+import { LinkPreviewBlock } from './LinkPreviewBlock'
+import { parseLinkPreview } from './LinkSubmittedCard'
 
 interface RequestChangesCardProps {
   message: DraftTimelineMessage
   currentAccountId: string
   counterpartDisplayName: string
   sessionKind?: 'brand' | 'creator'
+  target?: 'draft' | 'link'
 }
+
+type RequestChangesSnapshot =
+  | (ChangesRequestedSnapshot & { target: 'draft' })
+  | (LinkChangesRequestedSnapshot & { target: 'link' })
 
 function extractSnapshot(
   payload: Record<string, unknown> | null,
-): ChangesRequestedSnapshot | null {
+  target: 'draft' | 'link',
+): RequestChangesSnapshot | null {
   if (!payload) return null
   const snapshot =
     (payload.snapshot as Record<string, unknown> | undefined) ?? payload
-  if (typeof snapshot.draft_version !== 'number') return null
   if (!Array.isArray(snapshot.categories)) return null
-  return snapshot as unknown as ChangesRequestedSnapshot
+
+  if (target === 'draft') {
+    if (typeof snapshot.draft_version !== 'number') return null
+    return { ...(snapshot as unknown as ChangesRequestedSnapshot), target }
+  }
+
+  const link = getRecord(snapshot.link) ?? snapshot
+  if (typeof link.url !== 'string') return null
+
+  return {
+    event_type: 'LinkChangesRequested',
+    deliverable_id: getString(snapshot.deliverable_id) ?? '',
+    deliverable_platform: getString(snapshot.deliverable_platform) ?? '',
+    deliverable_format: getString(snapshot.deliverable_format) ?? '',
+    deliverable_offer_stage_id:
+      getString(snapshot.deliverable_offer_stage_id) ?? null,
+    link: {
+      id: getString(link.id) ?? '',
+      url: link.url,
+      status: 'changes_requested',
+      preview: link.preview ?? snapshot.preview ?? null,
+    },
+    categories: snapshot.categories,
+    notes: getString(snapshot.notes),
+    requested_at: getString(snapshot.requested_at) ?? '',
+    requested_by_account_id: getString(snapshot.requested_by_account_id) ?? '',
+    target,
+  }
 }
 
 const CATEGORY_LABELS: Record<string, () => string> = {
@@ -41,10 +79,11 @@ export function RequestChangesCard({
   currentAccountId,
   counterpartDisplayName,
   sessionKind,
+  target = 'draft',
 }: RequestChangesCardProps) {
   const snapshot = useMemo(
-    () => extractSnapshot(message.payload),
-    [message.payload],
+    () => extractSnapshot(message.payload, target),
+    [message.payload, target],
   )
   const cardRef = useRef<HTMLDivElement>(null)
   const seenRef = useRef(false)
@@ -124,11 +163,13 @@ export function RequestChangesCard({
               </span>
             </div>
 
-            <div className="text-xs text-muted-foreground">
-              {t`v${snapshot.draft_version}`}
-            </div>
+            {snapshot.target === 'draft' ? (
+              <div className="text-xs text-muted-foreground">
+                {t`v${snapshot.draft_version}`}
+              </div>
+            ) : null}
 
-            {snapshot.draft_thumbnail_url ? (
+            {snapshot.target === 'draft' && snapshot.draft_thumbnail_url ? (
               <div className="relative w-full overflow-hidden rounded-lg bg-muted">
                 <img
                   src={snapshot.draft_thumbnail_url}
@@ -136,6 +177,17 @@ export function RequestChangesCard({
                   className="h-full w-full object-cover"
                 />
               </div>
+            ) : null}
+
+            {snapshot.target === 'link' ? (
+              <LinkPreviewBlock
+                preview={
+                  parseLinkPreview(snapshot.link.preview) ?? {
+                    outcome: 'url_only',
+                  }
+                }
+                url={snapshot.link.url}
+              />
             ) : null}
 
             {snapshot.categories.length > 0 ? (

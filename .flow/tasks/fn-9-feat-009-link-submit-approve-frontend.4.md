@@ -67,11 +67,8 @@ Tres cards de `system_event` para timeline del chat: `LinkSubmittedCard`, `LinkA
 - [ ] Tests unitarios por card cubriendo los modos de visibilidad de acciones.
 
 ## Done summary
-
-_To fill at completion._
-
+Los tres bloques del round anterior resueltos: helpers centralizados, filtro owner por workspace correcto con test de regresión, rel corregido.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

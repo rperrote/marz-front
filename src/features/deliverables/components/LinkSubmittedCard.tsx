@@ -1,16 +1,20 @@
 import {
-  Copy,
   ExternalLink,
   Instagram,
   Link as LinkIcon,
-  Pencil,
   Youtube,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useMemo } from 'react'
+import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import { useMe } from '#/shared/api/generated/accounts/accounts'
+import { getRecord, getString } from '#/shared/utils/record'
 import type { PublishedLinkPreview } from '#/features/deliverables/types'
+import type { DraftTimelineMessage } from '../types'
+import type { LinkSubmittedSnapshot } from '#/shared/ws/types'
 import { LinkPreviewBlock } from './LinkPreviewBlock'
 
 const platformIcon: Record<string, LucideIcon> = {
@@ -18,68 +22,183 @@ const platformIcon: Record<string, LucideIcon> = {
   instagram: Instagram,
 }
 
-interface LinkSubmittedCardBaseProps {
-  message: string
-  url: string
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'twitter_x'
-  preview?: PublishedLinkPreview | null
+interface LinkSubmittedCardProps {
+  message: DraftTimelineMessage
+  currentAccountId: string
+  brandWorkspaceId: string | null
+  sessionKind: 'brand' | 'creator' | undefined
+  onApproveLink?: (snapshot: LinkSubmittedSnapshot) => void
+  onRequestChangesOnLink?: (snapshot: LinkSubmittedSnapshot) => void
 }
 
-interface LinkSubmittedCardCreatorProps extends LinkSubmittedCardBaseProps {
-  audience: 'creator'
-  onCopy?: () => void
-  onEdit?: () => void
+function extractSnapshot(
+  payload: Record<string, unknown> | null,
+): LinkSubmittedSnapshot | null {
+  if (!payload) return null
+  const snapshot =
+    (payload.snapshot as Record<string, unknown> | undefined) ?? payload
+  const link = getRecord(snapshot.link) ?? snapshot
+  if (typeof link.url !== 'string') return null
+
+  return {
+    event_type: 'LinkSubmitted',
+    deliverable_id: getString(snapshot.deliverable_id) ?? '',
+    deliverable_platform: getString(snapshot.deliverable_platform) ?? '',
+    deliverable_format: getString(snapshot.deliverable_format) ?? '',
+    deliverable_offer_stage_id:
+      getString(snapshot.deliverable_offer_stage_id) ?? null,
+    link: {
+      id: getString(link.id) ?? '',
+      url: link.url,
+      status: parseLinkStatus(link.status),
+      preview: link.preview ?? snapshot.preview ?? null,
+      submitted_at:
+        getString(link.submitted_at) ?? getString(snapshot.submitted_at) ?? '',
+      submitted_by_account_id:
+        getString(link.submitted_by_account_id) ??
+        getString(snapshot.submitted_by_account_id) ??
+        '',
+    },
+    message: getString(snapshot.message),
+    payout_amount_formatted: getString(snapshot.payout_amount_formatted),
+  }
 }
 
-interface LinkSubmittedCardBrandProps extends LinkSubmittedCardBaseProps {
-  audience: 'brand'
-  payoutAmount: string
-  onApproveAndPay?: () => void
-}
+export function LinkSubmittedCard({
+  message,
+  currentAccountId,
+  brandWorkspaceId,
+  sessionKind,
+  onApproveLink,
+  onRequestChangesOnLink,
+}: LinkSubmittedCardProps) {
+  const snapshot = useMemo(
+    () => extractSnapshot(message.payload),
+    [message.payload],
+  )
+  const meQuery = useMe()
 
-type LinkSubmittedCardProps =
-  | LinkSubmittedCardCreatorProps
-  | LinkSubmittedCardBrandProps
+  if (!snapshot) return null
 
-export function LinkSubmittedCard(props: LinkSubmittedCardProps) {
-  const PlatformIcon = platformIcon[props.platform] ?? LinkIcon
+  const preview = parseLinkPreview(snapshot.link.preview)
+  const platform =
+    snapshot.deliverable_platform || parsePlatformFromUrl(snapshot.link.url)
+  const PlatformIcon = platformIcon[platform] ?? LinkIcon
+  const isBrandOwner = isCurrentBrandOwner(
+    meQuery.data?.data,
+    currentAccountId,
+    brandWorkspaceId,
+  )
+  const showActions =
+    sessionKind === 'brand' &&
+    isBrandOwner &&
+    snapshot.link.status === 'submitted'
+
   return (
-    <SystemEventCard tone="success" kicker="Published link" icon={LinkIcon}>
+    <SystemEventCard tone="success" kicker={t`Published link`} icon={LinkIcon}>
       <div className="space-y-4">
-        <p className="text-sm text-foreground">{props.message}</p>
+        <p className="text-sm text-foreground">
+          {snapshot.message ?? t`Just published! Sharing the link here.`}
+        </p>
 
-        {props.preview ? (
-          <LinkPreviewBlock preview={props.preview} url={props.url} />
+        {preview ? (
+          <LinkPreviewBlock preview={preview} url={snapshot.link.url} />
         ) : (
           <a
-            href={props.url}
+            href={snapshot.link.url}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="flex items-center gap-2.5 rounded-xl bg-muted px-3 py-2.5 font-mono text-sm text-success transition-colors hover:bg-surface-active"
           >
             <PlatformIcon className="size-4 shrink-0 text-muted-foreground" />
-            <span className="flex-1 truncate">{props.url}</span>
+            <span className="flex-1 truncate">{snapshot.link.url}</span>
             <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
           </a>
         )}
 
-        {props.audience === 'creator' ? (
+        {showActions ? (
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1" onClick={props.onCopy}>
-              <Copy />
-              Copy URL
+            <Button
+              className="flex-1"
+              onClick={() => onApproveLink?.(snapshot)}
+            >
+              {t`Approve link`}
             </Button>
-            <Button variant="outline" className="flex-1" onClick={props.onEdit}>
-              <Pencil />
-              Edit
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => onRequestChangesOnLink?.(snapshot)}
+            >
+              {t`Request changes on link`}
             </Button>
           </div>
-        ) : (
-          <Button className="w-full" onClick={props.onApproveAndPay}>
-            Approve & Pay {props.payoutAmount}
-          </Button>
-        )}
+        ) : null}
       </div>
     </SystemEventCard>
   )
+}
+
+function isCurrentBrandOwner(
+  account: unknown,
+  currentAccountId: string,
+  brandWorkspaceId: string | null,
+): boolean {
+  const accountRecord = getRecord(account)
+  if (!accountRecord) return false
+  if (getString(accountRecord.id) !== currentAccountId) return false
+  if (!brandWorkspaceId) return false
+
+  const memberships = accountRecord.brand_memberships
+  if (!Array.isArray(memberships)) return false
+
+  return memberships.some((membership) => {
+    const membershipRecord = getRecord(membership)
+    return (
+      getString(membershipRecord?.brand_workspace_id) === brandWorkspaceId &&
+      getString(membershipRecord?.role) === 'owner'
+    )
+  })
+}
+
+function parseLinkStatus(
+  value: unknown,
+): LinkSubmittedSnapshot['link']['status'] {
+  if (
+    value === 'submitted' ||
+    value === 'changes_requested' ||
+    value === 'approved' ||
+    value === 'rejected'
+  ) {
+    return value
+  }
+  return 'submitted'
+}
+
+function parsePlatformFromUrl(url: string): string {
+  if (url.includes('instagram.com')) return 'instagram'
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube'
+  return 'link'
+}
+
+export function parseLinkPreview(value: unknown): PublishedLinkPreview | null {
+  const preview = getRecord(value)
+  const outcome = getString(preview?.outcome)
+
+  if (outcome === 'url_only' || outcome === 'failed') {
+    return { outcome }
+  }
+
+  if (outcome !== 'title_and_thumbnail') {
+    return null
+  }
+
+  const title = getString(preview?.title)
+  const thumbnailUrl = getString(preview?.thumbnail_url)
+  if (!title || !thumbnailUrl) return null
+
+  return {
+    outcome: 'title_and_thumbnail',
+    title,
+    thumbnail_url: thumbnailUrl,
+  }
 }
