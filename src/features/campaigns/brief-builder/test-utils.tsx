@@ -18,17 +18,23 @@ export function renderWithValidation(ui: React.ReactElement) {
   })
   const brandSession: BrandSession = {
     account: {
+      id: 'account-1',
+      email: 'brand@example.com',
       kind: 'brand',
-      onboarding_status: 'complete',
+      full_name: 'Test Brand',
+      onboarding_status: 'onboarded',
+      created_at: '2026-01-01T00:00:00.000Z',
       redirect_to: null,
       brand_workspace: {
         id: 'brand-workspace-1',
         name: 'Test Brand',
+        plan: 'free',
       },
     },
     brandWorkspace: {
       id: 'brand-workspace-1',
       name: 'Test Brand',
+      plan: 'free',
     },
   }
 

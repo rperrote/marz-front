@@ -1,3 +1,5 @@
+import type { BestVideoKind } from '#/shared/api/generated/model/bestVideoKind'
+
 export interface CreatorRateCard {
   format: string
   rate_amount: string
@@ -16,7 +18,7 @@ export interface CreatorChannel {
 
 export interface BestVideo {
   url: string
-  kind: string
+  kind: BestVideoKind
 }
 
 export const CreatorOnboardingPayloadGender = {
