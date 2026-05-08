@@ -14,6 +14,7 @@ config::_defaults_json() {
   "branchByEpic": false,
   "branchPrefix": "feature/claude/",
   "maxReviewRounds": 5,
+  "maxGateAttempts": 10,
   "yolo": true,
   "claudeBin": "claude",
   "opencodeBin": "opencode",

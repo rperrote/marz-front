@@ -60,10 +60,18 @@ orchestrator::run_task() {
   local task_json; task_json=$(flowctl::task_json "$task_id")
 
   local max="${RAFITA_MAX_REVIEW_ROUNDS:-5}"
+  local max_gate_attempts="${RAFITA_MAX_GATE_ATTEMPTS:-10}"
   local approved=0
   local verdict=""
 
-  local start_round=1
+  # Counters split into two axes:
+  #   review_round  : DEV→GATES-PASS→REVIEW cycles. Capped by maxReviewRounds.
+  #   gate_attempts : DEV→GATES-FAIL retries within one review cycle. Resets
+  #                   to 0 the moment GATES pass. Capped by maxGateAttempts to
+  #                   prevent an infinite "DEV can't fix lint" loop.
+  # Total upper bound: maxReviewRounds * (maxGateAttempts + 1) DEV calls.
+  local review_round=1
+  local gate_attempts=0
 
   # No-progress detector: if the dev replies N rounds in a row with summaries
   # that are pure "ya está / nothing to fix / falsos positivos", the task is
@@ -72,12 +80,16 @@ orchestrator::run_task() {
   local noop_streak=0
   local noop_threshold=3
 
-  local round
-  for (( round=start_round; round<=max; round++ )); do
+  # Loop is open-ended; review_round and gate_attempts gate it from inside.
+  local round=$review_round
+  while true; do
+    # The exported "current round" still tracks the review cycle so logs and
+    # phase prompts stay readable.
+    round=$review_round
     export RAFITA_CURRENT_ROUND="$round"
     export RAFITA_CURRENT_PHASE="dev"
     local dev_rc=0
-    if [[ -n "$verdict" || $round -gt 1 ]]; then
+    if [[ -n "$verdict" || $round -gt 1 || $gate_attempts -gt 0 ]]; then
       phase::dev_fix "$task_id" "$spec" "$round" "$verdict" || dev_rc=$?
     elif [[ "$mode" == "continue" ]]; then
       phase::dev_continue "$task_id" "$spec" "$task_json" || dev_rc=$?
@@ -94,12 +106,30 @@ orchestrator::run_task() {
     gates_out=$(quality::run_gates "$task_id" "$round") || gates_rc=$?
 
     if [[ $gates_rc -ne 0 ]]; then
-      ui::phase_fail "GATES" "quality gate failed — skipping LLM review this round"
+      # Extract the gate name from the verdict's summary ("quality gate 'X' failed").
+      local _gate_name
+      _gate_name=$(python3 -c '
+import json, re, sys
+try: d = json.loads(sys.argv[1])
+except Exception: sys.exit(0)
+m = re.search(r"quality gate '\''([^'\'']+)'\''", d.get("summary","") or "")
+if m: print(m.group(1))
+' "$gates_out" 2>/dev/null)
+      gate_attempts=$((gate_attempts + 1))
+      local _gate_label="${_gate_name:-quality gate failed}"
+      ui::phase_fail "GATES" "${_gate_label} (attempt ${gate_attempts}/${max_gate_attempts})"
       verdict="$gates_out"
-      if (( round == max )); then break; fi
+      if (( gate_attempts >= max_gate_attempts )); then
+        common::log WARN "task ${task_id} reached maxGateAttempts=${max_gate_attempts} without passing gates; aborting"
+        ui::task_skipped "$task_id" "gates-stalled-${max_gate_attempts}"
+        return 1
+      fi
+      # Loop back to DEV fix without consuming a review round.
       continue
     fi
     ui::phase_pass "GATES" "all gates green"
+    # Gates passed → reset the gate budget for the next review cycle.
+    gate_attempts=0
 
     # Subjective review.
     export RAFITA_CURRENT_PHASE="review"
@@ -168,6 +198,12 @@ PYEOF
         # Real progress (or at least an attempt): reset the streak.
         noop_streak=0
       fi
+    fi
+
+    # Review not approved → consume a review round and loop. Out of rounds → break.
+    review_round=$((review_round + 1))
+    if (( review_round > max )); then
+      break
     fi
   done
 

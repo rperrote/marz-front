@@ -3,7 +3,7 @@
   "provider": "github",
   "branchMode": "new",
   "branchPrefix": "feature/claude/",
-  "maxReviewRounds": 15,
+  "maxReviewRounds": 50,
   "yolo": true,
   "claudeBin": "claude",
   "opencodeBin": "opencode",
@@ -39,5 +39,6 @@
   "branchByEpic": false,
   "codexBin": "codex",
   "codexModel": "gpt-5.5",
-  "codexSandbox": "workspace-write"
+  "codexSandbox": "workspace-write",
+  "maxGateAttempts": 100
 }

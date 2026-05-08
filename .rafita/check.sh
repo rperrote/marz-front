@@ -132,7 +132,7 @@ canonical = {
     "codexModel","codexSandbox","devProvider",
     "reviewerProvider","plannerProvider","devModel","reviewerModel","flowctl",
     "ui","notifyWebhook","projectName","skipOnFailedTask","rateLimitTaskRetry",
-    "rateLimitMaxSleep","debug","prBase","worktreeBase",
+    "rateLimitMaxSleep","debug","prBase","worktreeBase","maxGateAttempts",
     "closerEnabled","closerProvider","closerModel","maxFinalRounds",
     "profileExtensions",
 }

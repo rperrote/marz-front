@@ -20,9 +20,10 @@ quality::run_gates() {
     ( eval "$cmd" ) >"$log" 2>&1
     rc=$?
     if [[ $rc -ne 0 ]]; then
-      # WARN level: shown even at debug=0 so the user understands which gate
-      # tripped the FAIL line; orchestrator already prints [GATES FAIL ...].
-      common::log WARN "quality gate '${name}' failed (rc=$rc)"
+      # The orchestrator already prints [GATES FAIL ...] which surfaces the
+      # failure to the user; log at DEBUG so the gate name + rc are kept in
+      # the run log for postmortem without doubling up on stderr at debug=0.
+      common::log DEBUG "quality gate '${name}' failed (rc=$rc)"
       # Tail the log so the fix block stays small but informative.
       local tail
       tail=$(tail -n 80 "$log" 2>/dev/null)

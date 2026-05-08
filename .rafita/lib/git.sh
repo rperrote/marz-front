@@ -53,6 +53,36 @@ git::_branch_checked_out_elsewhere() {
     | awk -v b="refs/heads/${branch}" '$1=="branch" && $2==b {found=1} END{exit found?0:1}'
 }
 
+# git::_safe_checkout <branch> [extra args...]
+# Wraps git checkout with retry-on-stat-mismatch. flowctl rewrites JSON files
+# with identical content; this bumps mtime and confuses git's index, which
+# then aborts checkout with "would be overwritten" even when the working tree
+# matches HEAD byte-for-byte. We refresh the index, retry once. If the second
+# attempt still fails, the diff is real and we propagate the error.
+# Returns the rc of the underlying checkout.
+git::_safe_checkout() {
+  local branch="$1"; shift
+  local err
+  err=$(git checkout -q "$branch" "$@" 2>&1)
+  local rc=$?
+  if [[ $rc -eq 0 ]]; then return 0; fi
+  # Detect the specific "phantom dirty" message and retry after a refresh.
+  if [[ "$err" == *"would be overwritten by checkout"* ]]; then
+    common::log DEBUG "checkout to ${branch} reported phantom dirty; refreshing index and retrying"
+    git update-index --really-refresh >/dev/null 2>&1 || true
+    err=$(git checkout -q "$branch" "$@" 2>&1)
+    rc=$?
+    if [[ $rc -eq 0 ]]; then
+      common::log DEBUG "retry after index refresh succeeded for ${branch}"
+      return 0
+    fi
+  fi
+  # Surface the original error to stderr / log for postmortem.
+  printf '%s\n' "$err" >&2
+  common::log ERROR "checkout to ${branch} failed: ${err:0:200}"
+  return $rc
+}
+
 # git::_sync_branch_with_origin <branch>
 # Update local <branch> from origin/<branch>. Fast-forward when possible; if
 # local and remote diverged, rebase local commits on top of origin/<branch>.
@@ -352,7 +382,7 @@ git::_setup_epic_branch_inner() {
         common::warn "branch ${branch} is checked out in another worktree; cannot reuse it here"
         return 1
       fi
-      git checkout -q "$branch" || return 1
+      git::_safe_checkout "$branch" || return 1
       git::_sync_branch_with_origin "$branch" || return 1
       common::log DEBUG "epic ${epic} reuses dependency branch: ${branch}"
       ui::info "branch = ${branch} (dep compartida)"
@@ -368,10 +398,7 @@ git::_setup_epic_branch_inner() {
       common::warn "branch ${branch} is checked out in another worktree; cannot checkout here"
       return 1
     fi
-    if ! git checkout -q "$branch" 2>&1 | tee -a "${RAFITA_RUN_LOG:-/dev/null}" >&2; then
-      common::log ERROR "checkout to existing local branch ${branch} failed"
-      return 1
-    fi
+    git::_safe_checkout "$branch" || return 1
     # Verify checkout actually moved us (some failures are silent).
     local on; on=$(git::current_branch 2>/dev/null || echo "")
     if [[ "$on" != "$branch" ]]; then
@@ -393,10 +420,7 @@ git::_setup_epic_branch_inner() {
     if git::_branch_remote_exists "$branch"; then
       common::log DEBUG "epic ${epic}: remote branch found; creating local from origin/${branch}"
       git branch -q "$branch" "origin/${branch}" 2>/dev/null || true
-      if ! git checkout -q "$branch" 2>&1 | tee -a "${RAFITA_RUN_LOG:-/dev/null}" >&2; then
-        common::log ERROR "checkout of newly-tracked branch ${branch} failed"
-        return 1
-      fi
+      git::_safe_checkout "$branch" || return 1
       local on; on=$(git::current_branch 2>/dev/null || echo "")
       if [[ "$on" != "$branch" ]]; then
         common::log ERROR "checkout reported success but HEAD is on '${on}', not '${branch}'"
