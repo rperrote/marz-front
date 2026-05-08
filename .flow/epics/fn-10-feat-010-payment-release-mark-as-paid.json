@@ -14,7 +14,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-10-feat-010-payment-release-mark-as-paid.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-010: Payment Release (mark as paid) \u2014 Frontend",
-  "updated_at": "2026-05-08T19:42:11.592726Z"
+  "updated_at": "2026-05-08T23:13:44.731472Z"
 }
