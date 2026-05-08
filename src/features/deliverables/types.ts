@@ -111,3 +111,8 @@ export interface PublishedLink {
   approved_at?: string | null
   approved_by_account_id?: string | null
 }
+
+export interface DeliverableLinksResponse {
+  links: PublishedLink[]
+  current_link_id: string | null
+}

@@ -1,4 +1,5 @@
 import {
+  ExternalLink,
   Film,
   Instagram,
   Link as LinkIcon,
@@ -13,7 +14,12 @@ import { t } from '@lingui/core/macro'
 
 import { Badge } from '#/components/ui/badge'
 import { cn } from '#/lib/utils'
-import type { DeliverableDTO, StageStatus } from '#/features/deliverables/types'
+import type {
+  DeliverableDTO,
+  PublishedLinkStatus,
+  StageStatus,
+} from '#/features/deliverables/types'
+import { useDeliverableLinks } from '#/features/deliverables/hooks/useDeliverableLinks'
 import { DraftVersionList } from './DraftVersionList'
 
 const platformIcon: Record<string, LucideIcon> = {
@@ -66,6 +72,13 @@ export function DeliverableListItem({
 
   const isCreator = sessionKind === 'creator'
   const nextVersion = (deliverable.current_version ?? 0) + 1
+  const linksQuery = useDeliverableLinks(deliverable.id, {
+    enabled: nonUploadableStatuses.has(deliverable.status),
+  })
+  const hasPreviousLinkChanges =
+    linksQuery.data?.links.some(
+      (link) => link.status === 'changes_requested',
+    ) ?? false
 
   const canUpload =
     isCreator &&
@@ -80,7 +93,14 @@ export function DeliverableListItem({
     !isNonUploadable &&
     deliverable.status === 'draft_submitted'
   const canSubmitLink =
-    isCreator && !isLocked && deliverable.status === 'draft_approved'
+    isCreator &&
+    !isLocked &&
+    (deliverable.status === 'draft_approved' ||
+      deliverable.status === 'link_submitted')
+  const submitLinkLabel =
+    deliverable.status === 'link_submitted' || hasPreviousLinkChanges
+      ? t`Re-submit link`
+      : t`Submit link`
 
   const uploadButtonLabel = (() => {
     if (deliverable.status === 'draft_submitted')
@@ -136,6 +156,16 @@ export function DeliverableListItem({
         </div>
       )}
 
+      {nonUploadableStatuses.has(deliverable.status) && (
+        <div className="mt-2.5">
+          <CurrentLinkSummary
+            currentLinkId={linksQuery.data?.current_link_id ?? null}
+            links={linksQuery.data?.links ?? []}
+            isLoading={linksQuery.isLoading}
+          />
+        </div>
+      )}
+
       {canUpload || isUploadDisabled ? (
         <button
           type="button"
@@ -163,11 +193,92 @@ export function DeliverableListItem({
           className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
           <LinkIcon className="size-3.5" />
-          {t`Submit link`}
+          {submitLinkLabel}
         </button>
       ) : null}
     </div>
   )
+}
+
+function CurrentLinkSummary({
+  currentLinkId,
+  links,
+  isLoading,
+}: {
+  currentLinkId: string | null
+  links: {
+    id: string
+    url: string
+    status: PublishedLinkStatus
+  }[]
+  isLoading: boolean
+}) {
+  if (isLoading) {
+    return (
+      <div
+        className="h-9 animate-pulse rounded-lg bg-muted"
+        aria-label={t`Loading current link`}
+      />
+    )
+  }
+
+  const currentLink =
+    currentLinkId === null
+      ? undefined
+      : links.find((link) => link.id === currentLinkId)
+
+  if (!currentLink) {
+    return (
+      <div
+        className="rounded-lg border border-dashed border-border bg-background px-3 py-2 text-xs text-muted-foreground"
+        data-testid="current-link-empty"
+      >
+        {t`No current link yet.`}
+      </div>
+    )
+  }
+
+  const currentLinkStatusMeta = getCurrentLinkStatusMeta(currentLink.status)
+
+  return (
+    <div
+      className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2"
+      data-testid="current-link-summary"
+    >
+      <ExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
+      <a
+        href={currentLink.url}
+        target="_blank"
+        rel="noreferrer"
+        className="min-w-0 flex-1 truncate text-xs text-foreground hover:underline"
+      >
+        {currentLink.url}
+      </a>
+      <StatusBadge
+        label={currentLinkStatusMeta.label}
+        tone={currentLinkStatusMeta.tone}
+      />
+    </div>
+  )
+}
+
+function getCurrentLinkStatusMeta(status: PublishedLinkStatus): {
+  label: string
+  tone: 'info' | 'success' | 'destructive' | 'neutral'
+} {
+  if (status === 'approved') {
+    return { label: t`Approved`, tone: 'success' }
+  }
+
+  if (status === 'changes_requested') {
+    return { label: t`Changes requested`, tone: 'destructive' }
+  }
+
+  if (status === 'rejected') {
+    return { label: t`Rejected`, tone: 'destructive' }
+  }
+
+  return { label: t`In review`, tone: 'info' }
 }
 
 function StatusBadge({

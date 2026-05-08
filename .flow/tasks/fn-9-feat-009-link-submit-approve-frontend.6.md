@@ -44,11 +44,8 @@ Soporte para re-submit de link antes de aprobación: cuando el link previo está
 - [ ] Mutation reusa el endpoint POST único (no hay endpoint separado de re-submit).
 
 ## Done summary
-
-_To fill at completion._
-
+Duplicación de sets eliminada, E2E conectado a fixture testUser con signIn — ambos bloqueantes resueltos, sin issues nuevos.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:
