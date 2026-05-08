@@ -9,7 +9,7 @@ export RAFITA_SCRIPTS_DIR="$SCRIPT_DIR"
 export RAFITA_DIR="${RAFITA_DIR:-.rafita}"
 
 # Load libs in dependency order. shellcheck source=/dev/null
-for lib in common ui config git flowctl vcs stream claude opencode codex worker review quality notify orchestrator session; do
+for lib in common ui config git flowctl wizard vcs stream claude opencode codex worker review quality notify orchestrator session; do
   # shellcheck source=/dev/null
   source "$SCRIPT_DIR/lib/${lib}.sh"
 done
@@ -36,6 +36,8 @@ Options:
   --debug[=N]        Debug level: 0 clean, 1 logs (default), 2 stream, 3 raw
   --closer-only      Skip the DEV/REVIEW loop. Run only CLOSER+FINAL on the
                      already-done tasks of the given epic, then publish.
+  --no-wizard        Skip the interactive pre-flight wizard (state-dir
+                     hygiene + epic picker). Implied by non-TTY stdin.
   -h, --help         This help
 
 Worktrees: rafita does NOT manage worktrees. To run inside an isolated
@@ -58,6 +60,7 @@ main() {
       --closer-only) closer_only=1; shift ;;
       --debug) cli_overrides+=("RAFITA_DEBUG=2"); shift ;;
       --debug=*) cli_overrides+=("RAFITA_DEBUG=${1#--debug=}"); shift ;;
+      --no-wizard) cli_overrides+=("RAFITA_WIZARD_ENABLED=0"); shift ;;
       fn-*) epic_arg="$1"; shift ;;
       *)
         echo "unknown arg: $1" >&2
@@ -96,8 +99,34 @@ main() {
   git::ensure_gitignore
   common::init_run_dir
   common::counters_init
-  ui::header
-  ui::config_summary
+
+  # Pre-flight wizard: only when no epic was pinned on the CLI and not in
+  # closer-only mode. The wizard owns clearing the terminal, printing the
+  # header + config summary, sanitizing state, and picking an epic/mode.
+  # Headless / non-TTY runs auto-skip the interactive part but still print
+  # header + config below so logs have context.
+  if [[ -z "$epic_arg" ]] && (( ! closer_only )); then
+    local _wiz_rc=0
+    wizard::run || _wiz_rc=$?
+    if (( _wiz_rc == 2 )); then
+      ui::info "wizard: user quit; nothing to do"
+      return 0
+    fi
+    if [[ -n "${WIZARD_EPIC:-}" ]]; then
+      epic_arg="$WIZARD_EPIC"
+    fi
+    if [[ "${WIZARD_CONTINUE:-0}" == "1" ]]; then
+      continue_mode=1
+    fi
+    if [[ "${WIZARD_CLOSER_ONLY:-0}" == "1" ]]; then
+      closer_only=1
+    fi
+  else
+    # Wizard skipped (explicit epic or closer-only) — emit the run preamble
+    # ourselves so the user still sees what's running.
+    ui::header
+    ui::config_summary
+  fi
 
   local -a epics=()
   if [[ -n "$epic_arg" ]]; then
@@ -173,6 +202,11 @@ rafita::_on_interrupt() {
   claude::kill_all_children 2>/dev/null || true
   # Kill any remaining direct children of this shell (timers, python parsers).
   pkill -TERM -P $$ 2>/dev/null || true
+  # Release any per-epic rafita-lock we still own so the next run won't see
+  # this run as a live owner.
+  if [[ -n "${RAFITA_CURRENT_EPIC:-}" ]]; then
+    flowctl::release_epic_lock "$RAFITA_CURRENT_EPIC" 2>/dev/null || true
+  fi
   common::log WARN "interrupted by signal; rerun with --continue to finish an in-progress task"
   ui::error "interrupted — continue with: rafita.sh --continue"
   exit 130
@@ -180,6 +214,9 @@ rafita::_on_interrupt() {
 
 rafita::_on_exit() {
   local rc=$?
+  if [[ -n "${RAFITA_CURRENT_EPIC:-}" ]]; then
+    flowctl::release_epic_lock "$RAFITA_CURRENT_EPIC" 2>/dev/null || true
+  fi
   common::cleanup "$rc" || true
   # Single end-of-run notification (success / partial / failure / interrupted).
   notify::send_completion "$rc" || true

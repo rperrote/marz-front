@@ -13,13 +13,15 @@ quality::run_gates() {
     [[ -z "$name" || -z "$cmd" ]] && continue
     any_ran=1
     local log="$dir/gate-${name}-round-${round}.log"
-    common::log INFO "quality: running ${name}: ${cmd}"
+    common::log DEBUG "quality: running ${name}: ${cmd}"
     # Capture output; use eval to honor profile-defined commands which are
     # part of the user's explicit contract (see §3).
     local rc
     ( eval "$cmd" ) >"$log" 2>&1
     rc=$?
     if [[ $rc -ne 0 ]]; then
+      # WARN level: shown even at debug=0 so the user understands which gate
+      # tripped the FAIL line; orchestrator already prints [GATES FAIL ...].
       common::log WARN "quality gate '${name}' failed (rc=$rc)"
       # Tail the log so the fix block stays small but informative.
       local tail
@@ -27,10 +29,10 @@ quality::run_gates() {
       quality::_verdict_from_failure "$name" "$cmd" "$tail"
       return 1
     fi
-    common::log INFO "quality gate '${name}' passed"
+    common::log DEBUG "quality gate '${name}' passed"
   done < <(config::gate_commands)
   if [[ $any_ran -eq 0 ]]; then
-    common::log INFO "quality: no gates configured"
+    common::log DEBUG "quality: no gates configured"
   fi
   return 0
 }

@@ -50,6 +50,17 @@ ui::config_summary() {
     printf '  dev model       : %s\n' "${RAFITA_DEV_MODEL:-default}"
     printf '  reviewer provider: %s\n' "${RAFITA_REVIEWER_PROVIDER:-claude}"
     printf '  reviewer model  : %s\n' "${RAFITA_REVIEWER_MODEL:-default}"
+    if [[ "${RAFITA_CLOSER_ENABLED:-0}" == "1" ]]; then
+      local _cp="${RAFITA_CLOSER_PROVIDER:-}" _cm="${RAFITA_CLOSER_MODEL:-}"
+      [[ -z "$_cp" ]] && _cp="${RAFITA_DEV_PROVIDER:-claude} (inherits dev)"
+      [[ -z "$_cm" ]] && _cm="${RAFITA_DEV_MODEL:-default} (inherits dev)"
+      printf '  closer provider : %s\n' "$_cp"
+      printf '  closer model    : %s\n' "$_cm"
+      printf '  closer skip fr  : %s\n' "${RAFITA_CLOSER_SKIP_FINAL_REVIEW:-0}"
+      printf '  max final rounds: %s\n' "${RAFITA_MAX_FINAL_ROUNDS:-3}"
+    else
+      printf '  closer          : disabled\n'
+    fi
     printf '  max rounds      : %s\n' "${RAFITA_MAX_REVIEW_ROUNDS:-5}"
     printf '  dry run         : %s\n' "${RAFITA_DRY_RUN:-0}"
   } >&2
@@ -64,13 +75,22 @@ ui::epic_start() {
 ui::task_start() {
   local tid="$1" title="${2:-}"
   _ui_print ""
-  _ui_print "${UI_BOLD}── Task: ${tid}${UI_RESET}  ${UI_DIM}${title}${UI_RESET}"
+  if [[ -n "$title" ]]; then
+    _ui_print "${UI_BOLD}${UI_CYAN}[STARTING]${UI_RESET} ${UI_BOLD}Task ${tid}${UI_RESET} ${UI_DIM}— ${title}${UI_RESET}"
+  else
+    _ui_print "${UI_BOLD}${UI_CYAN}[STARTING]${UI_RESET} ${UI_BOLD}Task ${tid}${UI_RESET}"
+  fi
 }
 
 ui::phase() {
   local phase="$1"; shift
   local msg="${*:-}"
   _ui_print "   ${UI_BLUE}[${phase}]${UI_RESET} ${msg}"
+}
+
+ui::debug_phase() {
+  [[ "${RAFITA_DEBUG:-1}" -ge 1 ]] || return 0
+  ui::phase "$@"
 }
 
 ui::phase_pass() {
@@ -100,9 +120,55 @@ ui::task_done() {
   _ui_print "   ${UI_GREEN}✓ DONE${UI_RESET}  ${tid} (rounds=${rounds})"
 }
 
+# Emitted after the per-task push (or commit when there's no remote). Marks
+# the end of orchestrator activity for a task before moving on.
+ui::task_finishing() {
+  local tid="$1" sha="${2:-}"
+  if [[ -n "$sha" ]]; then
+    _ui_print "   ${UI_CYAN}[FINISHING]${UI_RESET} Task ${tid} ${UI_DIM}· ${sha}${UI_RESET}"
+  else
+    _ui_print "   ${UI_CYAN}[FINISHING]${UI_RESET} Task ${tid}"
+  fi
+}
+
 ui::task_skipped() {
   local tid="$1" reason="${2:-max-rounds}"
   _ui_print "   ${UI_YELLOW}⚠ SKIPPED${UI_RESET} ${tid} (${reason})"
+}
+
+# Single-line session lifecycle event. Visible at DEBUG>=1 only.
+# Args: role event [note]
+#   role  : dev | reviewer | closer | planner | final
+#   event : new | resumed | regenerated | captured
+#   note  : free-form short context (model name, reason)
+ui::session() {
+  [[ "${RAFITA_DEBUG:-1}" -ge 1 ]] || return 0
+  local role="$1" event="$2" note="${3:-}"
+  local tag color
+  case "$event" in
+    new)         color="${UI_BLUE:-}"; tag="SESSION new" ;;
+    resumed)     color="${UI_GRAY:-}"; tag="SESSION resumed" ;;
+    regenerated) color="${UI_YELLOW:-}"; tag="SESSION regenerated" ;;
+    captured)    color="${UI_GRAY:-}"; tag="SESSION captured" ;;
+    *)           color="${UI_GRAY:-}"; tag="SESSION ${event}" ;;
+  esac
+  if [[ -n "$note" ]]; then
+    _ui_print "   ${color}[${tag}]${UI_RESET} ${role} ${UI_DIM}· ${note}${UI_RESET}"
+  else
+    _ui_print "   ${color}[${tag}]${UI_RESET} ${role}"
+  fi
+}
+
+# Heartbeat liveness line. Visible at DEBUG>=1 only.
+# Args: role elapsed_seconds [round]
+ui::heartbeat() {
+  [[ "${RAFITA_DEBUG:-1}" -ge 1 ]] || return 0
+  local role="$1" elapsed="$2" round="${3:-}"
+  if [[ -n "$round" ]]; then
+    _ui_print "   ${UI_DIM}[HB] ${role} · ${elapsed}s · round ${round}${UI_RESET}"
+  else
+    _ui_print "   ${UI_DIM}[HB] ${role} · ${elapsed}s${UI_RESET}"
+  fi
 }
 
 ui::error() {

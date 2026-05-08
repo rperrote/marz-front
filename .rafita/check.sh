@@ -128,7 +128,7 @@ missing_keys=$(python3 - "$CONFIG_PATH" << 'PYEOF'
 import json, sys
 canonical = {
     "projectType","provider","branchByEpic","branchPrefix","maxReviewRounds",
-    "streamOutput","yolo","claudeBin","opencodeBin","codexBin",
+    "yolo","claudeBin","opencodeBin","codexBin",
     "codexModel","codexSandbox","devProvider",
     "reviewerProvider","plannerProvider","devModel","reviewerModel","flowctl",
     "ui","notifyWebhook","projectName","skipOnFailedTask","rateLimitTaskRetry",

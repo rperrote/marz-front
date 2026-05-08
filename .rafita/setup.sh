@@ -54,7 +54,6 @@ DEFAULTS_JSON='{
   "branchByEpic": false,
   "branchPrefix": "feature/claude/",
   "maxReviewRounds": 5,
-  "streamOutput": false,
   "yolo": true,
   "claudeBin": "claude",
   "opencodeBin": "opencode",

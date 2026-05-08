@@ -44,17 +44,15 @@ opencode::_invoke() {
   local spawn=(python3 "$RAFITA_SCRIPTS_DIR/bin/spawn-session.py")
   local leader
 
-  # Auto-enable streaming when debug>=2, unless explicitly turned off.
-  # Mirrors claude.sh logic so both providers behave the same.
-  local _stream="${RAFITA_STREAM_OUTPUT:-}"
-  if [[ -z "$_stream" ]]; then
-    if [[ -n "${RAFITA_STREAM:-}" ]]; then
-      _stream="$RAFITA_STREAM"
-    elif [[ "${RAFITA_DEBUG:-1}" -ge 2 ]]; then
-      _stream=1
-    else
-      _stream=0
-    fi
+  # Streaming is gated on RAFITA_DEBUG>=2 (debug=2 narrative, debug=3 raw).
+  # RAFITA_STREAM={0,1} forces off/on as an escape hatch for both providers.
+  local _stream
+  if [[ -n "${RAFITA_STREAM:-}" ]]; then
+    _stream="$RAFITA_STREAM"
+  elif [[ "${RAFITA_DEBUG:-1}" -ge 2 ]]; then
+    _stream=1
+  else
+    _stream=0
   fi
   if [[ "$_stream" == "1" ]]; then
     # Native JSON streaming: opencode --format json | parser → stdout_tmp
@@ -87,12 +85,9 @@ opencode::_invoke() {
   export RAFITA_STDOUT_TMP="$stdout_tmp"
   export RAFITA_STDERR_TMP="$stderr_tmp"
 
-  # Only use file-polling stream for non-JSON output (claude or opencode without --format json)
+  # File-polling fallback stream is unused now that opencode always JSON-streams
+  # under debug>=2; kept as a no-op for safety.
   local stream_pid=""
-  if [[ "${RAFITA_STREAM_OUTPUT:-0}" == "1" && -z "${parser:-}" ]]; then
-    claude::_stream_output "$stdout_tmp" &
-    stream_pid=$!
-  fi
 
   wait "$leader"
   rc=$?
@@ -124,13 +119,16 @@ opencode::run() {
   local task_id="${RAFITA_CURRENT_TASK:-_global}"
   local prompt_bytes=${#prompt}
 
-  # Persist prompt artifact (same on-disk layout as claude).
-  if [[ "${RAFITA_DEBUG:-1}" -ge 1 && -n "${RAFITA_RUN_DIR:-}" ]]; then
+  # Persist prompt artifact (always — postmortem capture).
+  if [[ -n "${RAFITA_RUN_DIR:-}" ]]; then
     common::debug_save "$task_id" "${label}.prompt" "$prompt"
   fi
 
-  common::log INFO "opencode::run start label=${label} model=${model:-default} session_mode=${session_mode:-none} prompt_bytes=${prompt_bytes}"
-  ui::info "→ opencode (${model:-default}) working on ${label}..."
+  common::log DEBUG "opencode::run start label=${label} model=${model:-default} session_mode=${session_mode:-none} prompt_bytes=${prompt_bytes}"
+  case "$session_mode" in
+    new|"") ui::session "${label%-*}" new "${model:-default}" ;;
+    resume) ui::session "${label%-*}" resumed "${model:-default}" ;;
+  esac
 
   local rl_attempts=0 transient_attempts=0
   while true; do
@@ -143,12 +141,7 @@ opencode::run() {
     local rc="${RAFITA_CLAUDE_RC:-0}"
     local t1; t1=$(date +%s)
     local dur=$((t1 - t0))
-    common::log INFO "opencode::run returned label=${label} rc=${rc} duration=${dur}s out_bytes=${#out} err_bytes=${#err}"
-    if (( rc == 0 )); then
-      ui::info "← opencode ${label} done (${dur}s, ${#out}B)"
-    else
-      ui::info "← opencode ${label} rc=${rc} (${dur}s)"
-    fi
+    common::log DEBUG "opencode::run returned label=${label} rc=${rc} duration=${dur}s out_bytes=${#out} err_bytes=${#err}"
 
     # Share the rate-limit detector with claude (pattern matching on stderr).
     local combined="$out"$'\n'"$err"
@@ -159,7 +152,7 @@ opencode::run() {
       rl_attempts=$((rl_attempts + 1))
       if (( rl_attempts > 3 )); then
         common::log WARN "opencode rate limit: 3 retries exhausted"
-        [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$combined"
+        common::debug_save "$task_id" "${label}.response" "$combined"
         return 42
       fi
       local now sleep_for
@@ -168,31 +161,31 @@ opencode::run() {
       (( sleep_for < 60 )) && sleep_for=60
       local cap="${RAFITA_RATE_LIMIT_MAX_SLEEP:-21600}"
       (( sleep_for > cap )) && sleep_for=$cap
-      common::log INFO "opencode rate limit: sleeping ${sleep_for}s (retry $rl_attempts/3)"
+      common::log WARN "opencode rate-limited: sleeping ${sleep_for}s (retry $rl_attempts/3)"
       sleep "$sleep_for"
       continue
     fi
 
     if (( rc == 0 )); then
-      [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$out"
+      common::debug_save "$task_id" "${label}.response" "$out"
       printf '%s' "$out"
       return 0
     fi
 
     if (( rc == 124 )); then
       common::log ERROR "opencode timed out (workerTimeout=${RAFITA_WORKER_TIMEOUT:-unset})"
-      [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$combined"
+      common::debug_save "$task_id" "${label}.response" "$combined"
       return 1
     fi
 
     transient_attempts=$((transient_attempts + 1))
     if (( transient_attempts > 3 )); then
       common::log ERROR "opencode hard failure after 3 retries (rc=$rc): ${err:0:200}"
-      [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$combined"
+      common::debug_save "$task_id" "${label}.response" "$combined"
       return 1
     fi
     local backoff=$(( 2 ** transient_attempts ))
-    common::log WARN "opencode transient rc=$rc, retry $transient_attempts/3 after ${backoff}s"
+    common::log DEBUG "opencode transient rc=$rc, retry $transient_attempts/3 after ${backoff}s"
     sleep "$backoff"
   done
 }

@@ -31,7 +31,7 @@ orchestrator::_load_verdict() {
     latest_review=$(find "$base" -path "*/$task_id/review-round-*" -name '*.response' -type f 2>/dev/null | sort -V | tail -n 1)
   fi
   if [[ -n "$latest_review" && -f "$latest_review" ]]; then
-    common::log INFO "verdict fallback: loading from artifact $latest_review"
+    common::log DEBUG "verdict fallback: loading from artifact $latest_review"
     cat "$latest_review"
     return 0
   fi
@@ -53,7 +53,7 @@ orchestrator::run_task() {
   session::task_init "$task_id"
 
   local snapshot; snapshot=$(git::snapshot_head)
-  common::log INFO "task=${task_id} snapshot=${snapshot}"
+  common::log DEBUG "task=${task_id} snapshot=${snapshot}"
 
   flowctl::start_task "$task_id"
   local spec; spec=$(flowctl::task_spec "$task_id")
@@ -183,22 +183,26 @@ print(d.get("summary","task completed"))' "$verdict" > "$summary_tmp"
     rm -f "$summary_tmp" "$evidence_tmp"
     if git::commit_scoped "$task_id" "$title"; then
       ui::task_done "$task_id" "$round"
+      local _commit_sha; _commit_sha=$(git rev-parse --short HEAD 2>/dev/null || true)
       # Push immediately so an interrupted run never strands committed work
       # in a worktree that may get cleaned up. Best-effort: a push failure
       # does not block the next task, but it is logged loudly.
       local _br; _br=$(git::current_branch)
       if [[ -n "$_br" ]]; then
         if [[ "${RAFITA_PROVIDER:-github}" == "none" ]]; then
-          common::log INFO "provider=none; skipping push of ${_br} after task ${task_id}"
-        elif git push -u origin "$_br" >/dev/null 2>&1; then
-          common::log INFO "pushed ${_br} after task ${task_id}"
+          common::log DEBUG "provider=none; skipping push of ${_br} after task ${task_id}"
+        elif ui::debug_phase "GIT" "pushing branch ${_br} after ${task_id}..." \
+          && git push -u origin "$_br" >/dev/null 2>&1; then
+          common::log DEBUG "pushed ${_br} after task ${task_id}"
         else
           common::log WARN "push failed for ${_br} after task ${task_id} (continuing)"
         fi
       fi
+      ui::task_finishing "$task_id" "$_commit_sha"
     else
       # Nothing changed — still mark as done in flowctl but log it.
       common::log WARN "task ${task_id} approved but no diff to commit"
+      ui::task_finishing "$task_id"
     fi
     return 0
   fi
@@ -216,11 +220,51 @@ print(d.get("summary","task completed"))' "$verdict" > "$summary_tmp"
 }
 
 # orchestrator::run_epic <epic_id>
+# Wrapper that holds a per-epic rafita-lock for the duration of the run so
+# concurrent worktrees can detect each other and stale-claim detection
+# doesn't flag tasks of an active run as orphaned.
 orchestrator::run_epic() {
+  local epic="$1"
+  if ! flowctl::acquire_epic_lock "$epic"; then
+    ui::error "epic ${epic} is owned by another rafita run; skipping"
+    return 0
+  fi
+  local rc=0
+  orchestrator::_run_epic_inner "$epic" || rc=$?
+  # Inter-epic isolation guard. Anything left dirty in the tree gets stashed
+  # as a chore commit on the current epic branch, then hard-reset+cleaned so
+  # the next epic does not inherit residuals (root cause of cross-epic file
+  # contamination we observed on fn-18 picking up fn-17 state).
+  git::sweep_residuals_before_epic_switch "$epic" 2>/dev/null || true
+  flowctl::release_epic_lock "$epic"
+  return $rc
+}
+
+orchestrator::_run_epic_inner() {
   local epic="$1"
   export RAFITA_CURRENT_EPIC="$epic"
   common::record_epic "$epic"
   ui::epic_start "$epic"
+
+  # Hygiene guard: if the epic has nothing to do or is fully done, close it
+  # and skip without spinning up branches. The wizard usually catches this,
+  # but headless runs (CI, --no-wizard) hit this path too.
+  if flowctl::epic_empty "$epic"; then
+    common::log INFO "epic ${epic} has no tasks; closing and skipping"
+    flowctl::close_epic "$epic"
+    return 0
+  fi
+  if flowctl::epic_all_done "$epic"; then
+    common::log INFO "epic ${epic} all tasks done; closing and skipping"
+    flowctl::close_epic "$epic"
+    return 0
+  fi
+  if flowctl::epic_stuck "$epic" && [[ "${RAFITA_CONTINUE_FIRST:-0}" != "1" ]]; then
+    local s; s=$(flowctl::epic_state_summary "$epic")
+    common::log WARN "epic ${epic} stuck (todo=$(printf '%s' "$s" | cut -f4) blocked=$(printf '%s' "$s" | cut -f3)); skipping — fix deps or release stale claims"
+    return 0
+  fi
+
   if ! git::setup_epic_branch "$epic"; then
     ui::error "no pude armar la rama base de ${epic} (ver warns arriba); saltando"
     return 1
@@ -282,7 +326,7 @@ orchestrator::run_epic() {
   while true; do
     local task_id; task_id=$(flowctl::next_task_id "$epic")
     if [[ -z "$task_id" ]]; then
-      common::log INFO "no more ready tasks for epic=${epic}"
+      common::log DEBUG "no more ready tasks for epic=${epic}"
       break
     fi
     local title; title=$(flowctl::task_title "$epic")
@@ -334,7 +378,7 @@ orchestrator::run_epic() {
   done
 
   if (( ${#completed[@]} == 0 )); then
-    common::log INFO "no tasks completed for epic=${epic}; skipping publish"
+    common::log DEBUG "no tasks completed for epic=${epic}; skipping publish"
     return 0
   fi
 
@@ -502,11 +546,11 @@ orchestrator::publish_epic() {
   local epic="$1" final_verdict="$2"; shift 2
   local tasks=("$@")
   if [[ "${RAFITA_PROVIDER:-github}" == "none" ]]; then
-    common::log INFO "provider=none; skipping push/PR"
+    common::log DEBUG "provider=none; skipping push/PR"
     return 0
   fi
   if ! git::has_remote; then
-    common::log INFO "no remote; skipping push/PR"
+    common::log DEBUG "no remote; skipping push/PR"
     return 0
   fi
   vcs::push || { common::warn "push failed; PR not opened"; return 1; }

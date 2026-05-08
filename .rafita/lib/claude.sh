@@ -134,19 +134,8 @@ claude::_invoke() {
   export RAFITA_STDOUT_TMP="$stdout_tmp"
   export RAFITA_STDERR_TMP="$stderr_tmp"
 
-  local stream_pid=""
-  if [[ "${RAFITA_STREAM_OUTPUT:-0}" == "1" ]]; then
-    claude::_stream_output "$stdout_tmp" &
-    stream_pid=$!
-  fi
-
   wait "$RAFITA_CHILD_PID"
   rc=$?
-
-  if [[ -n "$stream_pid" ]]; then
-    kill "$stream_pid" 2>/dev/null || true
-    wait "$stream_pid" 2>/dev/null || true
-  fi
 
   claude::_unregister_child "$RAFITA_CHILD_PID"
   unset RAFITA_CHILD_PID RAFITA_STDOUT_TMP RAFITA_STDERR_TMP
@@ -201,25 +190,29 @@ claude::_heartbeat_start() {
   local label="$1" start_ts="$2"
   local f; f=$(claude::_heartbeat_file)
   mkdir -p "$(dirname "$f")"
-  local interval="${RAFITA_HEARTBEAT_INTERVAL:-5}"
+  # File ticks every 5s for live `tail -f` debugging. UI heartbeat lines emit
+  # at the slower interval below (60s default) and are gated by DEBUG>=1.
+  local file_interval="${RAFITA_HEARTBEAT_FILE_INTERVAL:-5}"
+  local ui_interval="${RAFITA_HEARTBEAT_UI_INTERVAL:-60}"
   (
-    local first=1
+    local last_ui_emit=0
     while true; do
       local now; now=$(date +%s)
       local elapsed=$((now - start_ts))
       local worker_pids
       worker_pids=$(pgrep -f 'claude -p|opencode run' 2>/dev/null | tr '\n' ',' | sed 's/,$//')
-      local line
-      line="[$(date -u +%H:%M:%S)] label=${label} elapsed=${elapsed}s worker_pids=${worker_pids:-none} task=${RAFITA_CURRENT_TASK:-?} round=${RAFITA_CURRENT_ROUND:-?} phase=${RAFITA_CURRENT_PHASE:-?}"
-      # Always write latest state to file.
-      printf '%s\n' "$line" > "$f"
-      # Echo to stderr every 30s (or on first tick) so the user sees liveness
-      # in the terminal without spamming every 5s.
-      if (( first == 1 || elapsed % 30 == 0 )); then
-        printf 'rafita ♥ %s\n' "$line" >&2
+      # Always refresh the file (forensic; unaffected by debug level).
+      printf '[%s] label=%s elapsed=%ss worker_pids=%s task=%s round=%s phase=%s\n' \
+        "$(date -u +%H:%M:%S)" "$label" "$elapsed" "${worker_pids:-none}" \
+        "${RAFITA_CURRENT_TASK:-?}" "${RAFITA_CURRENT_ROUND:-?}" "${RAFITA_CURRENT_PHASE:-?}" \
+        > "$f"
+      # Emit a short UI line periodically. Gating handled by ui::heartbeat
+      # (returns silently when RAFITA_DEBUG<1), so debug=0 stays quiet.
+      if (( elapsed - last_ui_emit >= ui_interval )); then
+        ui::heartbeat "$label" "$elapsed" "${RAFITA_CURRENT_ROUND:-}"
+        last_ui_emit=$elapsed
       fi
-      first=0
-      sleep "$interval"
+      sleep "$file_interval"
     done
   ) &
   RAFITA_HEARTBEAT_PID=$!
@@ -278,14 +271,18 @@ claude::run() {
   local model; model=$(claude::_resolve_model "$alias")
   local task_id="${RAFITA_CURRENT_TASK:-_global}"
 
-  # Persist prompt artifact.
-  if [[ "${RAFITA_DEBUG:-1}" -ge 1 && -n "${RAFITA_RUN_DIR:-}" ]]; then
+  # Persist prompt artifact (always — postmortem capture).
+  if [[ -n "${RAFITA_RUN_DIR:-}" ]]; then
     common::debug_save "$task_id" "${label}.prompt" "$prompt"
   fi
 
   local prompt_bytes=${#prompt}
-  common::log INFO "claude::run start label=${label} model=${model:-default} alias=${alias:-default} session_mode=${session_mode:-none} prompt_bytes=${prompt_bytes}"
-  ui::info "→ claude ${alias:-default} (${model:-default}) working on ${label}..."
+  common::log DEBUG "claude::run start label=${label} model=${model:-default} alias=${alias:-default} session_mode=${session_mode:-none} prompt_bytes=${prompt_bytes}"
+  # Single-line session lifecycle event (DEBUG>=1 only, via ui::session).
+  case "$session_mode" in
+    new)    ui::session "${alias:-claude}" new "${model:-default}" ;;
+    resume) ui::session "${alias:-claude}" resumed "${model:-default}" ;;
+  esac
   local rl_attempts=0 transient_attempts=0
   while true; do
     local t0; t0=$(date +%s)
@@ -298,12 +295,7 @@ claude::run() {
     local rc="${RAFITA_CLAUDE_RC:-0}"
     local t1; t1=$(date +%s)
     local dur=$((t1 - t0))
-    common::log INFO "claude::run returned label=${label} rc=${rc} duration=${dur}s out_bytes=${#out} err_bytes=${#err}"
-    if (( rc == 0 )); then
-      ui::info "← claude ${label} done (${dur}s, ${#out}B)"
-    else
-      ui::info "← claude ${label} rc=${rc} (${dur}s)"
-    fi
+    common::log DEBUG "claude::run returned label=${label} rc=${rc} duration=${dur}s out_bytes=${#out} err_bytes=${#err}"
 
     # Check for rate limit in stdout OR stderr.
     local combined="$out"$'\n'"$err"
@@ -325,15 +317,13 @@ claude::run() {
       (( sleep_for < 60 )) && sleep_for=60
       local cap="${RAFITA_RATE_LIMIT_MAX_SLEEP:-21600}"
       (( sleep_for > cap )) && sleep_for=$cap
-      common::log INFO "rate limit: sleeping ${sleep_for}s (retry $rl_attempts/3)"
+      common::log WARN "claude rate-limited: sleeping ${sleep_for}s (retry $rl_attempts/3)"
       sleep "$sleep_for"
       continue
     fi
 
     if (( rc == 0 )); then
-      if [[ -n "${RAFITA_RUN_DIR:-}" ]]; then
-        common::debug_save "$task_id" "${label}.response" "$out"
-      fi
+      common::debug_save "$task_id" "${label}.response" "$out"
       printf '%s' "$out"
       return 0
     fi
@@ -341,24 +331,21 @@ claude::run() {
     # Timeout (rc 124) isn't retried transparently; treat as hard fail.
     if (( rc == 124 )); then
       common::log ERROR "claude timed out (workerTimeout=${RAFITA_WORKER_TIMEOUT:-unset})"
-      if [[ -n "${RAFITA_RUN_DIR:-}" ]]; then
-        common::debug_save "$task_id" "${label}.response" "$combined"
-      fi
+      common::debug_save "$task_id" "${label}.response" "$combined"
       return 1
     fi
 
     transient_attempts=$((transient_attempts + 1))
     if (( transient_attempts > 3 )); then
       common::log ERROR "claude hard failure after 3 retries (rc=$rc): ${err:0:200}"
-      if [[ -n "${RAFITA_RUN_DIR:-}" ]]; then
-        common::debug_save "$task_id" "${label}.response" "$combined"
-      fi
+      common::debug_save "$task_id" "${label}.response" "$combined"
       return 1
     fi
     # If the session is unavailable (dead resume or UUID already in use), fall back to a fresh call
     # and regenerate the UUID so future rounds don't retry the same broken id.
     if [[ "$session_mode" == "resume" ]] || { [[ "$session_mode" == "new" ]] && printf '%s' "$err" | grep -q "already in use"; }; then
-      common::log WARN "claude session unavailable (rc=$rc); regenerating session id and retrying without session"
+      common::log DEBUG "claude session unavailable (rc=$rc); regenerating and retrying without session"
+      ui::session "${alias:-claude}" regenerated "session unavailable"
       if [[ "$task_id" != "_global" ]]; then
         local role_alias="${alias:-dev}"
         session::regenerate_id "$task_id" "$role_alias"
@@ -367,7 +354,7 @@ claude::run() {
       session_id=""
     fi
     local backoff=$(( 2 ** transient_attempts ))
-    common::log WARN "claude transient rc=$rc, retry $transient_attempts/3 after ${backoff}s"
+    common::log DEBUG "claude transient rc=$rc, retry $transient_attempts/3 after ${backoff}s"
     sleep "$backoff"
   done
 }

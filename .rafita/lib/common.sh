@@ -28,16 +28,22 @@ common::log() {
   local ts
   ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   local line="[$ts] [$level] $msg"
+  # Always persist to the run log (postmortem capture, regardless of debug).
   if [[ -n "${RAFITA_RUN_LOG:-}" && -w "$(dirname "$RAFITA_RUN_LOG" 2>/dev/null)" ]]; then
     printf '%s\n' "$line" >> "$RAFITA_RUN_LOG"
   fi
-  # Mirror to stderr when:
-  #   - debug >= 1 (default), so users see logs live, OR
-  #   - RAFITA_LOG_STDERR=1 is explicitly set (CI / non-UI mode)
-  # Set RAFITA_LOG_STDERR=0 to suppress.
+  # Mirror to stderr by severity:
+  #   - WARN/ERROR  → always (errors are not silenced by debug=0)
+  #   - INFO        → only when debug >= 1
+  #   - DEBUG       → only when debug >= 2
+  # RAFITA_LOG_STDERR={0,1} forces off/on (CI / non-UI mode); takes priority.
   local to_stderr="${RAFITA_LOG_STDERR:-}"
   if [[ -z "$to_stderr" ]]; then
-    if [[ "${RAFITA_DEBUG:-1}" -ge 1 ]]; then to_stderr=1; else to_stderr=0; fi
+    case "$level" in
+      WARN|ERROR|FATAL) to_stderr=1 ;;
+      DEBUG) [[ "${RAFITA_DEBUG:-1}" -ge 2 ]] && to_stderr=1 || to_stderr=0 ;;
+      *)     [[ "${RAFITA_DEBUG:-1}" -ge 1 ]] && to_stderr=1 || to_stderr=0 ;;
+    esac
   fi
   if [[ "$to_stderr" == "1" ]]; then
     printf '%s\n' "$line" >&2
@@ -82,8 +88,10 @@ common::debug_save() {
   # before the extension. So a second invocation of `dev-round-1.prompt`
   # writes `dev-round-1-fix-1.prompt`, then `-fix-2`, etc. This preserves
   # every prompt/response across gate retries, transient retries, etc.
+  # Always saves (independent of RAFITA_DEBUG) so postmortems have the prompts.
+  # Set RAFITA_DEBUG_SAVE=0 to disable (e.g. CI runs short on disk).
   local task_id="$1" label="$2" content="$3"
-  [[ "${RAFITA_DEBUG:-1}" -ge 1 ]] || return 0
+  [[ "${RAFITA_DEBUG_SAVE:-1}" == "0" ]] && return 0
   local dir
   dir=$(common::task_artifact_dir "$task_id")
   local path="$dir/$label"

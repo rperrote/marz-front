@@ -27,7 +27,7 @@ git::ensure_gitignore() {
     fi
   done
   if (( changed )); then
-    common::log INFO "updated .gitignore with rafita runtime paths"
+    common::log DEBUG "updated .gitignore with rafita runtime paths"
   fi
 }
 
@@ -69,7 +69,7 @@ git::_sync_branch_with_origin() {
   local prev; prev=$(git::current_branch 2>/dev/null || echo "")
   git checkout -q "$branch" 2>/dev/null || return 1
   if ! git merge -q --ff-only "origin/${branch}" 2>/dev/null; then
-    common::log INFO "${branch} diverged from origin/${branch}; rebasing local commits"
+    common::log DEBUG "${branch} diverged from origin/${branch}; rebasing local commits"
     if ! git rebase "origin/${branch}" >/dev/null 2>&1; then
       git rebase --abort >/dev/null 2>&1 || true
       common::warn "rebase failed for ${branch} on origin/${branch}; resolve manually and rerun"
@@ -77,6 +77,92 @@ git::_sync_branch_with_origin() {
     fi
   fi
   [[ "$prev" != "$branch" ]] && git checkout -q "$prev" 2>/dev/null || true
+}
+
+# git::_merge_pr_base_into_current
+# Merges the resolved prBase (dev/main/master/configured) into the currently
+# checked-out branch. Use only when REUSING a pre-existing epic branch — fresh
+# branches don't need it because they are created from prBase directly.
+# Returns:
+#   0 — already up-to-date OR merge applied cleanly
+#   1 — merge conflict (caller should skip the epic; tree left clean)
+git::_merge_pr_base_into_current() {
+  local current; current=$(git::current_branch 2>/dev/null || echo "")
+  [[ -z "$current" || "$current" == "HEAD" ]] && return 0
+  local base; base=$(vcs::_resolve_pr_base 2>/dev/null || echo "")
+  [[ -z "$base" ]] && return 0
+  # Don't try to merge a branch into itself.
+  [[ "$current" == "$base" ]] && return 0
+  # Pull the latest base from origin if available, so the merge brings in
+  # whatever was just pushed there (the whole point of this refresh).
+  local merge_ref="$base"
+  if git::has_remote; then
+    git fetch -q origin "$base" 2>/dev/null || true
+    if git rev-parse --verify --quiet "origin/${base}" >/dev/null 2>&1; then
+      merge_ref="origin/${base}"
+    fi
+  fi
+  git rev-parse --verify --quiet "$merge_ref" >/dev/null 2>&1 || return 0
+  # Already up-to-date? Skip the no-op merge commit.
+  if git merge-base --is-ancestor "$merge_ref" HEAD 2>/dev/null; then
+    common::log DEBUG "branch ${current} already contains ${merge_ref}; skipping refresh merge"
+    return 0
+  fi
+  ui::debug_phase "GIT" "merging ${merge_ref} into ${current} to refresh base..."
+  if git merge -q --no-ff -m "rafita: refresh ${current} from ${merge_ref}" "$merge_ref" 2>/dev/null; then
+    common::log INFO "refreshed ${current} from ${merge_ref}"
+    ui::info "branch ${current} actualizado desde ${merge_ref}"
+    return 0
+  fi
+  # Conflict: clean up and signal the caller to skip the epic. Running on a
+  # stale base risks compounding conflicts on every commit.
+  git merge --abort 2>/dev/null || true
+  common::log WARN "merge conflict refreshing ${current} from ${merge_ref}; skipping epic — rebase manually"
+  return 1
+}
+
+# git::_push_synced_branch
+# After _sync_branch_with_origin (rebase) and/or _merge_pr_base_into_current
+# (merge commit), the local branch may be ahead of origin. Push it now so the
+# remote reflects the synced state and so push-after-task succeeds without
+# fast-forward issues. Uses --force-with-lease when the rebase reordered
+# history so we don't clobber concurrent remote updates we haven't seen.
+# Returns:
+#   0 — pushed cleanly, nothing to push, or no remote
+#   1 — push rejected (likely concurrent update; caller should skip the epic)
+git::_push_synced_branch() {
+  git::has_remote || return 0
+  [[ "${RAFITA_PROVIDER:-github}" == "none" ]] && return 0
+  local branch; branch=$(git::current_branch 2>/dev/null || echo "")
+  [[ -z "$branch" || "$branch" == "HEAD" ]] && return 0
+
+  # Anything to push?
+  local local_sha remote_sha
+  local_sha=$(git rev-parse --verify "$branch" 2>/dev/null || true)
+  remote_sha=$(git rev-parse --verify "origin/${branch}" 2>/dev/null || true)
+  if [[ -z "$local_sha" ]]; then return 0; fi
+  if [[ -n "$remote_sha" && "$local_sha" == "$remote_sha" ]]; then
+    common::log DEBUG "branch ${branch} already in sync with origin; nothing to push"
+    return 0
+  fi
+
+  # Decide flag: if local is ahead-only (origin is ancestor of local), regular
+  # push works. Otherwise rebase reordered history and we need --force-with-lease.
+  # The lease syntax is <refname>:<expected_sha> where <refname> is the remote
+  # ref name without the "origin/" prefix.
+  local push_args=(push -u origin "$branch")
+  if [[ -n "$remote_sha" ]] && ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+    push_args=(push --force-with-lease="${branch}:${remote_sha}" -u origin "$branch")
+    common::log DEBUG "history of ${branch} diverged from origin; using --force-with-lease"
+  fi
+
+  ui::debug_phase "GIT" "pushing synced ${branch} to origin..."
+  if git "${push_args[@]}" >/dev/null 2>&1; then
+    common::log INFO "pushed synced ${branch} to origin"
+    return 0
+  fi
+  common::log WARN "push of synced ${branch} rejected (concurrent update?); skipping epic"
+  return 1
 }
 
 git::_local_branch_for_epic() {
@@ -115,7 +201,121 @@ git::_resolve_dep_branch() {
   return 1
 }
 
+# git::_stash_flow_if_dirty
+# Stashes any uncommitted changes whose paths fall under rafita-managed
+# directories (.flow/ + .rafita/ — both contain state mutated by the wizard
+# and by flowctl). Bails without stashing if there are changes outside those
+# directories (they are the user's; preserving them is more important than
+# auto-recovery). Sets RAFITA_FLOW_STASH_REF on success.
+git::_stash_flow_if_dirty() {
+  RAFITA_FLOW_STASH_REF=""
+  local porcelain; porcelain=$(git status --porcelain 2>/dev/null)
+  if [[ -z "$porcelain" ]]; then
+    common::log DEBUG "stash check: working tree already clean"
+    return 0
+  fi
+  common::log DEBUG "stash check: porcelain has $(printf '%s' "$porcelain" | wc -l | tr -d ' ') line(s)"
+
+  # Parse paths from porcelain (cols 1-2 are flags, col 3+ is path; rename
+  # entries have "old -> new" — we only care about the destination).
+  local foreign=""
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    local p="${line:3}"
+    # Rename: "old -> new"; take the new path.
+    if [[ "$p" == *' -> '* ]]; then p="${p##* -> }"; fi
+    # Strip surrounding quotes if git used them for special chars.
+    p="${p#\"}"; p="${p%\"}"
+    case "$p" in
+      .flow/*|.rafita/*) ;;  # ours, ok to stash
+      *)
+        foreign="$p"
+        break
+        ;;
+    esac
+  done <<< "$porcelain"
+
+  if [[ -n "$foreign" ]]; then
+    common::log WARN "dirty entries outside .flow/ and .rafita/ present (e.g. ${foreign}); not stashing — checkout will likely fail. Commit or discard those first."
+    return 0
+  fi
+
+  local msg="rafita-flow ${RAFITA_RUN_ID:-?} ${RAFITA_CURRENT_EPIC:-?}"
+  # Note: we must capture the stash ref reliably. `git stash push` with
+  # pathspecs only stashes matching paths but git's pathspec parsing doesn't
+  # accept "-- .flow/ .rafita/" reliably across versions when one of them is
+  # absent. Stash everything (we already verified nothing foreign is dirty),
+  # which is simpler and guaranteed.
+  if git stash push --include-untracked -m "$msg" >/dev/null 2>&1; then
+    RAFITA_FLOW_STASH_REF=$(git stash list --format='%gd' | head -1)
+    if [[ -z "$RAFITA_FLOW_STASH_REF" ]]; then
+      common::log WARN "stash push reported success but no stash recorded; aborting"
+      return 1
+    fi
+    common::log INFO "stashed rafita state changes as ${RAFITA_FLOW_STASH_REF} (${msg})"
+  else
+    common::log WARN "git stash push failed; checkout will likely fail"
+  fi
+}
+
+# git::_pop_flow_stash
+# Restore the .flow/ stash created by _stash_flow_if_dirty onto the current
+# branch. On conflict, leaves the stash in `git stash list` and warns; the
+# user can resolve manually. Idempotent: no-op when no stash was created.
+git::_pop_flow_stash() {
+  [[ -z "${RAFITA_FLOW_STASH_REF:-}" ]] && return 0
+  local ref="$RAFITA_FLOW_STASH_REF"
+  RAFITA_FLOW_STASH_REF=""
+  if git stash pop "$ref" >/dev/null 2>&1; then
+    common::log DEBUG "popped .flow/ stash onto $(git::current_branch)"
+    return 0
+  fi
+  common::log WARN ".flow/ stash pop failed (conflict?); kept as ${ref} — run 'git stash list' to inspect"
+  return 0
+}
+
 git::setup_epic_branch() {
+  # Wrapper. Steps in order:
+  #   1) Stash any rafita-owned dirty state (.flow/, .rafita/) so checkouts
+  #      don't trip over uncommitted wizard mutations.
+  #   2) Move to the epic branch (create / sync / merge prBase / push).
+  #   3) Pop the stash onto the epic branch so the .flow updates travel with
+  #      it (where they belong).
+  #   4) Belt-and-suspenders: verify we ended up on the right branch and the
+  #      tree is clean. If not, fail loudly.
+  local epic="$1"
+  git::_stash_flow_if_dirty
+
+  local rc=0
+  git::_setup_epic_branch_inner "$epic" || rc=$?
+
+  git::_pop_flow_stash
+
+  if [[ $rc -ne 0 ]]; then
+    common::log WARN "setup_epic_branch for ${epic} failed (rc=${rc}); current branch: $(git::current_branch 2>/dev/null || echo unknown)"
+    return $rc
+  fi
+
+  # Verify final state. Two invariants we must hold before letting the epic run:
+  #   - We're on the expected epic branch (not stranded on dev/etc.)
+  #   - Working tree is clean (any popped flow changes get committed by the
+  #     first task; if the pop conflicted there is no clean state to start from)
+  local expected; expected=$(git::_local_branch_for_epic "$epic" 2>/dev/null || echo "")
+  local current;  current=$(git::current_branch 2>/dev/null || echo "")
+  # Dep-shared branches use the dep's name, not the epic's; only enforce the
+  # match when no deps were resolved (own branch path).
+  local deps_csv; deps_csv=$(flowctl::epic_depends_on "$epic" 2>/dev/null)
+  if [[ -z "$deps_csv" || "${RAFITA_BRANCH_BY_EPIC:-0}" == "1" ]]; then
+    if [[ "$current" != "$expected" ]]; then
+      common::log ERROR "setup_epic_branch: ended on '${current}' but expected '${expected}'; refusing to run epic on wrong branch"
+      return 1
+    fi
+  fi
+  common::log INFO "branch ready: ${current} (epic ${epic})"
+  return 0
+}
+
+git::_setup_epic_branch_inner() {
   # Args: epic_id. Creates/switches to the branch assigned to the epic. By
   # default, epics that depend on another epic reuse that dependency branch.
   local epic="$1"
@@ -136,9 +336,8 @@ git::setup_epic_branch() {
       [[ -z "$d" ]] && continue
       resolved=$(git::_resolve_dep_branch "$d") || true
       if [[ -z "$resolved" ]]; then
-        common::warn "epic ${epic} depende de ${d} pero no encontré rama '$(git::_local_branch_for_epic "$d")' (ni local ni en origin)"
-        common::warn "abortando setup de ${epic}; corré la dep primero o creá la rama manualmente"
-        return 1
+        common::warn "epic ${epic} depende de ${d} pero no encontré rama '$(git::_local_branch_for_epic "$d")' (ni local ni en origin); usaré prBase como base"
+        continue
       fi
       case " ${resolved_branches[*]:-} " in
         *" ${resolved} "*) ;;
@@ -155,7 +354,7 @@ git::setup_epic_branch() {
       fi
       git checkout -q "$branch" || return 1
       git::_sync_branch_with_origin "$branch" || return 1
-      common::log INFO "epic ${epic} reuses dependency branch: ${branch}"
+      common::log DEBUG "epic ${epic} reuses dependency branch: ${branch}"
       ui::info "branch = ${branch} (dep compartida)"
       return 0
     fi
@@ -164,21 +363,48 @@ git::setup_epic_branch() {
   flowctl::set_epic_branch "$epic" "$branch"
 
   if git::_branch_local_exists "$branch"; then
+    common::log DEBUG "epic ${epic}: local branch '${branch}' exists; checking out"
     if git::_branch_checked_out_elsewhere "$branch"; then
       common::warn "branch ${branch} is checked out in another worktree; cannot checkout here"
       return 1
     fi
-    git checkout -q "$branch" || return 1
+    if ! git checkout -q "$branch" 2>&1 | tee -a "${RAFITA_RUN_LOG:-/dev/null}" >&2; then
+      common::log ERROR "checkout to existing local branch ${branch} failed"
+      return 1
+    fi
+    # Verify checkout actually moved us (some failures are silent).
+    local on; on=$(git::current_branch 2>/dev/null || echo "")
+    if [[ "$on" != "$branch" ]]; then
+      common::log ERROR "checkout reported success but HEAD is on '${on}', not '${branch}'"
+      return 1
+    fi
+    common::log DEBUG "on ${branch}; syncing with origin"
     git::_sync_branch_with_origin "$branch" || return 1
+    common::log DEBUG "merging prBase into ${branch}"
+    git::_merge_pr_base_into_current || return 1
+    common::log DEBUG "pushing synced ${branch} to origin"
+    git::_push_synced_branch || return 1
     return 0
   fi
 
   if git::has_remote; then
+    common::log DEBUG "epic ${epic}: local branch '${branch}' missing; checking origin"
     git fetch -q origin "$branch" 2>/dev/null || true
     if git::_branch_remote_exists "$branch"; then
+      common::log DEBUG "epic ${epic}: remote branch found; creating local from origin/${branch}"
       git branch -q "$branch" "origin/${branch}" 2>/dev/null || true
-      git checkout -q "$branch" || return 1
+      if ! git checkout -q "$branch" 2>&1 | tee -a "${RAFITA_RUN_LOG:-/dev/null}" >&2; then
+        common::log ERROR "checkout of newly-tracked branch ${branch} failed"
+        return 1
+      fi
+      local on; on=$(git::current_branch 2>/dev/null || echo "")
+      if [[ "$on" != "$branch" ]]; then
+        common::log ERROR "checkout reported success but HEAD is on '${on}', not '${branch}'"
+        return 1
+      fi
       git::_sync_branch_with_origin "$branch" || return 1
+      git::_merge_pr_base_into_current || return 1
+      git::_push_synced_branch || return 1
       return 0
     fi
   fi
@@ -196,15 +422,35 @@ git::setup_epic_branch() {
       git fetch -q origin "$base" 2>/dev/null \
         || common::warn "fetch ${base} failed; branching from local"
     fi
-    git checkout -q "$base" 2>/dev/null \
-      || common::warn "checkout ${base} failed; branching from current HEAD"
-    git::_sync_branch_with_origin "$base"
+    if ! git checkout -q "$base" 2>/dev/null; then
+      # Checkout failed — typically because $base is checked out in another
+      # worktree. Fall back to a detached checkout at the resolved SHA so
+      # the new branch is created from the right commit (origin/$base if
+      # available, otherwise local $base) instead of whatever HEAD happens
+      # to be from a previous epic's dep branch.
+      local base_sha=""
+      if git::has_remote && git rev-parse --verify --quiet "origin/${base}" >/dev/null 2>&1; then
+        base_sha=$(git rev-parse --verify "origin/${base}" 2>/dev/null || true)
+      fi
+      if [[ -z "$base_sha" ]] && git rev-parse --verify --quiet "$base" >/dev/null 2>&1; then
+        base_sha=$(git rev-parse --verify "$base" 2>/dev/null || true)
+      fi
+      if [[ -n "$base_sha" ]]; then
+        git checkout -q --detach "$base_sha" \
+          || { common::warn "detached checkout ${base_sha} failed; branching from current HEAD"; }
+        common::log DEBUG "checkout ${base} unavailable (likely another worktree); using detached ${base_sha:0:8}"
+      else
+        common::warn "checkout ${base} failed; branching from current HEAD"
+      fi
+    else
+      git::_sync_branch_with_origin "$base"
+    fi
   else
     if (( ${#resolved_branches[@]} == 1 )); then
       base="${resolved_branches[0]}"
       git checkout -q "$base" \
         || { common::warn "checkout ${base} failed"; return 1; }
-      common::log INFO "epic ${epic} basa en dep branch: ${base}"
+      common::log DEBUG "epic ${epic} basa en dep branch: ${base}"
       ui::info "branch base = ${base} (dep única)"
     else
       # Multiple deps → auto-merge into a throwaway temp branch.
@@ -216,6 +462,7 @@ git::setup_epic_branch() {
       # Start temp from the first dep.
       git checkout -q "${resolved_branches[0]}" \
         || { common::warn "checkout ${resolved_branches[0]} failed"; return 1; }
+      ui::debug_phase "GIT" "creating temp base branch ${base}..."
       git checkout -q -b "$base" \
         || { common::warn "creating temp base ${base} failed"; return 1; }
       # Merge the rest.
@@ -233,11 +480,12 @@ git::setup_epic_branch() {
           return 1
         fi
       done
-      common::log INFO "epic ${epic} basa en merge de deps: ${resolved_branches[*]}"
+      common::log DEBUG "epic ${epic} basa en merge de deps: ${resolved_branches[*]}"
       ui::info "branch base = ${base} (auto-merge de ${#resolved_branches[@]} deps)"
     fi
   fi
 
+  ui::debug_phase "GIT" "creating branch ${branch} from ${base}..."
   git checkout -q -b "$branch"
   common::log INFO "branch: $branch (from ${base})"
 }
@@ -262,23 +510,132 @@ git::changed_paths_since() {
 
 # Returns 0 if <path> matches any of the forbidden globs.
 git::is_forbidden_path() {
-  local path="$1"
+  local p="$1"
   local globs; globs=$(config::forbidden_paths_list)
   [[ -z "$globs" ]] && return 1
   while IFS= read -r glob; do
     [[ -z "$glob" ]] && continue
     # shellcheck disable=SC2053
-    case "$path" in
+    case "$p" in
       $glob) return 0 ;;
     esac
     # Also match ** anywhere.
     if [[ "$glob" == *"**"* ]]; then
       local rex
       rex=$(printf '%s' "$glob" | sed 's|\.|\\.|g; s|\*\*/|.*/|g; s|/\*\*|/.*|g; s|\*|[^/]*|g')
-      if [[ "$path" =~ ^$rex$ ]]; then return 0; fi
+      if [[ "$p" =~ ^$rex$ ]]; then return 0; fi
     fi
   done <<< "$globs"
   return 1
+}
+
+# git::sweep_residuals_before_epic_switch <epic>
+# Inter-epic guard. Detects any uncommitted changes left in the working tree
+# at the END of an epic and commits them as a "chore(<epic>): residual ..."
+# stash on the current branch, then hard-resets so the next epic starts on a
+# clean tree. The double-check (commit + reset --hard + clean) is intentional:
+# the commit preserves work for postmortem; the reset guarantees isolation
+# even if the commit failed (e.g. all paths forbidden). Untracked files
+# outside .gitignore are also wiped via `git clean -fd`. RAFITA-runtime dirs
+# (.rafita/) are already in .gitignore, so they are preserved.
+#
+# Returns 0 always; this is best-effort cleanup.
+git::sweep_residuals_before_epic_switch() {
+  local epic="$1"
+  # Anything to clean? --porcelain returns non-empty if there are untracked,
+  # modified, staged, deleted, or renamed entries.
+  local porcelain; porcelain=$(git status --porcelain 2>/dev/null)
+  if [[ -z "$porcelain" ]]; then
+    common::log DEBUG "epic ${epic} ended with clean working tree"
+    return 0
+  fi
+
+  # Safety guard: only commit residuals to the epic's branch. If the current
+  # branch is something else (typically because setup_epic_branch failed and
+  # we never moved off prBase / dev), DON'T commit — that's how dev ended up
+  # with chore residual commits from fn-18. Just reset+clean to leave a clean
+  # tree for the next attempt; the wizard's flow stash (if any) was already
+  # popped/lost by setup_epic_branch's failure path.
+  local current; current=$(git::current_branch 2>/dev/null || echo "")
+  local expected; expected=$(git::_local_branch_for_epic "$epic" 2>/dev/null || echo "")
+  if [[ -z "$current" || "$current" == "HEAD" ]]; then
+    common::log WARN "epic ${epic} ended in detached HEAD with residuals; resetting without commit"
+    git reset --hard HEAD >/dev/null 2>&1 || true
+    git clean -fd >/dev/null 2>&1 || true
+    return 0
+  fi
+  if [[ -n "$expected" && "$current" != "$expected" ]]; then
+    common::log WARN "epic ${epic} ended with residuals but current branch is '${current}' (expected '${expected}'); resetting without commit to avoid contaminating ${current}"
+    # Show what we're throwing away so it's visible in the log.
+    common::log WARN "discarded residual paths: $(printf '%s' "$porcelain" | head -10 | tr '\n' '|')"
+    git reset --hard HEAD >/dev/null 2>&1 || true
+    git clean -fd >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  common::log WARN "epic ${epic} ended with residual changes; preserving as commit before switching"
+  ui::debug_phase "GIT" "sweeping residuals from ${epic}..."
+
+  # Stage everything (modified + untracked + deletions). The forbidden-path
+  # filtering inside the helper unstages anything dangerous.
+  if [[ -n "$current" && "$current" != "HEAD" ]]; then
+    git add -A 2>/dev/null || true
+
+    # Filter forbidden paths.
+    local staged=() blocked=()
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && staged+=("$line")
+    done < <(git diff --cached --name-only 2>/dev/null)
+
+    local p
+    for p in "${staged[@]}"; do
+      if git::is_forbidden_path "$p"; then
+        blocked+=("$p")
+      fi
+    done
+    if (( ${#blocked[@]} )); then
+      git reset HEAD -- "${blocked[@]}" >/dev/null 2>&1 || true
+      for p in "${blocked[@]}"; do
+        common::log WARN "residual on forbidden path (will be wiped by reset): $p"
+      done
+    fi
+
+    # Commit only if there's something left after filtering.
+    local kept; kept=$(git diff --cached --name-only 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$kept" != "0" ]]; then
+      local msg="chore(${epic}): residual changes after epic close
+
+These changes were left in the working tree at the end of the epic and were
+swept here to keep working-tree isolation between epics. Review and discard
+if they were debug leftovers, or cherry-pick if they belong elsewhere.
+
+Automated via rafita
+run_id: ${RAFITA_RUN_ID:-?}"
+      if git commit -q -m "$msg" 2>/dev/null; then
+        common::log INFO "swept residuals into ${current} (commit $(git rev-parse --short HEAD 2>/dev/null))"
+      else
+        common::log WARN "residual commit failed on ${current}; will reset anyway"
+      fi
+    else
+      common::log DEBUG "residual cleanup: only forbidden paths were dirty; nothing to commit"
+    fi
+  else
+    common::log WARN "no current branch; cannot preserve residuals (detached HEAD?)"
+  fi
+
+  # Hard double-check: regardless of whether the commit succeeded, leave the
+  # tree pristine so the next epic does not inherit anything.
+  git reset --hard HEAD >/dev/null 2>&1 || true
+  git clean -fd >/dev/null 2>&1 || true
+
+  # Verify.
+  local after; after=$(git status --porcelain 2>/dev/null)
+  if [[ -n "$after" ]]; then
+    common::log ERROR "working tree still dirty after sweep+reset+clean: ${after:0:200}"
+  else
+    common::log DEBUG "working tree clean after sweep"
+  fi
+  return 0
 }
 
 # git::commit_scoped task_id title

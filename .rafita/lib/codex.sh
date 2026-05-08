@@ -68,16 +68,14 @@ codex::_invoke() {
     args+=(resume)
   fi
   while IFS= read -r -d '' arg; do args+=("$arg"); done < <(codex::_base_args "$model" "$session_mode")
-  # Auto-enable JSON streaming when debug>=2, unless explicitly turned off.
-  local _stream="${RAFITA_STREAM_OUTPUT:-}"
-  if [[ -z "$_stream" ]]; then
-    if [[ -n "${RAFITA_STREAM:-}" ]]; then
-      _stream="$RAFITA_STREAM"
-    elif [[ "${RAFITA_DEBUG:-1}" -ge 2 ]]; then
-      _stream=1
-    else
-      _stream=0
-    fi
+  # JSON streaming gated on RAFITA_DEBUG>=2. RAFITA_STREAM={0,1} forces.
+  local _stream
+  if [[ -n "${RAFITA_STREAM:-}" ]]; then
+    _stream="$RAFITA_STREAM"
+  elif [[ "${RAFITA_DEBUG:-1}" -ge 2 ]]; then
+    _stream=1
+  else
+    _stream=0
   fi
   if [[ "$_stream" == "1" ]]; then
     args+=(--json)
@@ -129,10 +127,6 @@ codex::_invoke() {
     export RAFITA_STDERR_TMP="$stderr_tmp"
 
     local stream_pid=""
-    if [[ "${RAFITA_STREAM_OUTPUT:-0}" == "1" ]]; then
-      claude::_stream_output "$stdout_tmp" &
-      stream_pid=$!
-    fi
 
     wait "$leader"
     rc=$?
@@ -172,12 +166,15 @@ codex::run() {
   local task_id="${RAFITA_CURRENT_TASK:-_global}"
   local prompt_bytes=${#prompt}
 
-  if [[ "${RAFITA_DEBUG:-1}" -ge 1 && -n "${RAFITA_RUN_DIR:-}" ]]; then
+  if [[ -n "${RAFITA_RUN_DIR:-}" ]]; then
     common::debug_save "$task_id" "${label}.prompt" "$prompt"
   fi
 
-  common::log INFO "codex::run start label=${label} model=${model:-default} session_mode=${session_mode:-none} prompt_bytes=${prompt_bytes}"
-  ui::info "→ codex (${model:-default}) working on ${label}..."
+  common::log DEBUG "codex::run start label=${label} model=${model:-default} session_mode=${session_mode:-none} prompt_bytes=${prompt_bytes}"
+  case "$session_mode" in
+    new|"") ui::session "${label%-*}" new "${model:-default}" ;;
+    resume) ui::session "${label%-*}" resumed "${model:-default}" ;;
+  esac
 
   local rl_attempts=0 transient_attempts=0
   while true; do
@@ -190,12 +187,7 @@ codex::run() {
     local rc="${RAFITA_CLAUDE_RC:-0}"
     local t1; t1=$(date +%s)
     local dur=$((t1 - t0))
-    common::log INFO "codex::run returned label=${label} rc=${rc} duration=${dur}s out_bytes=${#out} err_bytes=${#err} thread_id=${RAFITA_CODEX_THREAD_ID:-none}"
-    if (( rc == 0 )); then
-      ui::info "← codex ${label} done (${dur}s, ${#out}B)"
-    else
-      ui::info "← codex ${label} rc=${rc} (${dur}s)"
-    fi
+    common::log DEBUG "codex::run returned label=${label} rc=${rc} duration=${dur}s out_bytes=${#out} err_bytes=${#err} thread_id=${RAFITA_CODEX_THREAD_ID:-none}"
 
     local combined="$out"$'\n'"$err"
     local reset_epoch
@@ -205,7 +197,7 @@ codex::run() {
       rl_attempts=$((rl_attempts + 1))
       if (( rl_attempts > 3 )); then
         common::log WARN "codex rate limit: 3 retries exhausted"
-        [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$combined"
+        common::debug_save "$task_id" "${label}.response" "$combined"
         return 42
       fi
       local now sleep_for
@@ -214,31 +206,31 @@ codex::run() {
       (( sleep_for < 60 )) && sleep_for=60
       local cap="${RAFITA_RATE_LIMIT_MAX_SLEEP:-21600}"
       (( sleep_for > cap )) && sleep_for=$cap
-      common::log INFO "codex rate limit: sleeping ${sleep_for}s (retry $rl_attempts/3)"
+      common::log WARN "codex rate-limited: sleeping ${sleep_for}s (retry $rl_attempts/3)"
       sleep "$sleep_for"
       continue
     fi
 
     if (( rc == 0 )); then
-      [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$out"
+      common::debug_save "$task_id" "${label}.response" "$out"
       printf '%s' "$out"
       return 0
     fi
 
     if (( rc == 124 )); then
       common::log ERROR "codex timed out (workerTimeout=${RAFITA_WORKER_TIMEOUT:-unset})"
-      [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$combined"
+      common::debug_save "$task_id" "${label}.response" "$combined"
       return 1
     fi
 
     transient_attempts=$((transient_attempts + 1))
     if (( transient_attempts > 3 )); then
       common::log ERROR "codex hard failure after 3 retries (rc=$rc): ${err:0:200}"
-      [[ -n "${RAFITA_RUN_DIR:-}" ]] && common::debug_save "$task_id" "${label}.response" "$combined"
+      common::debug_save "$task_id" "${label}.response" "$combined"
       return 1
     fi
     local backoff=$(( 2 ** transient_attempts ))
-    common::log WARN "codex transient rc=$rc, retry $transient_attempts/3 after ${backoff}s"
+    common::log DEBUG "codex transient rc=$rc, retry $transient_attempts/3 after ${backoff}s"
     sleep "$backoff"
   done
 }
