@@ -1,4 +1,8 @@
 import type { WSMessageCreatedPayload } from '#/shared/api/generated/model'
+import type {
+  DeliverableDTO,
+  PublishedLink,
+} from '#/features/deliverables/types'
 import type { DomainEventEnvelope } from './events'
 
 // Discriminated union over `type` ('text' | 'system_event'); system events
@@ -169,8 +173,8 @@ export interface ChangesRequestedWSPayload {
 
 export interface DeliverableChangedWSPayload {
   conversation_id: string
-  // Will be typed as DeliverableDTO once B.6 is deployed and Orval regenerates.
-  deliverable: unknown
+  deliverable: DeliverableDTO
+  current_link?: PublishedLink | null
 }
 
 export interface StageApprovedWSPayload {
@@ -222,6 +226,9 @@ export type DomainWsEvent =
     })
   | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
       event_type: 'deliverable.changed'
+    })
+  | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
+      event_type: 'deliverable.updated'
     })
   | (DomainEventEnvelope<StageApprovedWSPayload> & {
       event_type: 'stage.approved'

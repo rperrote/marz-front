@@ -37,8 +37,8 @@ const statusMeta: Record<
   draft_submitted: { label: t`In review`, tone: 'info' },
   changes_requested: { label: t`Changes requested`, tone: 'destructive' },
   draft_approved: { label: t`Approved`, tone: 'success' },
-  link_submitted: { label: t`Link review`, tone: 'info' },
-  link_approved: { label: t`Live`, tone: 'success' },
+  link_submitted: { label: t`Link submitted`, tone: 'neutral' },
+  link_approved: { label: t`Link approved`, tone: 'success' },
   // Product flow currently reaches completed only after brand link approval.
   completed: { label: t`Link approved`, tone: 'success' },
 }
@@ -93,14 +93,15 @@ export function DeliverableListItem({
     !isNonUploadable &&
     deliverable.status === 'draft_submitted'
   const canSubmitLink =
-    isCreator &&
-    !isLocked &&
-    (deliverable.status === 'draft_approved' ||
-      deliverable.status === 'link_submitted')
-  const submitLinkLabel =
-    deliverable.status === 'link_submitted' || hasPreviousLinkChanges
-      ? t`Re-submit link`
-      : t`Submit link`
+    isCreator && !isLocked && deliverable.status === 'draft_approved'
+  const submitLinkLabel = hasPreviousLinkChanges
+    ? t`Re-submit link`
+    : t`Submit link`
+  const shouldShowCurrentLink =
+    deliverable.status === 'link_submitted' ||
+    deliverable.status === 'link_approved' ||
+    deliverable.status === 'completed' ||
+    linksQuery.data?.current_link_id != null
 
   const uploadButtonLabel = (() => {
     if (deliverable.status === 'draft_submitted')
@@ -156,9 +157,10 @@ export function DeliverableListItem({
         </div>
       )}
 
-      {nonUploadableStatuses.has(deliverable.status) && (
+      {shouldShowCurrentLink && (
         <div className="mt-2.5">
           <CurrentLinkSummary
+            deliverableStatus={deliverable.status}
             currentLinkId={linksQuery.data?.current_link_id ?? null}
             links={linksQuery.data?.links ?? []}
             isLoading={linksQuery.isLoading}
@@ -201,10 +203,12 @@ export function DeliverableListItem({
 }
 
 function CurrentLinkSummary({
+  deliverableStatus,
   currentLinkId,
   links,
   isLoading,
 }: {
+  deliverableStatus: DeliverableDTO['status']
   currentLinkId: string | null
   links: {
     id: string
@@ -239,6 +243,10 @@ function CurrentLinkSummary({
   }
 
   const currentLinkStatusMeta = getCurrentLinkStatusMeta(currentLink.status)
+  const linkLabel =
+    deliverableStatus === 'link_approved' || deliverableStatus === 'completed'
+      ? t`Link approved`
+      : currentLinkStatusMeta.label
 
   return (
     <div
@@ -250,14 +258,11 @@ function CurrentLinkSummary({
         href={currentLink.url}
         target="_blank"
         rel="noreferrer"
-        className="min-w-0 flex-1 truncate text-xs text-foreground hover:underline"
+        className="min-w-0 flex-1 truncate text-xs font-medium text-info-foreground hover:underline"
       >
         {currentLink.url}
       </a>
-      <StatusBadge
-        label={currentLinkStatusMeta.label}
-        tone={currentLinkStatusMeta.tone}
-      />
+      <StatusBadge label={linkLabel} tone={currentLinkStatusMeta.tone} />
     </div>
   )
 }
@@ -267,7 +272,7 @@ function getCurrentLinkStatusMeta(status: PublishedLinkStatus): {
   tone: 'info' | 'success' | 'destructive' | 'neutral'
 } {
   if (status === 'approved') {
-    return { label: t`Approved`, tone: 'success' }
+    return { label: t`Link approved`, tone: 'success' }
   }
 
   if (status === 'changes_requested') {
@@ -278,7 +283,7 @@ function getCurrentLinkStatusMeta(status: PublishedLinkStatus): {
     return { label: t`Rejected`, tone: 'destructive' }
   }
 
-  return { label: t`In review`, tone: 'info' }
+  return { label: t`Link submitted`, tone: 'neutral' }
 }
 
 function StatusBadge({

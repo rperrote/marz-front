@@ -247,6 +247,28 @@ describe('DeliverableListPanel', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('does not show submit link button for brand session', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel({ sessionKind: 'brand' })
+
+    expect(
+      screen.queryByRole('button', { name: /submit link/i }),
+    ).not.toBeInTheDocument()
+  })
+
   it('opens upload dialog when upload draft is clicked', async () => {
     mockUseGetConversationDeliverablesQuery.mockReturnValue({
       data: makeResponse({
@@ -404,8 +426,8 @@ describe('DeliverableListPanel', () => {
     renderPanel()
 
     expect(
-      screen.getByRole('button', { name: /re-submit link/i }),
-    ).toBeEnabled()
+      screen.queryByRole('button', { name: /re-submit link/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('shows re-submit link copy when an approved draft has previous link changes', () => {
@@ -474,12 +496,13 @@ describe('DeliverableListPanel', () => {
     expect(screen.getByTestId('current-link-summary')).toHaveTextContent(
       'https://www.youtube.com/watch?v=current456',
     )
+    expect(screen.getByText('Link approved')).toBeInTheDocument()
     expect(
       screen.queryByText('https://www.youtube.com/watch?v=old123'),
     ).not.toBeInTheDocument()
   })
 
-  it('renders an empty current link state when current_link_id is null', () => {
+  it('does not render an empty current link state before a link exists', () => {
     mockUseDeliverableLinks.mockReturnValue({
       data: {
         links: [
@@ -509,12 +532,39 @@ describe('DeliverableListPanel', () => {
 
     renderPanel()
 
-    expect(screen.getByTestId('current-link-empty')).toHaveTextContent(
-      'No current link yet.',
-    )
+    expect(screen.queryByTestId('current-link-empty')).not.toBeInTheDocument()
     expect(
       screen.queryByText('https://www.youtube.com/watch?v=old123'),
     ).not.toBeInTheDocument()
+  })
+
+  it('renders link submitted label and clickable URL while waiting for approval', () => {
+    const url = 'https://www.youtube.com/watch?v=submitted123'
+    mockUseDeliverableLinks.mockReturnValue({
+      data: {
+        links: [makeLink({ id: 'link-1', url, status: 'submitted' })],
+        current_link_id: 'link-1',
+      },
+      isLoading: false,
+    })
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'link_submitted',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getAllByText('Link submitted')).toHaveLength(2)
+    expect(screen.getByRole('link', { name: url })).toHaveAttribute('href', url)
   })
 
   it('shows enabled upload button with dynamic label for changes_requested', () => {
