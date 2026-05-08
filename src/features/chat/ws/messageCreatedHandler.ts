@@ -6,6 +6,7 @@ import { getMessagesQueryKey } from '#/shared/queries/messages'
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
 import type { MessageItem, MessagesResponse } from '#/features/chat/types'
+import { toMessagePayload } from '#/features/chat/utils/messagePayload'
 
 type MessagesInfiniteData = InfiniteData<
   { data: MessagesResponse; status: number },
@@ -29,7 +30,7 @@ export function handleMessageCreated(
           type: 'system_event',
           text_content: null,
           event_type: payload.event_type,
-          payload: payload.payload ?? null,
+          payload: toMessagePayload(payload.payload),
           created_at: payload.created_at,
           read_by_self: payload.author_account_id === currentAccountId,
         }
