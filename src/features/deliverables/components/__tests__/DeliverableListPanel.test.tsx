@@ -408,6 +408,72 @@ describe('DeliverableListPanel', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('hides submit link for an approved draft in a locked stage', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'multistage',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            offer_stage_id: 'stage-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+        stages: [
+          {
+            id: 'stage-1',
+            position: 1,
+            name: 'Stage 1',
+            deadline: '2026-05-01',
+            status: 'locked',
+            deliverable_ids: ['del-1'],
+          },
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(
+      screen.queryByRole('button', { name: /submit link/i }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText('Locked')).toBeInTheDocument()
+  })
+
+  it('shows submit link for an approved draft in an open stage', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'multistage',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            offer_stage_id: 'stage-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+        stages: [
+          {
+            id: 'stage-1',
+            position: 1,
+            name: 'Stage 1',
+            deadline: '2026-05-01',
+            status: 'open',
+            deliverable_ids: ['del-1'],
+          },
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getByRole('button', { name: /submit link/i })).toBeEnabled()
+    expect(screen.getByText('Open')).toBeInTheDocument()
+  })
+
   it('shows re-submit link copy when the current deliverable status is link_submitted', () => {
     mockUseGetConversationDeliverablesQuery.mockReturnValue({
       data: makeResponse({

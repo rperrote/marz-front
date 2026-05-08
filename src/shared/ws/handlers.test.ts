@@ -509,7 +509,7 @@ describe('createWsHandlers', () => {
   })
 
   describe('stage.opened', () => {
-    it('invalidates conversation deliverables and offers', () => {
+    it('invalidates conversation deliverables, deliverable details, and offers', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
       const payload: StageOpenedWSPayload = {
         conversation_id: 'conv-1',
@@ -526,6 +526,9 @@ describe('createWsHandlers', () => {
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversation-deliverables', 'conv-1'],
+      })
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['deliverable'],
       })
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversations', 'conv-1', 'offers'],

@@ -217,6 +217,9 @@ export function createWsHandlers(
         queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
       })
       void queryClient.invalidateQueries({
+        queryKey: ['deliverable'],
+      })
+      void queryClient.invalidateQueries({
         queryKey: getConversationOffersQueryKey(payload.conversation_id),
       })
     },
