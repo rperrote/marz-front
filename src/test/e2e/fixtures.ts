@@ -344,6 +344,32 @@ async function createChatPair(
   return { pair, cleanup }
 }
 
+function buildCompletedDeliverableSeedMessages(
+  count: number,
+): CompletedDeliverableSeedMessagesInput {
+  return {
+    count,
+    alternating_authors: true,
+    mark_read_for: 'both',
+    offer_status: 'accepted',
+    deliverable_status: 'completed',
+    offer: {
+      type: 'single',
+      status: 'accepted',
+      amount: '10.00',
+      currency: 'USD',
+      deadline: '2026-12-31',
+      deliverables: [
+        {
+          platform: 'youtube',
+          format: 'yt_long',
+          status: 'completed',
+        },
+      ],
+    },
+  }
+}
+
 export const test = base.extend<{
   testUser: TestUser
   brandOnboardingUser: TestUser
@@ -353,6 +379,7 @@ export const test = base.extend<{
   chatPair: ChatPair
   chatPairWithHistory: ChatPair
   chatPairWithCompletedDeliverable: ChatPair
+  chatPairWithCompletedDeliverableScrollable: ChatPair
 }>({
   // eslint-disable-next-line no-empty-pattern
   testUser: async ({}, use, testInfo) => {
@@ -415,31 +442,25 @@ export const test = base.extend<{
   },
 
   chatPairWithCompletedDeliverable: async ({ browser }, use, testInfo) => {
-    const seedMessages: CompletedDeliverableSeedMessagesInput = {
-      count: 2,
-      alternating_authors: true,
-      mark_read_for: 'both',
-      offer_status: 'accepted',
-      deliverable_status: 'completed',
-      offer: {
-        type: 'single',
-        status: 'accepted',
-        amount: '10.00',
-        currency: 'USD',
-        deadline: '2026-12-31',
-        deliverables: [
-          {
-            platform: 'youtube',
-            format: 'yt_long',
-            status: 'completed',
-          },
-        ],
-      },
-    }
     const { pair, cleanup } = await createChatPair(
       browser,
       testInfo.workerIndex,
-      seedMessages,
+      buildCompletedDeliverableSeedMessages(2),
+      { requireCompletedDeliverable: true },
+    )
+    await use(pair)
+    await cleanup()
+  },
+
+  chatPairWithCompletedDeliverableScrollable: async (
+    { browser },
+    use,
+    testInfo,
+  ) => {
+    const { pair, cleanup } = await createChatPair(
+      browser,
+      testInfo.workerIndex,
+      buildCompletedDeliverableSeedMessages(60),
       { requireCompletedDeliverable: true },
     )
     await use(pair)

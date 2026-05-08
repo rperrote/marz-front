@@ -14,7 +14,7 @@ interface PaymentAnalyticsPayload {
   step?: MarkAsPaidStep
 }
 
-interface AnalyticsEventRequest {
+interface PaymentFlowAnalyticsEventRequest {
   event_name: PaymentAnalyticsEvent
   payload: PaymentAnalyticsPayload
 }
@@ -34,7 +34,7 @@ export function usePaymentAnalytics(deliverableId: string | null) {
               deliverable_id: deliverableId,
               ...(payload?.step ? { step: payload.step } : {}),
             },
-          } satisfies AnalyticsEventRequest),
+          } satisfies PaymentFlowAnalyticsEventRequest),
         },
       ).catch(() => {
         // Analytics is non-blocking for the payment flow.
