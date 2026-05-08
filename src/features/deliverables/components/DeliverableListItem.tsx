@@ -1,6 +1,7 @@
 import {
   Film,
   Instagram,
+  Link as LinkIcon,
   Lock,
   Music,
   Plus,
@@ -47,6 +48,7 @@ export interface DeliverableListItemProps {
   stageStatus?: StageStatus
   sessionKind: 'brand' | 'creator'
   onUploadDraft: (deliverableId: string) => void
+  onSubmitLink?: (deliverableId: string) => void
 }
 
 export function DeliverableListItem({
@@ -54,6 +56,7 @@ export function DeliverableListItem({
   stageStatus,
   sessionKind,
   onUploadDraft,
+  onSubmitLink,
 }: DeliverableListItemProps) {
   const PlatformIcon = platformIcon[deliverable.platform] ?? Film
   const badge = statusMeta[deliverable.status]
@@ -75,6 +78,8 @@ export function DeliverableListItem({
     !isLocked &&
     !isNonUploadable &&
     deliverable.status === 'draft_submitted'
+  const canSubmitLink =
+    isCreator && !isLocked && deliverable.status === 'draft_approved'
 
   const uploadButtonLabel = (() => {
     if (deliverable.status === 'draft_submitted')
@@ -84,6 +89,10 @@ export function DeliverableListItem({
 
   const handleUploadClick = () => {
     onUploadDraft(deliverable.id)
+  }
+
+  const handleSubmitLinkClick = () => {
+    onSubmitLink?.(deliverable.id)
   }
 
   return (
@@ -146,6 +155,15 @@ export function DeliverableListItem({
           <Lock className="size-3.5" />
           {t`Upload draft`}
         </div>
+      ) : canSubmitLink ? (
+        <button
+          type="button"
+          onClick={handleSubmitLinkClick}
+          className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          <LinkIcon className="size-3.5" />
+          {t`Submit link`}
+        </button>
       ) : null}
     </div>
   )

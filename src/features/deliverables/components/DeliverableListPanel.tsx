@@ -6,6 +6,7 @@ import type { DeliverableDTO } from '#/features/deliverables/types'
 import { UploadDraftDialog } from './UploadDraftDialog'
 import { DeliverableListItem } from './DeliverableListItem'
 import { MultistagePanelGroup } from './MultistagePanelGroup'
+import { SubmitLinkSidesheet } from './SubmitLinkSidesheet'
 
 interface DeliverableListPanelProps {
   conversationId: string
@@ -20,6 +21,9 @@ export function DeliverableListPanel({
   const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
     null,
   )
+  const [submitLinkDeliverableId, setSubmitLinkDeliverableId] = useState<
+    string | null
+  >(null)
 
   if (query.isLoading) {
     return (
@@ -62,6 +66,14 @@ export function DeliverableListPanel({
 
   const handleDialogClose = () => {
     setUploadDeliverableId(null)
+  }
+
+  const handleSubmitLink = (deliverableId: string) => {
+    setSubmitLinkDeliverableId(deliverableId)
+  }
+
+  const handleSubmitLinkClose = () => {
+    setSubmitLinkDeliverableId(null)
   }
 
   const deliverableMap = new Map<string, DeliverableDTO>()
@@ -109,6 +121,7 @@ export function DeliverableListPanel({
                   deliverable,
                   sessionKind,
                   onUploadDraft: handleUploadDraft,
+                  onSubmitLink: handleSubmitLink,
                 }))}
               />
             )
@@ -121,6 +134,7 @@ export function DeliverableListPanel({
                 deliverable={deliverable}
                 sessionKind={sessionKind}
                 onUploadDraft={handleUploadDraft}
+                onSubmitLink={handleSubmitLink}
               />
             ))}
           </div>
@@ -137,6 +151,17 @@ export function DeliverableListPanel({
           onSuccess={handleDialogClose}
           title={uploadLabel}
           analytics={uploadAnalytics}
+        />
+      )}
+
+      {submitLinkDeliverableId && (
+        <SubmitLinkSidesheet
+          open={!!submitLinkDeliverableId}
+          onOpenChange={(open) => {
+            if (!open) handleSubmitLinkClose()
+          }}
+          deliverableId={submitLinkDeliverableId}
+          onSubmitted={handleSubmitLinkClose}
         />
       )}
     </div>

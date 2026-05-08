@@ -10,6 +10,8 @@ import type { LucideIcon } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import type { PublishedLinkPreview } from '#/features/deliverables/types'
+import { LinkPreviewBlock } from './LinkPreviewBlock'
 
 const platformIcon: Record<string, LucideIcon> = {
   youtube: Youtube,
@@ -20,6 +22,7 @@ interface LinkSubmittedCardBaseProps {
   message: string
   url: string
   platform: 'youtube' | 'instagram' | 'tiktok' | 'twitter_x'
+  preview?: PublishedLinkPreview | null
 }
 
 interface LinkSubmittedCardCreatorProps extends LinkSubmittedCardBaseProps {
@@ -45,16 +48,20 @@ export function LinkSubmittedCard(props: LinkSubmittedCardProps) {
       <div className="space-y-4">
         <p className="text-sm text-foreground">{props.message}</p>
 
-        <a
-          href={props.url}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-2.5 rounded-xl bg-muted px-3 py-2.5 font-mono text-sm text-success transition-colors hover:bg-surface-active"
-        >
-          <PlatformIcon className="size-4 shrink-0 text-muted-foreground" />
-          <span className="flex-1 truncate">{props.url}</span>
-          <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
-        </a>
+        {props.preview ? (
+          <LinkPreviewBlock preview={props.preview} url={props.url} />
+        ) : (
+          <a
+            href={props.url}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2.5 rounded-xl bg-muted px-3 py-2.5 font-mono text-sm text-success transition-colors hover:bg-surface-active"
+          >
+            <PlatformIcon className="size-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1 truncate">{props.url}</span>
+            <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
+          </a>
+        )}
 
         {props.audience === 'creator' ? (
           <div className="flex gap-2">
