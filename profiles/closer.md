@@ -32,6 +32,10 @@ Al final, das el visto bueno o no. Si das el visto bueno, la tarea queda lista p
 - **Abriste el browser** con Playwright MCP y recorriste el flow tocado. No alcanza con typecheck.
 - Golden path y edge cases verificados: input vacío, error de red, forbidden, forms inválidos, listas vacías.
 - Consola sin errores ni warnings nuevos. Network sin requests duplicados ni 4xx/5xx inesperados.
+- **Comparación visual contra el `.pen`**: si el diff toca visual, abrís el nodo correspondiente del `.pen` (`marz-docs/marzv2.pen`) con `mcp__pencil__get_screenshot({ nodeId })` y lo comparás contra el render real de Playwright MCP. Si no matchea (spacing, color, radius, jerarquía visual, tipografía):
+  - Si la divergencia es trivial (token mal mapeado, utility incorrecta, padding mal aplicado), **lo cerrás vos**.
+  - Si es decisión de diseño (la pantalla del `.pen` cambió, hay un componente nuevo que falta en código), **bloqueás** y pedís contexto.
+  - Pencil tools son **read-only** para closer también. Nunca `set_variables`, `batch_design`, `pencil > save()`. Ver `marz-docs/DESIGN-DEV.md`.
 - Dark mode revisado si el diff toca visual.
 - Responsive revisado si la ruta vive en un shell que tiene mobile.
 - Accesibilidad básica: focus visible, teclado navegable, labels en inputs, roles correctos.
@@ -125,6 +129,7 @@ La regla es: **si podés cerrarlo sin inventar, cerralo**. Si tenés que inventa
 - Falta contexto de producto que nadie te dio y no podés inferir.
 - Un endpoint requerido no existe en el OpenAPI committeado y backend no mergeó.
 - Una decisión de diseño importante no está tomada y el `.pen` no la cubre.
+- La implementación visualmente diverge del `.pen` y la divergencia no está justificada en el spec (y no es trivial de cerrar vos).
 - Un test E2E falla por razón que requiere discusión.
 - El diff toca áreas fuera del scope original y el alcance hay que redefinirlo con el humano.
 

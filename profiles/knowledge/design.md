@@ -2,10 +2,14 @@
 
 Cómo trabajar con el design system de Marz. Cargar SIEMPRE que reproduzcas un diseño, ajustes layout o agregues una pantalla nueva.
 
+## Lectura obligatoria
+
+**Antes de tocar UI**, leer `Read('/Users/rodrigoperrote/Proyects/marz/marzv2/marz-docs/DESIGN-DEV.md')`. Define qué tools MCP de Pencil podés usar (todas read-only) y cuáles tenés prohibidas. Sin haberlo leído, no abrís el `.pen`.
+
 ## Source of truth
 
 ```
-/Users/rodrigoperrote/Proyects/marz/marzv2/marz-design/marzv2.pen
+/Users/rodrigoperrote/Proyects/marz/marzv2/marz-docs/marzv2.pen
 ```
 
 Único archivo de diseño activo. `../marzv2.lib.pen` es referencia histórica, no tocar.
@@ -14,11 +18,7 @@ Cómo trabajar con el design system de Marz. Cargar SIEMPRE que reproduzcas un d
 
 ## Documento de contexto
 
-```
-/Users/rodrigoperrote/Proyects/marz/marzv2/marz-docs/DESIGN-DEV.md
-```
-
-Leer este archivo (con `Read` normal — está en plain markdown) cuando necesites:
+`marz-docs/DESIGN-DEV.md` (ya mencionado arriba como lectura obligatoria). Leélo con `Read` normal — está en plain markdown — cuando necesites:
 
 - Tokens y convenciones de naming.
 - Reglas de uso del CLI de `pencil`.
@@ -36,7 +36,7 @@ Cargá las tools antes de usarlas con `ToolSearch query: "select:mcp__pencil__ge
 
 1. **`mcp__pencil__get_editor_state({ include_schema: true })`** — primero. Devuelve el archivo activo, selección actual, lista de componentes reusables y schema del .pen.
 
-2. **`mcp__pencil__open_document(path)`** — solo si no hay editor activo o querés abrir otro archivo. Para el archivo de Marz: `'/Users/rodrigoperrote/Proyects/marz/marzv2/marz-design/marzv2.pen'`.
+2. **`mcp__pencil__open_document(path)`** — solo si no hay editor activo. Path del archivo de Marz: `'/Users/rodrigoperrote/Proyects/marz/marzv2/marz-docs/marzv2.pen'`. Si ya hay un editor activo con otro archivo, **no abrir** otro — podés desplazar la sesión de diseño (regla de DESIGN-DEV.md).
 
 3. **`mcp__pencil__get_variables()`** — leer tokens del design system. Hacelo antes de diseñar para no hardcodear.
 

@@ -19,6 +19,7 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 - **Una cosa a la vez**: un bug fix no trae refactors. Un refactor no trae features. Si ves algo roto aparte, lo reportás, no lo arreglás en el mismo cambio.
 - **Root cause over symptom**: no bypaseás checks (`--no-verify`, eslint-disable, `@ts-ignore`) para hacer pasar. Arreglás la causa.
 - **No tocar shadcn primitives** (`src/components/ui/`). Si querés cambio global, hacé wrapper en `shared/ui/`.
+- **Diseño es read-only**. El `.pen` (`marz-docs/marzv2.pen`) se lee con Pencil MCP (`get_editor_state`, `get_screenshot`, `batch_get` con `readDepth` bajo, `get_variables`). Prohibido: `set_variables`, `batch_design`, `replace_all_matching_properties`, `pencil > save()`, editar el `.pen` por filesystem. Si encontrás un bug de diseño (token mal definido, hardcode en el `.pen`), lo reportás — no lo parcheás. Ver `marz-docs/DESIGN-DEV.md`.
 
 ### Probar tu propio código
 
@@ -26,29 +27,32 @@ Agente de desarrollo senior frontend para `marz-front`. TanStack Start + React +
 - Levantar `pnpm dev`, navegar el flow, monitorear consola y network.
 - `marz-api` corre siempre en `localhost:8080`, lo mantiene arriba el humano.
 - Type checking y test suites verifican código, no UX. Si el cambio es de UI y no podés verificarlo en browser, decilo explícitamente.
-- **Para verificar UI: Playwright MCP**. Antes de declarar una tarea hecha, navegás la ruta tocada con MCP, sacás snapshot, chequeás consola y network. NO scripts temporales. NO levantar browsers a mano fuera de MCP. Detalle en `profiles/knowledge/playwright.md`.
-- **Tests E2E persistentes** (`pnpm test:e2e`) son distintos: se escriben para regresión de flows críticos, no para verificar cambios diarios. Mismo archivo de knowledge tiene los dos casos separados.
+- **Para verificar UI: Playwright MCP, obligatorio**. Antes de declarar una tarea hecha que toque UI/ruta/interacción, navegás con MCP, sacás snapshot, chequeás consola y network. NO scripts temporales. NO levantar browsers a mano fuera de MCP. Si las tools `mcp__playwright__*` no están cargadas, las cargás con `ToolSearch` (ver `profiles/knowledge/playwright.md`). Si el MCP no está disponible en tu runtime, dejás `// RAFITA:BLOCKER: playwright MCP no disponible` en el archivo más relevante y no marcás done.
+- **Tests E2E persistentes** (`pnpm test:e2e`, en `src/test/e2e/`) son distintos: cubren regresión de flows críticos. Cuándo crearlos lo decidís según la sección "Tests requeridos" más abajo.
 
 ### Flujo por tipo de tarea
 
 #### Bug
 
-1. Reproducir. Si no podés reproducir, no hay bug confirmado.
-2. Test rojo (Vitest) que falla por la causa. Si es UI puro y no se puede testear, reproducir en browser.
-3. Fix mínimo. Test verde / browser OK.
-4. `pnpm typecheck && pnpm lint && pnpm test`.
+1. Reproducir. Si no podés reproducir, no hay bug confirmado. Para bugs de UI, reproducir vía Playwright MCP en la ruta afectada.
+2. Test rojo (Vitest) que falla por la causa. Si la causa es lógica testeable, va unitario. Si es solo browser-observable y el bug es de un flow crítico, agregar E2E persistente en `src/test/e2e/`.
+3. Fix mínimo. Test verde + verificación MCP en browser si es UI.
+4. `pnpm typecheck && pnpm lint && pnpm test`. Si agregaste E2E: `pnpm test:e2e -- <archivo>`.
 
 #### Feature
 
 1. Leer el spec / issue. Si toca contrato de API, esperar que backend mergee y correr `pnpm api:sync`.
 2. Identificar bounded context afectado. La feature vive en `src/features/<bc>/`. Si necesita algo de otro BC, mover a `shared/` o esperar evento.
-3. Definir route en `src/routes/_brand/` o `src/routes/_creator/` según el shell.
-4. Componente de feature en `features/<bc>/components/`. Composición desde la route.
-5. Si hay form: TanStack Form + Zod schema generado por Orval.
-6. Si hay data fetching: React Query hook generado por Orval.
-7. Si hay client state efímero: `useState` o Zustand store en `features/<bc>/store.ts`.
-8. Tests unitarios cuando aplique (Vitest + Testing Library).
-9. `pnpm typecheck && pnpm lint && pnpm test`. Probar en browser.
+3. **Consultar el diseño en el `.pen`** si la feature tiene UI. Leer `marz-docs/DESIGN-DEV.md` primero si no lo hiciste. Después: `mcp__pencil__get_editor_state` para ubicar el nodo, `mcp__pencil__get_screenshot({ nodeId })` para capturar el render esperado, `mcp__pencil__batch_get({ nodeIds, readDepth: 3-6, resolveVariables: true })` para extraer estructura/tokens. Solo lectura. Si el `.pen` no tiene la pantalla todavía, parar y pedir contexto — no inventar.
+4. Definir route en `src/routes/_brand/` o `src/routes/_creator/` según el shell.
+5. Componente de feature en `features/<bc>/components/`. Composición desde la route.
+6. Si hay form: TanStack Form + Zod schema generado por Orval.
+7. Si hay data fetching: React Query hook generado por Orval.
+8. Si hay client state efímero: `useState` o Zustand store en `features/<bc>/store.ts`.
+9. **Tests unitarios** (Vitest + Testing Library) para toda lógica nueva con branches, mappings, validación, transformaciones, hooks. Co-localizados (`Foo.test.tsx` al lado de `Foo.tsx`). Ver `profiles/knowledge/testing.md`.
+10. **Test E2E persistente** (`src/test/e2e/<flow>.spec.ts`) si la feature define o modifica un flow crítico (auth, onboarding, submit principal del feature). Usar fixtures de `testing.md`. Si la feature es UI menor sin flow crítico nuevo, no hace falta — lo justificás en el resumen final.
+11. **Verificación browser via Playwright MCP** (obligatoria si tocaste UI): navegar la ruta, snapshot, console, network. Golden path + al menos un edge case (error, empty, inválido). Comparar contra el screenshot del `.pen` capturado en el paso 3.
+12. `pnpm typecheck && pnpm lint && pnpm test`. Si agregaste E2E: `pnpm test:e2e -- <archivo>`.
 
 #### Refactor
 

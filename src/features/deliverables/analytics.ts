@@ -1,4 +1,6 @@
-import { customFetch } from '#/shared/api/mutator'
+// Analytics soft-disabled: backend endpoint not yet defined in OpenAPI.
+// Re-enable by routing through the Orval-generated client once the endpoint exists.
+
 import type { ChangeCategory } from './api/requestChanges'
 import type { OfferType } from './types'
 
@@ -90,23 +92,11 @@ interface DeliverableEventMap {
 
 export type DeliverableEventName = keyof DeliverableEventMap
 
-const ANALYTICS_PATH = '/api/v1/analytics/events'
-
 function postAnalyticsEvent<TEvent extends DeliverableEventName>(
-  name: TEvent,
-  payload: DeliverableEventMap[TEvent],
+  _name: TEvent,
+  _payload: DeliverableEventMap[TEvent],
 ): void {
-  const event = {
-    event_name: name,
-    properties: { ...payload },
-    occurred_at: new Date().toISOString(),
-  }
-  void customFetch(ANALYTICS_PATH, {
-    method: 'POST',
-    body: JSON.stringify(event),
-  }).catch(() => {
-    /* fire-and-forget: analytics errors must never break UX */
-  })
+  // no-op until backend analytics endpoint is defined in OpenAPI
 }
 
 export function trackUploadStarted(

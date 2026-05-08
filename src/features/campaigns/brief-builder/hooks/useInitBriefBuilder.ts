@@ -1,5 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
-import { customFetch, ApiError } from '#/shared/api/mutator'
+import { initBriefBuilder } from '#/shared/api/generated/campaigns/campaigns'
+import type { BriefBuilderInitResponse } from '#/shared/api/generated/model'
+import { ApiError } from '#/shared/api/mutator'
 
 interface InitBriefBuilderParams {
   brandWorkspaceId: string
@@ -8,28 +10,19 @@ interface InitBriefBuilderParams {
   pdfFile: File | null
 }
 
-interface InitBriefBuilderResponse {
-  data: { processing_token: string }
-  status: number
-  headers: Headers
-}
-
+// `customFetch` (mutator) throws on non-2xx; the union with Error in the
+// generated response type is defensive — runtime always reaches the 201 branch.
 export function useInitBriefBuilder() {
   return useMutation({
-    mutationFn: async (params: InitBriefBuilderParams) => {
-      const formData = new FormData()
-      formData.append('brand_workspace_id', params.brandWorkspaceId)
-      formData.append('website_url', params.websiteUrl)
-      formData.append('description_text', params.descriptionText)
-      if (params.pdfFile) {
-        formData.append('pdf_file', params.pdfFile)
-      }
-
-      const result = await customFetch<InitBriefBuilderResponse>(
-        '/api/v1/campaigns/brief-builder/init',
-        { method: 'POST', body: formData },
-      )
-
+    mutationFn: async (
+      params: InitBriefBuilderParams,
+    ): Promise<BriefBuilderInitResponse> => {
+      const result = (await initBriefBuilder({
+        brand_workspace_id: params.brandWorkspaceId,
+        website_url: params.websiteUrl,
+        description_text: params.descriptionText,
+        pdf: params.pdfFile ?? undefined,
+      })) as { data: BriefBuilderInitResponse }
       return result.data
     },
   })

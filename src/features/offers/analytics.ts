@@ -1,4 +1,5 @@
-import { customFetch } from '#/shared/api/mutator'
+// Analytics soft-disabled: backend endpoint not yet defined in OpenAPI.
+// Re-enable by routing through the Orval-generated client once the endpoint exists.
 
 export type AmountBucket =
   | '<500'
@@ -89,8 +90,6 @@ interface OfferEventMap {
 
 export type OfferEventName = keyof OfferEventMap
 
-const ANALYTICS_PATH = '/api/v1/analytics/events'
-
 const seenOfferIds = new Set<string>()
 
 export function markOfferSeen(
@@ -108,20 +107,10 @@ export function resetSeenOffers(): void {
 }
 
 export function trackOfferEvent<TEvent extends OfferEventName>(
-  name: TEvent,
-  payload: OfferEventMap[TEvent],
+  _name: TEvent,
+  _payload: OfferEventMap[TEvent],
 ): void {
-  const event = {
-    event: name,
-    properties: { ...payload },
-    timestamp: new Date().toISOString(),
-  }
-  void customFetch(ANALYTICS_PATH, {
-    method: 'POST',
-    body: JSON.stringify(event),
-  }).catch(() => {
-    /* fire-and-forget: analytics errors must never break UX */
-  })
+  // no-op until backend analytics endpoint is defined in OpenAPI
 }
 
 export function toAmountBucket(

@@ -4,8 +4,7 @@ import { axe } from 'vitest-axe'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { CampaignBriefPage } from './CampaignBriefPage'
 import { ApiError } from '#/shared/api/mutator'
-import type { BriefDraft } from '../brief-builder/store'
-import type { CampaignBriefResponse } from '../hooks/useCampaignBrief'
+import type { CampaignBriefResponse } from '#/shared/api/generated/model'
 
 const mockCustomFetch = vi.fn()
 
@@ -33,48 +32,22 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }))
 
-function makeDraft(): BriefDraft {
-  return {
-    campaign: {
-      name: 'Test Campaign',
-      objective: 'brand_awareness',
-      budget_amount: 5000,
-      budget_currency: 'USD',
-      deadline: '2026-06-01',
-    },
-    brief: {
-      icp_description: 'Creadores fitness LatAm',
-      icp_age_min: 18,
-      icp_age_max: 35,
-      icp_genders: ['male', 'female'],
-      icp_countries: ['AR', 'MX'],
-      icp_platforms: ['instagram', 'tiktok'],
-      icp_interests: ['fitness', 'nutrición'],
-      scoring_dimensions: [
-        {
-          id: 'dim-1',
-          name: 'Engagement',
-          description: 'Engagement rate alto',
-          weight_pct: 60,
-          positive_signals: [],
-          negative_signals: [],
-        },
-      ],
-      hard_filters: [
-        { id: 'hf-1', filter_type: 'min_followers', filter_value: '10000' },
-      ],
-      disqualifiers: ['Contenido político'],
-    },
-  }
-}
-
 function makeBriefResponse(
   overrides?: Partial<CampaignBriefResponse>,
 ): CampaignBriefResponse {
   return {
     campaign_id: 'campaign-123',
-    campaign_name: 'Mi Campaña',
-    draft: makeDraft(),
+    brief_source_url: 'https://example.com',
+    icp_description: 'Creadores fitness LatAm',
+    icp_age_min: 18,
+    icp_age_max: 35,
+    icp_genders: ['male', 'female'],
+    icp_countries: ['AR', 'MX'],
+    icp_platforms: ['instagram', 'tiktok'],
+    icp_interests: ['fitness', 'nutrición'],
+    scoring_dimensions: [{ name: 'Engagement', weight_pct: 60 }],
+    hard_filters: [{ field: 'min_followers', operator: 'eq', value: '10000' }],
+    disqualifiers: ['Contenido político'],
     ...overrides,
   }
 }
@@ -114,14 +87,10 @@ describe('CampaignBriefPage', () => {
     })
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Resumen del brief — Mi Campaña'),
-      ).toBeInTheDocument()
+      expect(screen.getByText('ICP')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Campaña')).toBeInTheDocument()
-    expect(screen.getByText('Test Campaign')).toBeInTheDocument()
-    expect(screen.getByText('ICP')).toBeInTheDocument()
+    expect(screen.getByText('Resumen del brief')).toBeInTheDocument()
     expect(screen.getByText('Creadores fitness LatAm')).toBeInTheDocument()
     expect(screen.getByText('Scoring Dimensions')).toBeInTheDocument()
   })
@@ -154,9 +123,7 @@ describe('CampaignBriefPage', () => {
     )
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Resumen del brief — Mi Campaña'),
-      ).toBeInTheDocument()
+      expect(screen.getByText('Resumen del brief')).toBeInTheDocument()
     })
 
     expect(await axe(container)).toHaveNoViolations()

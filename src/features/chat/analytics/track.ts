@@ -1,4 +1,5 @@
-import { customFetch } from '#/shared/api/mutator'
+// Analytics soft-disabled: backend endpoint not yet defined in OpenAPI.
+// Re-enable by routing through the Orval-generated client once the endpoint exists.
 
 type LengthBucket = '<50' | '50-200' | '200-500' | '500-2000' | '2000+'
 
@@ -43,23 +44,11 @@ interface ChatEventMap {
 
 export type ChatEventName = keyof ChatEventMap
 
-const ANALYTICS_PATH = '/api/v1/analytics/events'
-
 export function trackChatEvent<TEvent extends ChatEventName>(
-  name: TEvent,
-  payload: ChatEventMap[TEvent],
+  _name: TEvent,
+  _payload: ChatEventMap[TEvent],
 ): void {
-  const event = {
-    event: name,
-    properties: { ...payload },
-    timestamp: new Date().toISOString(),
-  }
-  void customFetch(ANALYTICS_PATH, {
-    method: 'POST',
-    body: JSON.stringify(event),
-  }).catch(() => {
-    /* fire-and-forget: analytics errors must never break UX */
-  })
+  // no-op until backend analytics endpoint is defined in OpenAPI
 }
 
 export function toLengthBucket(length: number): LengthBucket {

@@ -1,5 +1,5 @@
-import { customFetch } from '#/shared/api/mutator'
-import { env } from '#/env'
+// Analytics soft-disabled: backend endpoint not yet defined in OpenAPI.
+// Re-enable by routing through the Orval-generated client once the endpoint exists.
 
 interface BriefBuilderStartedPayload {
   workspace_id: string
@@ -11,56 +11,20 @@ interface BriefBuilderAbandonedPayload {
   processing_token: string | null
 }
 
-interface AnalyticsEvent {
-  event: string
-  properties: Record<string, unknown>
-  timestamp: string
-}
-
-function buildEvent(
-  name: string,
-  properties: Record<string, unknown>,
-  timestamp?: string,
-): AnalyticsEvent {
-  return {
-    event: name,
-    properties,
-    timestamp: timestamp ?? new Date().toISOString(),
-  }
-}
-
-const ANALYTICS_PATH = '/api/v1/analytics/events'
-
-function getAnalyticsFullUrl(): string {
-  return `${env.VITE_API_URL.replace(/\/$/, '')}${ANALYTICS_PATH}`
-}
-
 export function trackBriefBuilderStarted(
-  payload: BriefBuilderStartedPayload,
+  _payload: BriefBuilderStartedPayload,
 ): void {
-  const event = buildEvent('brief_builder_started', { ...payload })
-  void customFetch(ANALYTICS_PATH, {
-    method: 'POST',
-    body: JSON.stringify(event),
-  })
+  // no-op until backend analytics endpoint is defined in OpenAPI
 }
 
 export function trackBriefBuilderAbandoned(
-  payload: BriefBuilderAbandonedPayload,
+  _payload: BriefBuilderAbandonedPayload,
 ): void {
-  const event = buildEvent('brief_builder_abandoned', { ...payload })
-  void customFetch(ANALYTICS_PATH, {
-    method: 'POST',
-    body: JSON.stringify(event),
-  })
+  // no-op until backend analytics endpoint is defined in OpenAPI
 }
 
 export function trackBriefBuilderAbandonedBeacon(
-  payload: BriefBuilderAbandonedPayload,
+  _payload: BriefBuilderAbandonedPayload,
 ): void {
-  const event = buildEvent('brief_builder_abandoned', { ...payload })
-  const blob = new Blob([JSON.stringify(event)], {
-    type: 'application/json',
-  })
-  navigator.sendBeacon(getAnalyticsFullUrl(), blob)
+  // no-op until backend analytics endpoint is defined in OpenAPI
 }
