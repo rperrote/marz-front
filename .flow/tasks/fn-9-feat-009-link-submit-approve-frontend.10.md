@@ -19,8 +19,7 @@ Evidence from 2026-05-08:
 - [ ] TBD
 
 ## Done summary
-TBD
-
+Analytics de 4 eventos link implementados correctamente: postEvent via customFetch, useTrackOnceVisible con IntersectionObserver + sessionStorage, tests unitarios por evento y por componente, sin violaciones del rubric
 ## Evidence
 - Commits:
 - Tests:
