@@ -6,6 +6,7 @@ export type DeliverableStatus =
   | 'link_submitted'
   | 'link_approved'
   | 'completed'
+  | 'paid'
 
 export type OfferType = 'single' | 'bundle' | 'multistage'
 

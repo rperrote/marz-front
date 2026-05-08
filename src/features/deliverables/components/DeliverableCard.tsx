@@ -1,30 +1,9 @@
 import { Film, Instagram, Music, Plus, Twitter, Youtube } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-import { Badge } from '#/components/ui/badge'
 import { cn } from '#/lib/utils'
-
-export type DeliverableStatus =
-  | 'pending'
-  | 'draft_submitted'
-  | 'changes_requested'
-  | 'draft_approved'
-  | 'link_submitted'
-  | 'link_approved'
-  | 'completed'
-
-const statusBadge: Record<
-  DeliverableStatus,
-  { label: string; tone: 'info' | 'success' | 'destructive' | 'neutral' }
-> = {
-  pending: { label: 'Pending', tone: 'neutral' },
-  draft_submitted: { label: 'In review', tone: 'info' },
-  changes_requested: { label: 'Changes requested', tone: 'destructive' },
-  draft_approved: { label: 'Approved', tone: 'success' },
-  link_submitted: { label: 'Link review', tone: 'info' },
-  link_approved: { label: 'Live', tone: 'success' },
-  completed: { label: 'Completed', tone: 'success' },
-}
+import type { DeliverableStatus } from '#/features/deliverables/types'
+import { DeliverableStatusBadge } from './DeliverableStatusBadge'
 
 const platformIcon: Record<string, LucideIcon> = {
   youtube: Youtube,
@@ -59,7 +38,6 @@ export function DeliverableCard({
   emptyLabel = 'Upload draft',
 }: DeliverableCardProps) {
   const PlatformIcon = platformIcon[platform] ?? Film
-  const badge = statusBadge[status]
   const hasDrafts = drafts.length > 0
 
   return (
@@ -69,7 +47,7 @@ export function DeliverableCard({
         <h4 className="flex-1 truncate text-sm font-semibold text-foreground">
           {title}
         </h4>
-        <StatusBadge label={badge.label} tone={badge.tone} />
+        <DeliverableStatusBadge status={status} />
       </header>
 
       {hasDrafts ? (
@@ -123,20 +101,4 @@ function DraftRow({ draft }: { draft: DraftEntry }) {
       </div>
     </li>
   )
-}
-
-function StatusBadge({
-  label,
-  tone,
-}: {
-  label: string
-  tone: 'info' | 'success' | 'destructive' | 'neutral'
-}) {
-  const toneClass: Record<typeof tone, string> = {
-    info: 'bg-info text-info-foreground',
-    success: 'bg-success text-success-foreground',
-    destructive: 'bg-destructive text-destructive-foreground',
-    neutral: 'bg-muted text-foreground',
-  }
-  return <Badge className={cn('rounded-full', toneClass[tone])}>{label}</Badge>
 }

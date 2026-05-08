@@ -14,6 +14,7 @@ import { Badge } from '#/components/ui/badge'
 import { cn } from '#/lib/utils'
 import type { DeliverableDTO, StageStatus } from '#/features/deliverables/types'
 import { DraftVersionList } from './DraftVersionList'
+import { DeliverableStatusBadge } from './DeliverableStatusBadge'
 
 const platformIcon: Record<string, LucideIcon> = {
   youtube: Youtube,
@@ -22,24 +23,12 @@ const platformIcon: Record<string, LucideIcon> = {
   twitter_x: Twitter,
 }
 
-const statusMeta: Record<
-  DeliverableDTO['status'],
-  { label: string; tone: 'info' | 'success' | 'destructive' | 'neutral' }
-> = {
-  pending: { label: t`Pending`, tone: 'neutral' },
-  draft_submitted: { label: t`In review`, tone: 'info' },
-  changes_requested: { label: t`Changes requested`, tone: 'destructive' },
-  draft_approved: { label: t`Approved`, tone: 'success' },
-  link_submitted: { label: t`Link review`, tone: 'info' },
-  link_approved: { label: t`Live`, tone: 'success' },
-  completed: { label: t`Completed`, tone: 'success' },
-}
-
 const nonUploadableStatuses: ReadonlySet<DeliverableDTO['status']> = new Set([
   'draft_approved',
   'link_submitted',
   'link_approved',
   'completed',
+  'paid',
 ])
 
 export interface DeliverableListItemProps {
@@ -56,7 +45,6 @@ export function DeliverableListItem({
   onUploadDraft,
 }: DeliverableListItemProps) {
   const PlatformIcon = platformIcon[deliverable.platform] ?? Film
-  const badge = statusMeta[deliverable.status]
   const isLocked = stageStatus === 'locked'
   const isNonUploadable = nonUploadableStatuses.has(deliverable.status)
 
@@ -100,7 +88,10 @@ export function DeliverableListItem({
             <span className="truncate text-sm font-medium text-foreground">
               {deliverable.format}
             </span>
-            <StatusBadge label={badge.label} tone={badge.tone} />
+            <DeliverableStatusBadge
+              status={deliverable.status}
+              className="text-[10px]"
+            />
             {deliverable.change_requests_count > 0 && (
               <Badge variant="secondary" className="rounded-full text-[10px]">
                 {deliverable.change_requests_count} {t`rounds`}
@@ -148,25 +139,5 @@ export function DeliverableListItem({
         </div>
       ) : null}
     </div>
-  )
-}
-
-function StatusBadge({
-  label,
-  tone,
-}: {
-  label: string
-  tone: 'info' | 'success' | 'destructive' | 'neutral'
-}) {
-  const toneClass: Record<typeof tone, string> = {
-    info: 'bg-info text-info-foreground',
-    success: 'bg-success text-success-foreground',
-    destructive: 'bg-destructive text-destructive-foreground',
-    neutral: 'bg-muted text-foreground',
-  }
-  return (
-    <Badge className={cn('rounded-full text-[10px]', toneClass[tone])}>
-      {label}
-    </Badge>
   )
 }
