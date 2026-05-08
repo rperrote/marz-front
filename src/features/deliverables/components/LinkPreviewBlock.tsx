@@ -3,22 +3,33 @@ import type { ReactNode } from 'react'
 
 import { cn } from '#/lib/utils'
 import type { PublishedLinkPreview } from '#/features/deliverables/types'
+import { trackLinkUrlClicked } from '#/features/deliverables/analytics'
+
+export interface LinkPreviewAnalyticsContext {
+  deliverableId: string
+  linkId: string
+  platform: string
+  outcome?: PublishedLinkPreview['outcome']
+}
 
 interface LinkPreviewBlockProps {
   preview: PublishedLinkPreview
   url: string
+  analytics?: LinkPreviewAnalyticsContext
   className?: string
 }
 
 export function LinkPreviewBlock({
   preview,
   url,
+  analytics,
   className,
 }: LinkPreviewBlockProps) {
   if (preview.outcome !== 'title_and_thumbnail') {
     return (
       <LinkPreviewAnchor
         url={url}
+        analytics={analytics}
         className={cn(
           'flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 font-mono text-sm text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           className,
@@ -34,6 +45,7 @@ export function LinkPreviewBlock({
   return (
     <LinkPreviewAnchor
       url={url}
+      analytics={analytics}
       className={cn(
         'group flex overflow-hidden rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className,
@@ -73,18 +85,33 @@ export function LinkPreviewBlock({
 
 function LinkPreviewAnchor({
   url,
+  analytics,
   className,
   children,
 }: {
   url: string
+  analytics?: LinkPreviewAnalyticsContext
   className: string
   children: ReactNode
 }) {
+  const handleClick = () => {
+    if (!analytics) return
+    trackLinkUrlClicked({
+      deliverable_id: analytics.deliverableId,
+      link_id: analytics.linkId,
+      platform: analytics.platform,
+      ...(analytics.outcome === undefined
+        ? {}
+        : { outcome: analytics.outcome }),
+    })
+  }
+
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={handleClick}
       className={className}
     >
       {children}

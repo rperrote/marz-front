@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
@@ -7,8 +7,13 @@ import { SystemEventCard } from '#/shared/ui/SystemEventCard'
 import { formatMessageDateTime } from '#/shared/ui/formatMessageDateTime'
 import { getRecord, getString } from '#/shared/utils/record'
 import { ChangeCategoryChip } from './ChangeCategoryChip'
-import { trackRequestChangesCardSeen } from '#/features/deliverables/analytics'
+import {
+  trackLinkCardSeen,
+  trackRequestChangesCardSeen,
+  useTrackOnceVisible,
+} from '#/features/deliverables/analytics'
 import type { DraftTimelineMessage } from '../types'
+import type { PublishedLinkPreview } from '#/features/deliverables/types'
 import type {
   ChangesRequestedSnapshot,
   LinkChangesRequestedSnapshot,
@@ -74,6 +79,8 @@ const CATEGORY_LABELS: Record<string, () => string> = {
   other: () => t`Other`,
 }
 
+const urlOnlyPreview: PublishedLinkPreview = { outcome: 'url_only' }
+
 export function RequestChangesCard({
   message,
   currentAccountId,
@@ -87,6 +94,27 @@ export function RequestChangesCard({
   )
   const cardRef = useRef<HTMLDivElement>(null)
   const seenRef = useRef(false)
+  const linkPreview = useMemo<PublishedLinkPreview | null>(
+    () =>
+      snapshot?.target === 'link'
+        ? (parseLinkPreview(snapshot.link.preview) ?? urlOnlyPreview)
+        : null,
+    [snapshot],
+  )
+  const handleLinkCardSeen = useCallback(() => {
+    if (snapshot?.target !== 'link') return
+    trackLinkCardSeen({
+      deliverable_id: snapshot.deliverable_id,
+      link_id: snapshot.link.id,
+      platform: snapshot.deliverable_platform,
+      outcome: linkPreview?.outcome ?? 'url_only',
+    })
+  }, [linkPreview?.outcome, snapshot])
+  useTrackOnceVisible(
+    cardRef,
+    snapshot?.target === 'link' ? `link_card_seen:${snapshot.link.id}` : null,
+    handleLinkCardSeen,
+  )
 
   useEffect(() => {
     if (!snapshot || sessionKind !== 'creator' || !cardRef.current) return
@@ -181,12 +209,14 @@ export function RequestChangesCard({
 
             {snapshot.target === 'link' ? (
               <LinkPreviewBlock
-                preview={
-                  parseLinkPreview(snapshot.link.preview) ?? {
-                    outcome: 'url_only',
-                  }
-                }
+                preview={linkPreview ?? urlOnlyPreview}
                 url={snapshot.link.url}
+                analytics={{
+                  deliverableId: snapshot.deliverable_id,
+                  linkId: snapshot.link.id,
+                  platform: snapshot.deliverable_platform,
+                  outcome: linkPreview?.outcome ?? 'url_only',
+                }}
               />
             ) : null}
 

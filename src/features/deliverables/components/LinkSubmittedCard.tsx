@@ -5,7 +5,7 @@ import {
   Youtube,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
@@ -14,6 +14,10 @@ import { useMe } from '#/shared/api/generated/accounts/accounts'
 import { getRecord, getString } from '#/shared/utils/record'
 import type { PublishedLinkPreview } from '#/features/deliverables/types'
 import { useApproveLink } from '#/features/deliverables/hooks/useApproveLink'
+import {
+  trackLinkCardSeen,
+  useTrackOnceVisible,
+} from '#/features/deliverables/analytics'
 import type { DraftTimelineMessage } from '../types'
 import type { LinkSubmittedSnapshot } from '#/shared/ws/types'
 import { LinkPreviewBlock } from './LinkPreviewBlock'
@@ -83,10 +87,30 @@ export function LinkSubmittedCard({
     snapshot?.deliverable_id ?? '',
     snapshot?.link.id ?? '',
   )
+  const cardRef = useRef<HTMLDivElement>(null)
+  const preview = useMemo(
+    () => (snapshot ? parseLinkPreview(snapshot.link.preview) : null),
+    [snapshot],
+  )
+  const handleCardSeen = useCallback(() => {
+    if (!snapshot) return
+    trackLinkCardSeen({
+      deliverable_id: snapshot.deliverable_id,
+      link_id: snapshot.link.id,
+      platform:
+        snapshot.deliverable_platform ||
+        parsePlatformFromUrl(snapshot.link.url),
+      ...(preview?.outcome === undefined ? {} : { outcome: preview.outcome }),
+    })
+  }, [preview?.outcome, snapshot])
+  useTrackOnceVisible(
+    cardRef,
+    snapshot ? `link_card_seen:${snapshot.link.id}` : null,
+    handleCardSeen,
+  )
 
   if (!snapshot) return null
 
-  const preview = parseLinkPreview(snapshot.link.preview)
   const platform =
     snapshot.deliverable_platform || parsePlatformFromUrl(snapshot.link.url)
   const PlatformIcon = platformIcon[platform] ?? LinkIcon
@@ -109,14 +133,28 @@ export function LinkSubmittedCard({
   }
 
   return (
-    <SystemEventCard tone="success" kicker={t`Published link`} icon={LinkIcon}>
+    <SystemEventCard
+      ref={cardRef}
+      tone="success"
+      kicker={t`Published link`}
+      icon={LinkIcon}
+    >
       <div className="space-y-4">
         <p className="text-sm text-foreground">
           {snapshot.message ?? t`Just published! Sharing the link here.`}
         </p>
 
         {preview ? (
-          <LinkPreviewBlock preview={preview} url={snapshot.link.url} />
+          <LinkPreviewBlock
+            preview={preview}
+            url={snapshot.link.url}
+            analytics={{
+              deliverableId: snapshot.deliverable_id,
+              linkId: snapshot.link.id,
+              platform,
+              outcome: preview.outcome,
+            }}
+          />
         ) : (
           <a
             href={snapshot.link.url}

@@ -17,6 +17,8 @@ const mockTrackRequestChangesCardSeen = vi.fn()
 vi.mock('../../analytics', () => ({
   trackRequestChangesCardSeen: (...args: unknown[]) =>
     mockTrackRequestChangesCardSeen(...args),
+  trackLinkCardSeen: vi.fn(),
+  useTrackOnceVisible: vi.fn(),
 }))
 
 class FakeIntersectionObserver {

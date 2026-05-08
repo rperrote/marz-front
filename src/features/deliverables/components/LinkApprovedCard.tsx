@@ -1,8 +1,12 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { t } from '@lingui/core/macro'
 
 import { EventBubble } from '#/shared/ui/EventBubble'
 import { getRecord, getString } from '#/shared/utils/record'
+import {
+  trackLinkCardSeen,
+  useTrackOnceVisible,
+} from '#/features/deliverables/analytics'
 import type { DraftTimelineMessage } from '../types'
 import type { LinkApprovedSnapshot } from '#/shared/ws/types'
 
@@ -23,6 +27,22 @@ export function LinkApprovedCard({
     () => extractSnapshot(message.payload),
     [message.payload],
   )
+  const cardRef = useRef<HTMLDivElement>(null)
+  const outcome = snapshot ? extractPreviewOutcome(snapshot.link.preview) : null
+  const handleCardSeen = useCallback(() => {
+    if (!snapshot) return
+    trackLinkCardSeen({
+      deliverable_id: snapshot.deliverable_id,
+      link_id: snapshot.link.id,
+      platform: snapshot.deliverable_platform,
+      ...(outcome === null ? {} : { outcome }),
+    })
+  }, [outcome, snapshot])
+  useTrackOnceVisible(
+    cardRef,
+    snapshot ? `link_card_seen:${snapshot.link.id}` : null,
+    handleCardSeen,
+  )
 
   if (!snapshot) return null
 
@@ -30,7 +50,11 @@ export function LinkApprovedCard({
     snapshot.approved_by_account_id === currentAccountId ? 'out' : 'in'
 
   return (
-    <div className="flex justify-center py-1" data-testid="link-approved-card">
+    <div
+      ref={cardRef}
+      className="flex justify-center py-1"
+      data-testid="link-approved-card"
+    >
       <EventBubble severity="success" direction={direction}>
         <span>{t`Link approved`}</span>
         <a
@@ -72,4 +96,18 @@ function extractSnapshot(
     approved_at: getString(snapshot.approved_at) ?? '',
     approved_by_account_id: getString(snapshot.approved_by_account_id) ?? '',
   }
+}
+
+function extractPreviewOutcome(
+  preview: unknown,
+): 'title_and_thumbnail' | 'url_only' | 'failed' | null {
+  const outcome = getString(getRecord(preview)?.outcome)
+  if (
+    outcome === 'title_and_thumbnail' ||
+    outcome === 'url_only' ||
+    outcome === 'failed'
+  ) {
+    return outcome
+  }
+  return null
 }

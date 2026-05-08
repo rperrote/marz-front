@@ -55,7 +55,7 @@ export interface DeliverableListItemProps {
   stageStatus?: StageStatus
   sessionKind: 'brand' | 'creator'
   onUploadDraft: (deliverableId: string) => void
-  onSubmitLink?: (deliverableId: string) => void
+  onSubmitLink?: (deliverableId: string, isResubmission: boolean) => void
 }
 
 export function DeliverableListItem({
@@ -114,7 +114,7 @@ export function DeliverableListItem({
   }
 
   const handleSubmitLinkClick = () => {
-    onSubmitLink?.(deliverable.id)
+    onSubmitLink?.(deliverable.id, hasPreviousLinkChanges)
   }
 
   return (

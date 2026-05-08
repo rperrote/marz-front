@@ -17,6 +17,11 @@ import {
   getSubmitLinkErrorMessage,
   useSubmitLinkMutation,
 } from '#/features/deliverables/hooks/useSubmitLink'
+import {
+  trackLinkPreviewResolved,
+  trackLinkSubmitOpened,
+} from '#/features/deliverables/analytics'
+import type { DeliverableDTO } from '#/features/deliverables/types'
 
 const submitLinkSchema = z.object({
   url: z
@@ -29,6 +34,8 @@ interface SubmitLinkSidesheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   deliverableId: string
+  platform: DeliverableDTO['platform']
+  isResubmission?: boolean
   onSubmitted?: () => void
 }
 
@@ -36,6 +43,8 @@ export function SubmitLinkSidesheet({
   open,
   onOpenChange,
   deliverableId,
+  platform,
+  isResubmission,
   onSubmitted,
 }: SubmitLinkSidesheetProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -50,11 +59,23 @@ export function SubmitLinkSidesheet({
       setErrorMessage(null)
 
       try {
-        await mutation.mutateAsync({
+        const response = await mutation.mutateAsync({
           deliverableId,
           body: { url: value.url.trim() },
           idempotencyKey,
         })
+        const preview = response.data.link.preview
+        if (preview?.outcome) {
+          trackLinkPreviewResolved({
+            deliverable_id: deliverableId,
+            link_id: response.data.link.id,
+            platform,
+            outcome: preview.outcome,
+            ...(isResubmission === undefined
+              ? {}
+              : { is_resubmission: isResubmission }),
+          })
+        }
         onSubmitted?.()
         handleOpenChange(false)
       } catch (error) {
@@ -76,11 +97,18 @@ export function SubmitLinkSidesheet({
 
   useEffect(() => {
     if (!open) return
+    trackLinkSubmitOpened({
+      deliverable_id: deliverableId,
+      platform,
+      ...(isResubmission === undefined
+        ? {}
+        : { is_resubmission: isResubmission }),
+    })
     form.reset()
     setErrorMessage(null)
     setIdempotencyKey(createUlid())
     reset()
-  }, [form, open, reset])
+  }, [deliverableId, form, isResubmission, open, platform, reset])
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {

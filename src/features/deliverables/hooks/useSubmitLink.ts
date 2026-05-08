@@ -13,7 +13,9 @@ export interface SubmitLinkBody {
 }
 
 export interface SubmitLinkResponse {
-  link: PublishedLink
+  link: Omit<PublishedLink, 'preview'> & {
+    preview?: PublishedLink['preview']
+  }
 }
 
 interface SubmitLinkMutationParams {
