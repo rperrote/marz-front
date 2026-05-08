@@ -17,6 +17,7 @@ import { cn } from '#/lib/utils'
 import { InlineVideoPlayer } from './InlineVideoPlayer'
 import { ChangeCategoryChip } from './ChangeCategoryChip'
 import { useRequestChangesFlow } from '#/features/deliverables/hooks/useRequestChangesFlow'
+import { useRequestLinkChanges } from '#/features/deliverables/hooks/useRequestLinkChanges'
 import {
   trackRequestChangesModalDismissed,
   trackRequestChangesModalOpened,
@@ -37,9 +38,11 @@ const NOTES_MAX_LENGTH = 4000
 interface RequestChangesModalProps {
   title: string
   triggerLabel?: string
+  target?: 'draft' | 'link'
   /** Required for real usage; optional for design-system showcase. */
   deliverableId?: string
   draftId?: string
+  linkId?: string
   playbackUrl?: string
   thumbnailUrl?: string
   durationSec?: number
@@ -58,9 +61,11 @@ interface RequestChangesModalProps {
 
 export function RequestChangesModal({
   title,
-  triggerLabel = t`Request changes`,
+  triggerLabel,
+  target = 'draft',
   deliverableId,
   draftId,
+  linkId,
   playbackUrl,
   thumbnailUrl,
   durationSec,
@@ -71,13 +76,19 @@ export function RequestChangesModal({
   trigger,
   analytics,
 }: RequestChangesModalProps) {
-  const isReal = deliverableId != null && draftId != null
+  const isReal =
+    deliverableId != null &&
+    (target === 'draft' ? draftId != null : linkId != null)
   const openedAtRef = useRef<number | null>(null)
   const submittedRef = useRef(false)
+  const actionLabel =
+    target === 'link' ? t`Request changes on link` : t`Request changes on draft`
+  const resolvedTriggerLabel = triggerLabel ?? t`Request changes`
 
-  const flow = useRequestChangesFlow(deliverableId ?? '', draftId ?? '', {
+  const draftFlow = useRequestChangesFlow(deliverableId ?? '', draftId ?? '', {
     onSuccess: () => {
       submittedRef.current = true
+      setOpen(false)
       onSubmitted?.()
       onClose?.()
     },
@@ -86,6 +97,18 @@ export function RequestChangesModal({
     },
     analytics,
   })
+  const linkFlow = useRequestLinkChanges(deliverableId ?? '', linkId ?? '', {
+    onSuccess: () => {
+      submittedRef.current = true
+      setOpen(false)
+      onSubmitted?.()
+      onClose?.()
+    },
+    onConflict: () => {
+      onClose?.()
+    },
+  })
+  const flow = target === 'draft' ? draftFlow : linkFlow
 
   const [localCategories, setLocalCategories] = useState<Set<ChangeCategory>>(
     new Set(),
@@ -198,13 +221,14 @@ export function RequestChangesModal({
     error?.kind === 'field' && error.field === 'notes'
       ? notesErrorId
       : notesHintId
+  const showMedia = target === 'draft'
 
   const body = (
     <div className="space-y-5">
       <header className="flex items-start justify-between gap-4 border-b border-border pb-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-destructive">
-            {t`Request changes`}
+            {actionLabel}
           </p>
           <h2 className="text-lg font-semibold text-foreground">{title}</h2>
         </div>
@@ -219,24 +243,26 @@ export function RequestChangesModal({
         ) : null}
       </header>
 
-      {playbackUrl ? (
-        <InlineVideoPlayer
-          playbackUrl={playbackUrl}
-          thumbnailUrl={thumbnailUrl}
-          durationSec={durationSec}
-          aspect={aspect}
-          deliverableId={deliverableId}
-          draftId={draftId}
-        />
-      ) : (
-        <div className="aspect-video w-full rounded-lg bg-muted">
-          <div className="flex h-full items-center justify-center">
-            <div className="flex size-16 items-center justify-center rounded-full bg-foreground/70 text-background">
-              <Play className="size-7" />
+      {showMedia ? (
+        playbackUrl ? (
+          <InlineVideoPlayer
+            playbackUrl={playbackUrl}
+            thumbnailUrl={thumbnailUrl}
+            durationSec={durationSec}
+            aspect={aspect}
+            deliverableId={deliverableId}
+            draftId={draftId}
+          />
+        ) : (
+          <div className="aspect-video w-full rounded-lg bg-muted">
+            <div className="flex h-full items-center justify-center">
+              <div className="flex size-16 items-center justify-center rounded-full bg-foreground/70 text-background">
+                <Play className="size-7" />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      ) : null}
 
       <div className="space-y-3">
         <Label className="text-sm font-semibold text-foreground">
@@ -321,7 +347,7 @@ export function RequestChangesModal({
           disabled={!canSubmit || isSubmitting}
           onClick={handleSubmit}
         >
-          {isSubmitting ? t`Sending…` : t`Send request`}
+          {isSubmitting ? t`Sending…` : actionLabel}
         </Button>
       </div>
     </div>
@@ -339,12 +365,14 @@ export function RequestChangesModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {trigger ?? <Button variant="outline">{triggerLabel}</Button>}
+        {trigger ?? <Button variant="outline">{resolvedTriggerLabel}</Button>}
       </DialogTrigger>
       <DialogContent className="max-w-xl">
-        <DialogTitle className="sr-only">{title}</DialogTitle>
+        <DialogTitle className="sr-only">{actionLabel}</DialogTitle>
         <DialogDescription className="sr-only">
-          {t`Request changes for this draft`}
+          {target === 'link'
+            ? t`Request changes for this link`
+            : t`Request changes for this draft`}
         </DialogDescription>
         {body}
       </DialogContent>

@@ -13,9 +13,11 @@ import { SystemEventCard } from '#/shared/ui/SystemEventCard'
 import { useMe } from '#/shared/api/generated/accounts/accounts'
 import { getRecord, getString } from '#/shared/utils/record'
 import type { PublishedLinkPreview } from '#/features/deliverables/types'
+import { useApproveLink } from '#/features/deliverables/hooks/useApproveLink'
 import type { DraftTimelineMessage } from '../types'
 import type { LinkSubmittedSnapshot } from '#/shared/ws/types'
 import { LinkPreviewBlock } from './LinkPreviewBlock'
+import { RequestChangesModal } from './RequestChangesModal'
 
 const platformIcon: Record<string, LucideIcon> = {
   youtube: Youtube,
@@ -77,6 +79,10 @@ export function LinkSubmittedCard({
     [message.payload],
   )
   const meQuery = useMe()
+  const approveLink = useApproveLink(
+    snapshot?.deliverable_id ?? '',
+    snapshot?.link.id ?? '',
+  )
 
   if (!snapshot) return null
 
@@ -93,6 +99,14 @@ export function LinkSubmittedCard({
     sessionKind === 'brand' &&
     isBrandOwner &&
     snapshot.link.status === 'submitted'
+  const handleApproveLink = () => {
+    if (onApproveLink) {
+      onApproveLink(snapshot)
+      return
+    }
+
+    approveLink.mutate()
+  }
 
   return (
     <SystemEventCard tone="success" kicker={t`Published link`} icon={LinkIcon}>
@@ -120,17 +134,32 @@ export function LinkSubmittedCard({
           <div className="flex gap-2">
             <Button
               className="flex-1"
-              onClick={() => onApproveLink?.(snapshot)}
+              disabled={approveLink.isPending}
+              onClick={handleApproveLink}
             >
               {t`Approve link`}
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onRequestChangesOnLink?.(snapshot)}
-            >
-              {t`Request changes on link`}
-            </Button>
+            {onRequestChangesOnLink ? (
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => onRequestChangesOnLink(snapshot)}
+              >
+                {t`Request changes on link`}
+              </Button>
+            ) : (
+              <RequestChangesModal
+                title={t`Request changes on link`}
+                target="link"
+                deliverableId={snapshot.deliverable_id}
+                linkId={snapshot.link.id}
+                trigger={
+                  <Button variant="outline" className="flex-1">
+                    {t`Request changes on link`}
+                  </Button>
+                }
+              />
+            )}
           </div>
         ) : null}
       </div>

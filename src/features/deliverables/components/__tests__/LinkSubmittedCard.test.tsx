@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ReactNode } from 'react'
 
 import { LinkSubmittedCard } from '../LinkSubmittedCard'
 import type { DraftTimelineMessage } from '../../types'
@@ -14,9 +15,21 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 const mockUseMe = vi.fn()
+const mockApproveLinkMutate = vi.fn()
 
 vi.mock('#/shared/api/generated/accounts/accounts', () => ({
   useMe: () => mockUseMe(),
+}))
+
+vi.mock('#/features/deliverables/hooks/useApproveLink', () => ({
+  useApproveLink: () => ({
+    mutate: mockApproveLinkMutate,
+    isPending: false,
+  }),
+}))
+
+vi.mock('../RequestChangesModal', () => ({
+  RequestChangesModal: ({ trigger }: { trigger: ReactNode }) => trigger,
 }))
 
 function buildMessage(status = 'submitted'): DraftTimelineMessage {
@@ -62,6 +75,7 @@ function mockViewer(role: 'owner' | 'admin' | 'member') {
 describe('LinkSubmittedCard', () => {
   beforeEach(() => {
     mockViewer('owner')
+    mockApproveLinkMutate.mockClear()
   })
 
   it('shows link actions only for brand owners when the link is submitted', () => {
@@ -166,6 +180,24 @@ describe('LinkSubmittedCard', () => {
 
     expect(onApproveLink).toHaveBeenCalledTimes(1)
     expect(onRequestChangesOnLink).toHaveBeenCalledTimes(1)
+    expect(mockApproveLinkMutate).not.toHaveBeenCalled()
+  })
+
+  it('approves link with the wired mutation when no callback is provided', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <LinkSubmittedCard
+        message={buildMessage()}
+        currentAccountId="acc-brand"
+        brandWorkspaceId="brand-ws-1"
+        sessionKind="brand"
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Approve link' }))
+
+    expect(mockApproveLinkMutate).toHaveBeenCalledTimes(1)
   })
 
   it('hides link actions when owner membership belongs to another workspace', () => {

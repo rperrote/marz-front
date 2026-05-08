@@ -33,7 +33,8 @@ const statusMeta: Record<
   draft_approved: { label: t`Approved`, tone: 'success' },
   link_submitted: { label: t`Link review`, tone: 'info' },
   link_approved: { label: t`Live`, tone: 'success' },
-  completed: { label: t`Completed`, tone: 'success' },
+  // Product flow currently reaches completed only after brand link approval.
+  completed: { label: t`Link approved`, tone: 'success' },
 }
 
 const nonUploadableStatuses: ReadonlySet<DeliverableDTO['status']> = new Set([
