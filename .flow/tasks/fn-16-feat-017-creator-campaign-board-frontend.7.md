@@ -57,9 +57,8 @@ Empty states con textos exactos del spec y emisión de analytics events. Variant
 - [ ] No se emite `campaign_board_viewed` durante loading
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+Los tres fixes del round anterior aplicados correctamente. has_query usa Boolean(patch.q), no_campaigns tiene rama explícita con comentario de ticket, data-ticket acotado solo a no_campaigns. Sin nuevos problemas.
 ## Evidence
-
-_To be filled by worker on completion._
+- Commits:
+- Tests:
+- PRs:

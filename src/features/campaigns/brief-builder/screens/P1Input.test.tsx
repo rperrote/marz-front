@@ -45,6 +45,38 @@ vi.mock('#/features/identity/session/BrandSessionContext', () => ({
   useBrandSession: () => mockBrandSession,
 }))
 
+const mockBrandSession = vi.hoisted(() => ({
+  account: {
+    id: 'account-1',
+    email: 'brand@example.com',
+    kind: 'brand',
+    full_name: 'Brand User',
+    verified_at: null,
+    created_at: '2026-01-01T00:00:00.000Z',
+    redirect_to: null,
+    onboarding_status: 'onboarded',
+    creator_profile: null,
+    brand_workspace: {
+      id: 'brand-workspace-1',
+      name: 'Brand',
+      logo_url: null,
+      website_url: 'https://brand.example.com',
+      plan: 'pro',
+    },
+  },
+  brandWorkspace: {
+    id: 'brand-workspace-1',
+    name: 'Brand',
+    logo_url: null,
+    website_url: 'https://brand.example.com',
+    plan: 'pro',
+  },
+}))
+
+vi.mock('#/features/identity/session/BrandSessionContext', () => ({
+  useBrandSession: () => mockBrandSession,
+}))
+
 vi.mock('../hooks/useInitBriefBuilder', async (importOriginal) => {
   const actual = await importOriginal()
   return {
