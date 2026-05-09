@@ -15,6 +15,17 @@ vi.mock('#/shared/api/generated/creator/creator', () => ({
   useGetCreatorEarnings: mockUseGetCreatorEarnings,
 }))
 
+vi.mock('@lingui/core/macro', () => ({
+  t: Object.assign(
+    (strings: TemplateStringsArray, ...values: unknown[]) =>
+      strings.reduce(
+        (acc, str, index) => acc + str + (values[index] ?? ''),
+        '',
+      ),
+    { __lingui: true },
+  ),
+}))
+
 vi.mock('@lingui/react/macro', () => ({
   Trans: ({ children }: { children: ReactNode }) => children,
 }))
