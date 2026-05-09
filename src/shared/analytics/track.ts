@@ -21,6 +21,7 @@ type AnalyticsEvent =
   | 'brand_payments_search_used'
   | 'brand_payments_csv_exported'
   | 'brand_payments_refresh_clicked'
+  | 'brand_payment_opened'
 
 interface TrackedEvent {
   event: AnalyticsEvent

@@ -11,6 +11,7 @@ import type { PaymentMarkedSnapshot } from '#/shared/ws/types'
 interface PaymentMarkedCardProps {
   message: MessageItem
   viewer: { kind: 'brand' | 'creator' | undefined }
+  highlighted?: boolean
 }
 
 type PaymentMarkedCardSnapshot = PaymentMarkedSnapshot & {
@@ -44,7 +45,11 @@ function buildNote(snapshot: PaymentMarkedSnapshot) {
   return t`${snapshot.deliverable_display_label} · ${declaredDate}`
 }
 
-export function PaymentMarkedCard({ message, viewer }: PaymentMarkedCardProps) {
+export function PaymentMarkedCard({
+  message,
+  viewer,
+  highlighted = false,
+}: PaymentMarkedCardProps) {
   const snapshot = useMemo(
     () => extractSnapshot(message.payload),
     [message.payload],
@@ -92,6 +97,7 @@ export function PaymentMarkedCard({ message, viewer }: PaymentMarkedCardProps) {
           audience={audience}
           amount={formatOfferAmount(snapshot.amount, snapshot.currency)}
           note={buildNote(snapshot)}
+          highlighted={highlighted}
         />
       </div>
     </div>

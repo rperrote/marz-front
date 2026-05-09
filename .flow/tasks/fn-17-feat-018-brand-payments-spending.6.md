@@ -54,9 +54,8 @@ Click en fila de pagos navega a la conversation existente con search param `high
 - [ ] E2E mínimo: row click → conversation → highlight visible.
 
 ## Done summary
-
-_To be filled when task completes._
-
+Los tres issues del round anterior resueltos correctamente: scroll one-shot con ref guard, fallback visible como banner estático fuera de Virtuoso, y comentario RAFITA:ANY presente.
 ## Evidence
-
-_To be filled when task completes._
+- Commits:
+- Tests:
+- PRs:

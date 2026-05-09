@@ -34,6 +34,7 @@ interface ConversationViewProps {
   canSendOffer?: CanSendOfferMeta
   onSendOffer?: () => void
   onMarkAsPaid?: (deliverableId: string) => void
+  highlightPaymentId?: string
 }
 
 export function ConversationView({
@@ -44,6 +45,7 @@ export function ConversationView({
   canSendOffer,
   onSendOffer,
   onMarkAsPaid,
+  highlightPaymentId,
 }: ConversationViewProps) {
   const queryClient = useQueryClient()
   const detailQuery = useConversationDetailQuery(conversationId)
@@ -184,6 +186,7 @@ export function ConversationView({
           sessionKind={sessionKind}
           viewerRole={viewerRole}
           onMarkAsPaid={onMarkAsPaid}
+          highlightPaymentId={highlightPaymentId}
           onAtBottomStateChange={onAtBottomStateChange}
           timelineRef={timelineRef}
         />

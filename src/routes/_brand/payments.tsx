@@ -3,6 +3,7 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { brandPaymentsSearchSchema } from '#/features/payments/api/brandPaymentsSchemas'
 import type { BrandPaymentsSearch } from '#/features/payments/api/brandPaymentsSchemas'
 import { BrandPaymentsPage } from '#/features/payments/components/BrandPaymentsPage'
+import { trackBrandPaymentOpened } from '#/features/payments/analytics'
 
 export const paymentsSearchSchema = brandPaymentsSearchSchema
 
@@ -37,10 +38,17 @@ function BrandPaymentsRoute() {
       filters={filters}
       onFiltersChange={handleFiltersChange}
       onOpenPayment={(row) => {
+        trackBrandPaymentOpened({
+          declared_payment_id: row.highlight.id,
+          conversation_id: row.conversation_id,
+        })
         void navigate({
           to: '/workspace/conversations/$conversationId',
           params: { conversationId: row.conversation_id },
-          search: { filter: 'all' },
+          search: {
+            filter: 'all',
+            highlightPaymentId: row.highlight.id,
+          },
         })
       }}
     />

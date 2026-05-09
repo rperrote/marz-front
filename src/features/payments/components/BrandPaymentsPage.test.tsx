@@ -45,6 +45,7 @@ vi.mock('../analytics', () => ({
   trackBrandPaymentsSearchUsed: vi.fn(),
   trackBrandPaymentsCsvExported: vi.fn(),
   trackBrandPaymentsRefreshClicked: vi.fn(),
+  trackBrandPaymentOpened: vi.fn(),
 }))
 
 vi.mock('#/features/identity/session/BrandSessionContext', () => ({

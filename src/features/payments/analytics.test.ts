@@ -4,6 +4,7 @@ import * as trackModule from '#/shared/analytics/track'
 
 import {
   trackBrandPaymentsCsvExported,
+  trackBrandPaymentOpened,
   trackBrandPaymentsFilterChanged,
   trackBrandPaymentsPeriodChanged,
   trackBrandPaymentsRefreshClicked,
@@ -34,6 +35,10 @@ describe('payments analytics', () => {
       has_search: false,
     })
     trackBrandPaymentsRefreshClicked({ workspace_id: 'workspace-1' })
+    trackBrandPaymentOpened({
+      declared_payment_id: '33333333-3333-4333-8333-333333333333',
+      conversation_id: 'conversation-1',
+    })
 
     expect(spy).toHaveBeenNthCalledWith(1, 'brand_payments_viewed', {
       workspace_id: 'workspace-1',
@@ -57,6 +62,10 @@ describe('payments analytics', () => {
     })
     expect(spy).toHaveBeenNthCalledWith(6, 'brand_payments_refresh_clicked', {
       workspace_id: 'workspace-1',
+    })
+    expect(spy).toHaveBeenNthCalledWith(7, 'brand_payment_opened', {
+      declared_payment_id: '33333333-3333-4333-8333-333333333333',
+      conversation_id: 'conversation-1',
     })
   })
 })

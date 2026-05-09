@@ -53,6 +53,7 @@ interface MessageTimelineProps {
   onMarkAsPaid?: (deliverableId: string) => void
   onAtBottomStateChange?: (atBottom: boolean) => void
   timelineRef?: React.Ref<MessageTimelineHandle>
+  highlightPaymentId?: string
 }
 
 // Large constant so prepending older messages can decrement firstItemIndex
@@ -68,8 +69,10 @@ export function MessageTimeline({
   onMarkAsPaid,
   onAtBottomStateChange,
   timelineRef,
+  highlightPaymentId,
 }: MessageTimelineProps) {
   const virtuosoRef = useRef<VirtuosoHandle>(null)
+  const hasScrolledToHighlightRef = useRef(false)
 
   const { data: conversationDetail } =
     useConversationDetailQuery(conversationId)
@@ -98,6 +101,21 @@ export function MessageTimeline({
   )
 
   const hasReachedBeginning = !hasNextPage && (data?.pages.length ?? 0) > 0
+  const highlightedTimelineIndex = useMemo(() => {
+    if (!highlightPaymentId) return -1
+    return timelineItems.findIndex(
+      (item) =>
+        item.kind === 'message' &&
+        item.message.type === 'system_event' &&
+        item.message.event_type === 'PaymentMarked' &&
+        getPaymentMarkedDeclaredPaymentId(item.message.payload) ===
+          highlightPaymentId,
+    )
+  }, [highlightPaymentId, timelineItems])
+  const shouldShowHighlightFallback =
+    Boolean(highlightPaymentId) &&
+    (data?.pages.length ?? 0) > 0 &&
+    highlightedTimelineIndex === -1
 
   const trackedPageCountRef = useRef(0)
 
@@ -124,6 +142,22 @@ export function MessageTimeline({
       })
     },
   }))
+
+  useEffect(() => {
+    hasScrolledToHighlightRef.current = false
+  }, [highlightPaymentId])
+
+  useEffect(() => {
+    if (highlightedTimelineIndex < 0) return
+    if (hasScrolledToHighlightRef.current) return
+
+    virtuosoRef.current?.scrollToIndex({
+      index: firstItemIndex + highlightedTimelineIndex,
+      align: 'center',
+      behavior: 'smooth',
+    })
+    hasScrolledToHighlightRef.current = true
+  }, [firstItemIndex, highlightedTimelineIndex])
 
   const handleStartReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -184,6 +218,11 @@ export function MessageTimeline({
             <PaymentMarkedCard
               message={message}
               viewer={{ kind: sessionKind }}
+              highlighted={
+                highlightPaymentId !== undefined &&
+                getPaymentMarkedDeclaredPaymentId(message.payload) ===
+                  highlightPaymentId
+              }
             />
           )
         }
@@ -275,6 +314,7 @@ export function MessageTimeline({
       conversationDetail?.counterpart.display_name,
       conversationId,
       onMarkAsPaid,
+      highlightPaymentId,
       sessionKind,
       viewerRole,
     ],
@@ -295,14 +335,15 @@ export function MessageTimeline({
 
   return (
     <div
-      className="flex-1 overflow-hidden"
+      className="flex flex-1 flex-col overflow-hidden"
       style={{ minHeight: 0 }}
       data-testid="message-timeline"
     >
+      {shouldShowHighlightFallback ? <PaymentHighlightFallback /> : null}
       <Virtuoso
         ref={virtuosoRef}
         key={conversationId}
-        style={{ height: '100%' }}
+        style={{ flex: 1, minHeight: 0 }}
         data={timelineItems}
         firstItemIndex={firstItemIndex}
         initialTopMostItemIndex={Math.max(0, timelineItems.length - 1)}
@@ -318,6 +359,17 @@ export function MessageTimeline({
       />
     </div>
   )
+}
+
+function getPaymentMarkedDeclaredPaymentId(
+  payload: Record<string, unknown> | null,
+): string | null {
+  if (!payload) return null
+  const snapshot =
+    // RAFITA:ANY: payload es Record<string, unknown> — el snapshot no tiene tipo estático disponible en este contexto
+    (payload.snapshot as Record<string, unknown> | undefined) ?? payload
+  const declaredPaymentId = snapshot.declared_payment_id
+  return typeof declaredPaymentId === 'string' ? declaredPaymentId : null
 }
 
 const EVENT_SEVERITY_MAP: Record<string, EventSeverity> = {
@@ -344,6 +396,16 @@ function ConversationBeginningPill() {
     <div className="flex items-center justify-center py-4">
       <span className="rounded-full bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
         {t`Inicio de la conversación`}
+      </span>
+    </div>
+  )
+}
+
+function PaymentHighlightFallback() {
+  return (
+    <div className="flex items-center justify-center py-3">
+      <span className="rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
+        {t`Pago no visible en mensajes recientes`}
       </span>
     </div>
   )

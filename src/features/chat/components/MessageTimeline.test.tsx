@@ -10,6 +10,8 @@ import type { MessagesResponse } from '#/features/chat/types'
 import { MessageBubble } from './MessageBubble'
 import { MessageTimeline } from './MessageTimeline'
 
+const mockScrollToIndex = vi.hoisted(() => vi.fn())
+
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
     (strings: TemplateStringsArray, ...values: unknown[]) =>
@@ -21,9 +23,12 @@ vi.mock('@lingui/core/macro', () => ({
 // jsdom has no viewport — Virtuoso renders nothing. Mock it as a simple list.
 vi.mock('react-virtuoso', () => ({
   // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with forwardRef in vitest
-  Virtuoso: React.forwardRef(function MockVirtuoso(props: any, _ref: any) {
+  Virtuoso: React.forwardRef(function MockVirtuoso(props: any, ref: any) {
     const { data, itemContent, components } = props
     const Header = components?.Header
+    React.useImperativeHandle(ref, () => ({
+      scrollToIndex: mockScrollToIndex,
+    }))
     return React.createElement(
       'div',
       { 'data-testid': 'virtuoso-mock' },
@@ -128,6 +133,7 @@ function mockFetchWithMessages(
 
 beforeEach(() => {
   mockCustomFetch.mockReset()
+  mockScrollToIndex.mockReset()
   mockFetchWithMessages(buildMessagesResponse([]))
 })
 
@@ -400,6 +406,93 @@ describe('MessageTimeline', () => {
       expect(screen.getByTestId('payment-marked-card')).toBeInTheDocument()
     })
     expect(screen.getByText('Payment of $4,575.00 sent')).toBeInTheDocument()
+  })
+
+  it('highlights and scrolls to the matching PaymentMarked card', async () => {
+    const declaredPaymentId = '33333333-3333-4333-8333-333333333333'
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-payment-1',
+          type: 'system_event',
+          event_type: 'PaymentMarked',
+          text_content: null,
+          author_account_id: 'system',
+          payload: {
+            snapshot: {
+              event_type: 'PaymentMarked',
+              declared_payment_id: declaredPaymentId,
+              deliverable_id: 'del-1',
+              amount: '4575.00',
+              currency: 'USD',
+              deliverable_display_label: 'YouTube Video',
+              declared_at: '2026-05-08T12:00:00Z',
+            },
+          },
+          created_at: '2026-05-08T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+          highlightPaymentId={declaredPaymentId}
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payment-marked-card')).toBeInTheDocument()
+    })
+
+    expect(
+      screen
+        .getByText('Payment of $4,575.00 sent')
+        .closest('[data-highlighted="true"]'),
+    ).toBeInTheDocument()
+    await waitFor(() => {
+      expect(mockScrollToIndex).toHaveBeenCalledWith({
+        index: expect.any(Number),
+        align: 'center',
+        behavior: 'smooth',
+      })
+    })
+  })
+
+  it('shows a non-blocking payment highlight fallback when the card is not loaded', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-1',
+          text_content: 'Recent message',
+          author_account_id: 'acc-other',
+          created_at: '2026-05-08T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+          highlightPaymentId="33333333-3333-4333-8333-333333333333"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Pago no visible en mensajes recientes'),
+      ).toBeInTheDocument()
+    })
+    expect(screen.getByText('Recent message')).toBeInTheDocument()
+    expect(mockScrollToIndex).not.toHaveBeenCalled()
   })
 
   it('renders OfferCardBundle for bundle offer_sent system event', async () => {

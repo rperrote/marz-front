@@ -45,3 +45,10 @@ export function trackBrandPaymentsRefreshClicked(payload: {
 }): void {
   track('brand_payments_refresh_clicked', payload)
 }
+
+export function trackBrandPaymentOpened(payload: {
+  declared_payment_id: string
+  conversation_id: string
+}): void {
+  track('brand_payment_opened', payload)
+}
