@@ -1,8 +1,8 @@
-import { t } from '@lingui/core/macro'
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 
 import { brandPaymentsSearchSchema } from '#/features/payments/api/brandPaymentsSchemas'
-import { useBrandPaymentsSpendingQuery } from '#/features/payments/hooks/useBrandPaymentsSpendingQuery'
+import type { BrandPaymentsSearch } from '#/features/payments/api/brandPaymentsSchemas'
+import { BrandPaymentsPage } from '#/features/payments/components/BrandPaymentsPage'
 
 export const paymentsSearchSchema = brandPaymentsSearchSchema
 
@@ -18,16 +18,31 @@ export const Route = createFileRoute('/_brand/payments')({
 
 function BrandPaymentsRoute() {
   const filters = Route.useSearch()
-  useBrandPaymentsSpendingQuery({ filters })
+  const navigate = useNavigate()
+
+  const handleFiltersChange = (nextFilters: BrandPaymentsSearch) => {
+    void navigate({
+      to: '/payments',
+      search: {
+        period: nextFilters.period,
+        campaignId: nextFilters.campaignId,
+        creatorId: nextFilters.creatorId,
+        q: nextFilters.q,
+      },
+    })
+  }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-2 overflow-auto bg-background p-6">
-      <h1 className="text-xl font-semibold text-foreground">
-        {t`Payments & Spending`}
-      </h1>
-      <p className="max-w-xl text-sm text-muted-foreground">
-        {t`El dashboard de pagos y spending va a estar disponible pronto.`}
-      </p>
-    </div>
+    <BrandPaymentsPage
+      filters={filters}
+      onFiltersChange={handleFiltersChange}
+      onOpenPayment={(row) => {
+        void navigate({
+          to: '/workspace/conversations/$conversationId',
+          params: { conversationId: row.conversation_id },
+          search: { filter: 'all' },
+        })
+      }}
+    />
   )
 }

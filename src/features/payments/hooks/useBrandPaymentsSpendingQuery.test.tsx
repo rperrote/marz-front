@@ -39,9 +39,27 @@ describe('useBrandPaymentsSpendingQuery', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetBrandPaymentsSpending.mockResolvedValue({
-      kpis: [],
-      rows: [],
-      next_cursor: null,
+      brand_workspace_id: 'workspace-1',
+      period: {
+        value: '30d',
+        start_at: null,
+        end_at: '2026-05-09T00:00:00Z',
+      },
+      summary: {
+        total_spent: '0',
+        period_spend: '0',
+        pending_approval: '0',
+        next_debit: {
+          amount: '0',
+          date: null,
+          date_available: false,
+          source: 'payment_obligations',
+        },
+      },
+      monthly_spend: [],
+      campaign_breakdown: [],
+      filters: { campaigns: [], creators: [] },
+      payments: { data: [], next_cursor: null, total_visible: 0 },
     })
   })
 
@@ -51,14 +69,14 @@ describe('useBrandPaymentsSpendingQuery', () => {
         filters: {
           period: '30d',
           campaignId: undefined,
-          creatorId: 'creator-1',
+          creatorId: '11111111-1111-4111-8111-111111111111',
           q: '',
         },
       }),
     ).toEqual([
       'brand-payments-spending',
       'workspace-1',
-      { period: '30d', creatorId: 'creator-1' },
+      { period: '30d', creatorId: '11111111-1111-4111-8111-111111111111' },
     ])
   })
 
@@ -74,14 +92,79 @@ describe('useBrandPaymentsSpendingQuery', () => {
   })
 
   it('passes cursor to the server function for keyset pagination', async () => {
-    renderHook(
+    mockGetBrandPaymentsSpending
+      .mockResolvedValueOnce({
+        brand_workspace_id: 'workspace-1',
+        period: {
+          value: '30d',
+          start_at: null,
+          end_at: '2026-05-09T00:00:00Z',
+        },
+        summary: {
+          total_spent: '0',
+          period_spend: '0',
+          pending_approval: '0',
+          next_debit: {
+            amount: '0',
+            date: null,
+            date_available: false,
+            source: 'payment_obligations',
+          },
+        },
+        monthly_spend: [],
+        campaign_breakdown: [],
+        filters: { campaigns: [], creators: [] },
+        payments: { data: [], next_cursor: 'cursor-2', total_visible: 0 },
+      })
+      .mockResolvedValueOnce({
+        brand_workspace_id: 'workspace-1',
+        period: {
+          value: '30d',
+          start_at: null,
+          end_at: '2026-05-09T00:00:00Z',
+        },
+        summary: {
+          total_spent: '0',
+          period_spend: '0',
+          pending_approval: '0',
+          next_debit: {
+            amount: '0',
+            date: null,
+            date_available: false,
+            source: 'payment_obligations',
+          },
+        },
+        monthly_spend: [],
+        campaign_breakdown: [],
+        filters: { campaigns: [], creators: [] },
+        payments: { data: [], next_cursor: null, total_visible: 0 },
+      })
+
+    const { result } = renderHook(
       () =>
         useBrandPaymentsSpendingQuery({
           filters: { period: '30d', campaignId: 'campaign-1' },
-          cursor: 'cursor-2',
         }),
       { wrapper: createWrapper() },
     )
+
+    await waitFor(() => {
+      expect(mockGetBrandPaymentsSpending).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: {
+            period: '30d',
+            campaignId: 'campaign-1',
+            workspaceId: 'workspace-1',
+          },
+        }),
+      )
+    })
+
+    await waitFor(() => {
+      expect(result.current.hasNextPage).toBe(true)
+    })
+
+    await result.current.fetchNextPage()
 
     await waitFor(() => {
       expect(mockGetBrandPaymentsSpending).toHaveBeenCalledWith(

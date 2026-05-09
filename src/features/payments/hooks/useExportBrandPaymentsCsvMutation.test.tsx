@@ -112,7 +112,7 @@ describe('useExportBrandPaymentsCsvMutation', () => {
       wrapper: createWrapper(),
     })
 
-    result.current.mutate({ filters: { period: '7d' } })
+    result.current.mutate({ filters: { period: '12m' } })
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true)

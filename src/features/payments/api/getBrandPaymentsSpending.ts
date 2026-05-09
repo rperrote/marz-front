@@ -12,7 +12,7 @@ export const getBrandPaymentsSpending = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<BrandPaymentsSpendingResponse> => {
     const params = toBrandPaymentsQueryParams(data)
     const res = await brandPaymentsServerFetch(
-      `/v1/brand/workspace/payments/spending?${params.toString()}`,
+      `/v1/brand-workspaces/${data.workspaceId}/payments/spending?${params.toString()}`,
       data.workspaceId,
     )
 

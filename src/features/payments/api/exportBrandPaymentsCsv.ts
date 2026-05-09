@@ -11,7 +11,7 @@ export const exportBrandPaymentsCsv = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<Response> => {
     const params = toBrandPaymentsQueryParams(data)
     const res = await brandPaymentsServerFetch(
-      `/v1/brand/workspace/payments/export.csv?${params.toString()}`,
+      `/v1/brand-workspaces/${data.workspaceId}/payments/spending/export.csv?${params.toString()}`,
       data.workspaceId,
       { headers: { Accept: 'text/csv' } },
     )

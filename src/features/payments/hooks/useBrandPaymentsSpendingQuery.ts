@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 
 import { getBrandPaymentsSpending } from '../api/getBrandPaymentsSpending'
 import { normalizeBrandPaymentsFilters } from '../api/brandPaymentsSchemas'
@@ -12,7 +12,6 @@ const STALE_TIME_MS = 5 * 60 * 1000
 
 export interface UseBrandPaymentsSpendingQueryInput {
   filters: BrandPaymentsSearch
-  cursor?: string
 }
 
 export function getBrandPaymentsSpendingQueryKey(
@@ -22,10 +21,7 @@ export function getBrandPaymentsSpendingQueryKey(
   return [
     'brand-payments-spending',
     workspaceId,
-    {
-      ...normalizeBrandPaymentsFilters(input.filters),
-      ...(input.cursor ? { cursor: input.cursor } : {}),
-    },
+    normalizeBrandPaymentsFilters(input.filters),
   ] as const
 }
 
@@ -36,17 +32,19 @@ export function useBrandPaymentsSpendingQuery(
   const workspaceId = brandWorkspace.id
   const filters = normalizeBrandPaymentsFilters(input.filters)
 
-  return useQuery<BrandPaymentsSpendingResponse>({
+  return useInfiniteQuery<BrandPaymentsSpendingResponse>({
     queryKey: getBrandPaymentsSpendingQueryKey(workspaceId, input),
-    queryFn: ({ signal }) =>
+    queryFn: ({ pageParam, signal }) =>
       getBrandPaymentsSpending({
         data: {
           ...filters,
           workspaceId,
-          ...(input.cursor ? { cursor: input.cursor } : {}),
+          ...(pageParam ? { cursor: pageParam as string } : {}),
         },
         signal,
       }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.payments.next_cursor ?? undefined,
     staleTime: STALE_TIME_MS,
     placeholderData: keepPreviousData,
   })
