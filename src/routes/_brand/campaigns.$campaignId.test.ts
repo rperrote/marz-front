@@ -42,4 +42,23 @@ describe('campaign detail search schema', () => {
       sort: 'score',
     })
   })
+
+  it('defaults discovery section to matches', () => {
+    expect(
+      campaignDetailSearchSchema.parse({ tab: 'discovery' }),
+    ).toMatchObject({
+      section: 'matches',
+    })
+  })
+
+  it('accepts the active discovery section', () => {
+    expect(
+      campaignDetailSearchSchema.parse({
+        tab: 'discovery',
+        section: 'active',
+      }),
+    ).toMatchObject({
+      section: 'active',
+    })
+  })
 })

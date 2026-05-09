@@ -82,7 +82,7 @@ export function CampaignDetailHeader({ detail }: CampaignDetailHeaderProps) {
               <Link
                 to="/campaigns/$campaignId/brief"
                 params={{ campaignId: detail.campaign_id }}
-                search={{ tab: 'overview' }}
+                search={{ tab: 'overview', section: 'matches' }}
               >
                 <Eye className="size-3.5" aria-hidden="true" />
                 {t`Ver brief`}

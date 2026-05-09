@@ -10,9 +10,9 @@ const campaignDetailTabSchema = z
   .catch('overview')
 
 const campaignDetailSectionSchema = z
-  .enum(['matches', 'invites', 'applications'])
-  .optional()
-  .catch(undefined)
+  .enum(['matches', 'applications', 'active', 'invited'])
+  .default('matches')
+  .catch('matches')
 
 export const campaignDetailSearchSchema = z.object({
   tab: campaignDetailTabSchema,

@@ -4,6 +4,7 @@ import { AlertCircle, ClipboardList } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { Button } from '#/components/ui/button'
+import { DiscoveryTab } from '#/features/discovery/campaign-detail/DiscoveryTab'
 import { ApiError } from '#/shared/api/mutator'
 
 import {
@@ -18,7 +19,7 @@ import { useCampaignDetailQuery } from './useCampaignDetailQuery'
 
 export interface CampaignDetailSearch {
   tab: CampaignDetailTabId
-  section?: 'matches' | 'invites' | 'applications'
+  section: 'matches' | 'applications' | 'active' | 'invited'
   q?: string
   status?: string
   platform?: string
@@ -97,7 +98,11 @@ export function CampaignDetailPage({
       tab={search.tab}
       onTabChange={handleTabChange}
     >
-      <CampaignDetailBody campaignId={campaignId} tab={search.tab} />
+      <CampaignDetailBody
+        campaignId={campaignId}
+        tab={search.tab}
+        search={search}
+      />
     </CampaignDetailShell>
   )
 }
@@ -127,9 +132,11 @@ function CampaignDetailShell({
 function CampaignDetailBody({
   campaignId,
   tab,
+  search,
 }: {
   campaignId: string
   tab: CampaignDetailTabId
+  search: CampaignDetailSearch
 }) {
   const titleByTab: Record<CampaignDetailNavigableTab, string> = {
     overview: t`Overview`,
@@ -149,6 +156,10 @@ function CampaignDetailBody({
 
   if (tab === 'overview') {
     return <OverviewTab campaignId={campaignId} />
+  }
+
+  if (tab === 'discovery') {
+    return <DiscoveryTab campaignId={campaignId} search={search} />
   }
 
   return (
