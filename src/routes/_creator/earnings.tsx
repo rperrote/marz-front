@@ -1,7 +1,15 @@
 import { Trans } from '@lingui/react/macro'
 import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
+
+export const earningsSearchSchema = z.object({
+  period: z.enum(['30d', '90d', '12m', 'all']).catch('30d'),
+  q: z.string().max(120).optional(),
+  cursor: z.string().optional(),
+})
 
 export const Route = createFileRoute('/_creator/earnings')({
+  validateSearch: earningsSearchSchema,
   component: EarningsPlaceholder,
 })
 
