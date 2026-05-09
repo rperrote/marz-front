@@ -98,22 +98,23 @@ describe('BriefBuilderWizard', () => {
     expect(await screen.findByText('Phase slug: input')).toBeInTheDocument()
   })
 
-  it('shows step label for phase 1', async () => {
+  it('does not render a duplicate topbar for phase 1', async () => {
     renderWizard('input')
-    expect(await screen.findByText('Fase 1 de 4')).toBeInTheDocument()
+    expect(await screen.findByText('Phase slug: input')).toBeInTheDocument()
+    expect(screen.queryByText('Fase 1 de 4')).not.toBeInTheDocument()
   })
 
   it('renders phase 3 when navigated', async () => {
     renderWizard('review')
     expect(await screen.findByText('Phase slug: review')).toBeInTheDocument()
-    expect(await screen.findByText('Fase 3 de 4')).toBeInTheDocument()
+    expect(screen.queryByText('Fase 3 de 4')).not.toBeInTheDocument()
   })
 
-  it('shows exit button with Cancelar label', async () => {
+  it('does not render duplicate cancel action inside the wizard', async () => {
     renderWizard('input')
     expect(
-      await screen.findByRole('button', { name: /cancelar/i }),
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: /cancelar/i }),
+    ).not.toBeInTheDocument()
   })
 
   describe('leave guard', () => {

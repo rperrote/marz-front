@@ -10,6 +10,8 @@ import type { MessagesResponse } from '#/features/chat/types'
 import { MessageBubble } from './MessageBubble'
 import { MessageTimeline } from './MessageTimeline'
 
+const mockScrollToIndex = vi.hoisted(() => vi.fn())
+
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
     (strings: TemplateStringsArray, ...values: unknown[]) =>
@@ -21,9 +23,12 @@ vi.mock('@lingui/core/macro', () => ({
 // jsdom has no viewport — Virtuoso renders nothing. Mock it as a simple list.
 vi.mock('react-virtuoso', () => ({
   // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with forwardRef in vitest
-  Virtuoso: React.forwardRef(function MockVirtuoso(props: any, _ref: any) {
+  Virtuoso: React.forwardRef(function MockVirtuoso(props: any, ref: any) {
     const { data, itemContent, components } = props
     const Header = components?.Header
+    React.useImperativeHandle(ref, () => ({
+      scrollToIndex: mockScrollToIndex,
+    }))
     return React.createElement(
       'div',
       { 'data-testid': 'virtuoso-mock' },
@@ -41,6 +46,13 @@ const mockCustomFetch = vi.fn()
 vi.mock('#/shared/api/mutator', () => ({
   customFetch: (...args: unknown[]) => mockCustomFetch(...args),
 }))
+
+class FakeIntersectionObserver {
+  observe = vi.fn()
+  disconnect = vi.fn()
+  unobserve = vi.fn()
+  takeRecords = vi.fn(() => [])
+}
 
 vi.mock('#/shared/api/generated/accounts/accounts', () => ({
   useMe: () => ({
@@ -127,7 +139,9 @@ function mockFetchWithMessages(
 }
 
 beforeEach(() => {
+  vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
   mockCustomFetch.mockReset()
+  mockScrollToIndex.mockReset()
   mockFetchWithMessages(buildMessagesResponse([]))
 })
 
@@ -320,6 +334,151 @@ describe('MessageTimeline', () => {
     })
   })
 
+  it('renders LinkSubmittedCard for LinkSubmitted system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-link-submitted',
+          type: 'system_event',
+          event_type: 'LinkSubmitted',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            snapshot: {
+              event_type: 'LinkSubmitted',
+              deliverable_id: 'del-1',
+              deliverable_platform: 'youtube',
+              deliverable_format: 'long_form',
+              deliverable_offer_stage_id: null,
+              link: {
+                id: 'link-1',
+                url: 'https://youtube.com/watch?v=xK93',
+                status: 'submitted',
+                preview: { outcome: 'url_only' },
+                submitted_at: '2026-04-27T12:00:00Z',
+                submitted_by_account_id: 'acc-other',
+              },
+              message: 'Just published! Sharing the link here.',
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="creator"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Published link')).toBeInTheDocument()
+    })
+    expect(
+      screen.getByRole('link', { name: /youtube\.com\/watch/i }),
+    ).toHaveAttribute('href', 'https://youtube.com/watch?v=xK93')
+  })
+
+  it('renders LinkApprovedCard for LinkApproved system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-link-approved',
+          type: 'system_event',
+          event_type: 'LinkApproved',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            snapshot: {
+              event_type: 'LinkApproved',
+              deliverable_id: 'del-1',
+              deliverable_platform: 'youtube',
+              deliverable_format: 'long_form',
+              deliverable_offer_stage_id: null,
+              link: {
+                id: 'link-1',
+                url: 'https://youtube.com/watch?v=xK93',
+                status: 'approved',
+                preview: { outcome: 'url_only' },
+              },
+              approved_at: '2026-04-27T12:00:00Z',
+              approved_by_account_id: 'acc-other',
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="creator"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('link-approved-card')).toBeInTheDocument()
+    })
+  })
+
+  it('renders LinkChangesRequestedCard for LinkChangesRequested system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-link-changes',
+          type: 'system_event',
+          event_type: 'LinkChangesRequested',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            snapshot: {
+              event_type: 'LinkChangesRequested',
+              deliverable_id: 'del-1',
+              deliverable_platform: 'youtube',
+              deliverable_format: 'long_form',
+              deliverable_offer_stage_id: null,
+              link: {
+                id: 'link-1',
+                url: 'https://youtube.com/watch?v=xK93',
+                status: 'changes_requested',
+                preview: { outcome: 'url_only' },
+              },
+              categories: ['discount_code'],
+              notes: 'Add the code in the description.',
+              requested_at: '2026-04-27T12:00:00Z',
+              requested_by_account_id: 'acc-other',
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="creator"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('request-changes-card')).toBeInTheDocument()
+    })
+    expect(screen.getByText('Discount code')).toBeInTheDocument()
+  })
+
   it('renders StageOpenedBubble for StageOpened system event', async () => {
     mockFetchWithMessages(
       buildMessagesResponse([
@@ -362,6 +521,133 @@ describe('MessageTimeline', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders PaymentMarkedCard for PaymentMarked system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-payment-1',
+          type: 'system_event',
+          event_type: 'PaymentMarked',
+          text_content: null,
+          author_account_id: 'system',
+          payload: {
+            snapshot: {
+              event_type: 'PaymentMarked',
+              deliverable_id: 'del-1',
+              amount: '4575.00',
+              currency: 'USD',
+              deliverable_display_label: 'YouTube Video',
+              declared_at: '2026-05-08T12:00:00Z',
+            },
+          },
+          created_at: '2026-05-08T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payment-marked-card')).toBeInTheDocument()
+    })
+    expect(screen.getByText('Payment of $4,575.00 sent')).toBeInTheDocument()
+  })
+
+  it('highlights and scrolls to the matching PaymentMarked card', async () => {
+    const declaredPaymentId = '33333333-3333-4333-8333-333333333333'
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-payment-1',
+          type: 'system_event',
+          event_type: 'PaymentMarked',
+          text_content: null,
+          author_account_id: 'system',
+          payload: {
+            snapshot: {
+              event_type: 'PaymentMarked',
+              declared_payment_id: declaredPaymentId,
+              deliverable_id: 'del-1',
+              amount: '4575.00',
+              currency: 'USD',
+              deliverable_display_label: 'YouTube Video',
+              declared_at: '2026-05-08T12:00:00Z',
+            },
+          },
+          created_at: '2026-05-08T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+          highlightPaymentId={declaredPaymentId}
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payment-marked-card')).toBeInTheDocument()
+    })
+
+    expect(
+      screen
+        .getByText('Payment of $4,575.00 sent')
+        .closest('[data-highlighted="true"]'),
+    ).toBeInTheDocument()
+    await waitFor(() => {
+      expect(mockScrollToIndex).toHaveBeenCalledWith({
+        index: expect.any(Number),
+        align: 'center',
+        behavior: 'smooth',
+      })
+    })
+  })
+
+  it('shows a non-blocking payment highlight fallback when the card is not loaded', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-1',
+          text_content: 'Recent message',
+          author_account_id: 'acc-other',
+          created_at: '2026-05-08T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+          highlightPaymentId="33333333-3333-4333-8333-333333333333"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Pago no visible en mensajes recientes'),
+      ).toBeInTheDocument()
+    })
+    expect(screen.getByText('Recent message')).toBeInTheDocument()
+    expect(mockScrollToIndex).not.toHaveBeenCalled()
+  })
+
   it('renders OfferCardBundle for bundle offer_sent system event', async () => {
     mockFetchWithMessages(
       buildMessagesResponse([
@@ -380,7 +666,7 @@ describe('MessageTimeline', () => {
               total_amount: '1000.00',
               currency: 'USD',
               deadline: '2026-05-01T00:00:00Z',
-              speed_bonus: null,
+              bonus_terms: null,
               sent_at: '2026-04-01T00:00:00Z',
               expires_at: '2026-04-08T00:00:00Z',
               deliverables: [

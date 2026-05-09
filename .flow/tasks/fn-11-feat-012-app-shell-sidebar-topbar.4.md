@@ -69,11 +69,8 @@ Full design system: `marzv2.pen` — composición global del shell.
 - [ ] `pnpm typecheck`, `pnpm test`, `pnpm lint` pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+Pathname reactivo vía useRouterState en ambos layouts, accountId requerido en wrappers compat sin fallback useMe — todos los issues del round anterior resueltos
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

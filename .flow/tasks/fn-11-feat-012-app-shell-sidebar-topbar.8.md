@@ -61,11 +61,8 @@ Full design system: `marzv2.pen` vía MCP pencil.
 - [ ] `pnpm typecheck`, `pnpm test`, `pnpm lint` y suite E2E pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+Cierre de epic A11y+E2E completo: tests unitarios de accesibilidad por teclado, grep estático de analytics, test de labels sin texto visible, ruta /inbox con beforeLoad + tests unitarios siguiendo el patrón de workspace, y suite E2E con fixtures existentes cubriendo brand/creator/mismatch/onboarding. Sin problemas bloqueantes.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

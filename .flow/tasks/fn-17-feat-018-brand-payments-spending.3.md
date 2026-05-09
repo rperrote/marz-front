@@ -45,9 +45,8 @@ Crear server functions y hooks TanStack Query para el dashboard de payments + ex
 - [ ] Tests cubren: query key estable, manejo de 409, paginación cursor.
 
 ## Done summary
-
-_To be filled when task completes._
-
+Server functions, hooks y tests implementados correctamente; patrones de fetch en server functions y uso de useBrandSession son consistentes con el repo existente
 ## Evidence
-
-_To be filled when task completes._
+- Commits:
+- Tests:
+- PRs:

@@ -46,9 +46,8 @@ Renderizar inline actions desde `inline_actions[]` del response. El frontend NO 
 - [ ] Unit tests: reply send, offer accept, race 409 handling.
 
 ## Done summary
-
-_(filled on completion)_
-
+Correcciones aplicadas: ApplicationActionControl sin dead state de reason, test de reply 409 con cobertura completa.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

@@ -42,9 +42,8 @@ Cablear botón "Export CSV" a `useExportBrandPaymentsCsvMutation` (de .3), dispa
 - [ ] Tests cubren: success download, ambos 409s, eventos analytics correctos.
 
 ## Done summary
-
-_To be filled when task completes._
-
+Los tres fixes aplicados: try/catch en onSuccess, getCsvFilename parametrizada con now, spread redundante eliminado. Tests cubren todos los paths incluyendo el nuevo caso de blob failure. Sin issues nuevos.
 ## Evidence
-
-_To be filled when task completes._
+- Commits:
+- Tests:
+- PRs:

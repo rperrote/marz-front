@@ -50,9 +50,8 @@ Full design system: `marz-design/marzv2.pen` (vía MCP `pencil`).
 - [ ] Visual fidelity ≥95% contra Pencil `vmHz8` en light + dark.
 
 ## Done summary
-
-_(filled on completion)_
-
+Ruta de detalle de campaña para brand completa: validateSearch con Zod, guard via _brand existente, header con query independiente, tabs deep-linkeables con analytics disabled + tooltip, tests de schema y de tabs, accesibilidad correcta.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

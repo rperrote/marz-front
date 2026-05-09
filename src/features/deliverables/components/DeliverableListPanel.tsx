@@ -3,23 +3,34 @@ import { t } from '@lingui/core/macro'
 
 import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
 import type { DeliverableDTO } from '#/features/deliverables/types'
+import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import { UploadDraftDialog } from './UploadDraftDialog'
 import { DeliverableListItem } from './DeliverableListItem'
 import { MultistagePanelGroup } from './MultistagePanelGroup'
+import { SubmitLinkSidesheet } from './SubmitLinkSidesheet'
 
 interface DeliverableListPanelProps {
   conversationId: string
   sessionKind: 'brand' | 'creator'
+  viewerRole?: MarkAsPaidViewer['role']
+  onMarkAsPaid?: (deliverableId: string) => void
 }
 
 export function DeliverableListPanel({
   conversationId,
   sessionKind,
+  viewerRole,
+  onMarkAsPaid,
 }: DeliverableListPanelProps) {
   const query = useGetConversationDeliverablesQuery(conversationId)
   const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
     null,
   )
+  const [submitLinkDeliverableId, setSubmitLinkDeliverableId] = useState<
+    string | null
+  >(null)
+  const [submitLinkIsResubmission, setSubmitLinkIsResubmission] =
+    useState(false)
 
   if (query.isLoading) {
     return (
@@ -64,6 +75,16 @@ export function DeliverableListPanel({
     setUploadDeliverableId(null)
   }
 
+  const handleSubmitLink = (deliverableId: string, isResubmission: boolean) => {
+    setSubmitLinkDeliverableId(deliverableId)
+    setSubmitLinkIsResubmission(isResubmission)
+  }
+
+  const handleSubmitLinkClose = () => {
+    setSubmitLinkDeliverableId(null)
+    setSubmitLinkIsResubmission(false)
+  }
+
   const deliverableMap = new Map<string, DeliverableDTO>()
   for (const d of data.deliverables) {
     deliverableMap.set(d.id, d)
@@ -91,6 +112,9 @@ export function DeliverableListPanel({
             uploadDeliverable.latest_change_request?.requested_at ?? null,
         }
       : undefined
+  const submitLinkDeliverable = submitLinkDeliverableId
+    ? deliverableMap.get(submitLinkDeliverableId)
+    : undefined
 
   return (
     <div className="flex h-full flex-col" data-testid="deliverable-list-panel">
@@ -108,7 +132,10 @@ export function DeliverableListPanel({
                 deliverables={stageDeliverables.map((deliverable) => ({
                   deliverable,
                   sessionKind,
+                  viewerRole,
                   onUploadDraft: handleUploadDraft,
+                  onMarkAsPaid,
+                  onSubmitLink: handleSubmitLink,
                 }))}
               />
             )
@@ -120,7 +147,10 @@ export function DeliverableListPanel({
                 key={deliverable.id}
                 deliverable={deliverable}
                 sessionKind={sessionKind}
+                viewerRole={viewerRole}
                 onUploadDraft={handleUploadDraft}
+                onMarkAsPaid={onMarkAsPaid}
+                onSubmitLink={handleSubmitLink}
               />
             ))}
           </div>
@@ -137,6 +167,19 @@ export function DeliverableListPanel({
           onSuccess={handleDialogClose}
           title={uploadLabel}
           analytics={uploadAnalytics}
+        />
+      )}
+
+      {submitLinkDeliverable && (
+        <SubmitLinkSidesheet
+          open={!!submitLinkDeliverableId}
+          onOpenChange={(open) => {
+            if (!open) handleSubmitLinkClose()
+          }}
+          deliverableId={submitLinkDeliverable.id}
+          platform={submitLinkDeliverable.platform}
+          isResubmission={submitLinkIsResubmission}
+          onSubmitted={handleSubmitLinkClose}
         />
       )}
     </div>

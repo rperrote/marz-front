@@ -49,9 +49,8 @@ E2E desktop con Playwright cubriendo el flujo completo: entrada, filtros (incluy
 - [ ] `pnpm test:e2e --grep "creator campaign board"` pasa local
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+Fix aplicado: matcher del link en brand redirect corregido a /Nueva campaña/i, que coincide con el texto real del componente.
 ## Evidence
-
-_To be filled by worker on completion._
+- Commits:
+- Tests:
+- PRs:

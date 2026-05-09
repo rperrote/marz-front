@@ -67,11 +67,8 @@ Full design system: `marzv2.pen` vía MCP pencil — nodos `eSXMq`, `ZEwxF`, `D0
 - [ ] `pnpm typecheck`, `pnpm test`, `pnpm lint` pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+aria-disabled corregido: deriva solo del prop disabled, no de la condición de routing
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

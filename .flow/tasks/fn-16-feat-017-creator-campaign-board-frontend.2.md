@@ -50,9 +50,8 @@ Implementar capa de datos: server functions con `createServerFn` para los 3 endp
 - [ ] `pnpm typecheck` limpio
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+Todos los issues del round anterior resueltos: helper compartido en _auth.ts, RAFITA:ANY en cada cast, Idempotency-Key vía extraHeaders, invalidación redundante eliminada.
 ## Evidence
-
-_To be filled by worker on completion._
+- Commits:
+- Tests:
+- PRs:

@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { ApiError } from '#/shared/api/mutator'
 import { BriefSummaryView } from '../brief-builder/components/BriefSummaryView'
@@ -47,18 +46,6 @@ export function CampaignBriefPage({ campaignId }: CampaignBriefPageProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-foreground">
-          Resumen del brief
-        </h1>
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/campaigns">
-            <ArrowLeft />
-            Volver a campañas
-          </Link>
-        </Button>
-      </div>
-
       {isPending && <BriefPageSkeleton />}
 
       {isNotFound && <BriefNotFound />}

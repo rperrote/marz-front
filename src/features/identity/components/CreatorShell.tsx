@@ -1,17 +1,30 @@
 import type { ReactNode } from 'react'
+import { useRouterState } from '@tanstack/react-router'
 
-import { SignOutButton } from './SignOutButton'
+import { AppShell } from '../app-shell/AppShell'
 
-export function CreatorShell({ children }: { children: ReactNode }) {
+interface CreatorShellProps {
+  accountId: string
+  pathname?: string
+  children: ReactNode
+}
+
+export function CreatorShell({
+  accountId,
+  pathname,
+  children,
+}: CreatorShellProps) {
+  const currentPathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      <aside className="flex w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-        <div className="p-4 text-sm font-semibold">Marz · Creator</div>
-        <div className="mt-auto border-t border-sidebar-border p-2">
-          <SignOutButton />
-        </div>
-      </aside>
-      <main className="flex-1 min-w-0 overflow-auto">{children}</main>
-    </div>
+    <AppShell
+      accountKind="creator"
+      accountId={accountId}
+      pathname={pathname ?? currentPathname}
+    >
+      {children}
+    </AppShell>
   )
 }

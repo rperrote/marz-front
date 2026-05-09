@@ -15,7 +15,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-17-feat-018-brand-payments-spending.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-018 Brand Payments & Spending (frontend)",
-  "updated_at": "2026-05-08T01:22:53.097856Z"
+  "updated_at": "2026-05-09T13:11:20.854651Z"
 }

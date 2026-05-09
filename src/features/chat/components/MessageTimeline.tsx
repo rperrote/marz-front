@@ -27,11 +27,17 @@ import { stageOpenedSnapSchema } from '#/features/offers/schemas'
 import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
 import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
 import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
+import { PaymentMarkedCard } from './systemEvents/PaymentMarkedCard'
+import { LinkSubmittedCard } from '#/features/deliverables/components/LinkSubmittedCard'
+import { LinkApprovedCard } from '#/features/deliverables/components/LinkApprovedCard'
+import { LinkChangesRequestedCard } from '#/features/deliverables/components/LinkChangesRequestedCard'
+import { getRecord, getString } from '#/shared/utils/record'
 
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
 import type { EventSeverity } from './EventBubble'
 import { MessageBubble } from './MessageBubble'
+import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 
 // react-virtuoso chosen over @tanstack/react-virtual: built-in reverse list mode,
 // automatic scroll anchoring on prepend, and firstItemIndex shifting — all critical
@@ -46,8 +52,11 @@ interface MessageTimelineProps {
   conversationId: string
   currentAccountId: string
   sessionKind: 'brand' | 'creator' | undefined
+  viewerRole?: MarkAsPaidViewerRole
+  onMarkAsPaid?: (deliverableId: string) => void
   onAtBottomStateChange?: (atBottom: boolean) => void
   timelineRef?: React.Ref<MessageTimelineHandle>
+  highlightPaymentId?: string
 }
 
 // Large constant so prepending older messages can decrement firstItemIndex
@@ -59,10 +68,14 @@ export function MessageTimeline({
   conversationId,
   currentAccountId,
   sessionKind,
+  viewerRole,
+  onMarkAsPaid,
   onAtBottomStateChange,
   timelineRef,
+  highlightPaymentId,
 }: MessageTimelineProps) {
   const virtuosoRef = useRef<VirtuosoHandle>(null)
+  const hasScrolledToHighlightRef = useRef(false)
 
   const { data: conversationDetail } =
     useConversationDetailQuery(conversationId)
@@ -91,6 +104,21 @@ export function MessageTimeline({
   )
 
   const hasReachedBeginning = !hasNextPage && (data?.pages.length ?? 0) > 0
+  const highlightedTimelineIndex = useMemo(() => {
+    if (!highlightPaymentId) return -1
+    return timelineItems.findIndex(
+      (item) =>
+        item.kind === 'message' &&
+        item.message.type === 'system_event' &&
+        item.message.event_type === 'PaymentMarked' &&
+        getPaymentMarkedDeclaredPaymentId(item.message.payload) ===
+          highlightPaymentId,
+    )
+  }, [highlightPaymentId, timelineItems])
+  const shouldShowHighlightFallback =
+    Boolean(highlightPaymentId) &&
+    (data?.pages.length ?? 0) > 0 &&
+    highlightedTimelineIndex === -1
 
   const trackedPageCountRef = useRef(0)
 
@@ -118,6 +146,22 @@ export function MessageTimeline({
     },
   }))
 
+  useEffect(() => {
+    hasScrolledToHighlightRef.current = false
+  }, [highlightPaymentId])
+
+  useEffect(() => {
+    if (highlightedTimelineIndex < 0) return
+    if (hasScrolledToHighlightRef.current) return
+
+    virtuosoRef.current?.scrollToIndex({
+      index: firstItemIndex + highlightedTimelineIndex,
+      align: 'center',
+      behavior: 'smooth',
+    })
+    hasScrolledToHighlightRef.current = true
+  }, [firstItemIndex, highlightedTimelineIndex])
+
   const handleStartReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       void fetchNextPage()
@@ -133,41 +177,85 @@ export function MessageTimeline({
       const message = item.message
 
       if (message.type === 'system_event') {
-        if (message.event_type === 'DraftSubmitted') {
-          return (
-            <DraftSubmittedCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              conversationId={conversationId}
-              sessionKind={sessionKind}
-            />
-          )
+        const deliverableEventType = parseDeliverableSystemEventType(
+          message.event_type,
+        )
+
+        if (deliverableEventType) {
+          const counterpartDisplayName =
+            conversationDetail?.counterpart.display_name ?? ''
+
+          switch (deliverableEventType) {
+            case 'DraftSubmitted':
+              return (
+                <DraftSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  conversationId={conversationId}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'DraftApproved':
+              return (
+                <DraftApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                />
+              )
+            case 'ChangesRequested':
+              return (
+                <RequestChangesCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkSubmitted':
+              return (
+                <LinkSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  brandWorkspaceId={extractBrandWorkspaceId(message.payload)}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkApproved':
+              return (
+                <LinkApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  conversationId={conversationId}
+                  viewer={{ kind: sessionKind, role: viewerRole }}
+                  onMarkAsPaid={onMarkAsPaid}
+                />
+              )
+            case 'LinkChangesRequested':
+              return (
+                <LinkChangesRequestedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            default:
+              return assertNever(deliverableEventType)
+          }
         }
 
-        if (message.event_type === 'DraftApproved') {
+        if (message.event_type === 'PaymentMarked') {
           return (
-            <DraftApprovedCard
+            <PaymentMarkedCard
               message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
+              viewer={{ kind: sessionKind }}
+              highlighted={
+                highlightPaymentId !== undefined &&
+                getPaymentMarkedDeclaredPaymentId(message.payload) ===
+                  highlightPaymentId
               }
-            />
-          )
-        }
-
-        if (message.event_type === 'ChangesRequested') {
-          return (
-            <RequestChangesCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              sessionKind={sessionKind}
             />
           )
         }
@@ -244,7 +332,10 @@ export function MessageTimeline({
       currentAccountId,
       conversationDetail?.counterpart.display_name,
       conversationId,
+      onMarkAsPaid,
+      highlightPaymentId,
       sessionKind,
+      viewerRole,
     ],
   )
 
@@ -263,14 +354,15 @@ export function MessageTimeline({
 
   return (
     <div
-      className="flex-1 overflow-hidden"
+      className="flex flex-1 flex-col overflow-hidden"
       style={{ minHeight: 0 }}
       data-testid="message-timeline"
     >
+      {shouldShowHighlightFallback ? <PaymentHighlightFallback /> : null}
       <Virtuoso
         ref={virtuosoRef}
         key={conversationId}
-        style={{ height: '100%' }}
+        style={{ flex: 1, minHeight: 0 }}
         data={timelineItems}
         firstItemIndex={firstItemIndex}
         initialTopMostItemIndex={Math.max(0, timelineItems.length - 1)}
@@ -286,6 +378,53 @@ export function MessageTimeline({
       />
     </div>
   )
+}
+
+function getPaymentMarkedDeclaredPaymentId(
+  payload: Record<string, unknown> | null,
+): string | null {
+  if (!payload) return null
+  const snapshot =
+    // RAFITA:ANY: payload es Record<string, unknown> — el snapshot no tiene tipo estático disponible en este contexto
+    (payload.snapshot as Record<string, unknown> | undefined) ?? payload
+  const declaredPaymentId = snapshot.declared_payment_id
+  return typeof declaredPaymentId === 'string' ? declaredPaymentId : null
+}
+
+function extractBrandWorkspaceId(
+  payload: Record<string, unknown> | null,
+): string | null {
+  if (!payload) return null
+  const snapshot = getRecord(payload.snapshot)
+  return (
+    getString(payload.brand_workspace_id) ??
+    getString(snapshot?.brand_workspace_id)
+  )
+}
+
+const DELIVERABLE_SYSTEM_EVENT_TYPES = [
+  'DraftSubmitted',
+  'DraftApproved',
+  'ChangesRequested',
+  'LinkSubmitted',
+  'LinkApproved',
+  'LinkChangesRequested',
+] as const
+
+type DeliverableSystemEventType =
+  (typeof DELIVERABLE_SYSTEM_EVENT_TYPES)[number]
+
+function parseDeliverableSystemEventType(
+  eventType: string | null,
+): DeliverableSystemEventType | null {
+  const knownEventTypes: readonly string[] = DELIVERABLE_SYSTEM_EVENT_TYPES
+  return eventType && knownEventTypes.includes(eventType)
+    ? (eventType as DeliverableSystemEventType)
+    : null
+}
+
+function assertNever(value: never): never {
+  throw new Error(`Unhandled deliverable system event: ${String(value)}`)
 }
 
 const EVENT_SEVERITY_MAP: Record<string, EventSeverity> = {
@@ -312,6 +451,16 @@ function ConversationBeginningPill() {
     <div className="flex items-center justify-center py-4">
       <span className="rounded-full bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
         {t`Inicio de la conversación`}
+      </span>
+    </div>
+  )
+}
+
+function PaymentHighlightFallback() {
+  return (
+    <div className="flex items-center justify-center py-3">
+      <span className="rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
+        {t`Pago no visible en mensajes recientes`}
       </span>
     </div>
   )

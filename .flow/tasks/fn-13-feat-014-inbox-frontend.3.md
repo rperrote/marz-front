@@ -56,9 +56,8 @@ Antes de implementar: tomar snapshot de los nodos Pencil con `mcp__pencil__get_s
 - [ ] Unit tests: render con data, render empty, render error.
 
 ## Done summary
-
-_(filled on completion)_
-
+Fix aplicado correctamente: CTAs del EmptyState usan Link de TanStack Router. Tests actualizados con RouterProvider. Typecheck, lint y suite completa en verde.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

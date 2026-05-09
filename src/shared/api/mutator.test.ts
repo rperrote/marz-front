@@ -167,6 +167,28 @@ describe('customFetch', () => {
     expect(headers).not.toHaveProperty('Idempotency-Key')
   })
 
+  it('injects brand workspace and preserves caller idempotency headers', async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(jsonResponse(200, { ok: true }))
+
+    setBrandWorkspaceIdProvider(() => 'brand-workspace-1')
+
+    await customFetch('/campaigns/1/matches/2:contact', {
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'mutation-key-1' },
+      body: JSON.stringify({ mode: 'in_platform_invite' }),
+    })
+
+    const [, init] = fetchSpy.mock.calls[0]!
+    const headers = init?.headers as Record<string, string>
+    expect(headers).toMatchObject({
+      Authorization: 'Bearer valid-token',
+      'X-Brand-Workspace-Id': 'brand-workspace-1',
+      'Idempotency-Key': 'mutation-key-1',
+    })
+  })
+
   it('PATCH configuration step → sends workspace and generated idempotency headers', async () => {
     setBrandWorkspaceIdProvider(() => 'workspace-1')
     const randomUUIDSpy = vi

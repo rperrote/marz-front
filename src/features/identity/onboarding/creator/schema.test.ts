@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CreatorOnboardingPayloadSchema } from './schema'
-import type { CreatorOnboardingPayload } from '#/shared/api/generated/model/creatorOnboardingPayload'
+import type { z } from 'zod'
+import type { CreatorOnboardingPayload } from './types'
 
 function validPayload(): CreatorOnboardingPayload {
   return {
@@ -61,7 +62,7 @@ describe('CreatorOnboardingPayloadSchema', () => {
     expect(result.success).toBe(false)
     if (!result.success) {
       const channelsIssue = result.error.issues.find(
-        (i) => i.path[0] === 'channels',
+        (i: z.ZodIssue) => i.path[0] === 'channels',
       )
       expect(channelsIssue).toBeDefined()
       expect(channelsIssue!.message).toBe('exactly_one_primary_required')
@@ -86,7 +87,7 @@ describe('CreatorOnboardingPayloadSchema', () => {
     expect(result.success).toBe(false)
     if (!result.success) {
       const formatIssue = result.error.issues.find(
-        (i) =>
+        (i: z.ZodIssue) =>
           i.path[0] === 'channels' &&
           i.path[2] === 'rate_cards' &&
           i.path[4] === 'format',
@@ -149,7 +150,7 @@ describe('CreatorOnboardingPayloadSchema', () => {
     expect(result.success).toBe(false)
     if (!result.success) {
       const issue = result.error.issues.find(
-        (i) => i.message === 'format_not_valid_for_platform',
+        (i: z.ZodIssue) => i.message === 'format_not_valid_for_platform',
       )
       expect(issue).toBeDefined()
     }

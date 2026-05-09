@@ -349,19 +349,21 @@ describe('MultiStageEditor', () => {
     expect(payload.conversation_id).toBe('conv-1')
     expect(payload.stages).toHaveLength(2)
     expect(payload.stages[0]).toMatchObject({
+      position: 1,
       name: 'Stage One',
       description: 'First stage',
       deadline: '2099-12-15',
       amount: '1200.00',
     })
     expect(payload.stages[1]).toMatchObject({
+      position: 2,
       name: 'Stage Two',
       description: 'Second stage',
       deadline: '2099-12-20',
       amount: '800.00',
     })
     expect(payload.total_amount).toBeUndefined()
-    expect(payload.speed_bonus).toBeUndefined()
+    expect(payload.bonus_terms).toBeNull()
   })
 
   it('is axe-clean', async () => {

@@ -48,9 +48,8 @@ Regenerar el cliente API con Orval contra el backend de dev (que ya tiene `/v1/i
 - [ ] Unit test cubre query key y schema de search.
 
 ## Done summary
-
-_(filled on completion)_
-
+Correcciones aplicadas correctamente: error handling delegado al mutator con narrowing explícito, y useInboxQuery usa el server function getInbox.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

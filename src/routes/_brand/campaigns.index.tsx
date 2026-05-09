@@ -4,12 +4,27 @@ import { Plus } from 'lucide-react'
 import { Button } from '#/components/ui/button'
 import { CampaignMiniCard } from '#/features/campaigns/components/CampaignMiniCard'
 import { useCampaignsList } from '#/features/campaigns/hooks/useCampaignsList'
+import { useRouteTopbar } from '#/features/identity/app-shell/useRouteTopbar'
 
 export const Route = createFileRoute('/_brand/campaigns/')({
   component: CampaignsPage,
 })
 
+const campaignsTopbarConfig = {
+  title: 'Campaigns',
+  actions: (
+    <Button asChild>
+      <Link to="/campaigns/new">
+        <Plus className="size-4" />
+        Nueva campaña
+      </Link>
+    </Button>
+  ),
+}
+
 function CampaignsPage() {
+  useRouteTopbar(campaignsTopbarConfig)
+
   const campaignsQuery = useCampaignsList()
   const campaigns = campaignsQuery.data ?? []
 

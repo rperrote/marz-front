@@ -24,21 +24,28 @@ import { MessageComposer } from './MessageComposer'
 import { NewMessagesPill } from './NewMessagesPill'
 import { TypingIndicator } from './TypingIndicator'
 import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
+import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 
 interface ConversationViewProps {
   conversationId: string
   currentAccountId: string
   sessionKind: 'brand' | 'creator' | undefined
+  viewerRole?: MarkAsPaidViewerRole
   canSendOffer?: CanSendOfferMeta
   onSendOffer?: () => void
+  onMarkAsPaid?: (deliverableId: string) => void
+  highlightPaymentId?: string
 }
 
 export function ConversationView({
   conversationId,
   currentAccountId,
   sessionKind,
+  viewerRole,
   canSendOffer,
   onSendOffer,
+  onMarkAsPaid,
+  highlightPaymentId,
 }: ConversationViewProps) {
   const queryClient = useQueryClient()
   const detailQuery = useConversationDetailQuery(conversationId)
@@ -79,7 +86,12 @@ export function ConversationView({
 
   const onMessageCreated = useCallback(
     (envelope: Parameters<typeof handleMessageCreated>[1]) => {
-      handleMessageCreated(queryClient, envelope, currentAccountId)
+      handleMessageCreated(
+        queryClient,
+        envelope,
+        currentAccountId,
+        conversationId,
+      )
       handleIncomingMessage(envelope.payload.author_account_id)
       clearTyping(conversationId, envelope.payload.author_account_id)
 
@@ -156,7 +168,8 @@ export function ConversationView({
     return <EmptyConversationFallback />
   }
 
-  const canSend = conversation.can_send && conversation.counterpart.is_active
+  const canSend =
+    conversation.can_send && Boolean(conversation.counterpart.is_active)
 
   return (
     <div className="flex h-full flex-col">
@@ -171,6 +184,9 @@ export function ConversationView({
           conversationId={conversationId}
           currentAccountId={currentAccountId}
           sessionKind={sessionKind}
+          viewerRole={viewerRole}
+          onMarkAsPaid={onMarkAsPaid}
+          highlightPaymentId={highlightPaymentId}
           onAtBottomStateChange={onAtBottomStateChange}
           timelineRef={timelineRef}
         />

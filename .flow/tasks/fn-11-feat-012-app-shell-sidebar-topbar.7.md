@@ -50,11 +50,8 @@ Adaptar las rutas existentes (Campaigns brand, Offers creator, Brief Builder, Wo
 - [ ] `pnpm typecheck`, `pnpm test`, `pnpm lint` pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+Migración de topbar contextual correcta: hooks bien colocados en nivel de ruta, WizardShell suprime topbar/progress internos con null explícito, cn resuelve h-screen/h-full vía tailwind-merge, tests de integración cubren los acceptance criteria, typecheck/lint/tests pasan.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

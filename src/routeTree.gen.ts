@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/workspace'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DsOnboardingRouteImport } from './routes/ds-onboarding'
 import { Route as DsRouteImport } from './routes/ds'
@@ -26,6 +27,9 @@ import { Route as AuthKindRouteImport } from './routes/auth/kind'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
+import { Route as CreatorEarningsRouteImport } from './routes/_creator/earnings'
+import { Route as CreatorCampaignsRouteImport } from './routes/_creator/campaigns'
+import { Route as BrandPaymentsRouteImport } from './routes/_brand/payments'
 import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
 import { Route as OnboardingCreatorIndexRouteImport } from './routes/onboarding/creator.index'
 import { Route as OnboardingBrandIndexRouteImport } from './routes/onboarding/brand.index'
@@ -44,6 +48,11 @@ import { Route as BrandCampaignsCampaignIdConfigurationStepRouteImport } from '.
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
   path: '/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthRoute = HealthRouteImport.update({
@@ -123,6 +132,21 @@ const CreatorOffersRoute = CreatorOffersRouteImport.update({
   id: '/offers',
   path: '/offers',
   getParentRoute: () => CreatorRoute,
+} as any)
+const CreatorEarningsRoute = CreatorEarningsRouteImport.update({
+  id: '/earnings',
+  path: '/earnings',
+  getParentRoute: () => CreatorRoute,
+} as any)
+const CreatorCampaignsRoute = CreatorCampaignsRouteImport.update({
+  id: '/campaigns',
+  path: '/campaigns',
+  getParentRoute: () => CreatorRoute,
+} as any)
+const BrandPaymentsRoute = BrandPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => BrandRoute,
 } as any)
 const BrandCampaignsRoute = BrandCampaignsRouteImport.update({
   id: '/campaigns',
@@ -206,8 +230,11 @@ export interface FileRoutesByFullPath {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
-  '/campaigns': typeof BrandCampaignsRouteWithChildren
+  '/campaigns': typeof CreatorCampaignsRoute
+  '/payments': typeof BrandPaymentsRoute
+  '/earnings': typeof CreatorEarningsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -237,6 +264,10 @@ export interface FileRoutesByTo {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
+  '/payments': typeof BrandPaymentsRoute
+  '/campaigns': typeof BrandCampaignsIndexRoute
+  '/earnings': typeof CreatorEarningsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -248,7 +279,6 @@ export interface FileRoutesByTo {
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
   '/workspace/conversations/$conversationId': typeof WorkspaceConversationsConversationIdRoute
-  '/campaigns': typeof BrandCampaignsIndexRoute
   '/onboarding/brand': typeof OnboardingBrandIndexRoute
   '/onboarding/creator': typeof OnboardingCreatorIndexRoute
   '/campaigns/$campaignId/brief': typeof BrandCampaignsCampaignIdBriefRoute
@@ -266,8 +296,12 @@ export interface FileRoutesById {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/_brand/campaigns': typeof BrandCampaignsRouteWithChildren
+  '/_brand/payments': typeof BrandPaymentsRoute
+  '/_creator/campaigns': typeof CreatorCampaignsRoute
+  '/_creator/earnings': typeof CreatorEarningsRoute
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -299,8 +333,11 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/workspace'
     | '/campaigns'
+    | '/payments'
+    | '/earnings'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -330,6 +367,10 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
+    | '/payments'
+    | '/campaigns'
+    | '/earnings'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -341,7 +382,6 @@ export interface FileRouteTypes {
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
     | '/workspace/conversations/$conversationId'
-    | '/campaigns'
     | '/onboarding/brand'
     | '/onboarding/creator'
     | '/campaigns/$campaignId/brief'
@@ -358,8 +398,12 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/workspace'
     | '/_brand/campaigns'
+    | '/_brand/payments'
+    | '/_creator/campaigns'
+    | '/_creator/earnings'
     | '/_creator/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -392,6 +436,7 @@ export interface RootRouteChildren {
   DsRoute: typeof DsRoute
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
+  InboxRoute: typeof InboxRoute
   WorkspaceRoute: typeof WorkspaceRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
@@ -409,6 +454,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace'
       fullPath: '/workspace'
       preLoaderRoute: typeof WorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health': {
@@ -522,6 +574,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/offers'
       preLoaderRoute: typeof CreatorOffersRouteImport
       parentRoute: typeof CreatorRoute
+    }
+    '/_creator/earnings': {
+      id: '/_creator/earnings'
+      path: '/earnings'
+      fullPath: '/earnings'
+      preLoaderRoute: typeof CreatorEarningsRouteImport
+      parentRoute: typeof CreatorRoute
+    }
+    '/_creator/campaigns': {
+      id: '/_creator/campaigns'
+      path: '/campaigns'
+      fullPath: '/campaigns'
+      preLoaderRoute: typeof CreatorCampaignsRouteImport
+      parentRoute: typeof CreatorRoute
+    }
+    '/_brand/payments': {
+      id: '/_brand/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof BrandPaymentsRouteImport
+      parentRoute: typeof BrandRoute
     }
     '/_brand/campaigns': {
       id: '/_brand/campaigns'
@@ -687,19 +760,25 @@ const BrandCampaignsRouteWithChildren = BrandCampaignsRoute._addFileChildren(
 
 interface BrandRouteChildren {
   BrandCampaignsRoute: typeof BrandCampaignsRouteWithChildren
+  BrandPaymentsRoute: typeof BrandPaymentsRoute
 }
 
 const BrandRouteChildren: BrandRouteChildren = {
   BrandCampaignsRoute: BrandCampaignsRouteWithChildren,
+  BrandPaymentsRoute: BrandPaymentsRoute,
 }
 
 const BrandRouteWithChildren = BrandRoute._addFileChildren(BrandRouteChildren)
 
 interface CreatorRouteChildren {
+  CreatorCampaignsRoute: typeof CreatorCampaignsRoute
+  CreatorEarningsRoute: typeof CreatorEarningsRoute
   CreatorOffersRoute: typeof CreatorOffersRoute
 }
 
 const CreatorRouteChildren: CreatorRouteChildren = {
+  CreatorCampaignsRoute: CreatorCampaignsRoute,
+  CreatorEarningsRoute: CreatorEarningsRoute,
   CreatorOffersRoute: CreatorOffersRoute,
 }
 
@@ -756,6 +835,7 @@ const rootRouteChildren: RootRouteChildren = {
   DsRoute: DsRoute,
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
+  InboxRoute: InboxRoute,
   WorkspaceRoute: WorkspaceRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,

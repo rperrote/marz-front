@@ -9,6 +9,9 @@ test.describe('Workspace shell — estado vacío', () => {
     await page.goto('/workspace')
 
     await expect(page).toHaveURL(/\/workspace/)
+    await expect(page.getByTestId('app-shell')).toHaveCount(1)
+    await expect(page.getByTestId('app-sidebar')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Creators' })).toBeVisible()
     const rail = page.getByRole('region', { name: /conversaciones/i })
     await expect(rail).toBeVisible()
 
@@ -28,6 +31,9 @@ test.describe('Workspace shell — estado vacío', () => {
     await page.goto('/workspace')
 
     await expect(page).toHaveURL(/\/workspace/)
+    await expect(page.getByTestId('app-shell')).toHaveCount(1)
+    await expect(page.getByTestId('app-sidebar')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Creators' })).toHaveCount(0)
     await expect(
       page.getByRole('region', { name: /conversaciones/i }),
     ).toBeVisible()

@@ -18,6 +18,7 @@ export interface SendMessageVariables {
   clientMessageId: string
   text: string
   currentAccountId: string
+  idempotencyKey?: string
 }
 
 type MessagesInfiniteData = InfiniteData<
@@ -100,11 +101,21 @@ export function useSendMessageMutation(conversationId: string) {
   const messagesKey = getMessagesQueryKey(conversationId)
 
   return useMutation({
-    mutationFn: async ({ clientMessageId, text }: SendMessageVariables) => {
-      const response = (await sendMessage(conversationId, {
-        client_message_id: clientMessageId,
-        text,
-      })) as { data: MessageResponse }
+    mutationFn: async ({
+      clientMessageId,
+      idempotencyKey,
+      text,
+    }: SendMessageVariables) => {
+      const response = (await sendMessage(
+        conversationId,
+        {
+          client_message_id: clientMessageId,
+          text,
+        },
+        idempotencyKey
+          ? { headers: { 'Idempotency-Key': idempotencyKey } }
+          : undefined,
+      )) as { data: MessageResponse }
 
       return {
         message: fromMessageResponse(response.data),
@@ -152,7 +163,7 @@ export function useSendMessageMutation(conversationId: string) {
       })
     },
 
-    onError: (error, _variables, context) => {
+    onError: (error, variables, context) => {
       if (context?.confirmationTimeout) {
         clearTimeout(context.confirmationTimeout)
       }
@@ -172,6 +183,13 @@ export function useSendMessageMutation(conversationId: string) {
           return context?.previousMessages ?? old
         return markMessageFailed(old, context.clientMessageId)
       })
+      if (
+        variables.idempotencyKey &&
+        error instanceof ApiError &&
+        error.status === 409
+      ) {
+        return
+      }
       toast.error(t`Error al enviar el mensaje. Intenta nuevamente.`)
     },
 

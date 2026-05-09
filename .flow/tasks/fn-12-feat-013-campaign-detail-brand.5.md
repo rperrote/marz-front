@@ -53,9 +53,8 @@ Dialogs centrados, redondeados. Botones primary solo para acción principal (Sen
 - [ ] `pnpm typecheck` pasa.
 
 ## Done summary
-
-_(filled on completion)_
-
+canShowInPlatformInvites corregido y onAddManually eliminada — todos los issues resueltos, spec cubierta, typecheck verde, 9 tests pasando
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

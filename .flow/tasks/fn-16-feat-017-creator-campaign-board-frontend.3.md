@@ -55,9 +55,8 @@ Implementar el layout visual del board desktop: page composer, header con counts
 - [ ] Validación visual contra Pencil `g941zm` ≥95% (adaptado a light)
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+Todos los issues del round anterior resueltos: switch accesible y funcional, formatDeadline determinístico con tests de borde, grid 2-col en tablet, placeholder documentado. Typecheck, lint y 133 test files verdes.
 ## Evidence
-
-_To be filled by worker on completion._
+- Commits:
+- Tests:
+- PRs:

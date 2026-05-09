@@ -47,9 +47,8 @@ Sidebar creator es icon-only/collapsed (ver frame `m63kj`). Tokens dark de `marz
 - [ ] `pnpm typecheck` pasa.
 
 ## Done summary
-
-_Pending implementation._
-
+Ambos fixes aplicados correctamente: earnings.tsx queda como stub limpio sin schema anticipado, y Messages pasa a to: undefined eliminando el doble active state.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

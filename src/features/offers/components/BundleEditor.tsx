@@ -12,13 +12,14 @@ import { ApiError } from '#/shared/api/mutator'
 import { useSendOfferSheetStore } from '../store/sendOfferSheetStore'
 import { useCreateBundleOffer } from '../hooks/useCreateBundleOffer'
 import { todayString } from '../utils/dateUtils'
-import { SpeedBonusFields } from './SpeedBonusFields'
+import { BonusTermsFields, BonusWindowRow } from './BonusTermsFields'
 import { DeliverableSummaryRow } from './DeliverableSummaryRow'
 import { BundlePlatformRow } from './BundlePlatformRow'
 import {
   bundleEditorBaseSchema,
   bundleEditorSubmitSchema,
 } from '../schemas/bundleEditor'
+import { sortBonusTerms } from '../utils/bonusTerms'
 
 function getPlatformOptions() {
   return [
@@ -50,8 +51,15 @@ export const defaultValues = {
   campaign_id: '',
   total_amount: '',
   deadline: '',
-  speed_bonus_enabled: false,
-  speed_bonus: null as { early_deadline: string; bonus_amount: string } | null,
+  bonus_terms: {
+    speed_bonus_windows: [],
+  } as {
+    speed_bonus_windows: Array<{
+      id: string
+      window_hours: number
+      bonus_pct: string
+    }>
+  },
   deliverables: [
     {
       id: crypto.randomUUID() as string,
@@ -95,20 +103,19 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
         type: 'bundle' as const,
         campaign_id: value.campaign_id,
         conversation_id: conversationId,
-        total_amount: value.total_amount,
+        amount: value.total_amount,
         deadline: value.deadline,
-        speed_bonus:
-          value.speed_bonus_enabled && value.speed_bonus
-            ? {
-                early_deadline: value.speed_bonus.early_deadline,
-                bonus_amount: value.speed_bonus.bonus_amount,
-              }
+        bonus_terms:
+          value.bonus_terms.speed_bonus_windows.length > 0
+            ? sortBonusTerms(value.bonus_terms)
             : undefined,
-        deliverables: value.deliverables.map((d) => ({
-          platform: d.platform as 'youtube' | 'instagram' | 'tiktok',
+        description: '',
+        deliverables: value.deliverables.map((d, index) => ({
+          position: index + 1,
+          platform: d.platform,
           format: d.format,
           quantity: d.quantity,
-          amount: d.amount.length > 0 ? d.amount : undefined,
+          amount: d.amount.length > 0 ? d.amount : null,
         })),
       }
 
@@ -135,12 +142,12 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
   }, [isDirty, onDirtyChange])
 
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
-  const speedBonusEnabled = useStore(
-    form.store,
-    (s) => s.values.speed_bonus_enabled,
-  )
   const totalAmountValue = useStore(form.store, (s) => s.values.total_amount)
   const deliverables = useStore(form.store, (s) => s.values.deliverables)
+  const bonusWindows = useStore(
+    form.store,
+    (s) => s.values.bonus_terms.speed_bonus_windows,
+  )
 
   const selectedCampaign = useMemo(
     () => campaigns.find((c) => c.id === selectedCampaignId),
@@ -160,18 +167,6 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
     value: c.id,
     label: c.name,
   }))
-
-  function handleSpeedBonusToggle(enabled: boolean) {
-    form.setFieldValue('speed_bonus_enabled', enabled)
-    if (enabled) {
-      form.setFieldValue('speed_bonus', {
-        early_deadline: '',
-        bonus_amount: '',
-      })
-    } else {
-      form.setFieldValue('speed_bonus', null)
-    }
-  }
 
   return (
     <form
@@ -344,30 +339,55 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
           </form.AppField>
         </div>
 
-        <SpeedBonusFields
-          enabled={speedBonusEnabled}
-          onToggle={handleSpeedBonusToggle}
-        >
-          <form.AppField name="speed_bonus.early_deadline">
-            {(field) => (
-              <field.TextField
-                label={t`Early deadline`}
-                type="date"
-                min={todayString()}
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="speed_bonus.bonus_amount">
-            {(field) => (
-              <field.TextField
-                label={t`Bonus amount (${currency})`}
-                placeholder="0.00"
-                inputMode="decimal"
-              />
-            )}
-          </form.AppField>
-        </SpeedBonusFields>
+        <form.AppField name="bonus_terms.speed_bonus_windows" mode="array">
+          {(field) => (
+            <BonusTermsFields
+              onAdd={() =>
+                field.pushValue({
+                  id: crypto.randomUUID(),
+                  window_hours: 24,
+                  bonus_pct: '',
+                })
+              }
+            >
+              {bonusWindows.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-border bg-background px-3 py-4 text-sm text-muted-foreground">
+                  {t`No speed bonus windows yet.`}
+                </p>
+              ) : null}
+              {bonusWindows.map((window, index) => (
+                <BonusWindowRow
+                  key={window.id}
+                  index={index}
+                  onRemove={() => field.removeValue(index)}
+                >
+                  <form.AppField
+                    name={`bonus_terms.speed_bonus_windows[${index}].window_hours`}
+                  >
+                    {(windowField) => (
+                      <windowField.NumberField
+                        label={t`Window hours`}
+                        min={1}
+                        placeholder="24"
+                      />
+                    )}
+                  </form.AppField>
+                  <form.AppField
+                    name={`bonus_terms.speed_bonus_windows[${index}].bonus_pct`}
+                  >
+                    {(bonusField) => (
+                      <bonusField.TextField
+                        label={t`Bonus percentage`}
+                        placeholder="25"
+                        inputMode="decimal"
+                      />
+                    )}
+                  </form.AppField>
+                </BonusWindowRow>
+              ))}
+            </BonusTermsFields>
+          )}
+        </form.AppField>
 
         <DeliverableSummaryRow
           label={t`Total`}

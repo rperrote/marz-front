@@ -8,15 +8,17 @@ vi.mock('#/shared/auth/getServerMe', () => ({
   getServerMe: () => Promise.resolve(mockServerMeResult),
 }))
 
-vi.mock('#/shared/analytics/track', () => ({
-  track: vi.fn(),
-}))
-
 vi.mock('#/shared/api/generated/accounts/accounts', () => ({
   getMeQueryKey: () => ['/v1/me'],
 }))
 
-function makeQueryClient(): any {
+interface QueryClientMock {
+  getQueryData: ReturnType<typeof vi.fn>
+  getQueryState: ReturnType<typeof vi.fn>
+  setQueryData: ReturnType<typeof vi.fn>
+}
+
+function makeQueryClient(): QueryClientMock {
   return {
     getQueryData: vi.fn(() => undefined),
     getQueryState: vi.fn(() => undefined),
@@ -34,10 +36,27 @@ async function callBeforeLoad(
       beforeLoad: (opts: {
         context: { queryClient: ReturnType<typeof makeQueryClient> }
         location: { pathname: string }
-      }) => Promise<void>
+      }) => Promise<{
+        accountId: string
+        hasBrandWorkspace: boolean
+        brandWorkspaceRole?: 'owner' | 'admin' | 'member'
+      }>
     }
   ).beforeLoad
   return beforeLoad({ context: { queryClient }, location: { pathname } })
+}
+
+async function callPaymentsBeforeLoad(role?: 'owner' | 'admin' | 'member') {
+  const { Route } = await import('./_brand/payments')
+  const beforeLoad = (
+    Route.options as unknown as {
+      beforeLoad: (opts: {
+        context: { brandWorkspaceRole?: 'owner' | 'admin' | 'member' }
+      }) => void
+    }
+  ).beforeLoad
+
+  return beforeLoad({ context: { brandWorkspaceRole: role } })
 }
 
 describe('/_brand beforeLoad', () => {
@@ -55,9 +74,11 @@ describe('/_brand beforeLoad', () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_brand_pending',
         kind: 'brand',
         onboarding_status: 'onboarding_pending',
         redirect_to: '/onboarding/brand',
+        brand_workspace: { id: 'ws_1' },
       },
     }
     await expect(callBeforeLoad()).rejects.toEqual(
@@ -65,34 +86,57 @@ describe('/_brand beforeLoad', () => {
     )
   })
 
-  it('redirects to /auth when onboarding incomplete and no redirect_to', async () => {
+  it('redirects to /onboarding/brand when onboarding incomplete and no redirect_to', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_brand_pending',
         kind: 'brand',
         onboarding_status: 'kind_pending',
         redirect_to: null,
+        brand_workspace: { id: 'ws_1' },
       },
     }
-    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
+    await expect(callBeforeLoad()).rejects.toEqual(
+      redirect({ to: '/onboarding/brand' }),
+    )
   })
 
-  it('redirects to /offers when kind is creator', async () => {
+  it('redirects to /workspace when kind is creator', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_creator_1',
         kind: 'creator',
         onboarding_status: 'onboarded',
         redirect_to: null,
       },
     }
-    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/offers' }))
+    await expect(callBeforeLoad()).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
+  })
+
+  it('uses the same creator fallback for /payments as other brand routes', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_creator_1',
+        kind: 'creator',
+        onboarding_status: 'onboarded',
+        redirect_to: null,
+      },
+    }
+    await expect(callBeforeLoad('/_brand/payments')).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
   })
 
   it('redirects to /auth when kind is null', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_pending_kind',
         kind: null,
         onboarding_status: 'onboarded',
         redirect_to: null,
@@ -101,30 +145,54 @@ describe('/_brand beforeLoad', () => {
     await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
   })
 
-  it('does not redirect when kind is brand and onboarded', async () => {
+  it('redirects to /auth when kind is invalid', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_invalid_kind',
+        kind: 'admin',
+        onboarding_status: 'onboarding_pending',
+        redirect_to: '/onboarding/brand',
+      },
+    }
+    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
+  })
+
+  it('returns AppShell context when kind is brand, onboarded, and has workspace', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_brand_1',
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
+        brand_workspace: { id: 'ws_1' },
+        membership: { role: 'admin' },
       },
     }
-    await expect(callBeforeLoad()).resolves.toBeUndefined()
+    await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
+      accountId: 'acct_brand_1',
+      hasBrandWorkspace: true,
+      brandWorkspaceRole: 'admin',
+    })
   })
 
-  it('fires onboarding_redirect_enforced analytics', async () => {
-    const { track } = await import('#/shared/analytics/track')
-    mockServerMeResult = { ok: false, body: null }
-    try {
-      await callBeforeLoad('/_brand/chat')
-    } catch {
-      // redirect thrown
+  it('returns MissingWorkspace fallback context when brand is onboarded without workspace', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_brand_1',
+        kind: 'brand',
+        onboarding_status: 'onboarded',
+        redirect_to: null,
+        brand_workspace: null,
+        membership: { role: 'member' },
+      },
     }
-    expect(track).toHaveBeenCalledWith('onboarding_redirect_enforced', {
-      from: '/_brand/chat',
-      to: '/auth',
-      reason: 'no_session',
+    await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
+      accountId: 'acct_brand_1',
+      hasBrandWorkspace: false,
+      brandWorkspaceRole: 'member',
     })
   })
 
@@ -133,16 +201,21 @@ describe('/_brand beforeLoad', () => {
     qc.getQueryData.mockReturnValue({
       status: 200,
       data: {
+        id: 'acct_brand_cached',
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
+        brand_workspace: { id: 'ws_cached' },
+        membership: { role: 'owner' },
       },
     })
     qc.getQueryState.mockReturnValue({ dataUpdatedAt: Date.now() })
 
-    await expect(
-      callBeforeLoad('/_brand/campaigns', qc),
-    ).resolves.toBeUndefined()
+    await expect(callBeforeLoad('/_brand/campaigns', qc)).resolves.toEqual({
+      accountId: 'acct_brand_cached',
+      hasBrandWorkspace: true,
+      brandWorkspaceRole: 'owner',
+    })
   })
 
   it('seeds queryClient after fetching from server', async () => {
@@ -150,9 +223,11 @@ describe('/_brand beforeLoad', () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_brand_seed',
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
+        brand_workspace: { id: 'ws_seed' },
       },
     }
     await callBeforeLoad('/_brand/campaigns', qc)
@@ -161,5 +236,44 @@ describe('/_brand beforeLoad', () => {
       expect.objectContaining({ status: 200 }),
       expect.any(Object),
     )
+  })
+})
+
+describe('/_brand/payments beforeLoad', () => {
+  it('allows brand admins through the route-specific guard', async () => {
+    await expect(callPaymentsBeforeLoad('admin')).resolves.toBeUndefined()
+  })
+
+  it('redirects non-admin brand roles to /workspace', async () => {
+    await expect(callPaymentsBeforeLoad('owner')).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
+    await expect(callPaymentsBeforeLoad('member')).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
+  })
+
+  it('defaults payments search period to 30d', async () => {
+    const { paymentsSearchSchema } = await import('./_brand/payments')
+
+    expect(paymentsSearchSchema.parse({})).toEqual({ period: '30d' })
+  })
+
+  it('accepts typed payments search params', async () => {
+    const { paymentsSearchSchema } = await import('./_brand/payments')
+
+    expect(
+      paymentsSearchSchema.parse({
+        period: '90d',
+        campaignId: '11111111-1111-4111-8111-111111111111',
+        creatorId: '22222222-2222-4222-8222-222222222222',
+        q: 'invoice',
+      }),
+    ).toEqual({
+      period: '90d',
+      campaignId: '11111111-1111-4111-8111-111111111111',
+      creatorId: '22222222-2222-4222-8222-222222222222',
+      q: 'invoice',
+    })
   })
 })

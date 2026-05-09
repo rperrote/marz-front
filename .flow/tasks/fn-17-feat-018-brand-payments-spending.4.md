@@ -70,9 +70,8 @@ Construir la UI completa del dashboard desktop dark según frame Pencil `mLJAj`:
 - [ ] Tests unit cubren render USD-only y empty states.
 
 ## Done summary
-
-_To be filled when task completes._
-
+Migración a useInfiniteQuery correcta: elimina los tres bugs del round anterior (flash empty state, server state duplicado en useState, cursor stale en closure). Tests actualizados con la estructura InfiniteData correcta. Typecheck limpio, 26 tests passing.
 ## Evidence
-
-_To be filled when task completes._
+- Commits:
+- Tests:
+- PRs:

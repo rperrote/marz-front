@@ -6,9 +6,9 @@ import { Button } from '#/components/ui/button'
 import { SystemEventCard, StatTile } from '#/shared/ui/SystemEventCard'
 import { useNow } from '#/shared/hooks/useNow'
 import { useViewedOnce } from '#/shared/hooks/useViewedOnce'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import type { OfferSnapshot, OfferStatus } from '../types'
 import {
-  formatOfferAmount,
   formatOfferDeadline,
   formatOfferPlatform,
   formatExpiresIn,

@@ -1,5 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
+import type {
+  CreateBundleOfferRequest as GeneratedCreateBundleOfferRequest,
+  OfferBonusTerms,
+} from '#/shared/api/generated/model'
 
 import {
   trackOfferEvent,
@@ -8,23 +12,7 @@ import {
   toPlatformMix,
 } from '../analytics'
 
-export interface CreateBundleOfferRequest {
-  type: 'bundle'
-  campaign_id: string
-  conversation_id: string
-  total_amount: string
-  deadline: string
-  speed_bonus?: {
-    early_deadline: string
-    bonus_amount: string
-  } | null
-  deliverables: Array<{
-    platform: 'youtube' | 'instagram' | 'tiktok'
-    format: string
-    quantity: number
-    amount?: string
-  }>
-}
+export type CreateBundleOfferRequest = GeneratedCreateBundleOfferRequest
 
 interface OfferDTO {
   id: string
@@ -37,11 +25,7 @@ interface OfferDTO {
   total_amount: string
   currency: string
   deadline: string
-  speed_bonus: {
-    early_deadline: string
-    bonus_amount: string
-    currency: string
-  } | null
+  bonus_terms: OfferBonusTerms | null
   sent_at: string
   expires_at: string
   accepted_at: string | null
@@ -53,9 +37,6 @@ interface CreateOfferResponse {
   status: number
 }
 
-// CLOSER:DRIFT: backend `CreateBundleOfferRequest` requires `description`, a top-level
-// `amount` (kept here as `total_amount`), `position` per deliverable, and an optional
-// summary `deliverable`. Migration mirrors single-offer drift; tracked, not auto-fixed.
 export function useCreateBundleOffer() {
   return useMutation<CreateOfferResponse, Error, CreateBundleOfferRequest>({
     mutationFn: (data) =>
@@ -64,15 +45,15 @@ export function useCreateBundleOffer() {
         body: JSON.stringify(data),
       }),
     onSuccess: (_data, variables) => {
-      const amount = parseFloat(variables.total_amount)
-      const hasSpeedBonus =
-        variables.speed_bonus !== undefined && variables.speed_bonus !== null
+      const amount = parseFloat(variables.amount)
+      const hasBonusTerms =
+        (variables.bonus_terms?.speed_bonus_windows.length ?? 0) > 0
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'bundle',
         platform_mix: toPlatformMix(variables.deliverables),
         deliverables_count: variables.deliverables.length,
-        has_speed_bonus: hasSpeedBonus,
+        has_bonus_terms: hasBonusTerms,
         total_amount_bucket: toAmountBucket(amount, 'USD'),
         deadline_days_from_now: daysFromNow(variables.deadline),
       })

@@ -50,9 +50,8 @@ DESIGN: usar tokens shadcn/dark (no hex). Sidebar item con icono `Wallet` (lucid
 - [ ] Item de sidebar tiene nombre accesible.
 
 ## Done summary
-
-_To be filled when task completes._
-
+Ruta payments, guard admin, item sidebar y tests implementados correctamente siguiendo los patrones del proyecto
 ## Evidence
-
-_To be filled when task completes._
+- Commits:
+- Tests:
+- PRs:
