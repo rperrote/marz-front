@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro'
 
 import { cn } from '#/lib/utils'
 import type { CreatorEarningsPeriod } from '#/shared/api/generated/model'
+import { trackEarningsPeriodChanged } from '../analytics'
 
 const periodOptions = [
   { value: '30d', label: () => t`30d` },
@@ -22,6 +23,15 @@ export function EarningsPeriodControl({
   value,
   onChange,
 }: EarningsPeriodControlProps) {
+  function handleChange(nextPeriod: CreatorEarningsPeriod) {
+    if (nextPeriod === value) {
+      return
+    }
+
+    trackEarningsPeriodChanged({ from: value, to: nextPeriod })
+    onChange(nextPeriod)
+  }
+
   return (
     <div
       role="radiogroup"
@@ -37,7 +47,7 @@ export function EarningsPeriodControl({
             type="button"
             role="radio"
             aria-checked={isActive}
-            onClick={() => onChange(option.value)}
+            onClick={() => handleChange(option.value)}
             className={cn(
               'h-7 rounded-full px-3.5 text-xs font-medium text-muted-foreground transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none',
               isActive &&

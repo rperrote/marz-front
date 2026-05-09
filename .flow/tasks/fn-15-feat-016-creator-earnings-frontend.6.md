@@ -45,9 +45,8 @@ Eventos de analytics fire-and-forget para el dashboard Earnings. Conecta los com
 - [ ] `pnpm typecheck` y `pnpm test` pasan.
 
 ## Done summary
-
-_Pending implementation._
-
+Test movido a src/features/earnings/analytics.test.ts con imports relativos corregidos. 6 tests pasan. Sin issues pendientes.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { Button } from '#/components/ui/button'
 import { cn } from '#/lib/utils'
 import type { CreatorPendingBonus } from '#/shared/api/generated/model'
+import { trackEarningsBonusOpened } from '../analytics'
 
 export type PendingBonusCardBonus = Omit<CreatorPendingBonus, 'type'> & {
   type: string
@@ -32,6 +33,14 @@ export function PendingBonusCard({ bonus }: PendingBonusCardProps) {
   const campaignName = bonus.campaign_name ?? t`Campaign`
   const deliverableLabel = bonus.deliverable_label ?? t`Deliverable`
   const isUrgent = secondsRemaining <= urgentCountdownThresholdSeconds
+
+  function handleOpenBonus() {
+    trackEarningsBonusOpened({
+      bonus_id: bonus.id,
+      offer_id: bonus.offer_id,
+      conversation_id: bonus.conversation_id,
+    })
+  }
 
   return (
     <article
@@ -83,7 +92,7 @@ export function PendingBonusCard({ bonus }: PendingBonusCardProps) {
           <span>{countdownLabel}</span>
         </div>
         <Button className="w-full rounded-full sm:w-auto" size="sm" asChild>
-          <Link to={bonus.action.href}>
+          <Link to={bonus.action.href} onClick={handleOpenBonus}>
             <Trans>Ver oferta</Trans>
             <ArrowRight className="size-3" aria-hidden="true" />
           </Link>

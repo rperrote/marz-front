@@ -12,6 +12,7 @@ import type {
   CreatorEarningsPaymentRow,
   CreatorEarningsPeriod,
 } from '#/shared/api/generated/model'
+import { trackEarningsPaymentOpened } from '../analytics'
 import { EarningsSearchExportBar } from './EarningsSearchExportBar'
 
 interface EarningsPaymentsTableProps {
@@ -29,6 +30,10 @@ export function EarningsPaymentsTable({
   const [showTruncatedBanner, setShowTruncatedBanner] = useState(false)
 
   function handleRowClick(payment: CreatorEarningsPaymentRow) {
+    trackEarningsPaymentOpened({
+      payment_kind: payment.kind,
+      conversation_id: payment.conversation_id,
+    })
     void navigateFromEarnings({
       to: payment.href,
       search: (previous) => previous,
@@ -66,6 +71,7 @@ export function EarningsPaymentsTable({
         <EarningsSearchExportBar
           period={period}
           q={q}
+          rowCount={payments.total_visible}
           onTruncatedExport={() => setShowTruncatedBanner(true)}
         />
 

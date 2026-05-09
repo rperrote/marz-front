@@ -1,8 +1,10 @@
+import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
 
 import type { CreatorEarningsPeriod } from '#/shared/api/generated/model'
+import { trackEarningsViewed } from '../analytics'
 import { useCreatorEarningsQuery } from '../hooks/useCreatorEarnings'
 import { EarningsKpiGrid } from './EarningsKpiGrid'
 import { EarningsPeriodControl } from './EarningsPeriodControl'
@@ -23,12 +25,22 @@ export function EarningsPage({
   cursor,
   onPeriodChange,
 }: EarningsPageProps) {
+  const hasTrackedView = useRef(false)
   const earningsQuery = useCreatorEarningsQuery({
     period,
     q,
     cursor,
     limit: 25,
   })
+
+  useEffect(() => {
+    if (hasTrackedView.current) {
+      return
+    }
+
+    hasTrackedView.current = true
+    trackEarningsViewed()
+  }, [])
 
   if (earningsQuery.isLoading) {
     return <EarningsPageShell period={period} onPeriodChange={onPeriodChange} />

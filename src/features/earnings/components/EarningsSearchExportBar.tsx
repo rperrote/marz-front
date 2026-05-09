@@ -8,6 +8,10 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import type { CreatorEarningsPeriod } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
+import {
+  trackEarningsCsvExported,
+  trackEarningsPaymentSearchUsed,
+} from '../analytics'
 import { useExportCreatorEarningsMutation } from '../hooks/useExportCreatorEarnings'
 import { buildEarningsCsvFilename, downloadCsvBlob } from '../utils/exportCsv'
 
@@ -17,12 +21,14 @@ const MAX_SEARCH_LENGTH = 120
 interface EarningsSearchExportBarProps {
   period: CreatorEarningsPeriod
   q?: string
+  rowCount: number
   onTruncatedExport: () => void
 }
 
 export function EarningsSearchExportBar({
   period,
   q,
+  rowCount,
   onTruncatedExport,
 }: EarningsSearchExportBarProps) {
   const navigate = useNavigate({ from: '/earnings' })
@@ -43,6 +49,10 @@ export function EarningsSearchExportBar({
 
     const timer = window.setTimeout(() => {
       const trimmed = localSearch.trim()
+      if (trimmed.length > 0) {
+        trackEarningsPaymentSearchUsed({ q: trimmed })
+      }
+
       void navigate({
         search: (previous) => ({
           ...previous,
@@ -76,6 +86,12 @@ export function EarningsSearchExportBar({
           downloadCsvBlob({
             blob: result.blob,
             filename: buildEarningsCsvFilename(period),
+          })
+          trackEarningsCsvExported({
+            period,
+            q: q?.trim() || undefined,
+            truncated: result.truncated,
+            row_count: rowCount,
           })
           if (result.truncated) {
             onTruncatedExport()
