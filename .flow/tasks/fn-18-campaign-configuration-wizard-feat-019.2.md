@@ -60,9 +60,8 @@ Full design system: `src/styles.css` y `marz-design/marzv2.pen` (read-only via P
 - [ ] `pnpm test` pasa para nuevos tests; `pnpm typecheck` y `pnpm lint` pasan.
 
 ## Done summary
-
-_Pending implementation._
-
+Todos los fixes aplicados correctamente: redirect already_active/not_draft tipado a /campaigns/$campaignId, getStepCopy() como función en render, ruta de detalle registrada. Typecheck y tests limpios.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:
