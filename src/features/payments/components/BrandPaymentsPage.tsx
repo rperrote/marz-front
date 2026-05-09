@@ -1,10 +1,20 @@
 import { t } from '@lingui/core/macro'
 import { useQueryClient } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
-import { useMemo } from 'react'
+import { Download, RefreshCw } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '#/components/ui/button'
 import { useBrandSession } from '#/features/identity/session/BrandSessionContext'
+import { ApiError } from '#/shared/api/mutator'
+import {
+  trackBrandPaymentsCsvExported,
+  trackBrandPaymentsFilterChanged,
+  trackBrandPaymentsPeriodChanged,
+  trackBrandPaymentsRefreshClicked,
+  trackBrandPaymentsSearchUsed,
+  trackBrandPaymentsViewed,
+} from '../analytics'
 import type {
   BrandPaymentHistoryRow,
   BrandPaymentsSearch,
@@ -13,6 +23,7 @@ import {
   getBrandPaymentsSpendingQueryKey,
   useBrandPaymentsSpendingQuery,
 } from '../hooks/useBrandPaymentsSpendingQuery'
+import { useExportBrandPaymentsCsvMutation } from '../hooks/useExportBrandPaymentsCsvMutation'
 import { BrandPaymentsFilters } from './BrandPaymentsFilters'
 import { BrandPaymentsTable } from './BrandPaymentsTable'
 import { CampaignSpendDonut } from './CampaignSpendDonut'
@@ -35,6 +46,7 @@ export function BrandPaymentsPage({
   const queryClient = useQueryClient()
   const { brandWorkspace } = useBrandSession()
   const spendingQuery = useBrandPaymentsSpendingQuery({ filters })
+  const exportCsvMutation = useExportBrandPaymentsCsvMutation()
   const pages = spendingQuery.data?.pages ?? []
   const visibleResponse = pages[0]
   const visibleRows = useMemo(
@@ -51,12 +63,97 @@ export function BrandPaymentsPage({
       ? 'no-results'
       : 'no-payments'
 
+  useEffect(() => {
+    trackBrandPaymentsViewed({ workspace_id: brandWorkspace.id })
+  }, [brandWorkspace.id])
+
+  useEffect(() => {
+    const query = filters.q?.trim()
+    if (!query) return
+
+    const timeoutId = window.setTimeout(() => {
+      trackBrandPaymentsSearchUsed({ query_length: query.length })
+    }, 500)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [filters.q])
+
   const handleRefresh = () => {
+    trackBrandPaymentsRefreshClicked({ workspace_id: brandWorkspace.id })
     void queryClient.invalidateQueries({
       queryKey: getBrandPaymentsSpendingQueryKey(brandWorkspace.id, {
         filters,
       }).slice(0, 2),
     })
+  }
+
+  const handleExportCsv = () => {
+    exportCsvMutation.mutate(
+      { filters },
+      {
+        onSuccess: async (response) => {
+          try {
+            const filename = getCsvFilename(response, brandWorkspace.id)
+            const blob = await response.blob()
+            downloadBlob(blob, filename)
+            trackBrandPaymentsCsvExported({
+              workspace_id: brandWorkspace.id,
+              period: filters.period,
+              has_campaign_filter: Boolean(filters.campaignId),
+              has_creator_filter: Boolean(filters.creatorId),
+              has_search: Boolean(filters.q?.trim()),
+            })
+          } catch {
+            toast.error(t`No pudimos exportar los pagos. Intentá de nuevo.`)
+          }
+        },
+        onError: (error) => {
+          if (
+            error instanceof ApiError &&
+            error.status === 409 &&
+            error.code === 'no_payments_to_export'
+          ) {
+            toast.info(t`No hay pagos para exportar con estos filtros.`)
+            return
+          }
+
+          if (
+            error instanceof ApiError &&
+            error.status === 409 &&
+            error.code === 'export_exceeds_limit'
+          ) {
+            toast.error(
+              t`El export excede el límite. Contactá al administrador (Marz) para obtenerlo manualmente.`,
+            )
+            return
+          }
+
+          toast.error(t`No pudimos exportar los pagos. Intentá de nuevo.`)
+        },
+      },
+    )
+  }
+
+  const handlePeriodChange = (period: BrandPaymentsSearch['period']) => {
+    trackBrandPaymentsPeriodChanged({ period })
+    onFiltersChange({ ...filters, period })
+  }
+
+  const handleFiltersChange = (nextFilters: BrandPaymentsSearch) => {
+    if (nextFilters.campaignId !== filters.campaignId) {
+      trackBrandPaymentsFilterChanged({
+        filter: 'campaign',
+        has_value: Boolean(nextFilters.campaignId),
+      })
+    }
+    if (nextFilters.creatorId !== filters.creatorId) {
+      trackBrandPaymentsFilterChanged({
+        filter: 'creator',
+        has_value: Boolean(nextFilters.creatorId),
+      })
+    }
+
+    onFiltersChange(nextFilters)
   }
 
   return (
@@ -72,8 +169,19 @@ export function BrandPaymentsPage({
         </div>
         <PaymentsPeriodSegmentedControl
           value={filters.period}
-          onChange={(period) => onFiltersChange({ ...filters, period })}
+          onChange={handlePeriodChange}
         />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleExportCsv}
+          disabled={exportCsvMutation.isPending}
+          className="rounded-full"
+        >
+          <Download className="size-4" aria-hidden />
+          {t`Export CSV`}
+        </Button>
         <Button
           type="button"
           variant="outline"
@@ -107,12 +215,7 @@ export function BrandPaymentsPage({
             <BrandPaymentsFilters
               filters={filters}
               options={visibleResponse.filters}
-              onChange={(nextFilters) =>
-                onFiltersChange({
-                  ...nextFilters,
-                  period: nextFilters.period,
-                })
-              }
+              onChange={handleFiltersChange}
             />
             {visibleRows.length === 0 ? (
               <PaymentsEmptyState variant={emptyVariant} />
@@ -143,6 +246,51 @@ export function BrandPaymentsPage({
       ) : null}
     </main>
   )
+}
+
+export function getCsvFilename(
+  response: Response,
+  workspaceId: string,
+  now = new Date(),
+): string {
+  const contentDisposition = response.headers.get('content-disposition')
+  const headerFilename = contentDisposition
+    ? parseContentDispositionFilename(contentDisposition)
+    : null
+
+  if (headerFilename) return headerFilename
+
+  const yyyy = String(now.getFullYear())
+  const mm = String(now.getMonth() + 1).padStart(2, '0')
+  const dd = String(now.getDate()).padStart(2, '0')
+  return `marz-payments-${workspaceId}-${yyyy}${mm}${dd}.csv`
+}
+
+function parseContentDispositionFilename(value: string): string | null {
+  const filenameStarMatch = /filename\*=UTF-8''([^;]+)/i.exec(value)
+  const encodedFilename = filenameStarMatch?.[1]
+  if (encodedFilename) {
+    try {
+      return decodeURIComponent(encodedFilename)
+    } catch {
+      return encodedFilename
+    }
+  }
+
+  const filenameMatch = /filename="?([^";]+)"?/i.exec(value)
+  return filenameMatch?.[1] ?? null
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.rel = 'noopener'
+  document.body.append(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
 }
 
 function BrandPaymentsPageSkeleton() {

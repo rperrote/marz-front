@@ -15,14 +15,16 @@ export const exportBrandPaymentsCsv = createServerFn({ method: 'GET' })
       data.workspaceId,
       { headers: { Accept: 'text/csv' } },
     )
+    const contentDisposition = res.headers.get('content-disposition')
+    const headers: Record<string, string> = {
+      'Content-Type': res.headers.get('content-type') ?? 'text/csv',
+    }
+    if (contentDisposition) {
+      headers['Content-Disposition'] = contentDisposition
+    }
 
     return new Response(await res.text(), {
       status: res.status,
-      headers: {
-        'Content-Type': res.headers.get('content-type') ?? 'text/csv',
-        'Content-Disposition':
-          res.headers.get('content-disposition') ??
-          'attachment; filename="brand-payments.csv"',
-      },
+      headers,
     })
   })

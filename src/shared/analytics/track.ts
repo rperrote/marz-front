@@ -15,6 +15,12 @@ type AnalyticsEvent =
   | 'conversation_rail_search'
   | 'conversation_filter_changed'
   | 'conversation_campaign_filter_changed'
+  | 'brand_payments_viewed'
+  | 'brand_payments_period_changed'
+  | 'brand_payments_filter_changed'
+  | 'brand_payments_search_used'
+  | 'brand_payments_csv_exported'
+  | 'brand_payments_refresh_clicked'
 
 interface TrackedEvent {
   event: AnalyticsEvent
