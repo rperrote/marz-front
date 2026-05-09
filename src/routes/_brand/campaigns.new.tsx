@@ -1,10 +1,16 @@
-import { useEffect } from 'react'
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { useCallback, useEffect, useMemo } from 'react'
+import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
 
 import { BriefBuilderWizard } from '#/features/campaigns/brief-builder/BriefBuilderWizard'
 import { useBriefBuilderStore } from '#/features/campaigns/brief-builder/store'
 import { Button } from '#/components/ui/button'
+import { useRouteTopbar } from '#/features/identity/app-shell/useRouteTopbar'
+import {
+  PHASES,
+  getPhaseIndex,
+} from '#/features/campaigns/brief-builder/phases'
+import { WizardProgress } from '#/shared/ui/wizard/WizardProgress'
 
 export const Route = createFileRoute('/_brand/campaigns/new')({
   // RAFITA:BLOCKER: ServerMeBody no expone membership.role todavia.
@@ -17,6 +23,49 @@ export const Route = createFileRoute('/_brand/campaigns/new')({
 })
 
 function CampaignsNewLayout() {
+  const router = useRouter()
+  const params = useParams({ strict: false })
+  const phaseSlug = 'phase' in params ? params.phase : undefined
+  const currentIndex = phaseSlug ? getPhaseIndex(phaseSlug) : -1
+  const percent =
+    currentIndex === -1 ? 0 : ((currentIndex + 1) / PHASES.length) * 100
+  const stepLabel =
+    currentIndex === -1
+      ? undefined
+      : `Fase ${currentIndex + 1} de ${PHASES.length}`
+
+  const handleExit = useCallback(() => {
+    useBriefBuilderStore.getState().reset()
+    void router.navigate({ to: '/campaigns' })
+  }, [router])
+
+  const topbarConfig = useMemo(
+    () => ({
+      title: 'Nueva campaña',
+      back: { to: '/campaigns' },
+      progress: stepLabel ? (
+        <div className="flex min-w-40 items-center gap-3">
+          <span className="text-xs font-medium text-muted-foreground">
+            {stepLabel}
+          </span>
+          <WizardProgress
+            percent={percent}
+            ariaLabel="Progreso del brief builder"
+            className="w-24"
+          />
+        </div>
+      ) : undefined,
+      actions: (
+        <Button type="button" variant="outline" size="sm" onClick={handleExit}>
+          Cancelar
+        </Button>
+      ),
+    }),
+    [handleExit, percent, stepLabel],
+  )
+
+  useRouteTopbar(topbarConfig)
+
   useEffect(() => {
     useBriefBuilderStore.persist.rehydrate()
   }, [])

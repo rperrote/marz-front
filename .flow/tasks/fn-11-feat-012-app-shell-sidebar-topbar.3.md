@@ -69,11 +69,8 @@ Full design system: `marzv2.pen` — nodos `pB0OC`, `fT0pK`, `5v7Tq`, `dTFk2`, `
 - [ ] `pnpm typecheck`, `pnpm test`, `pnpm lint` pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+AppTopbar, TopbarContext y useRouteTopbar implementados correctamente — context/hook pattern limpio, tipos completos, a11y correcta, tests cubren todos los acceptance criteria, typecheck + lint + tests verdes
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:
