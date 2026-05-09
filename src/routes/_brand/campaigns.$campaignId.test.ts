@@ -1,0 +1,45 @@
+import { describe, expect, it, vi } from 'vitest'
+
+import { campaignDetailSearchSchema } from './campaigns.$campaignId'
+
+vi.mock('@lingui/core/macro', () => ({
+  t: Object.assign(
+    (strings: TemplateStringsArray, ...values: unknown[]) =>
+      strings.reduce((acc, str, i) => acc + str + (values[i] ?? ''), ''),
+    { __lingui: true },
+  ),
+}))
+
+describe('campaign detail search schema', () => {
+  it('defaults to overview when tab is missing', () => {
+    expect(campaignDetailSearchSchema.parse({})).toMatchObject({
+      tab: 'overview',
+    })
+  })
+
+  it('falls back to overview when tab is invalid', () => {
+    expect(campaignDetailSearchSchema.parse({ tab: 'bad-tab' })).toMatchObject({
+      tab: 'overview',
+    })
+  })
+
+  it('keeps optional filter params', () => {
+    expect(
+      campaignDetailSearchSchema.parse({
+        tab: 'discovery',
+        section: 'matches',
+        q: 'aria',
+        status: 'pending',
+        platform: 'instagram',
+        sort: 'score',
+      }),
+    ).toEqual({
+      tab: 'discovery',
+      section: 'matches',
+      q: 'aria',
+      status: 'pending',
+      platform: 'instagram',
+      sort: 'score',
+    })
+  })
+})

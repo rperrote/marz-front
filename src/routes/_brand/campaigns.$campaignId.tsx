@@ -1,0 +1,47 @@
+import { Outlet, createFileRoute, useMatches } from '@tanstack/react-router'
+import { z } from 'zod'
+
+import { CampaignDetailPage } from '#/features/campaigns/detail/CampaignDetailPage'
+import { campaignDetailQueryOptions } from '#/features/campaigns/detail/useCampaignDetailQuery'
+
+const campaignDetailTabSchema = z
+  .enum(['overview', 'discovery', 'creators', 'videos', 'analytics'])
+  .default('overview')
+  .catch('overview')
+
+const campaignDetailSectionSchema = z
+  .enum(['matches', 'invites', 'applications'])
+  .optional()
+  .catch(undefined)
+
+export const campaignDetailSearchSchema = z.object({
+  tab: campaignDetailTabSchema,
+  section: campaignDetailSectionSchema,
+  q: z.string().optional().catch(undefined),
+  status: z.string().optional().catch(undefined),
+  platform: z.string().optional().catch(undefined),
+  sort: z.string().optional().catch(undefined),
+})
+
+export const Route = createFileRoute('/_brand/campaigns/$campaignId')({
+  validateSearch: (search) => campaignDetailSearchSchema.parse(search),
+  loader: ({ context, params }) => {
+    return context.queryClient
+      .prefetchQuery(campaignDetailQueryOptions(params.campaignId))
+      .catch(() => undefined)
+  },
+  component: CampaignDetailRoute,
+})
+
+function CampaignDetailRoute() {
+  const matches = useMatches()
+  const lastMatch = matches.at(-1)
+  const { campaignId } = Route.useParams()
+  const search = Route.useSearch()
+
+  if (lastMatch?.routeId === '/_brand/campaigns/$campaignId/brief') {
+    return <Outlet />
+  }
+
+  return <CampaignDetailPage campaignId={campaignId} search={search} />
+}
