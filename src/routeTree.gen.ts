@@ -26,6 +26,7 @@ import { Route as AuthKindRouteImport } from './routes/auth/kind'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
+import { Route as CreatorCampaignsRouteImport } from './routes/_creator/campaigns'
 import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
 import { Route as OnboardingCreatorIndexRouteImport } from './routes/onboarding/creator.index'
 import { Route as OnboardingBrandIndexRouteImport } from './routes/onboarding/brand.index'
@@ -121,6 +122,11 @@ const CreatorOffersRoute = CreatorOffersRouteImport.update({
   path: '/offers',
   getParentRoute: () => CreatorRoute,
 } as any)
+const CreatorCampaignsRoute = CreatorCampaignsRouteImport.update({
+  id: '/campaigns',
+  path: '/campaigns',
+  getParentRoute: () => CreatorRoute,
+} as any)
 const BrandCampaignsRoute = BrandCampaignsRouteImport.update({
   id: '/campaigns',
   path: '/campaigns',
@@ -186,7 +192,7 @@ export interface FileRoutesByFullPath {
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
   '/workspace': typeof WorkspaceRouteWithChildren
-  '/campaigns': typeof BrandCampaignsRouteWithChildren
+  '/campaigns': typeof CreatorCampaignsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -213,6 +219,7 @@ export interface FileRoutesByTo {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/campaigns': typeof BrandCampaignsIndexRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -223,7 +230,6 @@ export interface FileRoutesByTo {
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
   '/workspace/conversations/$conversationId': typeof WorkspaceConversationsConversationIdRoute
-  '/campaigns': typeof BrandCampaignsIndexRoute
   '/onboarding/brand': typeof OnboardingBrandIndexRoute
   '/onboarding/creator': typeof OnboardingCreatorIndexRoute
   '/campaigns/$campaignId/brief': typeof BrandCampaignsCampaignIdBriefRoute
@@ -241,6 +247,7 @@ export interface FileRoutesById {
   '/health': typeof HealthRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/_brand/campaigns': typeof BrandCampaignsRouteWithChildren
+  '/_creator/campaigns': typeof CreatorCampaignsRoute
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -297,6 +304,7 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/campaigns'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -307,7 +315,6 @@ export interface FileRouteTypes {
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
     | '/workspace/conversations/$conversationId'
-    | '/campaigns'
     | '/onboarding/brand'
     | '/onboarding/creator'
     | '/campaigns/$campaignId/brief'
@@ -324,6 +331,7 @@ export interface FileRouteTypes {
     | '/health'
     | '/workspace'
     | '/_brand/campaigns'
+    | '/_creator/campaigns'
     | '/_creator/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -484,6 +492,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatorOffersRouteImport
       parentRoute: typeof CreatorRoute
     }
+    '/_creator/campaigns': {
+      id: '/_creator/campaigns'
+      path: '/campaigns'
+      fullPath: '/campaigns'
+      preLoaderRoute: typeof CreatorCampaignsRouteImport
+      parentRoute: typeof CreatorRoute
+    }
     '/_brand/campaigns': {
       id: '/_brand/campaigns'
       path: '/campaigns'
@@ -604,10 +619,12 @@ const BrandRouteChildren: BrandRouteChildren = {
 const BrandRouteWithChildren = BrandRoute._addFileChildren(BrandRouteChildren)
 
 interface CreatorRouteChildren {
+  CreatorCampaignsRoute: typeof CreatorCampaignsRoute
   CreatorOffersRoute: typeof CreatorOffersRoute
 }
 
 const CreatorRouteChildren: CreatorRouteChildren = {
+  CreatorCampaignsRoute: CreatorCampaignsRoute,
   CreatorOffersRoute: CreatorOffersRoute,
 }
 
