@@ -49,9 +49,8 @@ Regenerar el cliente Orval contra el OpenAPI de `marz-api` dev (que ya incluye l
 - [ ] No se committea `src/shared/api/generated/`.
 
 ## Done summary
-
-_Pending implementation._
-
+Fixes aplicados correctamente: adjusted_from_brief cambiado a default(false), contrato de retry:0 documentado con comentario explícito, nuevo test verifica que cada invocación de customFetch genera una key distinta. El AC de pnpm api:sync falla por gate externo (B.6 no mergeado en backend dev), que la propia spec lista como prerequisito — no es un defecto del código entregado.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

@@ -25,6 +25,34 @@ vi.mock('../hooks/useProcessBrief', async (importOriginal) => {
   }
 })
 
+vi.mock('#/features/identity/session/BrandSessionContext', () => ({
+  useBrandSession: () => ({
+    account: {
+      id: 'account-1',
+      email: 'brand@example.com',
+      kind: 'brand',
+      full_name: 'Brand User',
+      created_at: '2026-01-01T00:00:00.000Z',
+      redirect_to: null,
+      onboarding_status: 'onboarded',
+      brand_workspace: {
+        id: 'workspace-1',
+        name: 'Brand Workspace',
+        logo_url: null,
+        website_url: 'https://brand.example.com',
+        plan: 'paid',
+      },
+    },
+    brandWorkspace: {
+      id: 'workspace-1',
+      name: 'Brand Workspace',
+      logo_url: null,
+      website_url: 'https://brand.example.com',
+      plan: 'paid',
+    },
+  }),
+}))
+
 const mockInitMutateAsync = vi.fn()
 const mockProcessMutateAsync = vi.fn()
 
