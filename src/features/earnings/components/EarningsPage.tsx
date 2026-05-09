@@ -7,6 +7,7 @@ import { useCreatorEarningsQuery } from '../hooks/useCreatorEarnings'
 import { EarningsKpiGrid } from './EarningsKpiGrid'
 import { EarningsPeriodControl } from './EarningsPeriodControl'
 import { MonthlyEarningsChart } from './MonthlyEarningsChart'
+import { PendingBonusPanel } from './PendingBonusPanel'
 
 interface EarningsPageProps {
   period: CreatorEarningsPeriod
@@ -41,7 +42,15 @@ export function EarningsPage({ period, onPeriodChange }: EarningsPageProps) {
   return (
     <EarningsPageShell period={period} onPeriodChange={onPeriodChange}>
       <EarningsKpiGrid kpis={earningsQuery.data.kpis} />
-      <MonthlyEarningsChart buckets={earningsQuery.data.monthly_earnings} />
+      <div className="flex flex-col gap-6 xl:flex-row">
+        <div className="min-w-0 flex-1">
+          <MonthlyEarningsChart buckets={earningsQuery.data.monthly_earnings} />
+        </div>
+        <PendingBonusPanel
+          period={period}
+          pendingBonuses={earningsQuery.data.pending_bonuses}
+        />
+      </div>
     </EarningsPageShell>
   )
 }

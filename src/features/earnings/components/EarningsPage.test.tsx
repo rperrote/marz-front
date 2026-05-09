@@ -85,5 +85,10 @@ describe('EarningsPage', () => {
     expect(
       screen.getByRole('img', { name: /earnings by month/i }),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        name: 'Bonos que podés alcanzar a tiempo',
+      }),
+    ).toBeInTheDocument()
   })
 })
