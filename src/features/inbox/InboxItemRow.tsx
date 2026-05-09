@@ -10,6 +10,7 @@ import { cn } from '#/lib/utils'
 import { ApiError } from '#/shared/api/mutator'
 
 import type { InboxItem, InboxResponse } from './api/inbox'
+import { isKnownRouterHref } from './routerHref'
 import {
   createInboxItemAnalyticsPayload,
   trackInboxItemMarkedRead,
@@ -194,26 +195,6 @@ function InboxItemMainContent({
       {content}
     </a>
   )
-}
-
-function isKnownRouterHref(router: ReturnType<typeof useRouter>, href: string) {
-  const pathname = getPathnameFromHref(href)
-  if (!pathname) return false
-
-  const { foundRoute } = router.getMatchedRoutes(pathname)
-  if (!foundRoute) return false
-
-  return foundRoute.fullPath !== '/' || pathname === '/'
-}
-
-function getPathnameFromHref(href: string) {
-  if (!href.startsWith('/')) return null
-
-  try {
-    return new URL(href, 'https://marz.local').pathname
-  } catch {
-    return null
-  }
 }
 
 function getInitials(name: string) {
