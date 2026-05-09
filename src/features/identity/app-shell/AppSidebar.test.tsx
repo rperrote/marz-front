@@ -12,9 +12,14 @@ import { describe, expect, it } from 'vitest'
 
 import { AppSidebar } from './AppSidebar'
 
-function renderSidebar(pathname = '/workspace') {
+function renderSidebar(
+  pathname = '/workspace',
+  accountKind: 'brand' | 'creator' = 'brand',
+) {
   const rootRoute = createRootRoute({
-    component: () => <AppSidebar accountKind="brand" pathname={pathname} />,
+    component: () => (
+      <AppSidebar accountKind={accountKind} pathname={pathname} />
+    ),
   })
 
   const workspaceRoute = createRoute({
@@ -102,6 +107,58 @@ describe('AppSidebar', () => {
 
     await user.hover(homeButton)
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Próximamente')
+  })
+
+  it('shows disabled item tooltips when focused by keyboard', async () => {
+    const user = userEvent.setup()
+    renderSidebar('/workspace')
+
+    await user.tab()
+
+    const homeButton = await screen.findByRole('button', { name: 'Home' })
+    expect(homeButton).toHaveFocus()
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Próximamente')
+  })
+
+  it('gives every brand and creator sidebar item an accessible name without visible labels', async () => {
+    const { unmount } = renderSidebar('/workspace', 'brand')
+    const brandSidebar = await screen.findByTestId('app-sidebar')
+
+    for (const name of [
+      'Home',
+      'Workspace',
+      'Inbox',
+      'Campaigns',
+      'Creators',
+      'Analytics',
+    ]) {
+      expect(
+        within(brandSidebar).getByRole(
+          /Workspace|Inbox/.test(name) ? 'link' : 'button',
+          {
+            name,
+          },
+        ),
+      ).toBeInTheDocument()
+    }
+    expect(brandSidebar).toHaveTextContent('')
+
+    unmount()
+    renderSidebar('/workspace', 'creator')
+    const creatorSidebar = await screen.findByTestId('app-sidebar')
+
+    for (const name of ['Home', 'Workspace', 'Inbox', 'Analytics']) {
+      expect(
+        within(creatorSidebar).getByRole(
+          /Workspace|Inbox/.test(name) ? 'link' : 'button',
+          { name },
+        ),
+      ).toBeInTheDocument()
+    }
+    expect(
+      within(creatorSidebar).queryByRole('button', { name: 'Creators' }),
+    ).not.toBeInTheDocument()
+    expect(creatorSidebar).toHaveTextContent('')
   })
 
   it('uses the 72px sidebar rail width', async () => {

@@ -106,6 +106,24 @@ describe('AppTopbar', () => {
     expect(backLink).toHaveAttribute('href', '/workspace')
   })
 
+  it('keeps back actions keyboard focusable with visible focus styles', async () => {
+    const user = userEvent.setup()
+
+    renderTopbar({
+      back: { label: 'Volver al listado', onBack: () => {} },
+      title: 'Detalle',
+    })
+
+    const backButton = await screen.findByRole('button', {
+      name: 'Volver al listado',
+    })
+
+    await user.tab()
+
+    expect(backButton).toHaveFocus()
+    expect(backButton).toHaveClass('focus-visible:ring-ring')
+  })
+
   it('renders progress and actions only when the slots are provided', async () => {
     renderTopbar({
       title: 'Campaña',

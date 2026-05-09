@@ -149,6 +149,27 @@ describe('AppShell', () => {
     }
   })
 
+  it('does not import or call analytics from shell files', () => {
+    const files = [
+      'src/features/identity/app-shell/AppShell.tsx',
+      'src/features/identity/app-shell/AppSidebar.tsx',
+      'src/features/identity/app-shell/AppSidebarItem.tsx',
+      'src/features/identity/app-shell/AppTopbar.tsx',
+      'src/features/identity/app-shell/TopbarContext.tsx',
+      'src/features/identity/app-shell/useRouteTopbar.ts',
+      'src/features/identity/app-shell/MissingWorkspaceFallback.tsx',
+      'src/features/identity/components/BrandShell.tsx',
+      'src/features/identity/components/CreatorShell.tsx',
+    ]
+
+    for (const file of files) {
+      const source = readFileSync(resolve(process.cwd(), file), 'utf8')
+
+      expect(source).not.toContain('shared/analytics')
+      expect(source).not.toMatch(/\btrack\(/)
+    }
+  })
+
   it('is axe-clean', async () => {
     const { container } = renderShell()
 

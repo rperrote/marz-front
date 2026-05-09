@@ -5,7 +5,6 @@ import { LogOut, Mail } from 'lucide-react'
 import { useCallback } from 'react'
 import { Trans } from '@lingui/react/macro'
 
-import { track } from '#/shared/analytics/track'
 import { useBrandOnboardingStore } from '#/features/identity/onboarding/brand/store'
 import { useCreatorOnboardingStore } from '#/features/identity/onboarding/creator/store'
 
@@ -15,7 +14,6 @@ export function MissingWorkspaceFallback() {
   const navigate = useNavigate()
 
   const handleSignOut = useCallback(async () => {
-    track('sign_out')
     queryClient.clear()
     useBrandOnboardingStore.getState().reset()
     useCreatorOnboardingStore.getState().reset()

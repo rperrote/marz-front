@@ -5,7 +5,6 @@ import { resolve } from 'node:path'
 import { axe } from 'vitest-axe'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { resetTrackedEvents, getTrackedEvents } from '#/shared/analytics/track'
 import { MissingWorkspaceFallback } from './MissingWorkspaceFallback'
 
 const mockNavigate = vi.fn()
@@ -57,7 +56,6 @@ vi.mock('#/features/identity/onboarding/creator/store', () => ({
 describe('MissingWorkspaceFallback', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    resetTrackedEvents()
   })
 
   it('renders support copy and actions', () => {
@@ -83,7 +81,6 @@ describe('MissingWorkspaceFallback', () => {
 
     await user.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
 
-    expect(getTrackedEvents().some((e) => e.event === 'sign_out')).toBe(true)
     expect(mockClear).toHaveBeenCalled()
     expect(mockBrandReset).toHaveBeenCalled()
     expect(mockCreatorReset).toHaveBeenCalled()
