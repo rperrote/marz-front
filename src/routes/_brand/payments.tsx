@@ -1,13 +1,10 @@
 import { t } from '@lingui/core/macro'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { z } from 'zod'
 
-export const paymentsSearchSchema = z.object({
-  period: z.enum(['7d', '30d', '90d']).default('30d'),
-  campaignId: z.string().optional(),
-  creatorId: z.string().optional(),
-  q: z.string().optional(),
-})
+import { brandPaymentsSearchSchema } from '#/features/payments/api/brandPaymentsSchemas'
+import { useBrandPaymentsSpendingQuery } from '#/features/payments/hooks/useBrandPaymentsSpendingQuery'
+
+export const paymentsSearchSchema = brandPaymentsSearchSchema
 
 export const Route = createFileRoute('/_brand/payments')({
   validateSearch: paymentsSearchSchema,
@@ -20,6 +17,9 @@ export const Route = createFileRoute('/_brand/payments')({
 })
 
 function BrandPaymentsRoute() {
+  const filters = Route.useSearch()
+  useBrandPaymentsSpendingQuery({ filters })
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-2 overflow-auto bg-background p-6">
       <h1 className="text-xl font-semibold text-foreground">
