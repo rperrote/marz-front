@@ -51,9 +51,8 @@ Filtros, búsqueda y sort con sincronización a URL search params. `niches` e `i
 - [ ] Tests unitarios cubren: search por brand/campaign/niche, fee range inválido, clamp slider, reset
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+useCallback aplicado en setSearch y resetSearch con dep [navigate]; estabilidad de referencia restaurada, efecto de debounce ya no se re-ejecuta en re-renders del padre
 ## Evidence
-
-_To be filled by worker on completion._
+- Commits:
+- Tests:
+- PRs:

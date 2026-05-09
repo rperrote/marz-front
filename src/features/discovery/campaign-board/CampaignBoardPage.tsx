@@ -2,23 +2,18 @@ import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
 
+import { CampaignBoardFilters } from './CampaignBoardFilters'
 import {
   CampaignBoardGrid,
   CampaignBoardGridSkeleton,
 } from './CampaignBoardGrid'
 import { CampaignBoardHeader } from './CampaignBoardHeader'
+import { CampaignBoardSort } from './CampaignBoardSort'
 import { useCampaignBoardQuery } from './hooks/useCampaignBoardQuery'
-import type { CampaignBoardSearch } from './search-schema'
+import { useBoardSearchSync } from './hooks/useBoardSearchSync'
 
-interface CampaignBoardPageProps {
-  search: CampaignBoardSearch
-  onRecommendedOnlyChange: (recommendedOnly: boolean) => void
-}
-
-export function CampaignBoardPage({
-  search,
-  onRecommendedOnlyChange,
-}: CampaignBoardPageProps) {
+export function CampaignBoardPage() {
+  const { search, setSearch, resetSearch } = useBoardSearchSync()
   const boardQuery = useCampaignBoardQuery(search)
   const cards = boardQuery.data?.data ?? []
 
@@ -26,12 +21,30 @@ export function CampaignBoardPage({
     <main className="min-h-full bg-background">
       <div className="mx-auto flex w-full max-w-[1368px] flex-col gap-6 px-8 py-8">
         <CampaignBoardHeader
-          counts={boardQuery.data?.counts}
           isRefreshing={boardQuery.isFetching && !boardQuery.isPending}
-          recommendedOnly={search.recommended_only}
           onRefresh={() => void boardQuery.refetch()}
-          onRecommendedOnlyChange={onRecommendedOnlyChange}
         />
+
+        <CampaignBoardFilters
+          search={search}
+          available={boardQuery.data?.filters.available}
+          onSearchChange={setSearch}
+          onReset={resetSearch}
+        />
+
+        <div className="flex items-center justify-between gap-4">
+          <CampaignBoardResultSummary
+            totalVisible={
+              boardQuery.data?.counts.matching_filters ??
+              boardQuery.data?.counts.total_visible
+            }
+            recommended={boardQuery.data?.counts.recommended}
+          />
+          <CampaignBoardSort
+            value={search.sort}
+            onChange={(sort) => setSearch({ sort })}
+          />
+        </div>
 
         {boardQuery.isPending ? <CampaignBoardGridSkeleton /> : null}
 
@@ -48,6 +61,28 @@ export function CampaignBoardPage({
         ) : null}
       </div>
     </main>
+  )
+}
+
+function CampaignBoardResultSummary({
+  totalVisible,
+  recommended,
+}: {
+  totalVisible?: number
+  recommended?: number
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <p className="text-sm font-semibold text-foreground">
+        {t`${totalVisible ?? 0} campañas`}
+      </p>
+      <span className="text-muted-foreground" aria-hidden="true">
+        ·
+      </span>
+      <p className="text-xs text-muted-foreground">
+        {t`${recommended ?? 0} recomendadas para vos`}
+      </p>
+    </div>
   )
 }
 

@@ -10,6 +10,7 @@ import type {
 
 import { CampaignBoardPage } from './CampaignBoardPage'
 import { formatDeadline } from './CampaignBoardCard'
+import { useBoardSearchSync } from './hooks/useBoardSearchSync'
 import { useCampaignBoardQuery } from './hooks/useCampaignBoardQuery'
 import type { CampaignBoardSearch } from './search-schema'
 
@@ -28,13 +29,19 @@ vi.mock('./hooks/useCampaignBoardQuery', () => ({
   useCampaignBoardQuery: vi.fn(),
 }))
 
+vi.mock('./hooks/useBoardSearchSync', () => ({
+  useBoardSearchSync: vi.fn(),
+}))
+
 const mockUseCampaignBoardQuery = vi.mocked(useCampaignBoardQuery)
+const mockUseBoardSearchSync = vi.mocked(useBoardSearchSync)
 
 const baseSearch: CampaignBoardSearch = {
   recommended_only: false,
   sort: 'match_score_desc',
 }
-const onRecommendedOnlyChange = vi.fn()
+const setSearch = vi.fn()
+const resetSearch = vi.fn()
 
 const campaignId = '11111111-1111-4111-8111-111111111111'
 
@@ -144,12 +151,12 @@ function mockBoardQuery(state: {
 }
 
 function renderCampaignBoardPage(search: CampaignBoardSearch = baseSearch) {
-  return render(
-    <CampaignBoardPage
-      search={search}
-      onRecommendedOnlyChange={onRecommendedOnlyChange}
-    />,
-  )
+  mockUseBoardSearchSync.mockReturnValue({
+    search,
+    setSearch,
+    resetSearch,
+  })
+  return render(<CampaignBoardPage />)
 }
 
 describe('CampaignBoardPage', () => {
@@ -214,10 +221,6 @@ describe('CampaignBoardPage', () => {
     renderCampaignBoardPage()
 
     expect(
-      screen.getByRole('switch', { name: 'Solo recomendadas para mí' }),
-    ).toHaveAttribute('aria-checked', 'false')
-
-    expect(
       screen.getByRole('heading', { name: 'No pudimos cargar las campañas' }),
     ).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: 'Actualizar' })).toHaveLength(
@@ -233,7 +236,7 @@ describe('CampaignBoardPage', () => {
     expect(await axe(container)).toHaveNoViolations()
   })
 
-  it('toggles recommended-only search from the header switch', async () => {
+  it('toggles recommended-only search from filters', async () => {
     const user = userEvent.setup()
     mockBoardQuery({ data: makeBoardResponse(), isSuccess: true })
 
@@ -243,7 +246,7 @@ describe('CampaignBoardPage', () => {
       screen.getByRole('switch', { name: 'Solo recomendadas para mí' }),
     )
 
-    expect(onRecommendedOnlyChange).toHaveBeenCalledWith(true)
+    expect(setSearch).toHaveBeenCalledWith({ recommended_only: true })
   })
 })
 
