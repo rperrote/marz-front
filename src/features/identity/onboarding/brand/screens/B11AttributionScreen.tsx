@@ -6,8 +6,8 @@ import { cn } from '#/lib/utils'
 import { Input } from '#/components/ui/input'
 import { FieldRow } from '#/shared/ui/form'
 import { useBrandOnboardingStore } from '../store'
-import { AttributionNonReferralSource } from '#/shared/api/generated/model/attributionNonReferralSource'
-import type { Attribution } from '#/shared/api/generated/model/attribution'
+import { AttributionNonReferralSource } from '../types'
+import type { Attribution } from '../types'
 
 type AllSource = AttributionNonReferralSource | 'referral'
 
@@ -44,7 +44,7 @@ const SOURCES: {
 
 function getSelectedSource(attr: Attribution | undefined): AllSource | null {
   if (!attr || !('source' in attr)) return null
-  return attr.source as AllSource
+  return attr.source
 }
 
 export function B11AttributionScreen() {

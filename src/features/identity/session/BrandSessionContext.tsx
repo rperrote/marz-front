@@ -10,7 +10,7 @@ export interface BrandSession {
   brandWorkspace: BrandWorkspaceSummary
 }
 
-const BrandSessionContext = createContext<BrandSession | null>(null)
+export const BrandSessionContext = createContext<BrandSession | null>(null)
 
 export function BrandSessionProvider({ children }: { children: ReactNode }) {
   const meQuery = useMe()

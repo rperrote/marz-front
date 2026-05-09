@@ -42,6 +42,13 @@ vi.mock('#/shared/api/mutator', () => ({
   customFetch: (...args: unknown[]) => mockCustomFetch(...args),
 }))
 
+class FakeIntersectionObserver {
+  observe = vi.fn()
+  disconnect = vi.fn()
+  unobserve = vi.fn()
+  takeRecords = vi.fn(() => [])
+}
+
 vi.mock('#/shared/api/generated/accounts/accounts', () => ({
   useMe: () => ({
     data: { status: 200, data: { kind: 'brand' } },
@@ -127,6 +134,7 @@ function mockFetchWithMessages(
 }
 
 beforeEach(() => {
+  vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
   mockCustomFetch.mockReset()
   mockFetchWithMessages(buildMessagesResponse([]))
 })
@@ -318,6 +326,151 @@ describe('MessageTimeline', () => {
     await waitFor(() => {
       expect(screen.getByTestId('request-changes-card')).toBeInTheDocument()
     })
+  })
+
+  it('renders LinkSubmittedCard for LinkSubmitted system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-link-submitted',
+          type: 'system_event',
+          event_type: 'LinkSubmitted',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            snapshot: {
+              event_type: 'LinkSubmitted',
+              deliverable_id: 'del-1',
+              deliverable_platform: 'youtube',
+              deliverable_format: 'long_form',
+              deliverable_offer_stage_id: null,
+              link: {
+                id: 'link-1',
+                url: 'https://youtube.com/watch?v=xK93',
+                status: 'submitted',
+                preview: { outcome: 'url_only' },
+                submitted_at: '2026-04-27T12:00:00Z',
+                submitted_by_account_id: 'acc-other',
+              },
+              message: 'Just published! Sharing the link here.',
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="creator"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Published link')).toBeInTheDocument()
+    })
+    expect(
+      screen.getByRole('link', { name: /youtube\.com\/watch/i }),
+    ).toHaveAttribute('href', 'https://youtube.com/watch?v=xK93')
+  })
+
+  it('renders LinkApprovedCard for LinkApproved system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-link-approved',
+          type: 'system_event',
+          event_type: 'LinkApproved',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            snapshot: {
+              event_type: 'LinkApproved',
+              deliverable_id: 'del-1',
+              deliverable_platform: 'youtube',
+              deliverable_format: 'long_form',
+              deliverable_offer_stage_id: null,
+              link: {
+                id: 'link-1',
+                url: 'https://youtube.com/watch?v=xK93',
+                status: 'approved',
+                preview: { outcome: 'url_only' },
+              },
+              approved_at: '2026-04-27T12:00:00Z',
+              approved_by_account_id: 'acc-other',
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="creator"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('link-approved-card')).toBeInTheDocument()
+    })
+  })
+
+  it('renders LinkChangesRequestedCard for LinkChangesRequested system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-link-changes',
+          type: 'system_event',
+          event_type: 'LinkChangesRequested',
+          text_content: null,
+          author_account_id: 'acc-other',
+          payload: {
+            snapshot: {
+              event_type: 'LinkChangesRequested',
+              deliverable_id: 'del-1',
+              deliverable_platform: 'youtube',
+              deliverable_format: 'long_form',
+              deliverable_offer_stage_id: null,
+              link: {
+                id: 'link-1',
+                url: 'https://youtube.com/watch?v=xK93',
+                status: 'changes_requested',
+                preview: { outcome: 'url_only' },
+              },
+              categories: ['discount_code'],
+              notes: 'Add the code in the description.',
+              requested_at: '2026-04-27T12:00:00Z',
+              requested_by_account_id: 'acc-other',
+            },
+          },
+          created_at: '2026-04-27T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="creator"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('request-changes-card')).toBeInTheDocument()
+    })
+    expect(screen.getByText('Discount code')).toBeInTheDocument()
   })
 
   it('renders StageOpenedBubble for StageOpened system event', async () => {

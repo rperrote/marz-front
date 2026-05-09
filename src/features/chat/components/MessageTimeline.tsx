@@ -27,6 +27,10 @@ import { stageOpenedSnapSchema } from '#/features/offers/schemas'
 import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
 import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
 import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
+import { LinkSubmittedCard } from '#/features/deliverables/components/LinkSubmittedCard'
+import { LinkApprovedCard } from '#/features/deliverables/components/LinkApprovedCard'
+import { LinkChangesRequestedCard } from '#/features/deliverables/components/LinkChangesRequestedCard'
+import { getRecord, getString } from '#/shared/utils/record'
 
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
@@ -133,43 +137,70 @@ export function MessageTimeline({
       const message = item.message
 
       if (message.type === 'system_event') {
-        if (message.event_type === 'DraftSubmitted') {
-          return (
-            <DraftSubmittedCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              conversationId={conversationId}
-              sessionKind={sessionKind}
-            />
-          )
-        }
+        const deliverableEventType = parseDeliverableSystemEventType(
+          message.event_type,
+        )
 
-        if (message.event_type === 'DraftApproved') {
-          return (
-            <DraftApprovedCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-            />
-          )
-        }
+        if (deliverableEventType) {
+          const counterpartDisplayName =
+            conversationDetail?.counterpart.display_name ?? ''
 
-        if (message.event_type === 'ChangesRequested') {
-          return (
-            <RequestChangesCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              sessionKind={sessionKind}
-            />
-          )
+          switch (deliverableEventType) {
+            case 'DraftSubmitted':
+              return (
+                <DraftSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  conversationId={conversationId}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'DraftApproved':
+              return (
+                <DraftApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                />
+              )
+            case 'ChangesRequested':
+              return (
+                <RequestChangesCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkSubmitted':
+              return (
+                <LinkSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  brandWorkspaceId={extractBrandWorkspaceId(message.payload)}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkApproved':
+              return (
+                <LinkApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                />
+              )
+            case 'LinkChangesRequested':
+              return (
+                <LinkChangesRequestedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            default:
+              return assertNever(deliverableEventType)
+          }
         }
 
         if (message.event_type === 'StageOpened') {
@@ -286,6 +317,42 @@ export function MessageTimeline({
       />
     </div>
   )
+}
+
+function extractBrandWorkspaceId(
+  payload: Record<string, unknown> | null,
+): string | null {
+  if (!payload) return null
+  const snapshot = getRecord(payload.snapshot)
+  return (
+    getString(payload.brand_workspace_id) ??
+    getString(snapshot?.brand_workspace_id)
+  )
+}
+
+const DELIVERABLE_SYSTEM_EVENT_TYPES = [
+  'DraftSubmitted',
+  'DraftApproved',
+  'ChangesRequested',
+  'LinkSubmitted',
+  'LinkApproved',
+  'LinkChangesRequested',
+] as const
+
+type DeliverableSystemEventType =
+  (typeof DELIVERABLE_SYSTEM_EVENT_TYPES)[number]
+
+function parseDeliverableSystemEventType(
+  eventType: string | null,
+): DeliverableSystemEventType | null {
+  const knownEventTypes: readonly string[] = DELIVERABLE_SYSTEM_EVENT_TYPES
+  return eventType && knownEventTypes.includes(eventType)
+    ? (eventType as DeliverableSystemEventType)
+    : null
+}
+
+function assertNever(value: never): never {
+  throw new Error(`Unhandled deliverable system event: ${String(value)}`)
 }
 
 const EVENT_SEVERITY_MAP: Record<string, EventSeverity> = {

@@ -13,6 +13,7 @@ interface MultistagePanelGroupProps {
     deliverable: DeliverableListItemProps['deliverable']
     sessionKind: DeliverableListItemProps['sessionKind']
     onUploadDraft: DeliverableListItemProps['onUploadDraft']
+    onSubmitLink?: DeliverableListItemProps['onSubmitLink']
   }>
 }
 
@@ -61,15 +62,18 @@ export function MultistagePanelGroup({
       ) : null}
 
       <div className="space-y-2">
-        {deliverables.map(({ deliverable, sessionKind, onUploadDraft }) => (
-          <DeliverableListItem
-            key={deliverable.id}
-            deliverable={deliverable}
-            stageStatus={stage.status}
-            sessionKind={sessionKind}
-            onUploadDraft={onUploadDraft}
-          />
-        ))}
+        {deliverables.map(
+          ({ deliverable, sessionKind, onUploadDraft, onSubmitLink }) => (
+            <DeliverableListItem
+              key={deliverable.id}
+              deliverable={deliverable}
+              stageStatus={stage.status}
+              sessionKind={sessionKind}
+              onUploadDraft={onUploadDraft}
+              onSubmitLink={onSubmitLink}
+            />
+          ),
+        )}
       </div>
     </div>
   )

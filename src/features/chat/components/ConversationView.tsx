@@ -156,7 +156,8 @@ export function ConversationView({
     return <EmptyConversationFallback />
   }
 
-  const canSend = conversation.can_send && conversation.counterpart.is_active
+  const canSend =
+    conversation.can_send && Boolean(conversation.counterpart.is_active)
 
   return (
     <div className="flex h-full flex-col">

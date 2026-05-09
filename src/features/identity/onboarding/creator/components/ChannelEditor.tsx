@@ -11,8 +11,7 @@ import {
   SelectValue,
 } from '#/components/ui/select'
 import { FieldRow } from '#/shared/ui/form'
-import type { CreatorChannel } from '#/shared/api/generated/model/creatorChannel'
-import type { CreatorRateCard } from '#/shared/api/generated/model/creatorRateCard'
+import type { CreatorChannel, CreatorRateCard } from '../types'
 
 const PLATFORMS = [
   { value: 'instagram', label: 'Instagram' },
@@ -79,7 +78,9 @@ function buildSummary(
     }
   }
 
-  const missingCount = cards.filter((rc) => !hasAmount(rc)).length
+  const missingCount = cards.filter(
+    (rc: CreatorRateCard) => !hasAmount(rc),
+  ).length
   if (missingCount > 0) {
     return {
       text: plural(missingCount, {
@@ -172,7 +173,9 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
   const removeRateCard = useCallback(
     (channelIndex: number, cardIndex: number) => {
       const channel = channels[channelIndex]!
-      const next = channel.rate_cards.filter((_, i) => i !== cardIndex)
+      const next = channel.rate_cards.filter(
+        (_: CreatorRateCard, i: number) => i !== cardIndex,
+      )
       updateChannel(channelIndex, { rate_cards: next })
     },
     [channels, updateChannel],
@@ -185,7 +188,7 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
       patch: Partial<CreatorRateCard>,
     ) => {
       const channel = channels[channelIndex]!
-      const next = channel.rate_cards.map((rc, i) =>
+      const next = channel.rate_cards.map((rc: CreatorRateCard, i: number) =>
         i === cardIndex ? { ...rc, ...patch } : rc,
       )
       updateChannel(channelIndex, { rate_cards: next })
@@ -197,7 +200,9 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
     <div className="flex w-full max-w-[560px] flex-col gap-6">
       {channels.map((channel, ci) => {
         const formats = FORMATS_BY_PLATFORM[channel.platform] ?? []
-        const usedFormats = new Set(channel.rate_cards.map((rc) => rc.format))
+        const usedFormats = new Set(
+          channel.rate_cards.map((rc: CreatorRateCard) => rc.format),
+        )
         const availableFormats = formats.filter(
           (f) => !usedFormats.has(f.value),
         )
@@ -321,60 +326,62 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
                     <p className="text-[length:var(--font-size-sm)] font-medium text-muted-foreground">
                       {t`Tarifas`}
                     </p>
-                    {channel.rate_cards.map((rc, ri) => {
-                      const formatLabel =
-                        formats.find((f) => f.value === rc.format)?.label ??
-                        rc.format
-                      return (
-                        <div key={ri} className="flex items-end gap-2">
-                          <div className="flex flex-1 flex-col gap-1">
-                            <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                              {formatLabel}
-                            </span>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={rc.rate_amount}
-                              onChange={(e) =>
-                                updateRateCard(ci, ri, {
-                                  rate_amount: e.target.value,
-                                })
+                    {channel.rate_cards.map(
+                      (rc: CreatorRateCard, ri: number) => {
+                        const formatLabel =
+                          formats.find((f) => f.value === rc.format)?.label ??
+                          rc.format
+                        return (
+                          <div key={ri} className="flex items-end gap-2">
+                            <div className="flex flex-1 flex-col gap-1">
+                              <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                                {formatLabel}
+                              </span>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={rc.rate_amount}
+                                onChange={(e) =>
+                                  updateRateCard(ci, ri, {
+                                    rate_amount: e.target.value,
+                                  })
+                                }
+                                placeholder="0.00"
+                                maxLength={50}
+                                aria-invalid={!hasAmount(rc) || undefined}
+                              />
+                            </div>
+                            <Select
+                              value={rc.rate_currency}
+                              onValueChange={(v) =>
+                                updateRateCard(ci, ri, { rate_currency: v })
                               }
-                              placeholder="0.00"
-                              maxLength={50}
-                              aria-invalid={!hasAmount(rc) || undefined}
-                            />
+                            >
+                              <SelectTrigger className="w-[80px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="USD">USD</SelectItem>
+                                <SelectItem value="ARS">ARS</SelectItem>
+                                <SelectItem value="BRL">BRL</SelectItem>
+                                <SelectItem value="MXN">MXN</SelectItem>
+                                <SelectItem value="COP">COP</SelectItem>
+                                <SelectItem value="EUR">EUR</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => removeRateCard(ci, ri)}
+                              aria-label={t`Eliminar tarifa`}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
                           </div>
-                          <Select
-                            value={rc.rate_currency}
-                            onValueChange={(v) =>
-                              updateRateCard(ci, ri, { rate_currency: v })
-                            }
-                          >
-                            <SelectTrigger className="w-[80px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="USD">USD</SelectItem>
-                              <SelectItem value="ARS">ARS</SelectItem>
-                              <SelectItem value="BRL">BRL</SelectItem>
-                              <SelectItem value="MXN">MXN</SelectItem>
-                              <SelectItem value="COP">COP</SelectItem>
-                              <SelectItem value="EUR">EUR</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => removeRateCard(ci, ri)}
-                            aria-label={t`Eliminar tarifa`}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      )
-                    })}
+                        )
+                      },
+                    )}
                   </div>
                 )}
 

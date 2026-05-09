@@ -6,6 +6,7 @@ import type { DeliverableDTO } from '#/features/deliverables/types'
 import { UploadDraftDialog } from './UploadDraftDialog'
 import { DeliverableListItem } from './DeliverableListItem'
 import { MultistagePanelGroup } from './MultistagePanelGroup'
+import { SubmitLinkSidesheet } from './SubmitLinkSidesheet'
 
 interface DeliverableListPanelProps {
   conversationId: string
@@ -20,6 +21,11 @@ export function DeliverableListPanel({
   const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
     null,
   )
+  const [submitLinkDeliverableId, setSubmitLinkDeliverableId] = useState<
+    string | null
+  >(null)
+  const [submitLinkIsResubmission, setSubmitLinkIsResubmission] =
+    useState(false)
 
   if (query.isLoading) {
     return (
@@ -64,6 +70,16 @@ export function DeliverableListPanel({
     setUploadDeliverableId(null)
   }
 
+  const handleSubmitLink = (deliverableId: string, isResubmission: boolean) => {
+    setSubmitLinkDeliverableId(deliverableId)
+    setSubmitLinkIsResubmission(isResubmission)
+  }
+
+  const handleSubmitLinkClose = () => {
+    setSubmitLinkDeliverableId(null)
+    setSubmitLinkIsResubmission(false)
+  }
+
   const deliverableMap = new Map<string, DeliverableDTO>()
   for (const d of data.deliverables) {
     deliverableMap.set(d.id, d)
@@ -91,6 +107,9 @@ export function DeliverableListPanel({
             uploadDeliverable.latest_change_request?.requested_at ?? null,
         }
       : undefined
+  const submitLinkDeliverable = submitLinkDeliverableId
+    ? deliverableMap.get(submitLinkDeliverableId)
+    : undefined
 
   return (
     <div className="flex h-full flex-col" data-testid="deliverable-list-panel">
@@ -109,6 +128,7 @@ export function DeliverableListPanel({
                   deliverable,
                   sessionKind,
                   onUploadDraft: handleUploadDraft,
+                  onSubmitLink: handleSubmitLink,
                 }))}
               />
             )
@@ -121,6 +141,7 @@ export function DeliverableListPanel({
                 deliverable={deliverable}
                 sessionKind={sessionKind}
                 onUploadDraft={handleUploadDraft}
+                onSubmitLink={handleSubmitLink}
               />
             ))}
           </div>
@@ -137,6 +158,19 @@ export function DeliverableListPanel({
           onSuccess={handleDialogClose}
           title={uploadLabel}
           analytics={uploadAnalytics}
+        />
+      )}
+
+      {submitLinkDeliverable && (
+        <SubmitLinkSidesheet
+          open={!!submitLinkDeliverableId}
+          onOpenChange={(open) => {
+            if (!open) handleSubmitLinkClose()
+          }}
+          deliverableId={submitLinkDeliverable.id}
+          platform={submitLinkDeliverable.platform}
+          isResubmission={submitLinkIsResubmission}
+          onSubmitted={handleSubmitLinkClose}
         />
       )}
     </div>

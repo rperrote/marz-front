@@ -58,11 +58,8 @@ Incluye los hooks de wrapping con manejo de errores e invalidación de queries.
 - [ ] Toasts de error tipados aparecen para los 3 casos cubiertos.
 
 ## Done summary
-
-_To fill at completion._
-
+Los tres issues del round anterior resueltos: setOpen(false) en draftFlow y linkFlow onSuccess, mensajes de error unificados en inglés, y comentario en DeliverableListItem sobre completed.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:
