@@ -81,6 +81,32 @@ describe('OperationalTargetingSchema', () => {
       expect.arrayContaining([expect.objectContaining({ path: ['age_max'] })]),
     )
   })
+
+  it('rejects age ranges below the allowed minimum', () => {
+    const result = OperationalTargetingSchema.safeParse({
+      ...validOperationalTargeting,
+      age_min: 17,
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.issues).toEqual(
+      expect.arrayContaining([expect.objectContaining({ path: ['age_min'] })]),
+    )
+  })
+
+  it('rejects non ISO-3166 alpha-2 country codes', () => {
+    const result = OperationalTargetingSchema.safeParse({
+      ...validOperationalTargeting,
+      countries: ['XX'],
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: ['countries', 0] }),
+      ]),
+    )
+  })
 })
 
 describe('BonusConfigSchema', () => {

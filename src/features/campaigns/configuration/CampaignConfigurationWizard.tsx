@@ -6,6 +6,7 @@ import { Button } from '#/components/ui/button'
 import { cn } from '#/lib/utils'
 import { ContentTypeStep } from './ContentTypeStep'
 import { PricingModelStep } from './PricingModelStep'
+import { TargetingStep } from './TargetingStep'
 import {
   CAMPAIGN_CONFIGURATION_STEPS,
   isCampaignConfigurationStep,
@@ -226,6 +227,15 @@ export function CampaignConfigurationStepSlot({
   if (step === 'pricing_model') {
     return (
       <PricingModelStep
+        campaignId={activeConfig.campaign_id}
+        config={activeConfig}
+      />
+    )
+  }
+
+  if (step === 'targeting') {
+    return (
+      <TargetingStep
         campaignId={activeConfig.campaign_id}
         config={activeConfig}
       />

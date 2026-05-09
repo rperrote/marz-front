@@ -2,6 +2,7 @@ import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
 import customFetch, { ApiError } from '#/shared/api/mutator'
+import type { OperationalTargetingValues } from './schemas'
 
 const CampaignConfigurationStepSchema = z.enum([
   'content_type',
@@ -129,6 +130,12 @@ interface UpdatePricingModelParams {
   configuration_version: number
 }
 
+interface UpdateCampaignTargetingParams {
+  campaignId: string
+  operational_targeting: Partial<OperationalTargetingValues>
+  configuration_version: number
+}
+
 export function isCampaignConfigurationStep(
   value: string,
 ): value is CampaignConfigurationStep {
@@ -192,6 +199,29 @@ export function useUpdatePricingModelMutation() {
         {
           method: 'PATCH',
           body: JSON.stringify({ pricing_model, configuration_version }),
+        },
+      )
+      return CampaignConfigurationResponseSchema.parse(response.data)
+    },
+    retry: false,
+  })
+}
+
+export function useUpdateCampaignTargetingMutation() {
+  return useMutation({
+    mutationFn: async ({
+      campaignId,
+      operational_targeting,
+      configuration_version,
+    }: UpdateCampaignTargetingParams): Promise<CampaignConfiguration> => {
+      const response = await customFetch<ApiResponse<unknown>>(
+        `/v1/campaigns/${campaignId}/configuration/targeting`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            operational_targeting,
+            configuration_version,
+          }),
         },
       )
       return CampaignConfigurationResponseSchema.parse(response.data)

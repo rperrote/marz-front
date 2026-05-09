@@ -10,12 +10,27 @@ type ConfigurationStep =
   | 'bonus'
   | 'review'
 
+type OperationalTargeting = {
+  countries: string[]
+  tiers: string[]
+  follower_min: number | null
+  follower_max: number | null
+  genders: string[]
+  age_min: number | null
+  age_max: number | null
+  interests: string[]
+  content_languages: string[]
+  source: 'brief_prefill' | 'manual'
+  adjusted_from_brief: boolean
+}
+
 function makeConfiguration(state: {
   currentStep: ConfigurationStep
   completedSteps: ConfigurationStep[]
   configurationVersion: number
   contentType: 'influencer_posts' | 'ugc_videos' | null
   pricingModel: 'fixed_per_video' | 'per_views' | null
+  operationalTargeting: OperationalTargeting
 }) {
   return {
     campaign_id: campaignId,
@@ -29,19 +44,7 @@ function makeConfiguration(state: {
     configuration_version: state.configurationVersion,
     content_type: state.contentType,
     pricing_model: state.pricingModel,
-    operational_targeting: {
-      countries: [],
-      tiers: [],
-      follower_min: null,
-      follower_max: null,
-      genders: [],
-      age_min: null,
-      age_max: null,
-      interests: [],
-      content_languages: [],
-      source: 'brief_prefill',
-      adjusted_from_brief: false,
-    },
+    operational_targeting: state.operationalTargeting,
     bonus_config: {
       enabled: false,
       speed_bonus: { enabled: false, windows: [] },
@@ -75,17 +78,51 @@ test.describe('Campaign configuration wizard', () => {
     page,
     onboardedBrandUser,
   }) => {
+    const initialOperationalTargeting: OperationalTargeting = {
+      countries: ['AR', 'MX'],
+      tiers: ['emergent'],
+      follower_min: 10000,
+      follower_max: 500000,
+      genders: ['female'],
+      age_min: 18,
+      age_max: 35,
+      interests: ['fitness'],
+      content_languages: ['es'],
+      source: 'brief_prefill',
+      adjusted_from_brief: false,
+    }
     const state = {
       currentStep: 'content_type' as ConfigurationStep,
       completedSteps: [] as ConfigurationStep[],
       configurationVersion: 1,
       contentType: null as 'influencer_posts' | 'ugc_videos' | null,
       pricingModel: null as 'fixed_per_video' | 'per_views' | null,
+      operationalTargeting: initialOperationalTargeting,
     }
+    let briefEndpointWasMutated = false
 
     await page.route(`**/v1/campaigns/${campaignId}/configuration`, (route) =>
       route.fulfill({ json: makeConfiguration(state) }),
     )
+    await page.route(`**/v1/campaigns/${campaignId}/brief`, (route) => {
+      if (route.request().method() !== 'GET') {
+        briefEndpointWasMutated = true
+      }
+      return route.fulfill({
+        json: {
+          campaign_id: campaignId,
+          icp_age_min: 18,
+          icp_age_max: 35,
+          icp_genders: ['female'],
+          icp_countries: ['AR', 'MX'],
+          icp_platforms: ['instagram'],
+          icp_interests: ['fitness'],
+          scoring_dimensions: [],
+          hard_filters: [],
+          disqualifiers: [],
+        },
+      })
+    })
     await page.route(
       `**/v1/campaigns/${campaignId}/configuration/content_type`,
       async (route) => {
@@ -101,6 +138,32 @@ test.describe('Campaign configuration wizard', () => {
         state.currentStep = 'pricing_model'
         state.completedSteps = ['content_type']
         state.configurationVersion = 2
+        await route.fulfill({ json: makeConfiguration(state) })
+      },
+    )
+    await page.route(
+      `**/v1/campaigns/${campaignId}/configuration/targeting`,
+      async (route) => {
+        const body = route.request().postDataJSON() as {
+          operational_targeting: Partial<OperationalTargeting>
+          configuration_version: number
+        }
+        expect(body).toEqual({
+          operational_targeting: {
+            tiers: ['emergent', 'consolidated'],
+            follower_min: 20000,
+          },
+          configuration_version: 3,
+        })
+        state.operationalTargeting = {
+          ...state.operationalTargeting,
+          ...body.operational_targeting,
+          source: 'manual',
+          adjusted_from_brief: true,
+        }
+        state.currentStep = 'bonus'
+        state.completedSteps = ['content_type', 'pricing_model', 'targeting']
+        state.configurationVersion = 4
         await route.fulfill({ json: makeConfiguration(state) })
       },
     )
@@ -156,5 +219,23 @@ test.describe('Campaign configuration wizard', () => {
     await expect(page).toHaveURL(
       new RegExp(`/campaigns/${campaignId}/configuration/targeting$`),
     )
+
+    await expect(
+      page.getByRole('button', { name: 'Argentina' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    await page.getByRole('button', { name: 'Consolidado' }).click()
+    await page.getByLabel('Seguidores mínimos').fill('20000')
+    await page.getByRole('button', { name: /continuar/i }).click()
+
+    await expect(page).toHaveURL(
+      new RegExp(`/campaigns/${campaignId}/configuration/bonus$`),
+    )
+    await expect.poll(() => briefEndpointWasMutated).toBe(false)
+
+    await page.goto(`/campaigns/${campaignId}/configuration/targeting`)
+    await expect(
+      page.getByRole('button', { name: 'Consolidado' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByLabel('Seguidores mínimos')).toHaveValue('20000')
   })
 })

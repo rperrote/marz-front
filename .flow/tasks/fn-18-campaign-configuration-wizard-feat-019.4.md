@@ -66,9 +66,8 @@ Full design system: `src/styles.css`.
 - [ ] Validación visual desktop dark ≥95% match contra `uQqif`.
 
 ## Done summary
-
-_Pending implementation._
-
+Los tres blockers del round anterior están resueltos: superRefine duplicado de ISO eliminado, TierMultiSelect y ChipMultiSelect usan {(aria) => y role='group' {...aria} correctamente. La función fieldArrayItemError usa unknown+narrowing (no any). Sin dead code, sin console.log, tests pasan.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

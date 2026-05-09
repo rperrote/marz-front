@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
 import { axe } from 'vitest-axe'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -8,6 +9,15 @@ import {
   CampaignConfigurationStepSlot,
 } from './CampaignConfigurationWizard'
 import type { CampaignConfiguration } from './hooks'
+
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, to }: { children: ReactNode; to: string }) => (
+    <a href={to}>{children}</a>
+  ),
+  Outlet: () => null,
+  useNavigate: () => vi.fn(),
+  useParams: () => ({}),
+}))
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -110,7 +120,7 @@ describe('ConfigurationStepper', () => {
 })
 
 describe('CampaignConfigurationStepSlot', () => {
-  it('renders the placeholder with campaign configuration', () => {
+  it('renders targeting step with campaign configuration', () => {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: { retry: false },
@@ -124,7 +134,10 @@ describe('CampaignConfigurationStepSlot', () => {
       </QueryClientProvider>,
     )
 
-    expect(screen.getByRole('heading', { name: /TODO step/i })).toBeVisible()
-    expect(screen.getByText(new RegExp(campaignId))).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Geografía' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Argentina' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
   })
 })
