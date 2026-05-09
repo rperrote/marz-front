@@ -37,9 +37,8 @@ Regenerar el cliente API tipado a partir del OpenAPI publicado por marz-api dev 
 - [ ] No se committean archivos generados.
 
 ## Done summary
-
-_To be filled when task completes._
-
+Mock parcial de BrandSessionContext correcto: preserva exports reales via importOriginal y sobreescribe solo useBrandSession. Fix necesario para que pnpm typecheck pase como criterio de aceptación de la task.
 ## Evidence
-
-_To be filled when task completes._
+- Commits:
+- Tests:
+- PRs:

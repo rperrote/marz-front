@@ -3,6 +3,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 import { ApiError } from '#/shared/api/mutator'
+import type * as BrandSessionContextModule from '#/features/identity/session/BrandSessionContext'
 import { useInitBriefBuilder } from '../hooks/useInitBriefBuilder'
 import { useProcessBrief } from '../hooks/useProcessBrief'
 import { P1Input } from './P1Input'
@@ -25,18 +26,26 @@ vi.mock('../hooks/useProcessBrief', async (importOriginal) => {
   }
 })
 
-vi.mock('#/features/identity/session/BrandSessionContext', () => ({
-  useBrandSession: () => ({
-    account: {
-      id: 'account-1',
-      kind: 'brand',
-    },
-    brandWorkspace: {
-      id: 'brand-workspace-1',
-      website_url: 'https://brand.example',
-    },
-  }),
-}))
+vi.mock(
+  '#/features/identity/session/BrandSessionContext',
+  async (importOriginal) => {
+    const actual = await importOriginal<typeof BrandSessionContextModule>()
+
+    return {
+      ...actual,
+      useBrandSession: () => ({
+        account: {
+          id: 'account-1',
+          kind: 'brand',
+        },
+        brandWorkspace: {
+          id: 'brand-workspace-1',
+          website_url: 'https://brand.example',
+        },
+      }),
+    }
+  },
+)
 
 const mockInitMutateAsync = vi.fn()
 const mockProcessMutateAsync = vi.fn()
