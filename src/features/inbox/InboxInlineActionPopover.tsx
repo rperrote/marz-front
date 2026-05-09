@@ -28,11 +28,18 @@ import { ApiError } from '#/shared/api/mutator'
 import { cn } from '#/lib/utils'
 
 import { inboxQueryKey } from './api/inbox'
+import {
+  trackInboxInlineCompleted,
+  trackInboxInlineFailed,
+  trackInboxInlineStarted,
+} from './analytics'
+import type { InboxItemAnalyticsPayload } from './analytics'
 
 const MAX_REPLY_LENGTH = 4096
 const MAX_REASON_LENGTH = 500
 
 interface InboxInlineActionPopoverProps {
+  analyticsPayload: InboxItemAnalyticsPayload
   inlineActions: InboxInlineAction[]
   itemId: string
 }
@@ -47,6 +54,7 @@ type ApplicationMutationVariables = {
 }
 
 export function InboxInlineActionPopover({
+  analyticsPayload,
   inlineActions,
   itemId,
 }: InboxInlineActionPopoverProps) {
@@ -104,6 +112,7 @@ export function InboxInlineActionPopover({
               <InlineActionControl
                 key={`${itemId}-${action.type}-${action.path}`}
                 action={action}
+                analyticsPayload={analyticsPayload}
                 onError={handleActionError}
                 onSuccess={handleActionSuccess}
               />
@@ -117,10 +126,12 @@ export function InboxInlineActionPopover({
 
 function InlineActionControl({
   action,
+  analyticsPayload,
   onError,
   onSuccess,
 }: {
   action: InboxInlineAction
+  analyticsPayload: InboxItemAnalyticsPayload
   onError: (error: Error) => void
   onSuccess: () => void
 }) {
@@ -128,6 +139,7 @@ function InlineActionControl({
     return (
       <ReplyActionControl
         action={action}
+        analyticsPayload={analyticsPayload}
         onError={onError}
         onSuccess={onSuccess}
       />
@@ -138,6 +150,7 @@ function InlineActionControl({
     return (
       <OfferActionControl
         action={action}
+        analyticsPayload={analyticsPayload}
         onError={onError}
         onSuccess={onSuccess}
       />
@@ -147,6 +160,7 @@ function InlineActionControl({
   return (
     <ApplicationActionControl
       action={action}
+      analyticsPayload={analyticsPayload}
       onError={onError}
       onSuccess={onSuccess}
     />
@@ -155,10 +169,12 @@ function InlineActionControl({
 
 function ReplyActionControl({
   action,
+  analyticsPayload,
   onError,
   onSuccess,
 }: {
   action: InboxInlineAction
+  analyticsPayload: InboxItemAnalyticsPayload
   onError: (error: Error) => void
   onSuccess: () => void
 }) {
@@ -181,6 +197,11 @@ function ReplyActionControl({
   function handleSend() {
     if (isSubmitDisabled) return
 
+    trackInboxInlineStarted({
+      ...analyticsPayload,
+      action_type: action.type,
+    })
+
     sendMessage.mutate(
       {
         clientMessageId: generateClientMessageId(),
@@ -189,8 +210,17 @@ function ReplyActionControl({
         text: trimmedText,
       },
       {
-        onError,
-        onSuccess,
+        onError: (error) => {
+          trackInlineFailed(analyticsPayload, action, error)
+          onError(error)
+        },
+        onSuccess: () => {
+          trackInboxInlineCompleted({
+            ...analyticsPayload,
+            action_type: action.type,
+          })
+          onSuccess()
+        },
       },
     )
   }
@@ -239,10 +269,12 @@ function ReplyActionControl({
 
 function OfferActionControl({
   action,
+  analyticsPayload,
   onError,
   onSuccess,
 }: {
   action: InboxInlineAction
+  analyticsPayload: InboxItemAnalyticsPayload
   onError: (error: Error) => void
   onSuccess: () => void
 }) {
@@ -257,8 +289,17 @@ function OfferActionControl({
       acceptOffer(getOfferId(mutationAction.path), {
         headers: { 'Idempotency-Key': generateClientMessageId() },
       }),
-    onError,
-    onSuccess,
+    onError: (error, variables) => {
+      trackInlineFailed(analyticsPayload, variables.action, error)
+      onError(error)
+    },
+    onSuccess: (_data, variables) => {
+      trackInboxInlineCompleted({
+        ...analyticsPayload,
+        action_type: variables.action.type,
+      })
+      onSuccess()
+    },
   })
   const rejectMutation = useMutation<
     rejectOfferResponse,
@@ -271,16 +312,33 @@ function OfferActionControl({
         mutationReason ? { reason: mutationReason } : {},
         { headers: { 'Idempotency-Key': generateClientMessageId() } },
       ),
-    onError,
-    onSuccess,
+    onError: (error, variables) => {
+      trackInlineFailed(analyticsPayload, variables.action, error)
+      onError(error)
+    },
+    onSuccess: (_data, variables) => {
+      trackInboxInlineCompleted({
+        ...analyticsPayload,
+        action_type: variables.action.type,
+      })
+      onSuccess()
+    },
   })
   const isPending = acceptMutation.isPending || rejectMutation.isPending
 
   function handleAccept() {
+    trackInboxInlineStarted({
+      ...analyticsPayload,
+      action_type: action.type,
+    })
     acceptMutation.mutate({ action })
   }
 
   function handleReject() {
+    trackInboxInlineStarted({
+      ...analyticsPayload,
+      action_type: action.type,
+    })
     rejectMutation.mutate({ action, reason: reason.trim() || undefined })
   }
 
@@ -317,10 +375,12 @@ function OfferActionControl({
 
 function ApplicationActionControl({
   action,
+  analyticsPayload,
   onError,
   onSuccess,
 }: {
   action: InboxInlineAction
+  analyticsPayload: InboxItemAnalyticsPayload
   onError: (error: Error) => void
   onSuccess: () => void
 }) {
@@ -339,8 +399,17 @@ function ApplicationActionControl({
         },
       )
     },
-    onError,
-    onSuccess,
+    onError: (error, variables) => {
+      trackInlineFailed(analyticsPayload, variables.action, error)
+      onError(error)
+    },
+    onSuccess: (_data, variables) => {
+      trackInboxInlineCompleted({
+        ...analyticsPayload,
+        action_type: variables.action.type,
+      })
+      onSuccess()
+    },
   })
   const rejectMutation = useMutation<
     rejectCampaignDiscoveryApplicationResponse,
@@ -357,16 +426,33 @@ function ApplicationActionControl({
         },
       )
     },
-    onError,
-    onSuccess,
+    onError: (error, variables) => {
+      trackInlineFailed(analyticsPayload, variables.action, error)
+      onError(error)
+    },
+    onSuccess: (_data, variables) => {
+      trackInboxInlineCompleted({
+        ...analyticsPayload,
+        action_type: variables.action.type,
+      })
+      onSuccess()
+    },
   })
   const isPending = acceptMutation.isPending || rejectMutation.isPending
 
   function handleAccept() {
+    trackInboxInlineStarted({
+      ...analyticsPayload,
+      action_type: action.type,
+    })
     acceptMutation.mutate({ action })
   }
 
   function handleReject() {
+    trackInboxInlineStarted({
+      ...analyticsPayload,
+      action_type: action.type,
+    })
     rejectMutation.mutate({ action })
   }
 
@@ -534,6 +620,20 @@ function isApplicationAction(action: InboxInlineAction) {
     action.type === 'brand_accept_application' ||
     action.type === 'brand_reject_application'
   )
+}
+
+function trackInlineFailed(
+  analyticsPayload: InboxItemAnalyticsPayload,
+  action: InboxInlineAction,
+  error: Error,
+) {
+  trackInboxInlineFailed({
+    ...analyticsPayload,
+    action_type: action.type,
+    ...(error instanceof ApiError
+      ? { error_code: error.code, error_status: error.status }
+      : {}),
+  })
 }
 
 function getConversationId(path: string) {

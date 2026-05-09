@@ -14,17 +14,24 @@ import {
 
 import { inboxQueryKey } from './api/inbox'
 import type { InboxResponse } from './api/inbox'
+import {
+  trackInboxFilterChanged,
+  trackInboxMarkedReadBulk,
+  trackInboxRefreshed,
+} from './analytics'
 import { useMarkInboxVisibleReadMutation } from './hooks/useMarkInboxVisibleReadMutation'
 
 const ALL_CAMPAIGNS = '__all__'
 
 interface InboxToolbarProps {
+  accountKind: InboxResponse['account_kind']
   campaignId?: string
   campaignFilterOptions: InboxResponse['campaign_filter_options']
   counts: InboxResponse['counts']
 }
 
 export function InboxToolbar({
+  accountKind,
   campaignId,
   campaignFilterOptions,
   counts,
@@ -36,24 +43,45 @@ export function InboxToolbar({
   const isRefreshing = useIsFetching({ queryKey: inboxQueryKey }) > 0
 
   function handleCampaignChange(nextValue: string) {
+    const nextCampaignId = nextValue === ALL_CAMPAIGNS ? undefined : nextValue
+    trackInboxFilterChanged({
+      account_kind: accountKind,
+      campaign_id: nextCampaignId ?? null,
+      has_campaign_filter: nextCampaignId !== undefined,
+    })
+
     void navigate({
       to: '/inbox',
       search: {
-        campaign_id: nextValue === ALL_CAMPAIGNS ? undefined : nextValue,
+        campaign_id: nextCampaignId,
       },
       replace: true,
     })
   }
 
   function handleRefresh() {
+    trackInboxRefreshed({
+      account_kind: accountKind,
+      campaign_id: campaignId ?? null,
+    })
     void queryClient.invalidateQueries({ queryKey: inboxQueryKey })
   }
 
   function handleMarkAllRead() {
-    markVisibleRead.mutate({
-      campaign_id: campaignId,
-      sections: undefined,
-    })
+    markVisibleRead.mutate(
+      {
+        campaign_id: campaignId,
+        sections: undefined,
+      },
+      {
+        onSuccess: () => {
+          trackInboxMarkedReadBulk({
+            account_kind: accountKind,
+            campaign_id: campaignId ?? null,
+          })
+        },
+      },
+    )
   }
 
   return (

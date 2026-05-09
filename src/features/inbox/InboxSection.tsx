@@ -1,9 +1,10 @@
 import { t } from '@lingui/core/macro'
 
-import type { InboxItem } from './api/inbox'
+import type { InboxItem, InboxResponse } from './api/inbox'
 import { InboxItemRow } from './InboxItemRow'
 
 interface InboxSectionProps {
+  accountKind: InboxResponse['account_kind']
   title: string
   description: string
   count: number
@@ -12,6 +13,7 @@ interface InboxSectionProps {
 }
 
 export function InboxSection({
+  accountKind,
   title,
   description,
   count,
@@ -44,7 +46,7 @@ export function InboxSection({
       {items.length > 0 ? (
         <ul className="flex flex-col gap-2" role="list">
           {items.map((item) => (
-            <InboxItemRow key={item.id} item={item} />
+            <InboxItemRow key={item.id} accountKind={accountKind} item={item} />
           ))}
         </ul>
       ) : (

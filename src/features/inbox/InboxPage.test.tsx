@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   createMemoryHistory,
@@ -16,6 +16,7 @@ import type { InboxItem, InboxResponse } from './api/inbox'
 import { useInboxQuery } from './hooks/useInboxQuery'
 import { useMarkInboxItemReadMutation } from './hooks/useMarkInboxItemReadMutation'
 import { useMarkInboxVisibleReadMutation } from './hooks/useMarkInboxVisibleReadMutation'
+import { getTrackedEvents, resetTrackedEvents } from '#/shared/analytics/track'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -23,6 +24,13 @@ vi.mock('@lingui/core/macro', () => ({
       strings.reduce((acc, str, i) => acc + str + (values[i] ?? ''), ''),
     { __lingui: true },
   ),
+}))
+
+vi.mock('sonner', () => ({
+  toast: {
+    error: vi.fn(),
+    info: vi.fn(),
+  },
 }))
 
 vi.mock('./hooks/useInboxQuery', () => ({
@@ -45,6 +53,7 @@ const otherCampaignId = '018f2f3a-1f2b-7c8d-9e0f-abcdefabcdef'
 
 beforeEach(() => {
   vi.clearAllMocks()
+  resetTrackedEvents()
   vi.mocked(useMarkInboxItemReadMutation).mockReturnValue({
     mutate: markItemReadMutate,
     isPending: false,
@@ -159,6 +168,11 @@ describe('InboxPage', () => {
     expect(
       screen.getByRole('link', { name: /Open campaigns/i }),
     ).toHaveAttribute('href', '/campaigns')
+    await waitFor(() => {
+      expect(getTrackedEvents().map((event) => event.event)).toContain(
+        'inbox_empty_viewed',
+      )
+    })
   })
 
   it('renders recoverable error state', async () => {
@@ -201,6 +215,16 @@ describe('InboxPage', () => {
       campaign_id: campaignId,
     })
     expect(useInboxQuery).toHaveBeenLastCalledWith({ campaignId })
+    expect(getTrackedEvents()).toContainEqual(
+      expect.objectContaining({
+        event: 'inbox_filter_changed',
+        payload: {
+          account_kind: 'brand',
+          campaign_id: campaignId,
+          has_campaign_filter: true,
+        },
+      }),
+    )
   })
 
   it('removes campaign_id search when All campaigns is selected', async () => {
@@ -259,10 +283,13 @@ describe('InboxPage', () => {
       await screen.findByRole('button', { name: 'Mark all as read' }),
     )
 
-    expect(markVisibleReadMutate).toHaveBeenCalledWith({
-      campaign_id: campaignId,
-      sections: undefined,
-    })
+    expect(markVisibleReadMutate).toHaveBeenCalledWith(
+      {
+        campaign_id: campaignId,
+        sections: undefined,
+      },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    )
   })
 
   it('refresh invalidates inbox queries', async () => {
@@ -278,6 +305,85 @@ describe('InboxPage', () => {
     )
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['inbox'] })
+    expect(getTrackedEvents()).toContainEqual(
+      expect.objectContaining({
+        event: 'inbox_refreshed',
+        payload: {
+          account_kind: 'brand',
+          campaign_id: null,
+        },
+      }),
+    )
+  })
+
+  it('navigates to the backend navigation_action href and tracks opened without PII', async () => {
+    const user = userEvent.setup()
+    mockInboxQuery({
+      data: makeInboxResponse({
+        action_items: [
+          makeInboxItem({
+            navigation_action: {
+              type: 'open_conversation',
+              label: 'Open conversation',
+              href: '/workspace/conversations/conversation-1',
+            },
+          }),
+        ],
+      }),
+    })
+    const { router } = renderInboxPage()
+
+    await user.click(
+      await screen.findByRole('link', { name: 'Open conversation' }),
+    )
+
+    expect(router.state.location.pathname).toBe(
+      '/workspace/conversations/conversation-1',
+    )
+    expect(getTrackedEvents()).toContainEqual(
+      expect.objectContaining({
+        event: 'inbox_item_opened',
+        payload: {
+          account_kind: 'brand',
+          campaign_id: 'campaign-1',
+          item_kind: 'message_reply',
+          section: 'action',
+          navigation_type: 'open_conversation',
+        },
+      }),
+    )
+    const openedEvent = getTrackedEvents().find(
+      (event) => event.event === 'inbox_item_opened',
+    )
+    expect(openedEvent?.payload).not.toHaveProperty('preview')
+    expect(openedEvent?.payload).not.toHaveProperty('display_name')
+    expect(openedEvent?.payload).not.toHaveProperty('avatar_url')
+  })
+
+  it('shows a neutral toast when navigation_action href is not routed', async () => {
+    const user = userEvent.setup()
+    mockInboxQuery({
+      data: makeInboxResponse({
+        action_items: [
+          makeInboxItem({
+            navigation_action: {
+              type: 'open_video_reviewer',
+              label: 'Review video',
+              href: '/deliverables/deliverable-1/review',
+            },
+          }),
+        ],
+      }),
+    })
+    const { toast } = await import('sonner')
+    const { router } = renderInboxPage()
+
+    await user.click(await screen.findByRole('link', { name: 'Review video' }))
+
+    expect(router.state.location.pathname).toBe('/inbox')
+    expect(toast.info).toHaveBeenCalledWith(
+      'Esta sección todavía no está disponible.',
+    )
   })
 })
 
@@ -324,11 +430,17 @@ function renderInboxPage(initialEntry = '/inbox') {
     path: '/campaigns',
     component: () => null,
   })
+  const conversationRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/workspace/conversations/$conversationId',
+    component: () => null,
+  })
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       inboxRoute,
       discoveryRoute,
       campaignsRoute,
+      conversationRoute,
     ]),
     history: createMemoryHistory({ initialEntries: [initialEntry] }),
   })

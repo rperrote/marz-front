@@ -48,9 +48,8 @@ Cablear `navigation_action` de cada item para abrir el flujo completo correspond
 - [ ] Smoke manual: brand y creator navegan desde un item a su flujo destino real.
 
 ## Done summary
-
-_(filled on completion)_
-
+Implementación correcta: navegación con fallback toast, analytics sin PII, tests pasando, typecheck limpio. isKnownRouterHref duplicado en EmptyState e ItemRow pero es deuda cosmética, no un bloqueo.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

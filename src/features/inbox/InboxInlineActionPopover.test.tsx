@@ -11,6 +11,8 @@ import { ApiError } from '#/shared/api/mutator'
 
 import { inboxQueryKey } from './api/inbox'
 import { InboxInlineActionPopover } from './InboxInlineActionPopover'
+import type { InboxItemAnalyticsPayload } from './analytics'
+import { getTrackedEvents, resetTrackedEvents } from '#/shared/analytics/track'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -52,6 +54,7 @@ const sendMessageMutate = vi.fn()
 
 beforeEach(() => {
   vi.clearAllMocks()
+  resetTrackedEvents()
   vi.mocked(useMe).mockReturnValue({
     data: {
       data: { id: 'account-1' },
@@ -118,6 +121,11 @@ describe('InboxInlineActionPopover', () => {
         queryKey: inboxQueryKey,
       })
     })
+
+    expect(getTrackedEvents().map((event) => event.event)).toEqual([
+      'inbox_inline_started',
+      'inbox_inline_completed',
+    ])
   })
 
   it('handles 409 as a neutral state refresh', async () => {
@@ -136,6 +144,10 @@ describe('InboxInlineActionPopover', () => {
       expect(toast.info).toHaveBeenCalledWith('El estado cambió, refrescamos')
     })
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: inboxQueryKey })
+    expect(getTrackedEvents().map((event) => event.event)).toEqual([
+      'inbox_inline_started',
+      'inbox_inline_failed',
+    ])
   })
 
   it('handles reply 409 as a neutral state refresh and closes the popover', async () => {
@@ -175,11 +187,22 @@ function renderPopover(inlineActions: InboxInlineAction[]) {
 
   render(
     <QueryClientProvider client={queryClient}>
-      <InboxInlineActionPopover itemId="item-1" inlineActions={inlineActions} />
+      <InboxInlineActionPopover
+        analyticsPayload={analyticsPayload}
+        itemId="item-1"
+        inlineActions={inlineActions}
+      />
     </QueryClientProvider>,
   )
 
   return { queryClient }
+}
+
+const analyticsPayload: InboxItemAnalyticsPayload = {
+  account_kind: 'brand',
+  campaign_id: 'campaign-1',
+  item_kind: 'message_reply',
+  section: 'action',
 }
 
 function makeReplyAction(): InboxInlineAction {

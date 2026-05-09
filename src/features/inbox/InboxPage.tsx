@@ -1,8 +1,10 @@
 import { t } from '@lingui/core/macro'
+import { useEffect } from 'react'
 
 import { Button } from '#/components/ui/button'
 
 import type { InboxItem, InboxResponse } from './api/inbox'
+import { trackInboxEmptyViewed, trackInboxViewed } from './analytics'
 import { useInboxQuery } from './hooks/useInboxQuery'
 import { InboxEmptyState } from './InboxEmptyState'
 import { InboxSection } from './InboxSection'
@@ -47,6 +49,30 @@ function InboxPageContent({
   const isEmpty = data.counts.action === 0 && data.counts.waiting === 0
   const copy = getInboxCopy(data.account_kind)
 
+  useEffect(() => {
+    const payload = {
+      account_kind: data.account_kind,
+      campaign_id: data.campaign_id,
+    }
+
+    trackInboxViewed({
+      ...payload,
+      action_count: data.counts.action,
+      waiting_count: data.counts.waiting,
+    })
+
+    if (isEmpty) {
+      trackInboxEmptyViewed(payload)
+    }
+  }, [
+    data.account_kind,
+    data.campaign_id,
+    data.counts.action,
+    data.counts.waiting,
+    data.generated_at,
+    isEmpty,
+  ])
+
   return (
     <main className="flex h-full overflow-y-auto px-5 py-8 sm:px-8">
       <div className="mx-auto flex w-full max-w-[880px] flex-col gap-6">
@@ -58,6 +84,7 @@ function InboxPageContent({
           campaignId={campaignId}
           campaignFilterOptions={data.campaign_filter_options}
           counts={data.counts}
+          accountKind={data.account_kind}
         />
 
         {isEmpty ? (
@@ -71,6 +98,7 @@ function InboxPageContent({
                 count={data.counts.action}
                 items={actionItems}
                 tone="action"
+                accountKind={data.account_kind}
               />
             ) : null}
             {data.counts.waiting > 0 ? (
@@ -80,6 +108,7 @@ function InboxPageContent({
                 count={data.counts.waiting}
                 items={waitingItems}
                 tone="waiting"
+                accountKind={data.account_kind}
               />
             ) : null}
           </div>
