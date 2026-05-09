@@ -1,7 +1,8 @@
 import { t } from '@lingui/core/macro'
 import { useNavigate } from '@tanstack/react-router'
-import { AlertCircle, ChevronDown, Loader2, Search } from 'lucide-react'
+import { AlertCircle, ChevronDown, Loader2, Plus, Search } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useState } from 'react'
 
 import { Button } from '#/components/ui/button'
 import {
@@ -12,6 +13,9 @@ import {
   SelectValue,
 } from '#/components/ui/select'
 
+import type { CampaignPlanCapabilities } from '#/shared/api/generated/model'
+
+import { AddCreatorDialog } from './AddCreatorDialog'
 import { ActiveCollaborationList } from './ActiveCollaborationList'
 import { ApplicationCard } from './ApplicationCard'
 import { DiscoverySidebar } from './DiscoverySidebar'
@@ -30,13 +34,18 @@ import type { DiscoverySection, DiscoverySort } from './queries'
 
 interface DiscoveryTabProps {
   campaignId: string
+  planCapabilities: CampaignPlanCapabilities
   search: {
     section: DiscoverySection
     sort?: string
   }
 }
 
-export function DiscoveryTab({ campaignId, search }: DiscoveryTabProps) {
+export function DiscoveryTab({
+  campaignId,
+  planCapabilities,
+  search,
+}: DiscoveryTabProps) {
   const navigate = useNavigate({ from: '/campaigns/$campaignId' })
   const summaryQuery = useCampaignDiscoverySummaryQuery(campaignId)
   const section = search.section
@@ -89,7 +98,10 @@ export function DiscoveryTab({ campaignId, search }: DiscoveryTabProps) {
           <ApplicationsSection campaignId={campaignId} />
         ) : null}
         {section === 'invited' ? (
-          <InvitesSection campaignId={campaignId} />
+          <InvitesSection
+            campaignId={campaignId}
+            planCapabilities={planCapabilities}
+          />
         ) : null}
         {section === 'active' ? (
           <ActiveSection campaignId={campaignId} />
@@ -155,7 +167,11 @@ function MatchesSection({
       >
         <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
           {matches.map((match) => (
-            <MatchCard key={match.match_id} match={match} />
+            <MatchCard
+              key={match.match_id}
+              campaignId={campaignId}
+              match={match}
+            />
           ))}
         </div>
         <LoadMore
@@ -189,6 +205,7 @@ function ApplicationsSection({ campaignId }: { campaignId: string }) {
           {applications.map((application) => (
             <ApplicationCard
               key={application.application_id}
+              campaignId={campaignId}
               application={application}
             />
           ))}
@@ -203,30 +220,55 @@ function ApplicationsSection({ campaignId }: { campaignId: string }) {
   )
 }
 
-function InvitesSection({ campaignId }: { campaignId: string }) {
+function InvitesSection({
+  campaignId,
+  planCapabilities,
+}: {
+  campaignId: string
+  planCapabilities: CampaignPlanCapabilities
+}) {
+  const [addCreatorOpen, setAddCreatorOpen] = useState(false)
   const invitesQuery = useCampaignInvitesQuery(campaignId)
   const invites = invitesQuery.data?.pages.flatMap((page) => page.data) ?? []
 
   return (
-    <SectionFrame
-      title={t`Invited creators`}
-      description={t`${invites.length} invitations sent`}
-    >
-      <QueryState
-        isLoading={invitesQuery.isPending}
-        isError={invitesQuery.isError}
-        isEmpty={invites.length === 0}
-        emptyTitle={t`Todavía no hay invitaciones`}
-        emptyDescription={t`Las invitaciones creadas para esta campaña van a aparecer acá.`}
+    <>
+      <SectionFrame
+        title={t`Invited creators`}
+        description={t`${invites.length} invitations sent`}
+        action={
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setAddCreatorOpen(true)}
+          >
+            <Plus className="size-3.5" aria-hidden />
+            {t`Add manually`}
+          </Button>
+        }
       >
-        <InviteList invites={invites} />
-        <LoadMore
-          hasNextPage={invitesQuery.hasNextPage}
-          isFetchingNextPage={invitesQuery.isFetchingNextPage}
-          onLoadMore={() => void invitesQuery.fetchNextPage()}
-        />
-      </QueryState>
-    </SectionFrame>
+        <QueryState
+          isLoading={invitesQuery.isPending}
+          isError={invitesQuery.isError}
+          isEmpty={invites.length === 0}
+          emptyTitle={t`Todavía no hay invitaciones`}
+          emptyDescription={t`Las invitaciones creadas para esta campaña van a aparecer acá.`}
+        >
+          <InviteList invites={invites} />
+          <LoadMore
+            hasNextPage={invitesQuery.hasNextPage}
+            isFetchingNextPage={invitesQuery.isFetchingNextPage}
+            onLoadMore={() => void invitesQuery.fetchNextPage()}
+          />
+        </QueryState>
+      </SectionFrame>
+      <AddCreatorDialog
+        campaignId={campaignId}
+        open={addCreatorOpen}
+        onOpenChange={setAddCreatorOpen}
+        allowsInPlatformInvites={planCapabilities.allows_in_platform_invites}
+      />
+    </>
   )
 }
 

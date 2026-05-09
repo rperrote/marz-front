@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 
 import { Button } from '#/components/ui/button'
 import { DiscoveryTab } from '#/features/discovery/campaign-detail/DiscoveryTab'
+import type { CampaignPlanCapabilities } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
 
 import {
@@ -102,6 +103,7 @@ export function CampaignDetailPage({
         campaignId={campaignId}
         tab={search.tab}
         search={search}
+        planCapabilities={detailQuery.data.plan_capabilities}
       />
     </CampaignDetailShell>
   )
@@ -133,10 +135,12 @@ function CampaignDetailBody({
   campaignId,
   tab,
   search,
+  planCapabilities,
 }: {
   campaignId: string
   tab: CampaignDetailTabId
   search: CampaignDetailSearch
+  planCapabilities: CampaignPlanCapabilities
 }) {
   const titleByTab: Record<CampaignDetailNavigableTab, string> = {
     overview: t`Overview`,
@@ -159,7 +163,13 @@ function CampaignDetailBody({
   }
 
   if (tab === 'discovery') {
-    return <DiscoveryTab campaignId={campaignId} search={search} />
+    return (
+      <DiscoveryTab
+        campaignId={campaignId}
+        planCapabilities={planCapabilities}
+        search={search}
+      />
+    )
   }
 
   return (

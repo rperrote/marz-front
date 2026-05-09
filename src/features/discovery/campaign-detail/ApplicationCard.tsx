@@ -1,17 +1,37 @@
 import { t } from '@lingui/core/macro'
+import { useNavigate } from '@tanstack/react-router'
+import { Check, Loader2, X } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import type { CampaignApplicationListItem } from '#/shared/api/generated/model'
 
+import { useAcceptApplication, useRejectApplication } from './mutations'
 import { formatDate, initials } from './utils'
 
 interface ApplicationCardProps {
+  campaignId: string
   application: CampaignApplicationListItem
 }
 
-export function ApplicationCard({ application }: ApplicationCardProps) {
+export function ApplicationCard({
+  campaignId,
+  application,
+}: ApplicationCardProps) {
+  const navigate = useNavigate()
+  const acceptApplication = useAcceptApplication(campaignId, {
+    onConversationReady: (conversationId) => {
+      void navigate({
+        to: '/workspace/conversations/$conversationId',
+        params: { conversationId },
+      })
+    },
+  })
+  const rejectApplication = useRejectApplication(campaignId)
   const creator = application.creator
+  const isAccepting = acceptApplication.isPending
+  const isRejecting = rejectApplication.isPending
 
   return (
     <article className="rounded-2xl border border-border bg-card p-4">
@@ -42,6 +62,44 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
           <span>{t`Rate ${application.proposed_rate.amount}`}</span>
         ) : null}
         <span>{formatDate(application.created_at)}</span>
+      </div>
+      <div className="mt-4 flex flex-wrap justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+          onClick={() =>
+            rejectApplication.mutate({
+              applicationId: application.application_id,
+            })
+          }
+          disabled={!application.can_reject || isAccepting || isRejecting}
+        >
+          {isRejecting ? (
+            <Loader2 className="size-3.5 animate-spin" aria-hidden />
+          ) : (
+            <X className="size-3.5" aria-hidden />
+          )}
+          {t`Reject`}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() =>
+            acceptApplication.mutate({
+              applicationId: application.application_id,
+            })
+          }
+          disabled={!application.can_accept || isAccepting || isRejecting}
+        >
+          {isAccepting ? (
+            <Loader2 className="size-3.5 animate-spin" aria-hidden />
+          ) : (
+            <Check className="size-3.5" aria-hidden />
+          )}
+          {t`Accept`}
+        </Button>
       </div>
     </article>
   )

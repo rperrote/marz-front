@@ -1,23 +1,38 @@
 import { t } from '@lingui/core/macro'
+import { useNavigate } from '@tanstack/react-router'
+import { Loader2, Mail, Send } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { Badge } from '#/components/ui/badge'
+import { Button } from '#/components/ui/button'
 import type {
   CampaignMatchCard,
   CreatorCardListSummary,
   CreatorPlatformListItem,
 } from '#/shared/api/generated/model'
 
+import { useContactMatch } from './mutations'
 import { initials } from './utils'
 
 interface MatchCardProps {
+  campaignId: string
   match: CampaignMatchCard
 }
 
-export function MatchCard({ match }: MatchCardProps) {
+export function MatchCard({ campaignId, match }: MatchCardProps) {
+  const navigate = useNavigate()
+  const contactMatch = useContactMatch(campaignId, {
+    onConversationReady: (conversationId) => {
+      void navigate({
+        to: '/workspace/conversations/$conversationId',
+        params: { conversationId },
+      })
+    },
+  })
   const creator = match.creator
   const primaryPlatform = getPrimaryPlatform(creator)
   const platforms = creator.platforms.slice(0, 3)
+  const isContacting = contactMatch.isPending
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-border bg-card">
@@ -97,6 +112,46 @@ export function MatchCard({ match }: MatchCardProps) {
             ))}
           </div>
         ) : null}
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            size="sm"
+            onClick={() =>
+              contactMatch.mutate({
+                matchId: match.match_id,
+                data: {
+                  invite: {
+                    mode: 'in_platform',
+                    creator_account_id: creator.account_id,
+                  },
+                },
+              })
+            }
+            disabled={!match.can_contact || isContacting}
+          >
+            {isContacting ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            ) : (
+              <Send className="size-3.5" aria-hidden />
+            )}
+            {t`Invite`}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              contactMatch.mutate({
+                matchId: match.match_id,
+                data: {},
+              })
+            }
+            disabled={!match.can_contact || isContacting}
+          >
+            <Mail className="size-3.5" aria-hidden />
+            {t`Contact`}
+          </Button>
+        </div>
       </div>
     </article>
   )
