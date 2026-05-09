@@ -1,5 +1,5 @@
+import { t } from '@lingui/core/macro'
 import {
-  Outlet,
   createFileRoute,
   redirect,
   useRouterState,
@@ -13,7 +13,7 @@ import type { ServerMeBody } from '#/shared/auth/getServerMe'
 
 const STALE_TIME = 30_000
 
-export const Route = createFileRoute('/_creator')({
+export const Route = createFileRoute('/inbox')({
   beforeLoad: async ({ context }) => {
     const { queryClient } = context
 
@@ -47,29 +47,38 @@ export const Route = createFileRoute('/_creator')({
       throw redirect({ to: '/auth' })
     }
 
-    if (me.kind === 'brand') {
-      throw redirect({ to: '/workspace' })
-    }
-
     if (me.onboarding_status !== 'onboarded') {
-      const destination = me.redirect_to ?? '/onboarding/creator'
+      const destination = me.redirect_to ?? `/onboarding/${me.kind}`
       throw redirect({ to: destination })
     }
 
+    const sessionKind: 'brand' | 'creator' = me.kind
+
     return {
       accountId: me.id,
+      sessionKind,
     }
   },
-  component: CreatorLayout,
+  component: InboxRoute,
 })
 
-function CreatorLayout() {
-  const { accountId } = Route.useRouteContext()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
+function InboxRoute() {
+  const { accountId, sessionKind } = Route.useRouteContext()
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
 
   return (
-    <AppShell accountKind="creator" accountId={accountId} pathname={pathname}>
-      <Outlet />
+    <AppShell
+      accountKind={sessionKind}
+      accountId={accountId}
+      pathname={pathname}
+    >
+      <div className="flex h-full items-center justify-center">
+        <p className="text-sm text-muted-foreground">
+          {t`Inbox estará disponible pronto.`}
+        </p>
+      </div>
     </AppShell>
   )
 }

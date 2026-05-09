@@ -1,8 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { redirect } from '@tanstack/react-router'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+import { workspaceSearchSchema } from '#/features/chat/workspace/workspaceSearchSchema'
 
 let mockServerMeResult: { ok: boolean; body: Record<string, unknown> | null } =
   { ok: false, body: null }
+
+vi.mock('#/shared/analytics/track', () => ({
+  track: vi.fn(),
+}))
 
 vi.mock('#/shared/auth/getServerMe', () => ({
   getServerMe: () => Promise.resolve(mockServerMeResult),
@@ -27,33 +35,40 @@ function makeQueryClient(): QueryClientMock {
 }
 
 async function callBeforeLoad(
-  pathname = '/_brand/campaigns',
+  pathname = '/workspace',
   queryClient = makeQueryClient(),
 ) {
-  const { Route } = await import('./_brand')
+  const { Route } = await import('./workspace')
   const beforeLoad = (
     Route.options as unknown as {
       beforeLoad: (opts: {
         context: { queryClient: ReturnType<typeof makeQueryClient> }
         location: { pathname: string }
-      }) => Promise<{ accountId: string; hasBrandWorkspace: boolean }>
+      }) => Promise<{ accountId: string; sessionKind: 'brand' | 'creator' }>
     }
   ).beforeLoad
   return beforeLoad({ context: { queryClient }, location: { pathname } })
 }
 
-describe('/_brand beforeLoad', () => {
+describe('/workspace route', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockServerMeResult = { ok: false, body: null }
   })
 
+  it('keeps workspace search validation attached to the common route', async () => {
+    const { Route } = await import('./workspace')
+
+    expect(Route.options.validateSearch).toBe(workspaceSearchSchema)
+  })
+
   it('redirects to /auth when not authenticated', async () => {
     mockServerMeResult = { ok: false, body: null }
+
     await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
   })
 
-  it('redirects to redirect_to when onboarding incomplete', async () => {
+  it('redirects to redirect_to when onboarding is incomplete', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
@@ -61,31 +76,46 @@ describe('/_brand beforeLoad', () => {
         kind: 'brand',
         onboarding_status: 'onboarding_pending',
         redirect_to: '/onboarding/brand',
-        brand_workspace: { id: 'ws_1' },
       },
     }
+
     await expect(callBeforeLoad()).rejects.toEqual(
       redirect({ to: '/onboarding/brand' }),
     )
   })
 
-  it('redirects to /onboarding/brand when onboarding incomplete and no redirect_to', async () => {
+  it('redirects to /auth when kind is missing', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
-        id: 'acct_brand_pending',
-        kind: 'brand',
+        id: 'acct_pending_kind',
+        kind: null,
         onboarding_status: 'kind_pending',
-        redirect_to: null,
-        brand_workspace: { id: 'ws_1' },
+        redirect_to: '/auth/kind',
       },
     }
-    await expect(callBeforeLoad()).rejects.toEqual(
-      redirect({ to: '/onboarding/brand' }),
-    )
+
+    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
   })
 
-  it('redirects to /workspace when kind is creator', async () => {
+  it('returns brand AppShell context for an onboarded brand session', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_brand_1',
+        kind: 'brand',
+        onboarding_status: 'onboarded',
+        redirect_to: null,
+      },
+    }
+
+    await expect(callBeforeLoad()).resolves.toEqual({
+      accountId: 'acct_brand_1',
+      sessionKind: 'brand',
+    })
+  })
+
+  it('returns creator AppShell context for an onboarded creator session', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
@@ -95,93 +125,34 @@ describe('/_brand beforeLoad', () => {
         redirect_to: null,
       },
     }
-    await expect(callBeforeLoad()).rejects.toEqual(
-      redirect({ to: '/workspace' }),
-    )
-  })
 
-  it('redirects to /auth when kind is null', async () => {
-    mockServerMeResult = {
-      ok: true,
-      body: {
-        id: 'acct_pending_kind',
-        kind: null,
-        onboarding_status: 'onboarded',
-        redirect_to: null,
-      },
-    }
-    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
-  })
-
-  it('redirects to /auth when kind is invalid', async () => {
-    mockServerMeResult = {
-      ok: true,
-      body: {
-        id: 'acct_invalid_kind',
-        kind: 'admin',
-        onboarding_status: 'onboarding_pending',
-        redirect_to: '/onboarding/brand',
-      },
-    }
-    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
-  })
-
-  it('returns AppShell context when kind is brand, onboarded, and has workspace', async () => {
-    mockServerMeResult = {
-      ok: true,
-      body: {
-        id: 'acct_brand_1',
-        kind: 'brand',
-        onboarding_status: 'onboarded',
-        redirect_to: null,
-        brand_workspace: { id: 'ws_1' },
-      },
-    }
-    await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
-      accountId: 'acct_brand_1',
-      hasBrandWorkspace: true,
-    })
-  })
-
-  it('returns MissingWorkspace fallback context when brand is onboarded without workspace', async () => {
-    mockServerMeResult = {
-      ok: true,
-      body: {
-        id: 'acct_brand_1',
-        kind: 'brand',
-        onboarding_status: 'onboarded',
-        redirect_to: null,
-        brand_workspace: null,
-      },
-    }
-    await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
-      accountId: 'acct_brand_1',
-      hasBrandWorkspace: false,
+    await expect(callBeforeLoad()).resolves.toEqual({
+      accountId: 'acct_creator_1',
+      sessionKind: 'creator',
     })
   })
 
   it('uses cached queryClient data when fresh', async () => {
-    const qc = makeQueryClient()
-    qc.getQueryData.mockReturnValue({
+    const queryClient = makeQueryClient()
+    queryClient.getQueryData.mockReturnValue({
       status: 200,
       data: {
-        id: 'acct_brand_cached',
-        kind: 'brand',
+        id: 'acct_creator_cached',
+        kind: 'creator',
         onboarding_status: 'onboarded',
         redirect_to: null,
-        brand_workspace: { id: 'ws_cached' },
       },
     })
-    qc.getQueryState.mockReturnValue({ dataUpdatedAt: Date.now() })
+    queryClient.getQueryState.mockReturnValue({ dataUpdatedAt: Date.now() })
 
-    await expect(callBeforeLoad('/_brand/campaigns', qc)).resolves.toEqual({
-      accountId: 'acct_brand_cached',
-      hasBrandWorkspace: true,
+    await expect(callBeforeLoad('/workspace', queryClient)).resolves.toEqual({
+      accountId: 'acct_creator_cached',
+      sessionKind: 'creator',
     })
   })
 
   it('seeds queryClient after fetching from server', async () => {
-    const qc = makeQueryClient()
+    const queryClient = makeQueryClient()
     mockServerMeResult = {
       ok: true,
       body: {
@@ -189,14 +160,42 @@ describe('/_brand beforeLoad', () => {
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
-        brand_workspace: { id: 'ws_seed' },
       },
     }
-    await callBeforeLoad('/_brand/campaigns', qc)
-    expect(qc.setQueryData).toHaveBeenCalledWith(
+
+    await callBeforeLoad('/workspace', queryClient)
+
+    expect(queryClient.setQueryData).toHaveBeenCalledWith(
       ['/v1/me'],
       expect.objectContaining({ status: 200 }),
       expect.any(Object),
     )
+  })
+
+  it('mounts the shared AppShell directly and keeps chat layout as route content', () => {
+    const source = readFileSync(
+      resolve(process.cwd(), 'src/routes/workspace.tsx'),
+      'utf8',
+    )
+    const workspaceRouteFiles = [
+      'src/routes/workspace.tsx',
+      'src/routes/workspace.index.tsx',
+      'src/routes/workspace.conversations.$conversationId.tsx',
+    ]
+
+    expect(source).toContain(
+      "import { AppShell } from '#/features/identity/app-shell/AppShell'",
+    )
+    expect(source.match(/<AppShell/g)).toHaveLength(1)
+    expect(source).toContain('accountKind={sessionKind}')
+    expect(source).toContain('<WorkspaceLayout')
+    expect(source).toContain('<ConversationRail')
+
+    for (const file of workspaceRouteFiles) {
+      const routeSource = readFileSync(resolve(process.cwd(), file), 'utf8')
+
+      expect(routeSource).not.toContain('BrandShell')
+      expect(routeSource).not.toContain('CreatorShell')
+    }
   })
 })
