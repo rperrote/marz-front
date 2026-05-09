@@ -27,11 +27,17 @@ import { stageOpenedSnapSchema } from '#/features/offers/schemas'
 import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
 import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
 import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
+import { PaymentMarkedCard } from './systemEvents/PaymentMarkedCard'
+import { LinkSubmittedCard } from '#/features/deliverables/components/LinkSubmittedCard'
+import { LinkApprovedCard } from '#/features/deliverables/components/LinkApprovedCard'
+import { LinkChangesRequestedCard } from '#/features/deliverables/components/LinkChangesRequestedCard'
+import { getRecord, getString } from '#/shared/utils/record'
 
 import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
 import type { EventSeverity } from './EventBubble'
 import { MessageBubble } from './MessageBubble'
+import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 
 // react-virtuoso chosen over @tanstack/react-virtual: built-in reverse list mode,
 // automatic scroll anchoring on prepend, and firstItemIndex shifting — all critical
@@ -46,6 +52,8 @@ interface MessageTimelineProps {
   conversationId: string
   currentAccountId: string
   sessionKind: 'brand' | 'creator' | undefined
+  viewerRole?: MarkAsPaidViewerRole
+  onMarkAsPaid?: (deliverableId: string) => void
   onAtBottomStateChange?: (atBottom: boolean) => void
   timelineRef?: React.Ref<MessageTimelineHandle>
 }
@@ -59,6 +67,8 @@ export function MessageTimeline({
   conversationId,
   currentAccountId,
   sessionKind,
+  viewerRole,
+  onMarkAsPaid,
   onAtBottomStateChange,
   timelineRef,
 }: MessageTimelineProps) {
@@ -133,41 +143,80 @@ export function MessageTimeline({
       const message = item.message
 
       if (message.type === 'system_event') {
-        if (message.event_type === 'DraftSubmitted') {
-          return (
-            <DraftSubmittedCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              conversationId={conversationId}
-              sessionKind={sessionKind}
-            />
-          )
+        const deliverableEventType = parseDeliverableSystemEventType(
+          message.event_type,
+        )
+
+        if (deliverableEventType) {
+          const counterpartDisplayName =
+            conversationDetail?.counterpart.display_name ?? ''
+
+          switch (deliverableEventType) {
+            case 'DraftSubmitted':
+              return (
+                <DraftSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  conversationId={conversationId}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'DraftApproved':
+              return (
+                <DraftApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                />
+              )
+            case 'ChangesRequested':
+              return (
+                <RequestChangesCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkSubmitted':
+              return (
+                <LinkSubmittedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  brandWorkspaceId={extractBrandWorkspaceId(message.payload)}
+                  sessionKind={sessionKind}
+                />
+              )
+            case 'LinkApproved':
+              return (
+                <LinkApprovedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  conversationId={conversationId}
+                  viewer={{ kind: sessionKind, role: viewerRole }}
+                  onMarkAsPaid={onMarkAsPaid}
+                />
+              )
+            case 'LinkChangesRequested':
+              return (
+                <LinkChangesRequestedCard
+                  message={message}
+                  currentAccountId={currentAccountId}
+                  counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
+                />
+              )
+            default:
+              return assertNever(deliverableEventType)
+          }
         }
 
-        if (message.event_type === 'DraftApproved') {
+        if (message.event_type === 'PaymentMarked') {
           return (
-            <DraftApprovedCard
+            <PaymentMarkedCard
               message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-            />
-          )
-        }
-
-        if (message.event_type === 'ChangesRequested') {
-          return (
-            <RequestChangesCard
-              message={message}
-              currentAccountId={currentAccountId}
-              counterpartDisplayName={
-                conversationDetail?.counterpart.display_name ?? ''
-              }
-              sessionKind={sessionKind}
+              viewer={{ kind: sessionKind }}
             />
           )
         }
@@ -244,7 +293,9 @@ export function MessageTimeline({
       currentAccountId,
       conversationDetail?.counterpart.display_name,
       conversationId,
+      onMarkAsPaid,
       sessionKind,
+      viewerRole,
     ],
   )
 
@@ -286,6 +337,42 @@ export function MessageTimeline({
       />
     </div>
   )
+}
+
+function extractBrandWorkspaceId(
+  payload: Record<string, unknown> | null,
+): string | null {
+  if (!payload) return null
+  const snapshot = getRecord(payload.snapshot)
+  return (
+    getString(payload.brand_workspace_id) ??
+    getString(snapshot?.brand_workspace_id)
+  )
+}
+
+const DELIVERABLE_SYSTEM_EVENT_TYPES = [
+  'DraftSubmitted',
+  'DraftApproved',
+  'ChangesRequested',
+  'LinkSubmitted',
+  'LinkApproved',
+  'LinkChangesRequested',
+] as const
+
+type DeliverableSystemEventType =
+  (typeof DELIVERABLE_SYSTEM_EVENT_TYPES)[number]
+
+function parseDeliverableSystemEventType(
+  eventType: string | null,
+): DeliverableSystemEventType | null {
+  const knownEventTypes: readonly string[] = DELIVERABLE_SYSTEM_EVENT_TYPES
+  return eventType && knownEventTypes.includes(eventType)
+    ? (eventType as DeliverableSystemEventType)
+    : null
+}
+
+function assertNever(value: never): never {
+  throw new Error(`Unhandled deliverable system event: ${String(value)}`)
 }
 
 const EVENT_SEVERITY_MAP: Record<string, EventSeverity> = {

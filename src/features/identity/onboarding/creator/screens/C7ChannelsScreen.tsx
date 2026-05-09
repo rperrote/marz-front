@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react'
 import { t } from '@lingui/core/macro'
 import { Info } from 'lucide-react'
-import type { CreatorChannel } from '#/shared/api/generated/model/creatorChannel'
 import { validateChannels } from '../schema'
 import { useCreatorOnboardingStore } from '../store'
 import { ChannelEditor } from '../components/ChannelEditor'
+import type { CreatorChannel } from '../types'
 
 export function C7ChannelsScreen() {
   const store = useCreatorOnboardingStore()

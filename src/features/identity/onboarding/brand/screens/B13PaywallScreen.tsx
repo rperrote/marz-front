@@ -11,7 +11,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { cn } from '#/lib/utils'
 import { useBrandOnboardingStore } from '../store'
 import { STEPS, getStepId } from '../steps'
-import type { MonthlyBudgetRange } from '#/shared/api/generated/model/monthlyBudgetRange'
+import type { MonthlyBudgetRange } from '../types'
 
 type PlanId = 'starter' | 'growth' | 'scale' | 'custom'
 

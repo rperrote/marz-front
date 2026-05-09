@@ -4,8 +4,10 @@ import type { DomainEventEnvelope } from '#/shared/ws/events'
 import type { MessageCreatedPayload } from '#/shared/ws/types'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'
+import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
 import type { MessageItem, MessagesResponse } from '#/features/chat/types'
+import { toMessagePayload } from '#/features/chat/utils/messagePayload'
 
 type MessagesInfiniteData = InfiniteData<
   { data: MessagesResponse; status: number },
@@ -16,8 +18,10 @@ export function handleMessageCreated(
   queryClient: QueryClient,
   envelope: DomainEventEnvelope<MessageCreatedPayload>,
   currentAccountId: string,
+  activeConversationId?: string,
 ) {
   const { payload } = envelope
+
   const messagesKey = getMessagesQueryKey(payload.conversation_id)
 
   const confirmedMessage: MessageItem =
@@ -29,7 +33,7 @@ export function handleMessageCreated(
           type: 'system_event',
           text_content: null,
           event_type: payload.event_type,
-          payload: (payload.payload ?? null) as Record<string, unknown> | null,
+          payload: toMessagePayload(payload.payload),
           created_at: payload.created_at,
           read_by_self: payload.author_account_id === currentAccountId,
         }
@@ -90,6 +94,35 @@ export function handleMessageCreated(
     payload.type === 'system_event' &&
     OFFER_EVENT_TYPES.has(payload.event_type)
   ) {
+    queryClient.invalidateQueries({
+      queryKey: getConversationOffersQueryKey(payload.conversation_id),
+    })
+  }
+
+  if (
+    payload.type === 'system_event' &&
+    payload.event_type === 'PaymentMarked' &&
+    (activeConversationId === undefined ||
+      payload.conversation_id === activeConversationId)
+  ) {
+    const systemEventPayload = toMessagePayload(payload.payload)
+    const snapshot =
+      (systemEventPayload?.['snapshot'] as
+        | Record<string, unknown>
+        | undefined) ?? systemEventPayload
+    const deliverableId = snapshot?.['deliverable_id']
+
+    if (typeof deliverableId === 'string') {
+      queryClient.invalidateQueries({
+        queryKey: ['deliverables', deliverableId],
+      })
+    }
+    queryClient.invalidateQueries({
+      queryKey: ['conversations', payload.conversation_id, 'messages'],
+    })
+    queryClient.invalidateQueries({
+      queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
+    })
     queryClient.invalidateQueries({
       queryKey: getConversationOffersQueryKey(payload.conversation_id),
     })

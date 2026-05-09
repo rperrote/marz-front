@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { BrandOnboardingPayload } from '#/shared/api/generated/model/brandOnboardingPayload'
 import { STEPS } from './steps'
+import type { BrandOnboardingPayload } from './types'
 
 const sessionStorageSSR = createJSONStorage<BrandOnboardingState>(() =>
   typeof window === 'undefined'

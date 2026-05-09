@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/workspace'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DsOnboardingRouteImport } from './routes/ds-onboarding'
 import { Route as DsRouteImport } from './routes/ds'
@@ -26,6 +27,7 @@ import { Route as AuthKindRouteImport } from './routes/auth/kind'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
+import { Route as CreatorEarningsRouteImport } from './routes/_creator/earnings'
 import { Route as CreatorCampaignsRouteImport } from './routes/_creator/campaigns'
 import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
 import { Route as OnboardingCreatorIndexRouteImport } from './routes/onboarding/creator.index'
@@ -35,6 +37,7 @@ import { Route as WorkspaceConversationsConversationIdRouteImport } from './rout
 import { Route as OnboardingCreatorStepRouteImport } from './routes/onboarding/creator.$step'
 import { Route as OnboardingBrandStepRouteImport } from './routes/onboarding/brand.$step'
 import { Route as BrandCampaignsNewRouteImport } from './routes/_brand/campaigns.new'
+import { Route as BrandCampaignsCampaignIdRouteImport } from './routes/_brand/campaigns.$campaignId'
 import { Route as BrandCampaignsNewIndexRouteImport } from './routes/_brand/campaigns.new.index'
 import { Route as BrandCampaignsNewPhaseRouteImport } from './routes/_brand/campaigns.new.$phase'
 import { Route as BrandCampaignsCampaignIdBriefRouteImport } from './routes/_brand/campaigns.$campaignId.brief'
@@ -42,6 +45,11 @@ import { Route as BrandCampaignsCampaignIdBriefRouteImport } from './routes/_bra
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
   path: '/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthRoute = HealthRouteImport.update({
@@ -122,6 +130,11 @@ const CreatorOffersRoute = CreatorOffersRouteImport.update({
   path: '/offers',
   getParentRoute: () => CreatorRoute,
 } as any)
+const CreatorEarningsRoute = CreatorEarningsRouteImport.update({
+  id: '/earnings',
+  path: '/earnings',
+  getParentRoute: () => CreatorRoute,
+} as any)
 const CreatorCampaignsRoute = CreatorCampaignsRouteImport.update({
   id: '/campaigns',
   path: '/campaigns',
@@ -168,6 +181,12 @@ const BrandCampaignsNewRoute = BrandCampaignsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => BrandCampaignsRoute,
 } as any)
+const BrandCampaignsCampaignIdRoute =
+  BrandCampaignsCampaignIdRouteImport.update({
+    id: '/$campaignId',
+    path: '/$campaignId',
+    getParentRoute: () => BrandCampaignsRoute,
+  } as any)
 const BrandCampaignsNewIndexRoute = BrandCampaignsNewIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -180,9 +199,9 @@ const BrandCampaignsNewPhaseRoute = BrandCampaignsNewPhaseRouteImport.update({
 } as any)
 const BrandCampaignsCampaignIdBriefRoute =
   BrandCampaignsCampaignIdBriefRouteImport.update({
-    id: '/$campaignId/brief',
-    path: '/$campaignId/brief',
-    getParentRoute: () => BrandCampaignsRoute,
+    id: '/brief',
+    path: '/brief',
+    getParentRoute: () => BrandCampaignsCampaignIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -191,8 +210,10 @@ export interface FileRoutesByFullPath {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/campaigns': typeof CreatorCampaignsRoute
+  '/earnings': typeof CreatorEarningsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -202,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/creator': typeof OnboardingCreatorRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/workspace/': typeof WorkspaceIndexRoute
+  '/campaigns/$campaignId': typeof BrandCampaignsCampaignIdRouteWithChildren
   '/campaigns/new': typeof BrandCampaignsNewRouteWithChildren
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
@@ -219,7 +241,9 @@ export interface FileRoutesByTo {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/campaigns': typeof BrandCampaignsIndexRoute
+  '/earnings': typeof CreatorEarningsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -227,6 +251,7 @@ export interface FileRoutesByTo {
   '/auth/link-invalid': typeof AuthLinkInvalidRoute
   '/auth': typeof AuthIndexRoute
   '/workspace': typeof WorkspaceIndexRoute
+  '/campaigns/$campaignId': typeof BrandCampaignsCampaignIdRouteWithChildren
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
   '/workspace/conversations/$conversationId': typeof WorkspaceConversationsConversationIdRoute
@@ -245,9 +270,11 @@ export interface FileRoutesById {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/_brand/campaigns': typeof BrandCampaignsRouteWithChildren
   '/_creator/campaigns': typeof CreatorCampaignsRoute
+  '/_creator/earnings': typeof CreatorEarningsRoute
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -257,6 +284,7 @@ export interface FileRoutesById {
   '/onboarding/creator': typeof OnboardingCreatorRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/workspace/': typeof WorkspaceIndexRoute
+  '/_brand/campaigns/$campaignId': typeof BrandCampaignsCampaignIdRouteWithChildren
   '/_brand/campaigns/new': typeof BrandCampaignsNewRouteWithChildren
   '/onboarding/brand/$step': typeof OnboardingBrandStepRoute
   '/onboarding/creator/$step': typeof OnboardingCreatorStepRoute
@@ -276,8 +304,10 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/workspace'
     | '/campaigns'
+    | '/earnings'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -287,6 +317,7 @@ export interface FileRouteTypes {
     | '/onboarding/creator'
     | '/auth/'
     | '/workspace/'
+    | '/campaigns/$campaignId'
     | '/campaigns/new'
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
@@ -304,7 +335,9 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/campaigns'
+    | '/earnings'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -312,6 +345,7 @@ export interface FileRouteTypes {
     | '/auth/link-invalid'
     | '/auth'
     | '/workspace'
+    | '/campaigns/$campaignId'
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
     | '/workspace/conversations/$conversationId'
@@ -329,9 +363,11 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/workspace'
     | '/_brand/campaigns'
     | '/_creator/campaigns'
+    | '/_creator/earnings'
     | '/_creator/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -341,6 +377,7 @@ export interface FileRouteTypes {
     | '/onboarding/creator'
     | '/auth/'
     | '/workspace/'
+    | '/_brand/campaigns/$campaignId'
     | '/_brand/campaigns/new'
     | '/onboarding/brand/$step'
     | '/onboarding/creator/$step'
@@ -361,6 +398,7 @@ export interface RootRouteChildren {
   DsRoute: typeof DsRoute
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
+  InboxRoute: typeof InboxRoute
   WorkspaceRoute: typeof WorkspaceRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
@@ -378,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace'
       fullPath: '/workspace'
       preLoaderRoute: typeof WorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health': {
@@ -492,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatorOffersRouteImport
       parentRoute: typeof CreatorRoute
     }
+    '/_creator/earnings': {
+      id: '/_creator/earnings'
+      path: '/earnings'
+      fullPath: '/earnings'
+      preLoaderRoute: typeof CreatorEarningsRouteImport
+      parentRoute: typeof CreatorRoute
+    }
     '/_creator/campaigns': {
       id: '/_creator/campaigns'
       path: '/campaigns'
@@ -555,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandCampaignsNewRouteImport
       parentRoute: typeof BrandCampaignsRoute
     }
+    '/_brand/campaigns/$campaignId': {
+      id: '/_brand/campaigns/$campaignId'
+      path: '/$campaignId'
+      fullPath: '/campaigns/$campaignId'
+      preLoaderRoute: typeof BrandCampaignsCampaignIdRouteImport
+      parentRoute: typeof BrandCampaignsRoute
+    }
     '/_brand/campaigns/new/': {
       id: '/_brand/campaigns/new/'
       path: '/'
@@ -571,13 +630,27 @@ declare module '@tanstack/react-router' {
     }
     '/_brand/campaigns/$campaignId/brief': {
       id: '/_brand/campaigns/$campaignId/brief'
-      path: '/$campaignId/brief'
+      path: '/brief'
       fullPath: '/campaigns/$campaignId/brief'
       preLoaderRoute: typeof BrandCampaignsCampaignIdBriefRouteImport
-      parentRoute: typeof BrandCampaignsRoute
+      parentRoute: typeof BrandCampaignsCampaignIdRoute
     }
   }
 }
+
+interface BrandCampaignsCampaignIdRouteChildren {
+  BrandCampaignsCampaignIdBriefRoute: typeof BrandCampaignsCampaignIdBriefRoute
+}
+
+const BrandCampaignsCampaignIdRouteChildren: BrandCampaignsCampaignIdRouteChildren =
+  {
+    BrandCampaignsCampaignIdBriefRoute: BrandCampaignsCampaignIdBriefRoute,
+  }
+
+const BrandCampaignsCampaignIdRouteWithChildren =
+  BrandCampaignsCampaignIdRoute._addFileChildren(
+    BrandCampaignsCampaignIdRouteChildren,
+  )
 
 interface BrandCampaignsNewRouteChildren {
   BrandCampaignsNewPhaseRoute: typeof BrandCampaignsNewPhaseRoute
@@ -593,15 +666,15 @@ const BrandCampaignsNewRouteWithChildren =
   BrandCampaignsNewRoute._addFileChildren(BrandCampaignsNewRouteChildren)
 
 interface BrandCampaignsRouteChildren {
+  BrandCampaignsCampaignIdRoute: typeof BrandCampaignsCampaignIdRouteWithChildren
   BrandCampaignsNewRoute: typeof BrandCampaignsNewRouteWithChildren
   BrandCampaignsIndexRoute: typeof BrandCampaignsIndexRoute
-  BrandCampaignsCampaignIdBriefRoute: typeof BrandCampaignsCampaignIdBriefRoute
 }
 
 const BrandCampaignsRouteChildren: BrandCampaignsRouteChildren = {
+  BrandCampaignsCampaignIdRoute: BrandCampaignsCampaignIdRouteWithChildren,
   BrandCampaignsNewRoute: BrandCampaignsNewRouteWithChildren,
   BrandCampaignsIndexRoute: BrandCampaignsIndexRoute,
-  BrandCampaignsCampaignIdBriefRoute: BrandCampaignsCampaignIdBriefRoute,
 }
 
 const BrandCampaignsRouteWithChildren = BrandCampaignsRoute._addFileChildren(
@@ -620,11 +693,13 @@ const BrandRouteWithChildren = BrandRoute._addFileChildren(BrandRouteChildren)
 
 interface CreatorRouteChildren {
   CreatorCampaignsRoute: typeof CreatorCampaignsRoute
+  CreatorEarningsRoute: typeof CreatorEarningsRoute
   CreatorOffersRoute: typeof CreatorOffersRoute
 }
 
 const CreatorRouteChildren: CreatorRouteChildren = {
   CreatorCampaignsRoute: CreatorCampaignsRoute,
+  CreatorEarningsRoute: CreatorEarningsRoute,
   CreatorOffersRoute: CreatorOffersRoute,
 }
 
@@ -681,6 +756,7 @@ const rootRouteChildren: RootRouteChildren = {
   DsRoute: DsRoute,
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
+  InboxRoute: InboxRoute,
   WorkspaceRoute: WorkspaceRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,

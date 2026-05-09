@@ -16,7 +16,10 @@ interface WizardShellProps {
   onExit?: () => void
   exitLabel?: string
   hideFooter?: boolean
+  topbar?: ReactNode
+  progress?: ReactNode
   children: ReactNode
+  rootClassName?: string
   className?: string
 }
 
@@ -32,17 +35,34 @@ export function WizardShell({
   onExit,
   exitLabel,
   hideFooter,
+  topbar,
+  progress,
   children,
+  rootClassName,
   className,
 }: WizardShellProps) {
-  return (
-    <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
+  const topbarSlot =
+    topbar === undefined ? (
       <WizardTopbar
         stepLabel={stepLabel}
         onExit={onExit}
         exitLabel={exitLabel}
       />
-      <WizardProgress percent={percent} />
+    ) : (
+      topbar
+    )
+  const progressSlot =
+    progress === undefined ? <WizardProgress percent={percent} /> : progress
+
+  return (
+    <div
+      className={cn(
+        'flex h-screen w-full flex-col overflow-hidden bg-background',
+        rootClassName,
+      )}
+    >
+      {topbarSlot}
+      {progressSlot}
       <main
         className={cn(
           'flex flex-1 flex-col items-center overflow-y-auto px-24 py-12',

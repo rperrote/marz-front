@@ -17,6 +17,8 @@ const mockTrackRequestChangesCardSeen = vi.fn()
 vi.mock('../../analytics', () => ({
   trackRequestChangesCardSeen: (...args: unknown[]) =>
     mockTrackRequestChangesCardSeen(...args),
+  trackLinkCardSeen: vi.fn(),
+  useTrackOnceVisible: vi.fn(),
 }))
 
 class FakeIntersectionObserver {
@@ -123,7 +125,7 @@ describe('RequestChangesCard', () => {
   })
 
   it('shows thumbnail when draft_thumbnail_url is present', () => {
-    render(
+    const { container } = render(
       <RequestChangesCard
         message={buildMessage()}
         currentAccountId="acc-brand"
@@ -134,6 +136,7 @@ describe('RequestChangesCard', () => {
     const img = screen.getByAltText('Draft thumbnail')
     expect(img).toBeInTheDocument()
     expect(img).toHaveAttribute('src', 'https://example.com/thumb.jpg')
+    expect(container.firstChild).toMatchSnapshot()
   })
 
   it('hides thumbnail when draft_thumbnail_url is null', () => {
@@ -160,6 +163,44 @@ describe('RequestChangesCard', () => {
       />,
     )
 
+    expect(screen.queryByAltText('Draft thumbnail')).not.toBeInTheDocument()
+  })
+
+  it('renders link preview when target is link', () => {
+    render(
+      <RequestChangesCard
+        target="link"
+        message={buildMessage({
+          event_type: 'LinkChangesRequested',
+          payload: {
+            event_type: 'LinkChangesRequested',
+            deliverable_id: 'del-1',
+            deliverable_platform: 'youtube',
+            deliverable_format: 'long_form',
+            deliverable_offer_stage_id: null,
+            link: {
+              id: 'link-1',
+              url: 'https://youtube.com/watch?v=xK93',
+              status: 'changes_requested',
+              preview: {
+                outcome: 'title_and_thumbnail',
+                title: 'Launch video',
+                thumbnail_url: 'https://example.com/thumb.jpg',
+              },
+            },
+            categories: ['discount_code'],
+            notes: 'Add the code in the description.',
+            requested_at: '2026-04-27T12:00:00Z',
+            requested_by_account_id: 'acc-brand',
+          },
+        })}
+        currentAccountId="acc-creator"
+        counterpartDisplayName="Acme Brand"
+      />,
+    )
+
+    expect(screen.getByText('Launch video')).toBeInTheDocument()
+    expect(screen.getByText('Discount code')).toBeInTheDocument()
     expect(screen.queryByAltText('Draft thumbnail')).not.toBeInTheDocument()
   })
 

@@ -40,11 +40,8 @@ Habilitación condicional de "Submit link" en multistage: solo deliverables cuya
 - [ ] E2E: aprobar último link de la última stage → no abre stage nueva, oferta queda lista para release (no rompe).
 
 ## Done summary
-
-_To fill at completion._
-
+Fix aplicado: canSubmitLink usa !isLocked consistente con el resto del componente; tests de unit y E2E cubren los acceptance criteria de la spec.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

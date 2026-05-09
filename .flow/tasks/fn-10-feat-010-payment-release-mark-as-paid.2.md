@@ -45,9 +45,8 @@ Full design system: `src/styles.css` + `marz-design/marzv2.pen` (Pencil MCP).
 - [ ] Pre-existing branches (`draft_submitted`, `completed`, etc.) siguen renderizando idénticos.
 
 ## Done summary
-
-_Pendiente — completar al cerrar el task._
-
+paid branch agregado correctamente con tone terminal/primary distinto de success, tests it.each cubren todos los branches representativos más axe, refactor de DeliverableCard y DeliverableListItem limpio sin deuda
 ## Evidence
-
-_Pendiente — agregar links a PR, screenshots, test runs._
+- Commits:
+- Tests:
+- PRs:

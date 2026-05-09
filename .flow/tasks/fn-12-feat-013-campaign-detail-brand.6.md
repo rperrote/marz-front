@@ -47,9 +47,8 @@ Full design system: `marz-design/marzv2.pen`.
 - [ ] Visual fidelity ≥95% contra `zUZ3j` y `j85X2`.
 
 ## Done summary
-
-_(filled on completion)_
-
+Los tres issues del round anterior están corregidos: dialog deduplicado via ref+callback, heading h1→h2, y cobertura de formatLastActivity con vi.setSystemTime. Sin problemas nuevos introducidos.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

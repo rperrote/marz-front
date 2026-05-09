@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
 import type { ArchiveOfferItem } from '#/features/offers/hooks/useConversationOffers'
-import { formatOfferAmount } from '#/features/offers/utils/formatOffer'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import type { OfferStatus } from '#/features/offers/types'
 import { getOfferTypeBadgeLabel, OfferTypeBadge } from './OfferTypeBadge'
 

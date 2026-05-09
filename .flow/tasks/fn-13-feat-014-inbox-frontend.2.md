@@ -44,9 +44,8 @@ Crear la ruta `/inbox` en TanStack Router con guard de sesión + onboarding (mis
 - [ ] Test de route guard (redirect sin sesión / sin onboarding).
 
 ## Done summary
-
-_(filled on completion)_
-
+Test validateSearch corregido: verifica comportamiento real del schema, import sin uso removido. Sin otros defectos.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

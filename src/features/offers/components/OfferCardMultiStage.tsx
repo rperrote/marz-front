@@ -6,9 +6,9 @@ import { cn } from '#/lib/utils'
 import { Button } from '#/components/ui/button'
 import { SystemEventCard, StatTile } from '#/shared/ui/SystemEventCard'
 import { useNow } from '#/shared/hooks/useNow'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import type { OfferSnapshotMultiStage, OfferStatus } from '../types'
 import {
-  formatOfferAmount,
   formatOfferDeadline,
   formatExpiresIn,
   isOfferExpired,

@@ -77,7 +77,9 @@ export function useWebSocket({
           const raw = JSON.parse(event.data) as Record<string, unknown>
           const envelope = {
             ...raw,
-            event_type: (raw['event_type'] ?? raw['type']) as string,
+            event_type: (raw['event_type'] ?? raw['type'] ?? raw['event']) as
+              | string
+              | undefined,
             payload: raw['payload'] ?? raw['data'],
           } as DomainEventEnvelope
           if (!envelope.event_type) return

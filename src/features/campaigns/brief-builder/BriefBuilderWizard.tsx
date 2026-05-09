@@ -140,6 +140,9 @@ export function BriefBuilderWizard() {
       <WizardShell
         stepLabel={stepLabel}
         percent={percent}
+        topbar={null}
+        progress={null}
+        rootClassName="h-full"
         onBack={currentIndex > 0 ? handleBack : undefined}
         onNext={() => void handleNext()}
         nextDisabled={nextDisabled}

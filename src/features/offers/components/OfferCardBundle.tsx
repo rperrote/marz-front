@@ -5,9 +5,9 @@ import { t } from '@lingui/core/macro'
 import { Button } from '#/components/ui/button'
 import { SystemEventCard, StatTile } from '#/shared/ui/SystemEventCard'
 import { useNow } from '#/shared/hooks/useNow'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import type { OfferSnapshotBundle, OfferStatus } from '../types'
 import {
-  formatOfferAmount,
   formatOfferDeadline,
   formatOfferPlatform,
   formatExpiresIn,
@@ -16,6 +16,7 @@ import {
 import { getStatusConfig } from '../utils/offerStatus'
 import { DeliverableSummaryRow } from './DeliverableSummaryRow'
 import { OfferHeader } from './OfferHeader'
+import { formatBonusWindowsLabel } from '../utils/bonusTerms'
 
 interface OfferCardBundleProps {
   snapshot: OfferSnapshotBundle
@@ -45,6 +46,7 @@ export function OfferCardBundle({
   const badge = getStatusConfig(status)
   const kicker = side === 'out' ? t`Offer sent` : t`New campaign offer`
   const icon = side === 'out' ? Timer : Sparkles
+  const bonusLabel = formatBonusWindowsLabel(snapshot.bonus_terms)
 
   return (
     <div
@@ -61,17 +63,13 @@ export function OfferCardBundle({
             <StatTile label={t`Deadline`} value={deadline} />
           </div>
 
-          {snapshot.speed_bonus ? (
+          {bonusLabel ? (
             <div className="flex items-baseline justify-between gap-4 rounded-xl bg-muted px-4 py-3">
               <span className="text-xs text-muted-foreground">
                 {t`Speed bonus`}
               </span>
               <span className="font-mono text-xs font-medium text-success">
-                +
-                {formatOfferAmount(
-                  snapshot.speed_bonus.bonus_amount,
-                  snapshot.speed_bonus.currency,
-                )}
+                {bonusLabel}
               </span>
             </div>
           ) : null}

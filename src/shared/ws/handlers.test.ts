@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, QueryObserver } from '@tanstack/react-query'
 
 import type {
   DeliverableDTO,
   ConversationDeliverablesResponse,
+  PublishedLink,
 } from '#/features/deliverables/types'
 
 import { createWsHandlers } from './handlers'
@@ -63,6 +64,21 @@ function makeDeliverable(overrides?: Partial<DeliverableDTO>): DeliverableDTO {
     change_requests: [],
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
+    ...overrides,
+  }
+}
+
+function makeLink(overrides?: Partial<PublishedLink>): PublishedLink {
+  return {
+    id: 'link-1',
+    deliverable_id: 'del-1',
+    url: 'https://www.youtube.com/watch?v=abc123',
+    status: 'submitted',
+    preview: { outcome: 'url_only' },
+    submitted_at: '2026-04-01T00:00:00Z',
+    submitted_by_account_id: 'creator-1',
+    approved_at: null,
+    approved_by_account_id: null,
     ...overrides,
   }
 }
@@ -271,7 +287,10 @@ describe('createWsHandlers', () => {
 
   describe('deliverable.changed', () => {
     it('merges updated deliverable into cached array', () => {
-      const deliverable = makeDeliverable({ status: 'draft_submitted' })
+      const deliverable = makeDeliverable({
+        status: 'draft_submitted',
+        updated_at: '2024-01-01T00:01:00Z',
+      })
       const oldData: ConversationDeliverablesResponse = {
         offer_id: 'off-1',
         offer_type: 'single',
@@ -292,6 +311,120 @@ describe('createWsHandlers', () => {
         ['conversation-deliverables', 'conv-1'],
       )
       expect(result?.deliverables[0]?.status).toBe('draft_submitted')
+    })
+
+    it('sets the single deliverable cache', () => {
+      const deliverable = makeDeliverable({
+        status: 'link_submitted',
+        updated_at: '2024-01-01T00:01:00Z',
+      })
+      const payload: DeliverableChangedWSPayload = {
+        conversation_id: 'conv-1',
+        deliverable,
+      }
+
+      handlers['deliverable.updated']!(
+        makeEnvelope('deliverable.updated', payload),
+      )
+
+      expect(
+        queryClient.getQueryData<DeliverableDTO>(['deliverable', 'del-1'])
+          ?.status,
+      ).toBe('link_submitted')
+    })
+
+    it('ignores duplicate updated_at without notifying observers', () => {
+      const deliverable = makeDeliverable({
+        status: 'pending',
+        updated_at: '2024-01-01T00:01:00Z',
+      })
+      queryClient.setQueryData(['deliverable', 'del-1'], deliverable)
+      const observer = new QueryObserver<DeliverableDTO>(queryClient, {
+        queryKey: ['deliverable', 'del-1'],
+        enabled: false,
+      })
+      const onChange = vi.fn()
+      const unsubscribe = observer.subscribe(onChange)
+      onChange.mockClear()
+      const payload: DeliverableChangedWSPayload = {
+        conversation_id: 'conv-1',
+        deliverable: makeDeliverable({
+          status: 'link_submitted',
+          updated_at: '2024-01-01T00:01:00Z',
+        }),
+      }
+
+      handlers['deliverable.updated']!(
+        makeEnvelope('deliverable.updated', payload),
+      )
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(
+        queryClient.getQueryData<DeliverableDTO>(['deliverable', 'del-1'])
+          ?.status,
+      ).toBe('pending')
+      unsubscribe()
+    })
+
+    it('upserts current_link into the deliverable links cache', () => {
+      queryClient.setQueryData(['deliverable', 'del-1', 'links'], {
+        links: [
+          makeLink({
+            id: 'link-1',
+            url: 'https://www.youtube.com/watch?v=old',
+          }),
+        ],
+        current_link_id: 'link-1',
+      })
+      const payload: DeliverableChangedWSPayload = {
+        conversation_id: 'conv-1',
+        deliverable: makeDeliverable({
+          status: 'link_submitted',
+          updated_at: '2024-01-01T00:01:00Z',
+        }),
+        current_link: makeLink({
+          id: 'link-1',
+          url: 'https://www.youtube.com/watch?v=new',
+        }),
+      }
+
+      handlers['deliverable.updated']!(
+        makeEnvelope('deliverable.updated', payload),
+      )
+
+      const result = queryClient.getQueryData<{
+        links: PublishedLink[]
+        current_link_id: string | null
+      }>(['deliverable', 'del-1', 'links'])
+      expect(result?.current_link_id).toBe('link-1')
+      expect(result?.links).toHaveLength(1)
+      expect(result?.links[0]?.url).toBe('https://www.youtube.com/watch?v=new')
+    })
+
+    it('pushes current_link when the link is not cached yet', () => {
+      queryClient.setQueryData(['deliverable', 'del-1', 'links'], {
+        links: [makeLink({ id: 'link-1' })],
+        current_link_id: 'link-1',
+      })
+      const payload: DeliverableChangedWSPayload = {
+        conversation_id: 'conv-1',
+        deliverable: makeDeliverable({
+          status: 'link_submitted',
+          updated_at: '2024-01-01T00:01:00Z',
+        }),
+        current_link: makeLink({ id: 'link-2' }),
+      }
+
+      handlers['deliverable.updated']!(
+        makeEnvelope('deliverable.updated', payload),
+      )
+
+      const result = queryClient.getQueryData<{
+        links: PublishedLink[]
+        current_link_id: string | null
+      }>(['deliverable', 'del-1', 'links'])
+      expect(result?.current_link_id).toBe('link-2')
+      expect(result?.links.map((link) => link.id)).toEqual(['link-1', 'link-2'])
     })
 
     it('does nothing when cache is empty', () => {
@@ -376,7 +509,7 @@ describe('createWsHandlers', () => {
   })
 
   describe('stage.opened', () => {
-    it('invalidates conversation deliverables and offers', () => {
+    it('invalidates conversation deliverables, deliverable details, and offers', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
       const payload: StageOpenedWSPayload = {
         conversation_id: 'conv-1',
@@ -393,6 +526,9 @@ describe('createWsHandlers', () => {
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversation-deliverables', 'conv-1'],
+      })
+      expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: ['deliverable'],
       })
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversations', 'conv-1', 'offers'],
@@ -613,7 +749,10 @@ describe('createWsHandlers', () => {
       qc1.setQueryData(['conversation-deliverables', 'conv-1'], oldData)
       qc2.setQueryData(['conversation-deliverables', 'conv-1'], oldData)
 
-      const deliverable = makeDeliverable({ status: 'draft_submitted' })
+      const deliverable = makeDeliverable({
+        status: 'draft_submitted',
+        updated_at: '2024-01-01T00:01:00Z',
+      })
       const envelope = makeEnvelope<DeliverableChangedWSPayload>(
         'deliverable.changed',
         { conversation_id: 'conv-1', deliverable },

@@ -7,7 +7,7 @@ import type {
   MessageListResponse,
 } from '#/shared/api/generated/model'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
-
+import { toMessagePayload } from '#/features/chat/utils/messagePayload'
 import type {
   ConversationDetailResponse,
   MessageItem,
@@ -65,7 +65,7 @@ function toFlatMessage(
     type: 'system_event',
     text_content: null,
     event_type: item.event_type,
-    payload: (item.payload ?? null) as Record<string, unknown> | null,
+    payload: toMessagePayload(item.payload),
     created_at: item.created_at,
     read_by_self: item.read_by_self,
   }

@@ -1,16 +1,20 @@
-import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useRouterState,
+} from '@tanstack/react-router'
 
-import { track } from '#/shared/analytics/track'
+import { AppShell } from '#/features/identity/app-shell/AppShell'
 import { getMeQueryKey } from '#/shared/api/generated/accounts/accounts'
 import type { meResponse } from '#/shared/api/generated/accounts/accounts'
 import { getServerMe } from '#/shared/auth/getServerMe'
 import type { ServerMeBody } from '#/shared/auth/getServerMe'
-import { CreatorShell } from '../features/identity/components/CreatorShell'
 
 const STALE_TIME = 30_000
 
 export const Route = createFileRoute('/_creator')({
-  beforeLoad: async ({ context, location }) => {
+  beforeLoad: async ({ context }) => {
     const { queryClient } = context
 
     const cached = queryClient.getQueryData<meResponse>(getMeQueryKey())
@@ -36,41 +40,36 @@ export const Route = createFileRoute('/_creator')({
     }
 
     if (!me) {
-      track('onboarding_redirect_enforced', {
-        from: location.pathname,
-        to: '/auth',
-        reason: 'no_session',
-      })
       throw redirect({ to: '/auth' })
     }
 
+    if (me.kind !== 'brand' && me.kind !== 'creator') {
+      throw redirect({ to: '/auth' })
+    }
+
+    if (me.kind === 'brand') {
+      throw redirect({ to: '/workspace' })
+    }
+
     if (me.onboarding_status !== 'onboarded') {
-      const destination = me.redirect_to ?? '/auth'
-      track('onboarding_redirect_enforced', {
-        from: location.pathname,
-        to: destination,
-        reason: 'onboarding_incomplete',
-      })
+      const destination = me.redirect_to ?? '/onboarding/creator'
       throw redirect({ to: destination })
     }
 
-    if (me.kind !== 'creator') {
-      const home = me.kind === 'brand' ? '/campaigns' : '/auth'
-      track('onboarding_redirect_enforced', {
-        from: location.pathname,
-        to: home,
-        reason: 'kind_mismatch',
-      })
-      throw redirect({ to: home })
+    return {
+      accountId: me.id,
     }
   },
   component: CreatorLayout,
 })
 
 function CreatorLayout() {
+  const { accountId } = Route.useRouteContext()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+
   return (
-    <CreatorShell>
+    <AppShell accountKind="creator" accountId={accountId} pathname={pathname}>
       <Outlet />
-    </CreatorShell>
+    </AppShell>
   )
 }

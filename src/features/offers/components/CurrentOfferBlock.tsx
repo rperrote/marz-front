@@ -3,8 +3,8 @@ import { t } from '@lingui/core/macro'
 
 import { Badge } from '#/components/ui/badge'
 import type { ConversationOfferDTO } from '#/features/offers/hooks/useConversationOffers'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import {
-  formatOfferAmount,
   formatOfferDeadline,
   formatOfferPlatform,
 } from '#/features/offers/utils/formatOffer'
@@ -12,6 +12,7 @@ import type { OfferStatus } from '#/features/offers/types'
 import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
 import { MultiStageStagesList } from './MultiStageStagesList'
+import { formatBonusWindowsLabel } from '../utils/bonusTerms'
 
 const statusConfig: Record<
   OfferStatus,
@@ -24,6 +25,30 @@ const statusConfig: Record<
   accepted: { label: t`Accepted`, variant: 'default' },
   rejected: { label: t`Rejected`, variant: 'destructive' },
   expired: { label: t`Expired`, variant: 'outline' },
+}
+
+function getPaymentProgress(offer: ConversationOfferDTO) {
+  const deliverables = offer.deliverables
+  const total = deliverables.length
+  const paidCount = deliverables.filter((d) => d.status === 'paid').length
+
+  return { paidCount, total }
+}
+
+function getOfferBadge(offer: ConversationOfferDTO) {
+  const progress = getPaymentProgress(offer)
+  if (progress.total > 0 && progress.paidCount === progress.total) {
+    return { label: t`Fully paid`, variant: 'default' as const }
+  }
+
+  if (progress.paidCount > 0 && progress.paidCount < progress.total) {
+    return {
+      label: t`Partially paid (${progress.paidCount}/${progress.total})`,
+      variant: 'secondary' as const,
+    }
+  }
+
+  return statusConfig[offer.status]
 }
 
 interface CurrentOfferBlockProps {
@@ -123,7 +148,8 @@ export function CurrentOfferBlock({
     return <EmptyState />
   }
 
-  const badge = statusConfig[offer.status]
+  const badge = getOfferBadge(offer)
+  const bonusLabel = formatBonusWindowsLabel(offer.bonus_terms)
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -157,15 +183,11 @@ export function CurrentOfferBlock({
             {formatOfferDeadline(offer.deadline)}
           </dd>
         </div>
-        {offer.speed_bonus ? (
+        {bonusLabel ? (
           <div className="flex items-baseline justify-between gap-4">
             <dt className="text-xs text-muted-foreground">{t`Speed bonus`}</dt>
             <dd className="font-mono text-xs font-medium text-success">
-              +
-              {formatOfferAmount(
-                offer.speed_bonus.bonus_amount,
-                offer.speed_bonus.currency,
-              )}
+              {bonusLabel}
             </dd>
           </div>
         ) : null}

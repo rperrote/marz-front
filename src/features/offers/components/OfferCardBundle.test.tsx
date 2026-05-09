@@ -26,7 +26,7 @@ const baseSnapshot: OfferSnapshotBundle = {
   total_amount: '4500.00',
   currency: 'USD',
   deadline: '2026-10-12',
-  speed_bonus: null,
+  bonus_terms: null,
   sent_at: '2026-04-25T10:00:00Z',
   expires_at: '2026-04-28T10:00:00Z',
   deliverables: [
@@ -102,13 +102,11 @@ describe('OfferCardBundle', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('renders speed bonus when present', () => {
+  it('renders speed bonus windows when present', () => {
     const snapshotWithBonus: OfferSnapshotBundle = {
       ...baseSnapshot,
-      speed_bonus: {
-        early_deadline: '2026-05-01',
-        bonus_amount: '500.00',
-        currency: 'USD',
+      bonus_terms: {
+        speed_bonus_windows: [{ window_hours: 24, bonus_pct: '25' }],
       },
     }
     render(
@@ -121,7 +119,7 @@ describe('OfferCardBundle', () => {
       />,
     )
     expect(screen.getByText('Speed bonus')).toBeInTheDocument()
-    expect(screen.getByText('+$500.00')).toBeInTheDocument()
+    expect(screen.getByText('+25% / 24h')).toBeInTheDocument()
   })
 
   it('does not render speed bonus when null', () => {

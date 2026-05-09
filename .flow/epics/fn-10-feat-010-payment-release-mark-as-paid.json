@@ -6,13 +6,15 @@
   "default_impl": null,
   "default_review": null,
   "default_sync": null,
-  "depends_on_epics": ["fn-9-feat-009-link-submit-approve-frontend"],
+  "depends_on_epics": [
+    "fn-9-feat-009-link-submit-approve-frontend"
+  ],
   "id": "fn-10-feat-010-payment-release-mark-as-paid",
   "next_task": 1,
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-10-feat-010-payment-release-mark-as-paid.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-010: Payment Release (mark as paid) \u2014 Frontend",
-  "updated_at": "2026-05-08T00:48:51.575482Z"
+  "updated_at": "2026-05-08T23:13:44.731472Z"
 }

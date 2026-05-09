@@ -37,9 +37,8 @@ Disparar el evento de analytics `payment_card_seen` la primera vez que un creato
 - [ ] E2E: scroll que oculta y vuelve a mostrar la card → no se duplica el evento.
 
 ## Done summary
-
-_Pendiente — completar al cerrar el task._
-
+Bounded context resuelto con shared/analytics/paymentCardSeen.ts, fixture separado para scroll con count independiente, waitForTimeout eliminado por expect.poll. Todos los acceptance criteria de la spec cubiertos.
 ## Evidence
-
-_Pendiente — agregar links a PR, screenshots, test runs._
+- Commits:
+- Tests:
+- PRs:
