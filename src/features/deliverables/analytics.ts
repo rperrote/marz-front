@@ -1,11 +1,13 @@
-// Analytics soft-disabled: backend endpoint not yet defined in OpenAPI.
-// Re-enable by routing through the Orval-generated client once the endpoint exists.
+import { useEffect } from 'react'
+import type { RefObject } from 'react'
 
+import { postAnalyticsEvent } from '#/shared/analytics/postEvent'
 import type { ChangeCategory } from './api/requestChanges'
 import type { OfferType } from './types'
 
 type RoundResolution = 'approved' | 'another_round'
 type FinalOutcome = 'approved' | 'open'
+type LinkPreviewOutcome = 'title_and_thumbnail' | 'url_only' | 'failed'
 
 interface DeliverableEventMap {
   upload_started: {
@@ -88,103 +90,198 @@ interface DeliverableEventMap {
     total_rounds: number
     final_outcome: FinalOutcome
   }
+  link_submit_opened: {
+    deliverable_id: string
+    platform: string
+    is_resubmission?: boolean
+  }
+  link_preview_resolved: {
+    deliverable_id: string
+    link_id: string
+    platform: string
+    outcome: LinkPreviewOutcome
+    is_resubmission?: boolean
+  }
+  link_card_seen: {
+    deliverable_id: string
+    link_id: string
+    platform: string
+    outcome?: LinkPreviewOutcome
+  }
+  link_url_clicked: {
+    deliverable_id: string
+    link_id: string
+    platform: string
+    outcome?: LinkPreviewOutcome
+  }
 }
 
 export type DeliverableEventName = keyof DeliverableEventMap
 
-function postAnalyticsEvent<TEvent extends DeliverableEventName>(
-  _name: TEvent,
-  _payload: DeliverableEventMap[TEvent],
-): void {
+function postLegacyDeliverableAnalyticsEvent<
+  TEvent extends DeliverableEventName,
+>(_name: TEvent, _payload: DeliverableEventMap[TEvent]): void {
   // no-op until backend analytics endpoint is defined in OpenAPI
 }
 
 export function trackUploadStarted(
   payload: DeliverableEventMap['upload_started'],
 ): void {
-  postAnalyticsEvent('upload_started', payload)
+  postLegacyDeliverableAnalyticsEvent('upload_started', payload)
 }
 
 export function trackUploadProgress(
   payload: DeliverableEventMap['upload_progress'],
 ): void {
-  postAnalyticsEvent('upload_progress', payload)
+  postLegacyDeliverableAnalyticsEvent('upload_progress', payload)
 }
 
 export function trackUploadCompleted(
   payload: DeliverableEventMap['upload_completed'],
 ): void {
-  postAnalyticsEvent('upload_completed', payload)
+  postLegacyDeliverableAnalyticsEvent('upload_completed', payload)
 }
 
 export function trackUploadFailed(
   payload: DeliverableEventMap['upload_failed'],
 ): void {
-  postAnalyticsEvent('upload_failed', payload)
+  postLegacyDeliverableAnalyticsEvent('upload_failed', payload)
 }
 
 export function trackDraftSubmittedCardSeen(
   payload: DeliverableEventMap['draft_submitted_card_seen'],
 ): void {
-  postAnalyticsEvent('draft_submitted_card_seen', payload)
+  postLegacyDeliverableAnalyticsEvent('draft_submitted_card_seen', payload)
 }
 
 export function trackDraftPlayerPlayed(
   payload: DeliverableEventMap['draft_player_played'],
 ): void {
-  postAnalyticsEvent('draft_player_played', payload)
+  postLegacyDeliverableAnalyticsEvent('draft_player_played', payload)
 }
 
 export function trackDraftApproved(
   payload: DeliverableEventMap['draft_approved'],
 ): void {
-  postAnalyticsEvent('draft_approved', payload)
+  postLegacyDeliverableAnalyticsEvent('draft_approved', payload)
 }
 
 export function trackMultistageStageUnlocked(
   payload: DeliverableEventMap['multistage_stage_unlocked'],
 ): void {
-  postAnalyticsEvent('multistage_stage_unlocked', payload)
+  postLegacyDeliverableAnalyticsEvent('multistage_stage_unlocked', payload)
 }
 
 export function trackRequestChangesModalOpened(
   payload: DeliverableEventMap['request_changes_modal_opened'],
 ): void {
-  postAnalyticsEvent('request_changes_modal_opened', payload)
+  postLegacyDeliverableAnalyticsEvent('request_changes_modal_opened', payload)
 }
 
 export function trackRequestChangesModalDismissed(
   payload: DeliverableEventMap['request_changes_modal_dismissed'],
 ): void {
-  postAnalyticsEvent('request_changes_modal_dismissed', payload)
+  postLegacyDeliverableAnalyticsEvent(
+    'request_changes_modal_dismissed',
+    payload,
+  )
 }
 
 export function trackChangeRequestSubmitted(
   payload: DeliverableEventMap['change_request_submitted'],
 ): void {
-  postAnalyticsEvent('change_request_submitted', payload)
+  postLegacyDeliverableAnalyticsEvent('change_request_submitted', payload)
 }
 
 export function trackRequestChangesCardSeen(
   payload: DeliverableEventMap['request_changes_card_seen'],
 ): void {
-  postAnalyticsEvent('request_changes_card_seen', payload)
+  postLegacyDeliverableAnalyticsEvent('request_changes_card_seen', payload)
 }
 
 export function trackDraftV2UploadStarted(
   payload: DeliverableEventMap['draft_v2_upload_started'],
 ): void {
-  postAnalyticsEvent('draft_v2_upload_started', payload)
+  postLegacyDeliverableAnalyticsEvent('draft_v2_upload_started', payload)
 }
 
 export function trackTimeToResolveRound(
   payload: DeliverableEventMap['time_to_resolve_round'],
 ): void {
-  postAnalyticsEvent('time_to_resolve_round', payload)
+  postLegacyDeliverableAnalyticsEvent('time_to_resolve_round', payload)
 }
 
 export function trackDeliverableTotalRounds(
   payload: DeliverableEventMap['deliverable_total_rounds'],
 ): void {
-  postAnalyticsEvent('deliverable_total_rounds', payload)
+  postLegacyDeliverableAnalyticsEvent('deliverable_total_rounds', payload)
+}
+
+export function trackLinkSubmitOpened(
+  payload: DeliverableEventMap['link_submit_opened'],
+): void {
+  postAnalyticsEvent('link_submit_opened', payload)
+}
+
+export function trackLinkPreviewResolved(
+  payload: DeliverableEventMap['link_preview_resolved'],
+): void {
+  postAnalyticsEvent('link_preview_resolved', payload)
+}
+
+export function trackLinkCardSeen(
+  payload: DeliverableEventMap['link_card_seen'],
+): void {
+  postAnalyticsEvent('link_card_seen', payload)
+}
+
+export function trackLinkUrlClicked(
+  payload: DeliverableEventMap['link_url_clicked'],
+): void {
+  postAnalyticsEvent('link_url_clicked', payload)
+}
+
+export function useTrackOnceVisible(
+  ref: RefObject<Element | null>,
+  key: string | null,
+  onVisible: () => void,
+  threshold = 0.5,
+): void {
+  useEffect(() => {
+    const node = ref.current
+    if (!node || !key || isVisibilityKeyTracked(key)) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isVisible = entries.some(
+          (entry) =>
+            entry.isIntersecting && entry.intersectionRatio >= threshold,
+        )
+        if (!isVisible || isVisibilityKeyTracked(key)) return
+
+        markVisibilityKeyTracked(key)
+        onVisible()
+        observer.disconnect()
+      },
+      { threshold },
+    )
+
+    observer.observe(node)
+
+    return () => observer.disconnect()
+  }, [key, onVisible, ref, threshold])
+}
+
+function isVisibilityKeyTracked(key: string): boolean {
+  try {
+    return window.sessionStorage.getItem(key) === '1'
+  } catch {
+    return false
+  }
+}
+
+function markVisibilityKeyTracked(key: string): void {
+  try {
+    window.sessionStorage.setItem(key, '1')
+  } catch {}
 }

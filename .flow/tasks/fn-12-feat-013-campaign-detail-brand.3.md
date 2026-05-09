@@ -48,9 +48,8 @@ Full design system: `marz-design/marzv2.pen`.
 - [ ] Visual fidelity ≥95% contra `SFWpj` y `Rd4vP`.
 
 ## Done summary
-
-_(filled on completion)_
-
+Correcciones aplicadas: dead export eliminado, role=status en skeleton. Wiring en CampaignDetailPage correcto.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

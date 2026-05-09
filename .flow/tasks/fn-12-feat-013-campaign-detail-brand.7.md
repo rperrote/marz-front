@@ -47,9 +47,8 @@ Full design system: `marz-design/marzv2.pen`.
 - [ ] Visual fidelity ≥95% contra `S5AMj` y `NJt6c`.
 
 ## Done summary
-
-_(filled on completion)_
-
+pending agregado a statusOptions, Link reemplaza a href, y CampaignVideosGrid.test.tsx cubre los 5 casos requeridos. Typecheck pasa.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

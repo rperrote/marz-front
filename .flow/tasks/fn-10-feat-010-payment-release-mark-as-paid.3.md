@@ -62,9 +62,8 @@ Full design system: `marz-design/marzv2.pen` (Pencil MCP) + `src/styles.css`.
 - [ ] Test unitario: invalidations no se disparan para frames de otra conversation.
 
 ## Done summary
-
-_Pendiente — completar al cerrar el task._
-
+Todos los issues del round anterior están resueltos: BC corregido (PaymentCard → shared/ui/, formatOfferAmount → shared/utils/), Lingui en todos los strings user-facing, font-sizes con utilities (text-xs), defaultNote revertido, lógica del handler corregida (cache append independiente de las invalidaciones), test axe y test de cache para conv-other agregados.
 ## Evidence
-
-_Pendiente — agregar links a PR, screenshots, test runs._
+- Commits:
+- Tests:
+- PRs:

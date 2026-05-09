@@ -25,6 +25,12 @@ type AnalyticsEvent =
   | 'inbox_item_marked_read'
   | 'inbox_marked_read_bulk'
   | 'inbox_empty_viewed'
+  | 'campaign_detail_viewed'
+  | 'campaign_detail_tab_changed'
+  | 'discovery_section_viewed'
+  | 'discovery_match_contacted'
+  | 'discovery_application_decided'
+  | 'discovery_invite_created'
 
 interface TrackedEvent {
   event: AnalyticsEvent

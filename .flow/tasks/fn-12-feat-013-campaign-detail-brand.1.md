@@ -40,9 +40,8 @@ Sincronizar el contrato OpenAPI del backend dev (FEAT-013 publicado) y dejar lis
 - [ ] Mutator inyecta `X-Brand-Workspace-Id` (desde session brand workspace) y propaga `Idempotency-Key` cuando se pasa.
 
 ## Done summary
-
-_(filled on completion)_
-
+Tests correctos para X-Brand-Workspace-Id e Idempotency-Key en mutator; mock de BrandSession en P1Input justificado; carpetas feature creadas; generated gitignored.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

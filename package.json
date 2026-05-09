@@ -20,7 +20,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "lint": "eslint",
+    "lint": "eslint .",
     "format": "prettier --write . && eslint --fix",
     "check": "prettier --check .",
     "api:sync": "tsx scripts/sync-api.ts",

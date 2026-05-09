@@ -9,6 +9,7 @@ import type {
   ConversationDeliverablesResponse,
   DeliverableDTO,
   DraftDTO,
+  PublishedLink,
 } from '#/features/deliverables/types'
 
 vi.mock('@lingui/core/macro', () => ({
@@ -20,10 +21,15 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 const mockUseGetConversationDeliverablesQuery = vi.fn()
+const mockUseDeliverableLinks = vi.fn()
 
 vi.mock('#/features/deliverables/api/conversationDeliverables', () => ({
   useGetConversationDeliverablesQuery: (...args: unknown[]) =>
     mockUseGetConversationDeliverablesQuery(...args),
+}))
+
+vi.mock('#/features/deliverables/hooks/useDeliverableLinks', () => ({
+  useDeliverableLinks: (...args: unknown[]) => mockUseDeliverableLinks(...args),
 }))
 
 vi.mock('../UploadDraftDialog', () => ({
@@ -106,10 +112,29 @@ function makeDraft(overrides?: Partial<DraftDTO>): DraftDTO {
   }
 }
 
+function makeLink(overrides?: Partial<PublishedLink>): PublishedLink {
+  return {
+    id: 'link-1',
+    deliverable_id: 'del-1',
+    url: 'https://www.youtube.com/watch?v=abc123',
+    status: 'submitted',
+    preview: { outcome: 'url_only' },
+    submitted_at: '2026-04-01T00:00:00Z',
+    submitted_by_account_id: 'creator-1',
+    approved_at: null,
+    approved_by_account_id: null,
+    ...overrides,
+  }
+}
+
 describe('DeliverableListPanel', () => {
   beforeEach(() => {
     mockUseGetConversationDeliverablesQuery.mockReturnValue({
       data: undefined,
+      isLoading: false,
+    })
+    mockUseDeliverableLinks.mockReturnValue({
+      data: { links: [], current_link_id: null },
       isLoading: false,
     })
   })
@@ -219,6 +244,28 @@ describe('DeliverableListPanel', () => {
 
     expect(
       screen.queryByRole('button', { name: /upload draft/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('does not show submit link button for brand session', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel({ sessionKind: 'brand' })
+
+    expect(
+      screen.queryByRole('button', { name: /submit link/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -338,6 +385,254 @@ describe('DeliverableListPanel', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('shows submit link copy when the approved draft has no previous link changes', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getByRole('button', { name: /submit link/i })).toBeEnabled()
+    expect(
+      screen.queryByRole('button', { name: /re-submit link/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('hides submit link for an approved draft in a locked stage', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'multistage',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            offer_stage_id: 'stage-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+        stages: [
+          {
+            id: 'stage-1',
+            position: 1,
+            name: 'Stage 1',
+            deadline: '2026-05-01',
+            status: 'locked',
+            deliverable_ids: ['del-1'],
+          },
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(
+      screen.queryByRole('button', { name: /submit link/i }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByText('Locked')).toBeInTheDocument()
+  })
+
+  it('shows submit link for an approved draft in an open stage', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'multistage',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            offer_stage_id: 'stage-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+        stages: [
+          {
+            id: 'stage-1',
+            position: 1,
+            name: 'Stage 1',
+            deadline: '2026-05-01',
+            status: 'open',
+            deliverable_ids: ['del-1'],
+          },
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getByRole('button', { name: /submit link/i })).toBeEnabled()
+    expect(screen.getByText('Open')).toBeInTheDocument()
+  })
+
+  it('shows re-submit link copy when the current deliverable status is link_submitted', () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'link_submitted',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(
+      screen.getByRole('button', { name: /re-submit link/i }),
+    ).toBeEnabled()
+  })
+
+  it('shows re-submit link copy when an approved draft has previous link changes', () => {
+    mockUseDeliverableLinks.mockReturnValue({
+      data: {
+        links: [makeLink({ id: 'link-1', status: 'changes_requested' })],
+        current_link_id: null,
+      },
+      isLoading: false,
+    })
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(
+      screen.getByRole('button', { name: /re-submit link/i }),
+    ).toBeEnabled()
+  })
+
+  it('renders the current link URL selected by current_link_id', () => {
+    mockUseDeliverableLinks.mockReturnValue({
+      data: {
+        links: [
+          makeLink({
+            id: 'old-link',
+            url: 'https://www.youtube.com/watch?v=old123',
+          }),
+          makeLink({
+            id: 'current-link',
+            url: 'https://www.youtube.com/watch?v=current456',
+            status: 'approved',
+          }),
+        ],
+        current_link_id: 'current-link',
+      },
+      isLoading: false,
+    })
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'link_submitted',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getByTestId('current-link-summary')).toHaveTextContent(
+      'https://www.youtube.com/watch?v=current456',
+    )
+    expect(screen.getByText('Link approved')).toBeInTheDocument()
+    expect(
+      screen.queryByText('https://www.youtube.com/watch?v=old123'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('does not render an empty current link state before a link exists', () => {
+    mockUseDeliverableLinks.mockReturnValue({
+      data: {
+        links: [
+          makeLink({
+            id: 'old-link',
+            url: 'https://www.youtube.com/watch?v=old123',
+            status: 'changes_requested',
+          }),
+        ],
+        current_link_id: null,
+      },
+      isLoading: false,
+    })
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'draft_approved',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.queryByTestId('current-link-empty')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('https://www.youtube.com/watch?v=old123'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('renders link submitted label and clickable URL while waiting for approval', () => {
+    const url = 'https://www.youtube.com/watch?v=submitted123'
+    mockUseDeliverableLinks.mockReturnValue({
+      data: {
+        links: [makeLink({ id: 'link-1', url, status: 'submitted' })],
+        current_link_id: 'link-1',
+      },
+      isLoading: false,
+    })
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-1',
+            status: 'link_submitted',
+            current_version: 1,
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    renderPanel()
+
+    expect(screen.getAllByText('Link submitted')).toHaveLength(2)
+    expect(screen.getByRole('link', { name: url })).toHaveAttribute('href', url)
+  })
+
   it('shows enabled upload button with dynamic label for changes_requested', () => {
     mockUseGetConversationDeliverablesQuery.mockReturnValue({
       data: makeResponse({
@@ -359,5 +654,28 @@ describe('DeliverableListPanel', () => {
       name: /upload draft v3/i,
     })
     expect(button).toBeEnabled()
+  })
+
+  it('calls onMarkAsPaid with the selected deliverable', async () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-paid-target',
+            status: 'completed',
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    const onMarkAsPaid = vi.fn()
+    renderPanel({ sessionKind: 'brand', viewerRole: 'owner', onMarkAsPaid })
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: /mark as paid/i }))
+
+    expect(onMarkAsPaid).toHaveBeenCalledWith('del-paid-target')
   })
 })

@@ -5,6 +5,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse as parseYaml } from 'yaml'
 
+// RAFITA:BLOCKER: pnpm api:sync cannot run in this sandbox because tsx fails opening its IPC pipe with listen EPERM; the Node strip-types bypass reaches the script, but API_URL=http://localhost:8080 still cannot fetch /openapi.yaml, so the generated API client cannot be regenerated here.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 // load .env.local if present

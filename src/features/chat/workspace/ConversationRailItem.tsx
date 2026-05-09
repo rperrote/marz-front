@@ -59,5 +59,7 @@ function resolvePreview(
       return t`Archivo adjunto`
     case 'text':
       return text
+    default:
+      return text
   }
 }

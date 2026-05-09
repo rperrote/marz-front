@@ -2,9 +2,7 @@ import { t } from '@lingui/core/macro'
 import { TrendingUp } from 'lucide-react'
 import { cn } from '#/lib/utils'
 import { useBrandOnboardingStore } from '../store'
-import { Vertical } from '#/shared/api/generated/model/vertical'
-import { MarketingObjective } from '#/shared/api/generated/model/marketingObjective'
-import { MonthlyBudgetRange } from '#/shared/api/generated/model/monthlyBudgetRange'
+import { MarketingObjective, MonthlyBudgetRange, Vertical } from '../types'
 
 const BUDGET_USD: Record<MonthlyBudgetRange, number> = {
   zero: 0,

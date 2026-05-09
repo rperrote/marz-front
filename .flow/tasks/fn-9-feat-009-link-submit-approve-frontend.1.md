@@ -39,11 +39,8 @@ Regenerar el cliente API con `pnpm api:sync` apuntando al backend de `dev` (que 
 - [ ] No se committea código generado (verificar `.gitignore`).
 
 ## Done summary
-
-_To fill at completion._
-
+Duplicación eliminada con extracción correcta a messagePayload.ts; blocker de backend documentado como issue .10 en el epic.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

@@ -47,9 +47,8 @@ Suscribir el detalle de campaign al topic WS `campaign:{campaign_id}`. Patcha o 
 - [ ] `pnpm typecheck` pasa con tipos `DomainEventEnvelope<T>` para los 4 payloads.
 
 ## Done summary
-
-_(filled on completion)_
-
+BC violations resueltas: tracking de discovery en shared/analytics/discoveryTracking.ts, DiscoverySection exportada desde tracking.ts local, sin imports cruzados entre BCs.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

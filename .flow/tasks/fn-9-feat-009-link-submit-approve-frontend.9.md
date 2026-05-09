@@ -43,11 +43,8 @@ Emitir 4 eventos analytics frontend al endpoint genérico `POST /api/v1/analytic
 - [ ] `link_url_clicked` no rompe la navegación al link.
 
 ## Done summary
-
-_To fill at completion._
-
+Implementación completa de 4 eventos analytics (link_submit_opened, link_preview_resolved, link_card_seen, link_url_clicked) con tests, typecheck limpio y todos los 138 tests pasando
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

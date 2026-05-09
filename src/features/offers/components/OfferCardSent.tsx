@@ -3,12 +3,9 @@ import { t } from '@lingui/core/macro'
 
 import { Badge } from '#/components/ui/badge'
 import { SystemEventCard, StatTile } from '#/shared/ui/SystemEventCard'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import type { OfferSnapshot, OfferStatus } from '../types'
-import {
-  formatOfferAmount,
-  formatOfferDeadline,
-  formatOfferPlatform,
-} from '../utils/formatOffer'
+import { formatOfferDeadline, formatOfferPlatform } from '../utils/formatOffer'
 
 interface OfferCardSentProps {
   snapshot: OfferSnapshot

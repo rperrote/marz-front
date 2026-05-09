@@ -2,8 +2,7 @@ import { t } from '@lingui/core/macro'
 import { Check, ArrowRight, Loader2 } from 'lucide-react'
 import { useBrandOnboardingStore } from '../store'
 import { useSubmitBrandOnboarding } from '#/features/identity/onboarding/brand/useSubmitBrandOnboarding'
-import { Vertical } from '#/shared/api/generated/model/vertical'
-import { MarketingObjective } from '#/shared/api/generated/model/marketingObjective'
+import { MarketingObjective, Vertical } from '../types'
 
 const VERTICAL_LABEL: Record<Vertical, () => string> = {
   fintech: () => t`fintech`,

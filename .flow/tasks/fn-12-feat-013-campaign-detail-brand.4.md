@@ -50,9 +50,8 @@ Full design system: `marz-design/marzv2.pen`.
 - [ ] Visual fidelity ≥95% contra `1WW1E` y `CK94g`.
 
 ## Done summary
-
-_(filled on completion)_
-
+Todos los fixes del round 2 aplicados correctamente. utils.ts, DiscoveryTab y DiscoverySidebar están sin errores de compilación ni problemas de locale. El resto del BC estaba correcto desde el round anterior.
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

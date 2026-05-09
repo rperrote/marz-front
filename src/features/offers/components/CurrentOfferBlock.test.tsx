@@ -5,10 +5,13 @@ import { axe } from 'vitest-axe'
 import { CurrentOfferBlock } from './CurrentOfferBlock'
 import type {
   ConversationOfferBaseDTO,
+  ConversationOfferDTO,
   ConversationOfferSingleDTO,
   ConversationOfferBundleDTO,
   ConversationOfferMultiStageDTO,
+  ConversationOfferDeliverableDTO,
 } from '#/features/offers/hooks/useConversationOffers'
+import type { DeliverableStatus } from '#/features/deliverables/types'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -73,6 +76,22 @@ const bundleOffer: ConversationOfferBundleDTO = {
 const multistageOffer: ConversationOfferMultiStageDTO = {
   ...base,
   type: 'multistage',
+  deliverables: [
+    {
+      id: 'del-1',
+      platform: 'youtube',
+      format: 'yt_long',
+      quantity: 1,
+      amount: '1500.00',
+    },
+    {
+      id: 'del-2',
+      platform: 'instagram',
+      format: 'ig_reel',
+      quantity: 1,
+      amount: '3000.00',
+    },
+  ],
   stages: [
     {
       name: 'Concept',
@@ -89,6 +108,21 @@ const multistageOffer: ConversationOfferMultiStageDTO = {
       status: 'open',
     },
   ],
+}
+
+function withDeliverableStatuses<T extends ConversationOfferDTO>(
+  offer: T,
+  statuses: DeliverableStatus[],
+): T {
+  const deliverables: ConversationOfferDeliverableDTO[] = offer.deliverables
+
+  return {
+    ...offer,
+    deliverables: deliverables.map((deliverable, index) => ({
+      ...deliverable,
+      status: statuses[index] ?? deliverable.status,
+    })),
+  }
 }
 
 describe('CurrentOfferBlock', () => {
@@ -148,6 +182,65 @@ describe('CurrentOfferBlock', () => {
     expect(screen.getByText('Production')).toBeInTheDocument()
     expect(screen.getByText('Locked')).toBeInTheDocument()
     expect(screen.getByText('Open')).toBeInTheDocument()
+  })
+
+  it.each([
+    ['single', singleOffer, ['completed'], 'Sent'],
+    ['single', singleOffer, ['paid'], 'Fully paid'],
+    ['bundle', bundleOffer, ['paid', 'completed'], 'Partially paid (1/2)'],
+    ['bundle', bundleOffer, ['paid', 'paid'], 'Fully paid'],
+    ['multistage', multistageOffer, ['completed', 'completed'], 'Sent'],
+    [
+      'multistage',
+      multistageOffer,
+      ['paid', 'completed'],
+      'Partially paid (1/2)',
+    ],
+    ['multistage', multistageOffer, ['paid', 'paid'], 'Fully paid'],
+  ])(
+    'renders payment progress label for %s offers',
+    (_type, offer, statuses, expectedLabel) => {
+      render(
+        <CurrentOfferBlock
+          offer={withDeliverableStatuses(
+            offer,
+            statuses as DeliverableStatus[],
+          )}
+          actorKind="brand"
+        />,
+      )
+
+      expect(screen.getByText(expectedLabel)).toBeInTheDocument()
+    },
+  )
+
+  it('renders Partially paid (1/3) when one of three deliverables is paid', () => {
+    const threeDeliverables: ConversationOfferBundleDTO = {
+      ...bundleOffer,
+      deliverables: [
+        ...bundleOffer.deliverables,
+        {
+          id: 'del-3',
+          platform: 'tiktok',
+          format: 'tt_video',
+          quantity: 1,
+          amount: '500.00',
+        },
+      ],
+    }
+
+    render(
+      <CurrentOfferBlock
+        offer={withDeliverableStatuses(threeDeliverables, [
+          'paid',
+          'completed',
+          'completed',
+        ])}
+        actorKind="brand"
+      />,
+    )
+
+    expect(screen.getByText('Partially paid (1/3)')).toBeInTheDocument()
   })
 
   it('is axe-clean', async () => {
