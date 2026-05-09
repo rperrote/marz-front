@@ -6,13 +6,21 @@ import { CampaignBoardCard } from './CampaignBoardCard'
 
 interface CampaignBoardGridProps {
   cards: CreatorCampaignBoardCard[]
+  onViewBrief: (campaignId: string) => void
 }
 
-export function CampaignBoardGrid({ cards }: CampaignBoardGridProps) {
+export function CampaignBoardGrid({
+  cards,
+  onViewBrief,
+}: CampaignBoardGridProps) {
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
       {cards.map((card) => (
-        <CampaignBoardCard key={card.campaign_id} card={card} />
+        <CampaignBoardCard
+          key={card.campaign_id}
+          card={card}
+          onViewBrief={onViewBrief}
+        />
       ))}
     </div>
   )

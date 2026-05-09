@@ -10,6 +10,7 @@ import { MatchScoreBadge } from './MatchScoreBadge'
 
 interface CampaignBoardCardProps {
   card: CreatorCampaignBoardCard
+  onViewBrief: (campaignId: string) => void
 }
 
 type SnapshotRecord = Record<string, unknown>
@@ -135,7 +136,10 @@ function getApplicationPrimaryLabel(card: CreatorCampaignBoardCard) {
   return t`No disponible`
 }
 
-export function CampaignBoardCard({ card }: CampaignBoardCardProps) {
+export function CampaignBoardCard({
+  card,
+  onViewBrief,
+}: CampaignBoardCardProps) {
   const brandName = getSnapshotString(card.brand, 'name') ?? t`Marca`
   const brandInitials =
     getSnapshotString(card.brand, 'avatar_initials') ?? getInitials(brandName)
@@ -259,6 +263,7 @@ export function CampaignBoardCard({ card }: CampaignBoardCardProps) {
               variant="ghost"
               size="sm"
               className="rounded-xl"
+              onClick={() => onViewBrief(card.campaign_id)}
             >
               {t`Ver brief`}
             </Button>

@@ -33,6 +33,24 @@ vi.mock('./hooks/useBoardSearchSync', () => ({
   useBoardSearchSync: vi.fn(),
 }))
 
+vi.mock('./CampaignBriefSheet', () => ({
+  CampaignBriefSheet: ({
+    campaignId,
+    onOpenChange,
+  }: {
+    campaignId: string | null
+    onOpenChange: (open: boolean) => void
+  }) =>
+    campaignId ? (
+      <div role="dialog" aria-label="Brief de campaña">
+        <p>{campaignId}</p>
+        <button type="button" onClick={() => onOpenChange(false)}>
+          Cerrar
+        </button>
+      </div>
+    ) : null,
+}))
+
 const mockUseCampaignBoardQuery = vi.mocked(useCampaignBoardQuery)
 const mockUseBoardSearchSync = vi.mocked(useBoardSearchSync)
 
@@ -205,6 +223,19 @@ describe('CampaignBoardPage', () => {
     expect(
       screen.getByRole('button', { name: 'Postulación enviada' }),
     ).toBeDisabled()
+  })
+
+  it('opens the brief sheet from a campaign card', async () => {
+    const user = userEvent.setup()
+    mockBoardQuery({ data: makeBoardResponse(), isSuccess: true })
+
+    renderCampaignBoardPage()
+
+    await user.click(screen.getByRole('button', { name: 'Ver brief' }))
+
+    expect(
+      screen.getByRole('dialog', { name: 'Brief de campaña' }),
+    ).toHaveTextContent(campaignId)
   })
 
   it('renders loading skeletons', () => {

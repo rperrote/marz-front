@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
 
 import { CampaignBoardFilters } from './CampaignBoardFilters'
+import { CampaignBriefSheet } from './CampaignBriefSheet'
 import {
   CampaignBoardGrid,
   CampaignBoardGridSkeleton,
@@ -16,6 +18,9 @@ export function CampaignBoardPage() {
   const { search, setSearch, resetSearch } = useBoardSearchSync()
   const boardQuery = useCampaignBoardQuery(search)
   const cards = boardQuery.data?.data ?? []
+  const [selectedBriefCampaignId, setSelectedBriefCampaignId] = useState<
+    string | null
+  >(null)
 
   return (
     <main className="min-h-full bg-background">
@@ -57,9 +62,18 @@ export function CampaignBoardPage() {
         ) : null}
 
         {boardQuery.isSuccess && cards.length > 0 ? (
-          <CampaignBoardGrid cards={cards} />
+          <CampaignBoardGrid
+            cards={cards}
+            onViewBrief={setSelectedBriefCampaignId}
+          />
         ) : null}
       </div>
+      <CampaignBriefSheet
+        campaignId={selectedBriefCampaignId}
+        onOpenChange={(open) => {
+          if (!open) setSelectedBriefCampaignId(null)
+        }}
+      />
     </main>
   )
 }
