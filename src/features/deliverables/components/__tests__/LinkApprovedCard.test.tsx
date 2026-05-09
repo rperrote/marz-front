@@ -1,8 +1,22 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { LinkApprovedCard } from '../LinkApprovedCard'
-import type { DraftTimelineMessage } from '../../types'
+import type { DraftTimelineMessage, DeliverableStatus  } from '../../types'
+
+const mockUseGetConversationDeliverablesQuery = vi.fn()
+
+vi.mock('#/features/deliverables/api/conversationDeliverables', () => ({
+  useGetConversationDeliverablesQuery: (...args: unknown[]) =>
+    mockUseGetConversationDeliverablesQuery(...args),
+}))
+
+function mockDeliverable(status: DeliverableStatus) {
+  mockUseGetConversationDeliverablesQuery.mockReturnValue({
+    data: { deliverables: [{ id: 'del-1', status }] },
+  })
+}
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -77,6 +91,8 @@ describe('LinkApprovedCard', () => {
   beforeEach(() => {
     FakeIntersectionObserver.instances = []
     window.sessionStorage.clear()
+    mockUseGetConversationDeliverablesQuery.mockReset()
+    mockDeliverable('completed')
     vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
     vi.stubGlobal(
       'fetch',
@@ -136,6 +152,68 @@ describe('LinkApprovedCard', () => {
         platform: 'youtube',
         outcome: 'url_only',
       },
+    })
+  })
+
+  describe('mark as paid action', () => {
+    it.each([
+      ['brand owner', { kind: 'brand' as const, role: 'owner' as const }, true],
+      [
+        'brand member',
+        { kind: 'brand' as const, role: 'member' as const },
+        false,
+      ],
+      [
+        'brand admin',
+        { kind: 'brand' as const, role: 'admin' as const },
+        false,
+      ],
+      ['creator', { kind: 'creator' as const, role: undefined }, false],
+    ])(
+      'shows Mark as paid for %s only when allowed',
+      (_label, viewer, visible) => {
+        render(
+          <LinkApprovedCard
+            message={buildMessage()}
+            currentAccountId="acc-brand"
+            conversationId="conv-1"
+            viewer={viewer}
+          />,
+        )
+        const button = screen.queryByRole('button', { name: /mark as paid/i })
+        expect(Boolean(button)).toBe(visible)
+      },
+    )
+
+    it('hides Mark as paid when the deliverable is already paid', () => {
+      mockDeliverable('paid')
+      render(
+        <LinkApprovedCard
+          message={buildMessage()}
+          currentAccountId="acc-brand"
+          conversationId="conv-1"
+          viewer={{ kind: 'brand', role: 'owner' }}
+        />,
+      )
+      expect(
+        screen.queryByRole('button', { name: /mark as paid/i }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('calls onMarkAsPaid with the correct deliverable id', async () => {
+      const user = userEvent.setup()
+      const onMarkAsPaid = vi.fn()
+      render(
+        <LinkApprovedCard
+          message={buildMessage()}
+          currentAccountId="acc-brand"
+          conversationId="conv-1"
+          viewer={{ kind: 'brand', role: 'owner' }}
+          onMarkAsPaid={onMarkAsPaid}
+        />,
+      )
+      await user.click(screen.getByRole('button', { name: /mark as paid/i }))
+      expect(onMarkAsPaid).toHaveBeenCalledWith('del-1')
     })
   })
 })

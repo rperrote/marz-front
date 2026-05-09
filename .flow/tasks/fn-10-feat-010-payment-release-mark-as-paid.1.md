@@ -37,9 +37,8 @@ Regenerar el cliente Orval contra el backend de dev tras que FEAT-010 backend ex
 - [ ] Test mínimo: importar `useMarkDeliverableAsPaid` en un archivo dummy `.test.ts` compila.
 
 ## Done summary
-
-_Pendiente — completar al cerrar el task._
-
+toMessagePayload extraída a utils compartido, imports correctos, sin duplicación, sin dead code, typecheck y tests pasan
 ## Evidence
-
-_Pendiente — agregar links a PR, screenshots, test runs._
+- Commits:
+- Tests:
+- PRs:

@@ -515,6 +515,46 @@ describe('MessageTimeline', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders PaymentMarkedCard for PaymentMarked system event', async () => {
+    mockFetchWithMessages(
+      buildMessagesResponse([
+        {
+          id: 'msg-payment-1',
+          type: 'system_event',
+          event_type: 'PaymentMarked',
+          text_content: null,
+          author_account_id: 'system',
+          payload: {
+            snapshot: {
+              event_type: 'PaymentMarked',
+              deliverable_id: 'del-1',
+              amount: '4575.00',
+              currency: 'USD',
+              deliverable_display_label: 'YouTube Video',
+              declared_at: '2026-05-08T12:00:00Z',
+            },
+          },
+          created_at: '2026-05-08T12:00:00Z',
+        },
+      ]),
+    )
+
+    render(
+      <Wrapper>
+        <MessageTimeline
+          conversationId="conv-1"
+          currentAccountId="acc-me"
+          sessionKind="brand"
+        />
+      </Wrapper>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('payment-marked-card')).toBeInTheDocument()
+    })
+    expect(screen.getByText('Payment of $4,575.00 sent')).toBeInTheDocument()
+  })
+
   it('renders OfferCardBundle for bundle offer_sent system event', async () => {
     mockFetchWithMessages(
       buildMessagesResponse([

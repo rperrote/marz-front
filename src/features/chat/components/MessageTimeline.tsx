@@ -27,6 +27,7 @@ import { stageOpenedSnapSchema } from '#/features/offers/schemas'
 import { DraftSubmittedCard } from '#/features/deliverables/components/DraftSubmittedCard'
 import { DraftApprovedCard } from '#/features/deliverables/components/DraftApprovedCard'
 import { RequestChangesCard } from '#/features/deliverables/components/RequestChangesCard'
+import { PaymentMarkedCard } from './systemEvents/PaymentMarkedCard'
 import { LinkSubmittedCard } from '#/features/deliverables/components/LinkSubmittedCard'
 import { LinkApprovedCard } from '#/features/deliverables/components/LinkApprovedCard'
 import { LinkChangesRequestedCard } from '#/features/deliverables/components/LinkChangesRequestedCard'
@@ -36,6 +37,7 @@ import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
 import type { EventSeverity } from './EventBubble'
 import { MessageBubble } from './MessageBubble'
+import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 
 // react-virtuoso chosen over @tanstack/react-virtual: built-in reverse list mode,
 // automatic scroll anchoring on prepend, and firstItemIndex shifting — all critical
@@ -50,6 +52,8 @@ interface MessageTimelineProps {
   conversationId: string
   currentAccountId: string
   sessionKind: 'brand' | 'creator' | undefined
+  viewerRole?: MarkAsPaidViewerRole
+  onMarkAsPaid?: (deliverableId: string) => void
   onAtBottomStateChange?: (atBottom: boolean) => void
   timelineRef?: React.Ref<MessageTimelineHandle>
 }
@@ -63,6 +67,8 @@ export function MessageTimeline({
   conversationId,
   currentAccountId,
   sessionKind,
+  viewerRole,
+  onMarkAsPaid,
   onAtBottomStateChange,
   timelineRef,
 }: MessageTimelineProps) {
@@ -187,6 +193,9 @@ export function MessageTimeline({
                 <LinkApprovedCard
                   message={message}
                   currentAccountId={currentAccountId}
+                  conversationId={conversationId}
+                  viewer={{ kind: sessionKind, role: viewerRole }}
+                  onMarkAsPaid={onMarkAsPaid}
                 />
               )
             case 'LinkChangesRequested':
@@ -201,6 +210,15 @@ export function MessageTimeline({
             default:
               return assertNever(deliverableEventType)
           }
+        }
+
+        if (message.event_type === 'PaymentMarked') {
+          return (
+            <PaymentMarkedCard
+              message={message}
+              viewer={{ kind: sessionKind }}
+            />
+          )
         }
 
         if (message.event_type === 'StageOpened') {
@@ -275,7 +293,9 @@ export function MessageTimeline({
       currentAccountId,
       conversationDetail?.counterpart.display_name,
       conversationId,
+      onMarkAsPaid,
       sessionKind,
+      viewerRole,
     ],
   )
 

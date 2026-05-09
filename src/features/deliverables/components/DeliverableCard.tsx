@@ -10,30 +10,22 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
-import { Badge } from '#/components/ui/badge'
 import { cn } from '#/lib/utils'
-import type { PublishedLinkStatus } from '#/features/deliverables/types'
-
-export type DeliverableStatus =
-  | 'pending'
-  | 'draft_submitted'
-  | 'changes_requested'
-  | 'draft_approved'
-  | 'link_submitted'
-  | 'link_approved'
-  | 'completed'
-
-const statusBadge: Record<
+import { Badge } from '#/components/ui/badge'
+import type {
   DeliverableStatus,
-  { label: string; tone: 'info' | 'success' | 'destructive' | 'neutral' }
+  PublishedLinkStatus,
+} from '#/features/deliverables/types'
+import { DeliverableStatusBadge } from './DeliverableStatusBadge'
+
+const linkToneClass: Record<
+  'info' | 'success' | 'destructive' | 'neutral',
+  string
 > = {
-  pending: { label: t`Pending`, tone: 'neutral' },
-  draft_submitted: { label: t`In review`, tone: 'info' },
-  changes_requested: { label: t`Changes requested`, tone: 'destructive' },
-  draft_approved: { label: t`Approved`, tone: 'success' },
-  link_submitted: { label: t`Link submitted`, tone: 'neutral' },
-  link_approved: { label: t`Link approved`, tone: 'success' },
-  completed: { label: t`Link approved`, tone: 'success' },
+  info: 'bg-info text-info-foreground',
+  success: 'bg-success text-success-foreground',
+  destructive: 'bg-destructive text-destructive-foreground',
+  neutral: 'bg-muted text-foreground',
 }
 
 const platformIcon: Record<string, LucideIcon> = {
@@ -74,7 +66,6 @@ export function DeliverableCard({
   currentLink = null,
 }: DeliverableCardProps) {
   const PlatformIcon = platformIcon[platform] ?? Film
-  const badge = statusBadge[status]
   const hasDrafts = drafts.length > 0
 
   return (
@@ -84,7 +75,7 @@ export function DeliverableCard({
         <h4 className="flex-1 truncate text-sm font-semibold text-foreground">
           {title}
         </h4>
-        <StatusBadge label={badge.label} tone={badge.tone} />
+        <DeliverableStatusBadge status={status} />
       </header>
 
       {hasDrafts ? (
@@ -140,7 +131,9 @@ function CurrentLinkSummary({
       >
         {link.url}
       </a>
-      <StatusBadge label={label} tone={meta.tone} />
+      <Badge className={cn('rounded-full', linkToneClass[meta.tone])}>
+        {label}
+      </Badge>
     </div>
   )
 }
@@ -195,20 +188,4 @@ function DraftRow({ draft }: { draft: DraftEntry }) {
       </div>
     </li>
   )
-}
-
-function StatusBadge({
-  label,
-  tone,
-}: {
-  label: string
-  tone: 'info' | 'success' | 'destructive' | 'neutral'
-}) {
-  const toneClass: Record<typeof tone, string> = {
-    info: 'bg-info text-info-foreground',
-    success: 'bg-success text-success-foreground',
-    destructive: 'bg-destructive text-destructive-foreground',
-    neutral: 'bg-muted text-foreground',
-  }
-  return <Badge className={cn('rounded-full', toneClass[tone])}>{label}</Badge>
 }

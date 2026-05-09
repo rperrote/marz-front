@@ -3,10 +3,8 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { Badge } from '#/components/ui/badge'
-import {
-  formatOfferAmount,
-  formatOfferDeadline,
-} from '#/features/offers/utils/formatOffer'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
+import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
 import type { OfferStatus } from '#/features/offers/types'
 import type { OfferStageDTO } from '../hooks/useConversationOffers'
 import { trackOfferEvent } from '../analytics'

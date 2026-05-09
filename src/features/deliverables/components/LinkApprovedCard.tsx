@@ -1,27 +1,33 @@
 import { useCallback, useMemo, useRef } from 'react'
 import { t } from '@lingui/core/macro'
 
+import { Button } from '#/components/ui/button'
 import { EventBubble } from '#/shared/ui/EventBubble'
 import { getRecord, getString } from '#/shared/utils/record'
 import {
   trackLinkCardSeen,
   useTrackOnceVisible,
 } from '#/features/deliverables/analytics'
+import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
+import { canMarkDeliverableAsPaid } from '#/shared/payments/markAsPaidPermissions'
+import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import type { DraftTimelineMessage } from '../types'
 import type { LinkApprovedSnapshot } from '#/shared/ws/types'
 
 interface LinkApprovedCardProps {
   message: DraftTimelineMessage
   currentAccountId: string
+  conversationId?: string
+  viewer?: MarkAsPaidViewer
+  onMarkAsPaid?: (deliverableId: string) => void
 }
 
-/**
- * TODO(FEAT-009): replace this EventBubble/Success fallback with the dedicated
- * LinkApprovedCard organism once the matching .pen frame exists.
- */
 export function LinkApprovedCard({
   message,
   currentAccountId,
+  conversationId,
+  viewer,
+  onMarkAsPaid,
 }: LinkApprovedCardProps) {
   const snapshot = useMemo(
     () => extractSnapshot(message.payload),
@@ -52,7 +58,7 @@ export function LinkApprovedCard({
   return (
     <div
       ref={cardRef}
-      className="flex justify-center py-1"
+      className="flex flex-col items-center gap-2 py-1"
       data-testid="link-approved-card"
     >
       <EventBubble severity="success" direction={direction}>
@@ -66,7 +72,49 @@ export function LinkApprovedCard({
           {snapshot.link.url}
         </a>
       </EventBubble>
+      {conversationId && viewer ? (
+        <MarkAsPaidAction
+          conversationId={conversationId}
+          deliverableId={snapshot.deliverable_id}
+          viewer={viewer}
+          onMarkAsPaid={onMarkAsPaid}
+        />
+      ) : null}
     </div>
+  )
+}
+
+interface MarkAsPaidActionProps {
+  conversationId: string
+  deliverableId: string
+  viewer: MarkAsPaidViewer
+  onMarkAsPaid?: (deliverableId: string) => void
+}
+
+function MarkAsPaidAction({
+  conversationId,
+  deliverableId,
+  viewer,
+  onMarkAsPaid,
+}: MarkAsPaidActionProps) {
+  const deliverablesQuery = useGetConversationDeliverablesQuery(conversationId)
+  const deliverable = deliverablesQuery.data?.deliverables.find(
+    (item) => item.id === deliverableId,
+  )
+  const canMarkAsPaid = canMarkDeliverableAsPaid({
+    viewer,
+    deliverableStatus: deliverable?.status,
+  })
+  if (!canMarkAsPaid) return null
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={() => onMarkAsPaid?.(deliverableId)}
+    >
+      {t`Mark as paid`}
+    </Button>
   )
 }
 

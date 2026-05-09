@@ -58,9 +58,8 @@ Full design system: `src/styles.css` + `marz-design/marzv2.pen` (Pencil MCP) —
 - [ ] Validación visual Pencil MCP ≥95% del panel con badge `Paid` (`wpat3`, `7pW7u`).
 
 ## Done summary
-
-_Pendiente — completar al cerrar el task._
-
+console.log eliminados de getServerMe.ts; BC isolation resuelta con shared/payments/; role resuelto desde route context; multistage.deliverables requerido; tests cubren guards y flujo de sidesheet.
 ## Evidence
-
-_Pendiente — agregar links a PR, screenshots, test runs._
+- Commits:
+- Tests:
+- PRs:

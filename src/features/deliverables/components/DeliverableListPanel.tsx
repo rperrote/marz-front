@@ -3,6 +3,7 @@ import { t } from '@lingui/core/macro'
 
 import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
 import type { DeliverableDTO } from '#/features/deliverables/types'
+import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import { UploadDraftDialog } from './UploadDraftDialog'
 import { DeliverableListItem } from './DeliverableListItem'
 import { MultistagePanelGroup } from './MultistagePanelGroup'
@@ -11,11 +12,15 @@ import { SubmitLinkSidesheet } from './SubmitLinkSidesheet'
 interface DeliverableListPanelProps {
   conversationId: string
   sessionKind: 'brand' | 'creator'
+  viewerRole?: MarkAsPaidViewer['role']
+  onMarkAsPaid?: (deliverableId: string) => void
 }
 
 export function DeliverableListPanel({
   conversationId,
   sessionKind,
+  viewerRole,
+  onMarkAsPaid,
 }: DeliverableListPanelProps) {
   const query = useGetConversationDeliverablesQuery(conversationId)
   const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
@@ -127,7 +132,9 @@ export function DeliverableListPanel({
                 deliverables={stageDeliverables.map((deliverable) => ({
                   deliverable,
                   sessionKind,
+                  viewerRole,
                   onUploadDraft: handleUploadDraft,
+                  onMarkAsPaid,
                   onSubmitLink: handleSubmitLink,
                 }))}
               />
@@ -140,7 +147,9 @@ export function DeliverableListPanel({
                 key={deliverable.id}
                 deliverable={deliverable}
                 sessionKind={sessionKind}
+                viewerRole={viewerRole}
                 onUploadDraft={handleUploadDraft}
+                onMarkAsPaid={onMarkAsPaid}
                 onSubmitLink={handleSubmitLink}
               />
             ))}

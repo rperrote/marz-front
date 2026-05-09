@@ -20,7 +20,10 @@ import type {
   StageStatus,
 } from '#/features/deliverables/types'
 import { useDeliverableLinks } from '#/features/deliverables/hooks/useDeliverableLinks'
+import { canMarkDeliverableAsPaid } from '#/shared/payments/markAsPaidPermissions'
+import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import { DraftVersionList } from './DraftVersionList'
+import { DeliverableStatusBadge } from './DeliverableStatusBadge'
 
 const platformIcon: Record<string, LucideIcon> = {
   youtube: Youtube,
@@ -29,32 +32,21 @@ const platformIcon: Record<string, LucideIcon> = {
   twitter_x: Twitter,
 }
 
-const statusMeta: Record<
-  DeliverableDTO['status'],
-  { label: string; tone: 'info' | 'success' | 'destructive' | 'neutral' }
-> = {
-  pending: { label: t`Pending`, tone: 'neutral' },
-  draft_submitted: { label: t`In review`, tone: 'info' },
-  changes_requested: { label: t`Changes requested`, tone: 'destructive' },
-  draft_approved: { label: t`Approved`, tone: 'success' },
-  link_submitted: { label: t`Link submitted`, tone: 'neutral' },
-  link_approved: { label: t`Link approved`, tone: 'success' },
-  // Product flow currently reaches completed only after brand link approval.
-  completed: { label: t`Link approved`, tone: 'success' },
-}
-
 const nonUploadableStatuses: ReadonlySet<DeliverableDTO['status']> = new Set([
   'draft_approved',
   'link_submitted',
   'link_approved',
   'completed',
+  'paid',
 ])
 
 export interface DeliverableListItemProps {
   deliverable: DeliverableDTO
   stageStatus?: StageStatus
   sessionKind: 'brand' | 'creator'
+  viewerRole?: MarkAsPaidViewer['role']
   onUploadDraft: (deliverableId: string) => void
+  onMarkAsPaid?: (deliverableId: string) => void
   onSubmitLink?: (deliverableId: string, isResubmission: boolean) => void
 }
 
@@ -62,11 +54,12 @@ export function DeliverableListItem({
   deliverable,
   stageStatus,
   sessionKind,
+  viewerRole,
   onUploadDraft,
+  onMarkAsPaid,
   onSubmitLink,
 }: DeliverableListItemProps) {
   const PlatformIcon = platformIcon[deliverable.platform] ?? Film
-  const badge = statusMeta[deliverable.status]
   const isLocked = stageStatus === 'locked'
   const isNonUploadable = nonUploadableStatuses.has(deliverable.status)
 
@@ -118,6 +111,15 @@ export function DeliverableListItem({
     onUploadDraft(deliverable.id)
   }
 
+  const canMarkAsPaid = canMarkDeliverableAsPaid({
+    viewer: { kind: sessionKind, role: viewerRole },
+    deliverableStatus: deliverable.status,
+  })
+
+  const handleMarkAsPaidClick = () => {
+    onMarkAsPaid?.(deliverable.id)
+  }
+
   const handleSubmitLinkClick = () => {
     onSubmitLink?.(deliverable.id, isLinkResubmission)
   }
@@ -136,7 +138,10 @@ export function DeliverableListItem({
             <span className="truncate text-sm font-medium text-foreground">
               {deliverable.format}
             </span>
-            <StatusBadge label={badge.label} tone={badge.tone} />
+            <DeliverableStatusBadge
+              status={deliverable.status}
+              className="text-[10px]"
+            />
             {deliverable.change_requests_count > 0 && (
               <Badge variant="secondary" className="rounded-full text-[10px]">
                 {deliverable.change_requests_count} {t`rounds`}
@@ -201,6 +206,14 @@ export function DeliverableListItem({
         >
           <LinkIcon className="size-3.5" />
           {submitLinkLabel}
+        </button>
+      ) : canMarkAsPaid ? (
+        <button
+          type="button"
+          onClick={handleMarkAsPaidClick}
+          className="mt-2.5 flex w-full items-center justify-center rounded-full border border-border bg-background py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          {t`Mark as paid`}
         </button>
       ) : null}
     </div>

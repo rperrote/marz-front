@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 import type { OfferStatus, OfferSpeedBonus } from '#/features/offers/types'
+import type { DeliverableStatus } from '#/features/deliverables/types'
 
 export { getConversationOffersQueryKey }
 
@@ -20,6 +21,7 @@ export interface ConversationOfferDeliverableDTO {
   format: string
   quantity: number
   amount: string
+  status?: DeliverableStatus
 }
 
 export interface ConversationOfferBaseDTO {
@@ -51,6 +53,7 @@ export interface ConversationOfferBundleDTO extends ConversationOfferBaseDTO {
 
 export interface ConversationOfferMultiStageDTO extends ConversationOfferBaseDTO {
   type: 'multistage'
+  deliverables: ConversationOfferDeliverableDTO[]
   stages: OfferStageDTO[]
 }
 

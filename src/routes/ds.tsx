@@ -87,9 +87,9 @@ import {
 } from '#/features/offers/components/SendOfferSidesheetPreview'
 import { StageEditor } from '#/features/offers/components/StageEditor'
 import { SummaryTotalRow } from '#/features/offers/components/SummaryTotalRow'
-import { PaymentCard } from '#/features/payments/components/PaymentCard'
 import { DarkTooltip } from '#/shared/ui/DarkTooltip'
 import { IconButton } from '#/shared/ui/IconButton'
+import { PaymentCard } from '#/shared/ui/PaymentCard'
 import {
   MobileActionBar,
   MobileBottomTabBar,

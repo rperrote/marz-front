@@ -7,8 +7,7 @@ import type {
   MessageListResponse,
 } from '#/shared/api/generated/model'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
-
-import { toMessagePayload } from './utils/messagePayload'
+import { toMessagePayload } from '#/features/chat/utils/messagePayload'
 import type {
   ConversationDetailResponse,
   MessageItem,

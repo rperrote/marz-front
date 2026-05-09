@@ -655,4 +655,27 @@ describe('DeliverableListPanel', () => {
     })
     expect(button).toBeEnabled()
   })
+
+  it('calls onMarkAsPaid with the selected deliverable', async () => {
+    mockUseGetConversationDeliverablesQuery.mockReturnValue({
+      data: makeResponse({
+        offer_type: 'single',
+        deliverables: [
+          makeDeliverable({
+            id: 'del-paid-target',
+            status: 'completed',
+          }),
+        ],
+      }),
+      isLoading: false,
+    })
+
+    const onMarkAsPaid = vi.fn()
+    renderPanel({ sessionKind: 'brand', viewerRole: 'owner', onMarkAsPaid })
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: /mark as paid/i }))
+
+    expect(onMarkAsPaid).toHaveBeenCalledWith('del-paid-target')
+  })
 })

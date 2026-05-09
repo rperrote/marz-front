@@ -74,6 +74,7 @@ export const Route = createFileRoute('/workspace')({
     return {
       accountId: me.id,
       sessionKind,
+      viewerRole: sessionKind === 'brand' ? me.membership?.role : undefined,
     }
   },
   component: WorkspaceRoute,
