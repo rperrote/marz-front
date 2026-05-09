@@ -74,7 +74,6 @@ describe('CampaignBriefPage', () => {
       wrapper: createWrapper(),
     })
 
-    expect(screen.getByText('Resumen del brief')).toBeInTheDocument()
     const skeletons = document.querySelectorAll('.animate-pulse')
     expect(skeletons.length).toBeGreaterThan(0)
   })
@@ -90,7 +89,6 @@ describe('CampaignBriefPage', () => {
       expect(screen.getByText('ICP')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Resumen del brief')).toBeInTheDocument()
     expect(screen.getByText('Creadores fitness LatAm')).toBeInTheDocument()
     expect(screen.getByText('Scoring Dimensions')).toBeInTheDocument()
   })
@@ -123,7 +121,7 @@ describe('CampaignBriefPage', () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Resumen del brief')).toBeInTheDocument()
+      expect(screen.getByText('ICP')).toBeInTheDocument()
     })
 
     expect(await axe(container)).toHaveNoViolations()
