@@ -1,29 +1,34 @@
-import { t } from '@lingui/core/macro'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
+import { CampaignBoardPage } from '#/features/discovery/campaign-board/CampaignBoardPage'
 import { CampaignBoardSearchSchema } from '#/features/discovery/campaign-board/search-schema'
 import type { CampaignBoardSearch } from '#/features/discovery/campaign-board/search-schema'
-import type { CreatorCampaignBoardResponse } from '#/shared/api/generated/model'
 
 export const Route = createFileRoute('/_creator/campaigns')({
   validateSearch: (search) => CampaignBoardSearchSchema.parse(search),
-  component: CreatorCampaignsPlaceholder,
+  component: CreatorCampaignsRoute,
 })
 
-function CreatorCampaignsPlaceholder() {
+function CreatorCampaignsRoute() {
   const search: CampaignBoardSearch = Route.useSearch()
-  const cards: CreatorCampaignBoardResponse['data'] = []
+  const navigate = useNavigate({ from: '/campaigns' })
+
+  function handleRecommendedOnlyChange(recommendedOnly: boolean) {
+    void navigate({
+      to: '.',
+      unsafeRelative: 'path',
+      search: (prev) => ({
+        ...prev,
+        recommended_only: recommendedOnly,
+      }),
+      replace: true,
+    })
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold">{t`Campañas`}</h1>
-      <p className="text-muted-foreground mt-2">
-        {t`El tablero de campañas está listo para conectarse al contrato generado.`}
-      </p>
-      <p className="text-muted-foreground mt-4 text-sm">
-        {t`Orden actual`}: {search.sort}. {t`Campañas cargadas`}: {cards.length}
-        .
-      </p>
-    </div>
+    <CampaignBoardPage
+      search={search}
+      onRecommendedOnlyChange={handleRecommendedOnlyChange}
+    />
   )
 }
