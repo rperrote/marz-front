@@ -11,8 +11,9 @@ import type {
   CreatorPlatformListItem,
 } from '#/shared/api/generated/model'
 
+import { formatPlatform, initials } from '#/shared/utils/format'
+
 import { useContactMatch } from './mutations'
-import { initials } from './utils'
 
 interface MatchCardProps {
   campaignId: string
@@ -148,7 +149,11 @@ export function MatchCard({ campaignId, match }: MatchCardProps) {
             }
             disabled={!match.can_contact || isContacting}
           >
-            <Mail className="size-3.5" aria-hidden />
+            {isContacting ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            ) : (
+              <Mail className="size-3.5" aria-hidden />
+            )}
             {t`Contact`}
           </Button>
         </div>
@@ -180,16 +185,4 @@ function formatFollowers(value: number | null) {
     notation: 'compact',
     maximumFractionDigits: 1,
   }).format(value)
-}
-
-function formatPlatform(platform: string) {
-  const platformLabels: Record<string, string> = {
-    instagram: 'Instagram',
-    tiktok: 'TikTok',
-    youtube: 'YouTube',
-    twitch: 'Twitch',
-    x: 'X',
-  }
-
-  return platformLabels[platform] ?? platform
 }

@@ -3,19 +3,21 @@ import { BarChart3, Compass, LayoutGrid, Users, Video } from 'lucide-react'
 
 import { CampaignWorkspaceTabs } from '#/features/campaigns/components/CampaignWorkspaceTabs'
 
-export const campaignDetailTabs = [
-  { id: 'overview', label: t`Overview`, icon: LayoutGrid },
-  { id: 'discovery', label: t`Discovery`, icon: Compass },
-  { id: 'creators', label: t`Creators`, icon: Users },
-  { id: 'videos', label: t`Videos`, icon: Video },
-  {
-    id: 'analytics',
-    label: t`Analytics`,
-    icon: BarChart3,
-    disabled: true,
-    tooltip: t`Analytics todavía no está disponible para esta campaña.`,
-  },
-] as const
+export function getCampaignDetailTabs() {
+  return [
+    { id: 'overview', label: t`Overview`, icon: LayoutGrid },
+    { id: 'discovery', label: t`Discovery`, icon: Compass },
+    { id: 'creators', label: t`Creators`, icon: Users },
+    { id: 'videos', label: t`Videos`, icon: Video },
+    {
+      id: 'analytics',
+      label: t`Analytics`,
+      icon: BarChart3,
+      disabled: true,
+      tooltip: t`Analytics todavía no está disponible para esta campaña.`,
+    },
+  ] as const
+}
 
 export type CampaignDetailTabId =
   | 'overview'
@@ -39,7 +41,7 @@ export function CampaignDetailTabs({
       className="overflow-x-auto bg-background px-5 md:px-8"
     >
       <CampaignWorkspaceTabs
-        tabs={[...campaignDetailTabs]}
+        tabs={[...getCampaignDetailTabs()]}
         activeId={activeTab}
         onSelect={(tab) => {
           if (!isCampaignDetailNavigableTab(tab)) return

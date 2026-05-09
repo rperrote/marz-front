@@ -33,9 +33,14 @@ export function useCreateCampaignInvite(campaignId: string) {
     onSuccess: async () => {
       idempotency.reset()
       toast.success(t`Invitación enviada`)
-      await queryClient.invalidateQueries({
-        queryKey: ['campaign', campaignId, 'participants'],
-      })
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['campaign', campaignId, 'participants'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['campaign', campaignId, 'discovery'],
+        }),
+      ])
     },
     onError: handleInviteError,
   })
@@ -72,19 +77,21 @@ function handleInviteError(error: unknown) {
     return
   }
 
-  if (
-    error.status === 409 &&
-    error.code === 'plan_does_not_allow_in_platform_invite'
-  ) {
-    toast.error(
-      t`Tu plan no permite invitaciones in-platform. Usá email o actualizá el plan.`,
-    )
-    return
-  }
-
-  if (error.status === 409 && error.code === 'invite_duplicate') {
-    toast.info(t`La invitación ya fue enviada.`)
-    return
+  if (error.status === 409) {
+    if (error.code === 'plan_does_not_allow_in_platform_invite') {
+      toast.error(
+        t`Tu plan no permite invitaciones in-platform. Usá email o actualizá el plan.`,
+      )
+      return
+    }
+    if (error.code === 'invite_duplicate') {
+      toast.info(t`La invitación ya fue enviada.`)
+      return
+    }
+    if (error.code === 'campaign_not_discoverable') {
+      toast.error(t`Esta campaña no está disponible para Discovery.`)
+      return
+    }
   }
 
   toast.error(t`Algo salió mal. Intentá de nuevo.`)

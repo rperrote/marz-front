@@ -26,11 +26,14 @@ interface CampaignDetailHeaderProps {
   detail: CampaignDetailResponse
 }
 
-const statusLabels: Record<string, string> = {
-  draft: t`Borrador`,
-  active: t`Activa`,
-  paused: t`Pausada`,
-  completed: t`Completada`,
+function getStatusLabel(status: string) {
+  const labels: Record<string, () => string> = {
+    draft: () => t`Borrador`,
+    active: () => t`Activa`,
+    paused: () => t`Pausada`,
+    completed: () => t`Completada`,
+  }
+  return labels[status]?.() ?? status
 }
 
 export function CampaignDetailHeader({ detail }: CampaignDetailHeaderProps) {
@@ -62,7 +65,7 @@ export function CampaignDetailHeader({ detail }: CampaignDetailHeaderProps) {
               </h1>
               <Badge className="rounded-full bg-success px-2.5 py-1 text-success-foreground">
                 <CheckCircle2 className="size-3" aria-hidden="true" />
-                {statusLabels[detail.status] ?? detail.status}
+                {getStatusLabel(detail.status)}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">

@@ -94,6 +94,13 @@ export function CreatorsTab({
     })
   }, [navigate])
 
+  const handleInviteCreatorReady = useCallback(
+    (openInviteCreator: (() => void) | null) => {
+      openInviteCreatorRef.current = openInviteCreator
+    },
+    [],
+  )
+
   const activeFilters = hasActiveFilters(filters)
 
   return (
@@ -130,9 +137,7 @@ export function CreatorsTab({
         hasActiveFilters={activeFilters}
         onClearFilters={clearFilters}
         onFindCreators={findCreators}
-        onInviteCreatorReady={(openInviteCreator) => {
-          openInviteCreatorRef.current = openInviteCreator
-        }}
+        onInviteCreatorReady={handleInviteCreatorReady}
       />
     </section>
   )

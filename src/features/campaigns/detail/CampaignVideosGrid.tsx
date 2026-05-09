@@ -27,6 +27,7 @@ import type {
   DeliverableStatus,
 } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
+import { formatRelativeTime, initials } from '#/shared/utils/format'
 
 import type { CampaignVideosParams } from './videos/useCampaignVideosQuery'
 import { useCampaignVideosQuery } from './videos/useCampaignVideosQuery'
@@ -45,15 +46,18 @@ interface CampaignVideosGridProps {
   onInviteCreators: () => void
 }
 
-const statusLabels: Record<DeliverableStatus, string> = {
-  pending: t`Pending`,
-  draft_submitted: t`In review`,
-  changes_requested: t`Changes requested`,
-  draft_approved: t`Approved draft`,
-  link_submitted: t`Link submitted`,
-  link_approved: t`Link approved`,
-  completed: t`Completed`,
-  paid: t`Paid`,
+function getVideoStatusLabel(status: DeliverableStatus) {
+  const labels: Record<DeliverableStatus, () => string> = {
+    pending: () => t`Pending`,
+    draft_submitted: () => t`In review`,
+    changes_requested: () => t`Changes requested`,
+    draft_approved: () => t`Approved draft`,
+    link_submitted: () => t`Link submitted`,
+    link_approved: () => t`Link approved`,
+    completed: () => t`Completed`,
+    paid: () => t`Paid`,
+  }
+  return labels[status]()
 }
 
 const statusClassNames: Record<DeliverableStatus, string> = {
@@ -225,7 +229,10 @@ function CampaignScopedVideosGrid({
 function VideoCard({ video }: { video: CampaignVideoCard }) {
   const meta = platformMeta[video.platform]
   const PlatformIcon = meta.icon
-  const submittedAt = formatRelativeTime(video.submitted_at ?? video.updated_at)
+  const submittedAt = formatRelativeTime(
+    video.submitted_at ?? video.updated_at,
+    t`Pending`,
+  )
 
   return (
     <Link
@@ -294,7 +301,7 @@ function VideoCard({ video }: { video: CampaignVideoCard }) {
 function StatusBadge({ status }: { status: DeliverableStatus }) {
   return (
     <Badge className={cn('rounded-full px-2 py-0.5', statusClassNames[status])}>
-      {statusLabels[status]}
+      {getVideoStatusLabel(status)}
     </Badge>
   )
 }
@@ -384,33 +391,4 @@ function formatDuration(durationSec: number) {
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
-}
-
-function formatRelativeTime(value: string | null) {
-  if (!value) return t`Pending`
-
-  const timestamp = new Date(value).getTime()
-  if (Number.isNaN(timestamp)) return t`Pending`
-
-  const diffSeconds = Math.round((timestamp - Date.now()) / 1000)
-  const absSeconds = Math.abs(diffSeconds)
-  const formatter = new Intl.RelativeTimeFormat('es-AR', { numeric: 'auto' })
-
-  if (absSeconds < 60) return formatter.format(diffSeconds, 'second')
-  const diffMinutes = Math.round(diffSeconds / 60)
-  if (Math.abs(diffMinutes) < 60) return formatter.format(diffMinutes, 'minute')
-  const diffHours = Math.round(diffMinutes / 60)
-  if (Math.abs(diffHours) < 24) return formatter.format(diffHours, 'hour')
-  const diffDays = Math.round(diffHours / 24)
-  if (Math.abs(diffDays) < 30) return formatter.format(diffDays, 'day')
-  const diffMonths = Math.round(diffDays / 30)
-  if (Math.abs(diffMonths) < 12) return formatter.format(diffMonths, 'month')
-  return formatter.format(Math.round(diffMonths / 12), 'year')
-}
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  const first = parts[0]?.charAt(0) ?? '?'
-  const second = parts[1]?.charAt(0) ?? ''
-  return `${first}${second}`.toUpperCase()
 }

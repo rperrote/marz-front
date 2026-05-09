@@ -26,7 +26,10 @@ import { OverviewTab } from './OverviewTab'
 import { CreatorsTab } from './creators/CreatorsTab'
 import { useCampaignDetailQuery } from './useCampaignDetailQuery'
 import { VideosTab } from './videos/VideosTab'
-import { isCampaignVideoStatus } from './videos/VideosFilters'
+import {
+  isCampaignVideoPlatform,
+  isCampaignVideoStatus,
+} from './videos/VideosFilters'
 import {
   trackCampaignDetailTabChanged,
   trackCampaignDetailViewed,
@@ -229,7 +232,10 @@ function CampaignDetailBody({
           search.status && isCampaignVideoStatus(search.status)
             ? search.status
             : undefined,
-        platform: search.platform,
+        platform:
+          search.platform && isCampaignVideoPlatform(search.platform)
+            ? search.platform
+            : undefined,
         creator_account_id: search.creator_account_id,
       }}
     />

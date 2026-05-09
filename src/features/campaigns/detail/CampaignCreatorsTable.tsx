@@ -29,6 +29,7 @@ import type {
   ListCampaignParticipantsStatus,
 } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
+import { formatRelativeTime, initials } from '#/shared/utils/format'
 
 import { InviteCreatorDialog } from './creators/InviteCreatorDialog'
 import { useCampaignParticipantsQuery } from './creators/useCampaignParticipantsQuery'
@@ -48,12 +49,15 @@ interface CampaignCreatorsTableProps {
   onInviteCreatorReady?: (openInviteCreator: (() => void) | null) => void
 }
 
-const statusLabels: Record<ListCampaignParticipantsStatus, string> = {
-  invited: t`Invited`,
-  active: t`Active`,
-  in_review: t`In review`,
-  approved: t`Approved`,
-  paid: t`Paid`,
+function getStatusLabel(status: ListCampaignParticipantsStatus) {
+  const labels: Record<ListCampaignParticipantsStatus, () => string> = {
+    invited: () => t`Invited`,
+    active: () => t`Active`,
+    in_review: () => t`In review`,
+    approved: () => t`Approved`,
+    paid: () => t`Paid`,
+  }
+  return labels[status]()
 }
 
 const statusClassNames: Record<ListCampaignParticipantsStatus, string> = {
@@ -324,7 +328,7 @@ function CreatorRow({
       <StatusBadge status={participant.status} />
       <DeliverablesCell deliverables={participant.net_deliverables} />
       <span className="text-xs text-muted-foreground">
-        {formatLastActivity(participant.last_activity_at)}
+        {formatRelativeTime(participant.last_activity_at, t`Pending response`)}
       </span>
       <div className="flex justify-end gap-1">
         {participant.actions.open_workspace ? (
@@ -430,7 +434,7 @@ function StatusBadge({ status }: { status: string }) {
   if (isParticipantStatus(status)) {
     return (
       <Badge className={cn('rounded-full', statusClassNames[status])}>
-        {statusLabels[status]}
+        {getStatusLabel(status)}
       </Badge>
     )
   }
@@ -562,40 +566,11 @@ function getPrimaryPlatform(participant: CampaignParticipantListItem) {
 function isParticipantStatus(
   status: string,
 ): status is ListCampaignParticipantsStatus {
-  return Object.hasOwn(statusLabels, status)
+  return Object.hasOwn(statusClassNames, status)
 }
 
 function isParticipantPlatform(
   platform: string,
 ): platform is ListCampaignParticipantsPlatform {
   return Object.hasOwn(platformMeta, platform)
-}
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  const first = parts[0]?.charAt(0) ?? '?'
-  const second = parts[1]?.charAt(0) ?? ''
-  return `${first}${second}`.toUpperCase()
-}
-
-function formatLastActivity(value: string | null) {
-  if (!value) return t`Pending response`
-
-  const timestamp = new Date(value).getTime()
-  if (Number.isNaN(timestamp)) return t`Pending response`
-
-  const diffSeconds = Math.round((timestamp - Date.now()) / 1000)
-  const absSeconds = Math.abs(diffSeconds)
-  const formatter = new Intl.RelativeTimeFormat('es-AR', { numeric: 'auto' })
-
-  if (absSeconds < 60) return formatter.format(diffSeconds, 'second')
-  const diffMinutes = Math.round(diffSeconds / 60)
-  if (Math.abs(diffMinutes) < 60) return formatter.format(diffMinutes, 'minute')
-  const diffHours = Math.round(diffMinutes / 60)
-  if (Math.abs(diffHours) < 24) return formatter.format(diffHours, 'hour')
-  const diffDays = Math.round(diffHours / 24)
-  if (Math.abs(diffDays) < 30) return formatter.format(diffDays, 'day')
-  const diffMonths = Math.round(diffDays / 30)
-  if (Math.abs(diffMonths) < 12) return formatter.format(diffMonths, 'month')
-  return formatter.format(Math.round(diffMonths / 12), 'year')
 }

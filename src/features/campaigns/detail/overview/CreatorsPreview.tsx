@@ -6,19 +6,23 @@ import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import type { CampaignCreatorPreview } from '#/shared/api/generated/model'
+import { formatPlatform, initials } from '#/shared/utils/format'
 
 interface CreatorsPreviewProps {
   campaignId: string
   creators: CampaignCreatorPreview[]
 }
 
-const statusLabels: Record<string, string> = {
-  accepted: t`Aceptado`,
-  active: t`Activo`,
-  invited: t`Invitado`,
-  applied: t`Aplicó`,
-  rejected: t`Rechazado`,
-  completed: t`Completado`,
+function getStatusLabel(status: string) {
+  const labels: Record<string, () => string> = {
+    accepted: () => t`Aceptado`,
+    active: () => t`Activo`,
+    invited: () => t`Invitado`,
+    applied: () => t`Aplicó`,
+    rejected: () => t`Rechazado`,
+    completed: () => t`Completado`,
+  }
+  return labels[status]?.() ?? status
 }
 
 export function CreatorsPreview({
@@ -88,9 +92,7 @@ function CreatorRow({ preview }: { preview: CampaignCreatorPreview }) {
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <span className="text-xs text-muted-foreground">{deliverables}</span>
-        <Badge variant="outline">
-          {statusLabels[preview.status] ?? preview.status}
-        </Badge>
+        <Badge variant="outline">{getStatusLabel(preview.status)}</Badge>
       </div>
     </article>
   )
@@ -118,23 +120,4 @@ function EmptyCreators({ campaignId }: { campaignId: string }) {
       </Button>
     </div>
   )
-}
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  const first = parts[0]?.charAt(0) ?? '?'
-  const second = parts[1]?.charAt(0) ?? ''
-  return `${first}${second}`.toUpperCase()
-}
-
-function formatPlatform(platform: string) {
-  const platformLabels: Record<string, string> = {
-    instagram: 'Instagram',
-    tiktok: 'TikTok',
-    youtube: 'YouTube',
-    twitch: 'Twitch',
-    x: 'X',
-  }
-
-  return platformLabels[platform] ?? platform
 }

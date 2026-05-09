@@ -5,17 +5,22 @@ import type { LucideIcon } from 'lucide-react'
 import { Badge } from '#/components/ui/badge'
 import type { CampaignOverviewResponse } from '#/shared/api/generated/model'
 
+import { formatPlatform } from '#/shared/utils/format'
+
 import { campaignOverviewFormatters } from './StatsBlock'
 
 interface DetailsBlockProps {
   overview: CampaignOverviewResponse
 }
 
-const statusLabels: Record<string, string> = {
-  draft: t`Borrador`,
-  active: t`Activa`,
-  paused: t`Pausada`,
-  completed: t`Completada`,
+function getStatusLabel(status: string) {
+  const labels: Record<string, () => string> = {
+    draft: () => t`Borrador`,
+    active: () => t`Activa`,
+    paused: () => t`Pausada`,
+    completed: () => t`Completada`,
+  }
+  return labels[status]?.() ?? status
 }
 
 export function DetailsBlock({ overview }: DetailsBlockProps) {
@@ -36,7 +41,7 @@ export function DetailsBlock({ overview }: DetailsBlockProps) {
           </h2>
         </div>
         <Badge variant="outline" className="px-2.5 py-1">
-          {statusLabels[campaign.status] ?? campaign.status}
+          {getStatusLabel(campaign.status)}
         </Badge>
       </div>
 
@@ -127,16 +132,4 @@ function formatDeadline(deadline: string | null) {
 function formatList(items: string[]) {
   if (items.length === 0) return t`Sin plataformas`
   return items.map(formatPlatform).join(', ')
-}
-
-function formatPlatform(platform: string) {
-  const platformLabels: Record<string, string> = {
-    instagram: 'Instagram',
-    tiktok: 'TikTok',
-    youtube: 'YouTube',
-    twitch: 'Twitch',
-    x: 'X',
-  }
-
-  return platformLabels[platform] ?? platform
 }

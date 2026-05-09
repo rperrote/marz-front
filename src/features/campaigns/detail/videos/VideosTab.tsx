@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro'
 import { useNavigate } from '@tanstack/react-router'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { CampaignVideosGrid } from '../CampaignVideosGrid'
 import { useCampaignParticipantsQuery } from '../creators/useCampaignParticipantsQuery'
@@ -19,6 +19,20 @@ const CREATOR_FILTER_LIMIT = 50
 export function VideosTab({ campaignId, search }: VideosTabProps) {
   const navigate = useNavigate({ from: '/campaigns/$campaignId' })
   const [cursor, setCursor] = useState<string | undefined>(undefined)
+
+  const prevFiltersRef = useRef(search)
+  useEffect(() => {
+    const prev = prevFiltersRef.current
+    if (
+      prev.search !== search.search ||
+      prev.status !== search.status ||
+      prev.platform !== search.platform ||
+      prev.creator_account_id !== search.creator_account_id
+    ) {
+      setCursor(undefined)
+    }
+    prevFiltersRef.current = search
+  }, [search])
 
   const filters = useMemo(
     () => ({

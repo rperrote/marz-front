@@ -34,19 +34,21 @@ interface VideosFiltersProps {
 const ALL_PLATFORMS = 'all'
 const ALL_CREATORS = 'all'
 
-const statusOptions: ReadonlyArray<{
+function getStatusOptions(): ReadonlyArray<{
   value: DeliverableStatus
   label: string
-}> = [
-  { value: 'pending', label: t`Pending` },
-  { value: 'draft_submitted', label: t`In review` },
-  { value: 'changes_requested', label: t`Changes requested` },
-  { value: 'draft_approved', label: t`Approved draft` },
-  { value: 'link_submitted', label: t`Link submitted` },
-  { value: 'link_approved', label: t`Link approved` },
-  { value: 'completed', label: t`Completed` },
-  { value: 'paid', label: t`Paid` },
-]
+}> {
+  return [
+    { value: 'pending', label: t`Pending` },
+    { value: 'draft_submitted', label: t`In review` },
+    { value: 'changes_requested', label: t`Changes requested` },
+    { value: 'draft_approved', label: t`Approved draft` },
+    { value: 'link_submitted', label: t`Link submitted` },
+    { value: 'link_approved', label: t`Link approved` },
+    { value: 'completed', label: t`Completed` },
+    { value: 'paid', label: t`Paid` },
+  ]
+}
 
 const platformOptions: ReadonlyArray<{
   value: GetCampaignVideosPlatform
@@ -86,7 +88,7 @@ export function VideosFilters({
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex flex-wrap items-center gap-2">
-        {statusOptions.map((option) => {
+        {getStatusOptions().map((option) => {
           const active = params.status === option.value
           return (
             <button
@@ -220,7 +222,7 @@ export function isCampaignVideoPlatform(
 export function isCampaignVideoStatus(
   value: string,
 ): value is DeliverableStatus {
-  return statusOptions.some((option) => option.value === value)
+  return getStatusOptions().some((option) => option.value === value)
 }
 
 function isPlatform(value: string): value is GetCampaignVideosPlatform {
