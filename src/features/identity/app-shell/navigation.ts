@@ -36,6 +36,12 @@ export const shellNavigationConfig: ShellNavigationConfig = {
       href: '/inbox',
     },
     {
+      id: 'payments',
+      label: 'Payments & Spending',
+      icon: 'wallet',
+      href: '/payments',
+    },
+    {
       id: 'campaigns',
       label: 'Campaigns',
       icon: 'megaphone',

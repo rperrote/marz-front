@@ -55,8 +55,18 @@ function renderShell({
     component: () => null,
   })
 
+  const paymentsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/payments',
+    component: () => null,
+  })
+
   const router = createRouter({
-    routeTree: rootRoute.addChildren([workspaceRoute, inboxRoute]),
+    routeTree: rootRoute.addChildren([
+      workspaceRoute,
+      inboxRoute,
+      paymentsRoute,
+    ]),
     history: createMemoryHistory({ initialEntries: [pathname] }),
   })
 

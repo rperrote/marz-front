@@ -27,6 +27,7 @@ import { Route as AuthKindRouteImport } from './routes/auth/kind'
 import { Route as AuthCheckEmailRouteImport } from './routes/auth/check-email'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CreatorOffersRouteImport } from './routes/_creator/offers'
+import { Route as BrandPaymentsRouteImport } from './routes/_brand/payments'
 import { Route as BrandCampaignsRouteImport } from './routes/_brand/campaigns'
 import { Route as OnboardingCreatorIndexRouteImport } from './routes/onboarding/creator.index'
 import { Route as OnboardingBrandIndexRouteImport } from './routes/onboarding/brand.index'
@@ -127,6 +128,11 @@ const CreatorOffersRoute = CreatorOffersRouteImport.update({
   path: '/offers',
   getParentRoute: () => CreatorRoute,
 } as any)
+const BrandPaymentsRoute = BrandPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => BrandRoute,
+} as any)
 const BrandCampaignsRoute = BrandCampaignsRouteImport.update({
   id: '/campaigns',
   path: '/campaigns',
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/campaigns': typeof BrandCampaignsRouteWithChildren
+  '/payments': typeof BrandPaymentsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
   '/inbox': typeof InboxRoute
+  '/payments': typeof BrandPaymentsRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/_brand/campaigns': typeof BrandCampaignsRouteWithChildren
+  '/_brand/payments': typeof BrandPaymentsRoute
   '/_creator/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -281,6 +290,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/workspace'
     | '/campaigns'
+    | '/payments'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/ds-onboarding'
     | '/health'
     | '/inbox'
+    | '/payments'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/workspace'
     | '/_brand/campaigns'
+    | '/_brand/payments'
     | '/_creator/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -504,6 +516,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatorOffersRouteImport
       parentRoute: typeof CreatorRoute
     }
+    '/_brand/payments': {
+      id: '/_brand/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof BrandPaymentsRouteImport
+      parentRoute: typeof BrandRoute
+    }
     '/_brand/campaigns': {
       id: '/_brand/campaigns'
       path: '/campaigns'
@@ -615,10 +634,12 @@ const BrandCampaignsRouteWithChildren = BrandCampaignsRoute._addFileChildren(
 
 interface BrandRouteChildren {
   BrandCampaignsRoute: typeof BrandCampaignsRouteWithChildren
+  BrandPaymentsRoute: typeof BrandPaymentsRoute
 }
 
 const BrandRouteChildren: BrandRouteChildren = {
   BrandCampaignsRoute: BrandCampaignsRouteWithChildren,
+  BrandPaymentsRoute: BrandPaymentsRoute,
 }
 
 const BrandRouteWithChildren = BrandRoute._addFileChildren(BrandRouteChildren)

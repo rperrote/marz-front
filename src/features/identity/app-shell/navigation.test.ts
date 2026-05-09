@@ -20,11 +20,16 @@ describe('shellNavigationConfig', () => {
       'home',
       'workspace',
       'inbox',
+      'payments',
       'campaigns',
       'creators',
       'analytics',
     ])
-    expect(enabledItemIds(brandItems)).toEqual(['workspace', 'inbox'])
+    expect(enabledItemIds(brandItems)).toEqual([
+      'workspace',
+      'inbox',
+      'payments',
+    ])
   })
 
   it('defines creator items in order with only workspace and inbox enabled', () => {
@@ -41,6 +46,19 @@ describe('shellNavigationConfig', () => {
     const workspace = brandItems.find((item) => item.id === 'workspace')
 
     expect(workspace?.icon).toBe('message-square')
+  })
+
+  it('defines payments only for brand navigation with wallet icon', () => {
+    const brandPayments = brandItems.find((item) => item.id === 'payments')
+    const creatorPayments = creatorItems.find((item) => item.id === 'payments')
+
+    expect(brandPayments).toEqual({
+      id: 'payments',
+      label: 'Payments & Spending',
+      icon: 'wallet',
+      href: '/payments',
+    })
+    expect(creatorPayments).toBeUndefined()
   })
 
   it('keeps disabled items non-navigable', () => {
@@ -65,6 +83,15 @@ describe('resolveActiveSidebarItem', () => {
 
   it('resolves inbox for /inbox', () => {
     expect(resolveActiveSidebarItem(brandItems, '/inbox')?.id).toBe('inbox')
+  })
+
+  it('resolves payments for /payments descendants', () => {
+    expect(resolveActiveSidebarItem(brandItems, '/payments')?.id).toBe(
+      'payments',
+    )
+    expect(resolveActiveSidebarItem(brandItems, '/payments/export')?.id).toBe(
+      'payments',
+    )
   })
 
   it('ignores disabled items when the path matches their future route', () => {

@@ -34,8 +34,18 @@ function renderSidebar(
     component: () => null,
   })
 
+  const paymentsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/payments',
+    component: () => null,
+  })
+
   const router = createRouter({
-    routeTree: rootRoute.addChildren([workspaceRoute, inboxRoute]),
+    routeTree: rootRoute.addChildren([
+      workspaceRoute,
+      inboxRoute,
+      paymentsRoute,
+    ]),
     history: createMemoryHistory({ initialEntries: [pathname] }),
   })
 
@@ -78,6 +88,24 @@ describe('AppSidebar', () => {
 
     expect(currentItems).toHaveLength(1)
     expect(currentItems[0]).toHaveAccessibleName('Workspace')
+  })
+
+  it('renders payments for brand only and marks it active by pathname', async () => {
+    const { unmount } = renderSidebar('/payments', 'brand')
+
+    const paymentsLink = await screen.findByRole('link', {
+      name: 'Payments & Spending',
+    })
+
+    expect(paymentsLink).toHaveAttribute('href', '/payments')
+    expect(paymentsLink).toHaveAttribute('aria-current', 'page')
+
+    unmount()
+    renderSidebar('/workspace', 'creator')
+
+    expect(
+      screen.queryByRole('link', { name: 'Payments & Spending' }),
+    ).not.toBeInTheDocument()
   })
 
   it('shows the enabled item label tooltip on hover and focus', async () => {
@@ -128,13 +156,14 @@ describe('AppSidebar', () => {
       'Home',
       'Workspace',
       'Inbox',
+      'Payments & Spending',
       'Campaigns',
       'Creators',
       'Analytics',
     ]) {
       expect(
         within(brandSidebar).getByRole(
-          /Workspace|Inbox/.test(name) ? 'link' : 'button',
+          /Workspace|Inbox|Payments & Spending/.test(name) ? 'link' : 'button',
           {
             name,
           },
@@ -157,6 +186,11 @@ describe('AppSidebar', () => {
     }
     expect(
       within(creatorSidebar).queryByRole('button', { name: 'Creators' }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(creatorSidebar).queryByRole('link', {
+        name: 'Payments & Spending',
+      }),
     ).not.toBeInTheDocument()
     expect(creatorSidebar).toHaveTextContent('')
   })

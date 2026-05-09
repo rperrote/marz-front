@@ -36,10 +36,27 @@ async function callBeforeLoad(
       beforeLoad: (opts: {
         context: { queryClient: ReturnType<typeof makeQueryClient> }
         location: { pathname: string }
-      }) => Promise<{ accountId: string; hasBrandWorkspace: boolean }>
+      }) => Promise<{
+        accountId: string
+        hasBrandWorkspace: boolean
+        brandWorkspaceRole?: 'owner' | 'admin' | 'member'
+      }>
     }
   ).beforeLoad
   return beforeLoad({ context: { queryClient }, location: { pathname } })
+}
+
+async function callPaymentsBeforeLoad(role?: 'owner' | 'admin' | 'member') {
+  const { Route } = await import('./_brand/payments')
+  const beforeLoad = (
+    Route.options as unknown as {
+      beforeLoad: (opts: {
+        context: { brandWorkspaceRole?: 'owner' | 'admin' | 'member' }
+      }) => void
+    }
+  ).beforeLoad
+
+  return beforeLoad({ context: { brandWorkspaceRole: role } })
 }
 
 describe('/_brand beforeLoad', () => {
@@ -100,6 +117,21 @@ describe('/_brand beforeLoad', () => {
     )
   })
 
+  it('uses the same creator fallback for /payments as other brand routes', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_creator_1',
+        kind: 'creator',
+        onboarding_status: 'onboarded',
+        redirect_to: null,
+      },
+    }
+    await expect(callBeforeLoad('/_brand/payments')).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
+  })
+
   it('redirects to /auth when kind is null', async () => {
     mockServerMeResult = {
       ok: true,
@@ -135,11 +167,13 @@ describe('/_brand beforeLoad', () => {
         onboarding_status: 'onboarded',
         redirect_to: null,
         brand_workspace: { id: 'ws_1' },
+        membership: { role: 'admin' },
       },
     }
     await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
       accountId: 'acct_brand_1',
       hasBrandWorkspace: true,
+      brandWorkspaceRole: 'admin',
     })
   })
 
@@ -152,11 +186,13 @@ describe('/_brand beforeLoad', () => {
         onboarding_status: 'onboarded',
         redirect_to: null,
         brand_workspace: null,
+        membership: { role: 'member' },
       },
     }
     await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
       accountId: 'acct_brand_1',
       hasBrandWorkspace: false,
+      brandWorkspaceRole: 'member',
     })
   })
 
@@ -170,6 +206,7 @@ describe('/_brand beforeLoad', () => {
         onboarding_status: 'onboarded',
         redirect_to: null,
         brand_workspace: { id: 'ws_cached' },
+        membership: { role: 'owner' },
       },
     })
     qc.getQueryState.mockReturnValue({ dataUpdatedAt: Date.now() })
@@ -177,6 +214,7 @@ describe('/_brand beforeLoad', () => {
     await expect(callBeforeLoad('/_brand/campaigns', qc)).resolves.toEqual({
       accountId: 'acct_brand_cached',
       hasBrandWorkspace: true,
+      brandWorkspaceRole: 'owner',
     })
   })
 
@@ -198,5 +236,44 @@ describe('/_brand beforeLoad', () => {
       expect.objectContaining({ status: 200 }),
       expect.any(Object),
     )
+  })
+})
+
+describe('/_brand/payments beforeLoad', () => {
+  it('allows brand admins through the route-specific guard', async () => {
+    await expect(callPaymentsBeforeLoad('admin')).resolves.toBeUndefined()
+  })
+
+  it('redirects non-admin brand roles to /workspace', async () => {
+    await expect(callPaymentsBeforeLoad('owner')).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
+    await expect(callPaymentsBeforeLoad('member')).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
+  })
+
+  it('defaults payments search period to 30d', async () => {
+    const { paymentsSearchSchema } = await import('./_brand/payments')
+
+    expect(paymentsSearchSchema.parse({})).toEqual({ period: '30d' })
+  })
+
+  it('accepts typed payments search params', async () => {
+    const { paymentsSearchSchema } = await import('./_brand/payments')
+
+    expect(
+      paymentsSearchSchema.parse({
+        period: '90d',
+        campaignId: 'campaign_1',
+        creatorId: 'creator_1',
+        q: 'invoice',
+      }),
+    ).toEqual({
+      period: '90d',
+      campaignId: 'campaign_1',
+      creatorId: 'creator_1',
+      q: 'invoice',
+    })
   })
 })

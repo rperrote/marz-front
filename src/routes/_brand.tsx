@@ -61,6 +61,7 @@ export const Route = createFileRoute('/_brand')({
     return {
       accountId: me.id,
       hasBrandWorkspace: Boolean(me.brand_workspace),
+      brandWorkspaceRole: me.membership?.role,
     }
   },
   component: BrandLayout,
