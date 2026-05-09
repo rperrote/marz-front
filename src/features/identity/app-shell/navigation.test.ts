@@ -18,23 +18,23 @@ describe('shellNavigationConfig', () => {
   it('defines brand items in order with only workspace and inbox enabled', () => {
     expect(itemIds(brandItems)).toEqual([
       'home',
-      'workspace',
       'inbox',
+      'workspace',
       'campaigns',
       'creators',
       'analytics',
     ])
-    expect(enabledItemIds(brandItems)).toEqual(['workspace', 'inbox'])
+    expect(enabledItemIds(brandItems)).toEqual(['inbox', 'workspace'])
   })
 
   it('defines creator items in order with only workspace and inbox enabled', () => {
     expect(itemIds(creatorItems)).toEqual([
       'home',
-      'workspace',
       'inbox',
+      'workspace',
       'analytics',
     ])
-    expect(enabledItemIds(creatorItems)).toEqual(['workspace', 'inbox'])
+    expect(enabledItemIds(creatorItems)).toEqual(['inbox', 'workspace'])
   })
 
   it('uses message-square for the workspace icon', () => {

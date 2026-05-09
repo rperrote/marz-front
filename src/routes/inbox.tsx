@@ -1,4 +1,3 @@
-import { t } from '@lingui/core/macro'
 import {
   createFileRoute,
   redirect,
@@ -6,6 +5,9 @@ import {
 } from '@tanstack/react-router'
 
 import { AppShell } from '#/features/identity/app-shell/AppShell'
+import { InboxPage } from '#/features/inbox/InboxPage'
+import { inboxSearchSchema } from '#/features/inbox/inboxSearchSchema'
+import { track } from '#/shared/analytics/track'
 import { getMeQueryKey } from '#/shared/api/generated/accounts/accounts'
 import type { meResponse } from '#/shared/api/generated/accounts/accounts'
 import { getServerMe } from '#/shared/auth/getServerMe'
@@ -14,7 +16,8 @@ import type { ServerMeBody } from '#/shared/auth/getServerMe'
 const STALE_TIME = 30_000
 
 export const Route = createFileRoute('/inbox')({
-  beforeLoad: async ({ context }) => {
+  validateSearch: (search) => inboxSearchSchema.parse(search),
+  beforeLoad: async ({ context, location }) => {
     const { queryClient } = context
 
     const cached = queryClient.getQueryData<meResponse>(getMeQueryKey())
@@ -40,6 +43,11 @@ export const Route = createFileRoute('/inbox')({
     }
 
     if (!me) {
+      track('onboarding_redirect_enforced', {
+        from: location.pathname,
+        to: '/auth',
+        reason: 'no_session',
+      })
       throw redirect({ to: '/auth' })
     }
 
@@ -48,7 +56,12 @@ export const Route = createFileRoute('/inbox')({
     }
 
     if (me.onboarding_status !== 'onboarded') {
-      const destination = me.redirect_to ?? `/onboarding/${me.kind}`
+      const destination = me.redirect_to ?? '/auth'
+      track('onboarding_redirect_enforced', {
+        from: location.pathname,
+        to: destination,
+        reason: 'onboarding_incomplete',
+      })
       throw redirect({ to: destination })
     }
 
@@ -63,6 +76,7 @@ export const Route = createFileRoute('/inbox')({
 })
 
 function InboxRoute() {
+  const search = Route.useSearch()
   const { accountId, sessionKind } = Route.useRouteContext()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -74,11 +88,7 @@ function InboxRoute() {
       accountId={accountId}
       pathname={pathname}
     >
-      <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-muted-foreground">
-          {t`Inbox estará disponible pronto.`}
-        </p>
-      </div>
+      <InboxPage campaignId={search.campaign_id} />
     </AppShell>
   )
 }

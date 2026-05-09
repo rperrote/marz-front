@@ -80,6 +80,14 @@ describe('AppSidebar', () => {
     expect(currentItems[0]).toHaveAccessibleName('Workspace')
   })
 
+  it('marks inbox as active on /inbox', async () => {
+    renderSidebar('/inbox')
+
+    const inboxLink = await screen.findByRole('link', { name: 'Inbox' })
+
+    expect(inboxLink).toHaveAttribute('aria-current', 'page')
+  })
+
   it('shows the enabled item label tooltip on hover and focus', async () => {
     const user = userEvent.setup()
     const { unmount } = renderSidebar('/workspace')
@@ -96,7 +104,7 @@ describe('AppSidebar', () => {
 
     await user.tab()
     await user.tab()
-    expect(await screen.findByRole('tooltip')).toHaveTextContent('Workspace')
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Inbox')
   })
 
   it('shows Próximamente for disabled item tooltips', async () => {

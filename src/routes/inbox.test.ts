@@ -4,6 +4,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 let mockServerMeResult: { ok: boolean; body: Record<string, unknown> | null } =
   { ok: false, body: null }
 
+vi.mock('#/shared/analytics/track', () => ({
+  track: vi.fn(),
+}))
+
 vi.mock('#/shared/auth/getServerMe', () => ({
   getServerMe: () => Promise.resolve(mockServerMeResult),
 }))
@@ -32,16 +36,38 @@ async function callBeforeLoad(queryClient = makeQueryClient()) {
     Route.options as unknown as {
       beforeLoad: (opts: {
         context: { queryClient: ReturnType<typeof makeQueryClient> }
+        location: { pathname: string }
       }) => Promise<{ accountId: string; sessionKind: 'brand' | 'creator' }>
     }
   ).beforeLoad
-  return beforeLoad({ context: { queryClient } })
+  return beforeLoad({
+    context: { queryClient },
+    location: { pathname: '/inbox' },
+  })
 }
 
 describe('/inbox route', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockServerMeResult = { ok: false, body: null }
+  })
+
+  it('validates search with inboxSearchSchema', async () => {
+    const { Route } = await import('./inbox')
+    const validateSearch = (
+      Route.options as unknown as {
+        validateSearch: (search: Record<string, unknown>) => unknown
+      }
+    ).validateSearch
+
+    expect(validateSearch({ campaign_id: 'not-a-uuid' })).toEqual({
+      campaign_id: undefined,
+    })
+    expect(
+      validateSearch({
+        campaign_id: '00000000-0000-0000-0000-000000000000',
+      }),
+    ).toEqual({ campaign_id: '00000000-0000-0000-0000-000000000000' })
   })
 
   it('redirects to /auth when not authenticated', async () => {
