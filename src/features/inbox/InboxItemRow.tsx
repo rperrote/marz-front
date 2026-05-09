@@ -1,7 +1,14 @@
+import { t } from '@lingui/core/macro'
+import { Loader2, Check } from 'lucide-react'
+import { toast } from 'sonner'
+
 import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
+import { Button } from '#/components/ui/button'
 import { cn } from '#/lib/utils'
+import { ApiError } from '#/shared/api/mutator'
 
 import type { InboxItem } from './api/inbox'
+import { useMarkInboxItemReadMutation } from './hooks/useMarkInboxItemReadMutation'
 
 interface InboxItemRowProps {
   item: InboxItem
@@ -11,6 +18,27 @@ export function InboxItemRow({ item }: InboxItemRowProps) {
   const counterpartName = item.counterpart?.display_name ?? item.meta.primary
   const avatarUrl = item.counterpart?.avatar_url
   const isWaiting = item.section === 'waiting'
+  const markRead = useMarkInboxItemReadMutation()
+
+  function handleMarkRead() {
+    markRead.mutate(
+      { item_id: item.id, read_reason: 'manual' },
+      {
+        onError: (error) => {
+          if (
+            error instanceof ApiError &&
+            error.status === 409 &&
+            error.code === 'inbox_item_not_actionable'
+          ) {
+            toast.info(t`Este item ya no requiere acción.`)
+            return
+          }
+
+          toast.error(t`No se pudo marcar como leído. Intentá de nuevo.`)
+        },
+      },
+    )
+  }
 
   return (
     <li>
@@ -65,7 +93,22 @@ export function InboxItemRow({ item }: InboxItemRowProps) {
           </p>
         </div>
 
-        <div className="hidden min-w-28 shrink-0 sm:block" aria-hidden />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleMarkRead}
+          disabled={markRead.isPending}
+          aria-label={t`Marcar item como leído`}
+          className="shrink-0 rounded-full"
+        >
+          {markRead.isPending ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Check className="size-4" aria-hidden />
+          )}
+          <span className="hidden sm:inline">{t`Mark read`}</span>
+        </Button>
       </article>
     </li>
   )

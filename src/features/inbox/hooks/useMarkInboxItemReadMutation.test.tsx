@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { markInboxItemRead as generatedMarkInboxItemRead } from '#/shared/api/generated/notifications/notifications'
+import { ApiError } from '#/shared/api/mutator'
 
 import { useMarkInboxItemReadMutation } from './useMarkInboxItemReadMutation'
 
@@ -58,6 +59,24 @@ describe('useMarkInboxItemReadMutation', () => {
         },
       },
     )
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['inbox'] })
+  })
+
+  it('invalidates inbox queries on conflict so stale rows refetch', async () => {
+    const queryClient = new QueryClient()
+    const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries')
+    vi.mocked(generatedMarkInboxItemRead).mockRejectedValue(
+      new ApiError(409, 'inbox_item_not_actionable', 'Not actionable'),
+    )
+
+    const { result } = renderHook(() => useMarkInboxItemReadMutation(), {
+      wrapper: createWrapper(queryClient),
+    })
+
+    result.current.mutate({ item_id: itemId, read_reason: 'manual' })
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['inbox'] })
   })
 })

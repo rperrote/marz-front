@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   createMemoryHistory,
   createRootRoute,
@@ -7,11 +8,14 @@ import {
   Outlet,
   RouterProvider,
 } from '@tanstack/react-router'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { InboxPage } from './InboxPage'
 import type { InboxItem, InboxResponse } from './api/inbox'
 import { useInboxQuery } from './hooks/useInboxQuery'
+import { useMarkInboxItemReadMutation } from './hooks/useMarkInboxItemReadMutation'
+import { useMarkInboxVisibleReadMutation } from './hooks/useMarkInboxVisibleReadMutation'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -25,10 +29,30 @@ vi.mock('./hooks/useInboxQuery', () => ({
   useInboxQuery: vi.fn(),
 }))
 
+vi.mock('./hooks/useMarkInboxItemReadMutation', () => ({
+  useMarkInboxItemReadMutation: vi.fn(),
+}))
+
+vi.mock('./hooks/useMarkInboxVisibleReadMutation', () => ({
+  useMarkInboxVisibleReadMutation: vi.fn(),
+}))
+
 const refetch = vi.fn()
+const markItemReadMutate = vi.fn()
+const markVisibleReadMutate = vi.fn()
+const campaignId = '018f2f3a-1f2b-7c8d-9e0f-123456789abc'
+const otherCampaignId = '018f2f3a-1f2b-7c8d-9e0f-abcdefabcdef'
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(useMarkInboxItemReadMutation).mockReturnValue({
+    mutate: markItemReadMutate,
+    isPending: false,
+  } as unknown as ReturnType<typeof useMarkInboxItemReadMutation>)
+  vi.mocked(useMarkInboxVisibleReadMutation).mockReturnValue({
+    mutate: markVisibleReadMutate,
+    isPending: false,
+  } as unknown as ReturnType<typeof useMarkInboxVisibleReadMutation>)
 })
 
 describe('InboxPage', () => {
@@ -151,6 +175,110 @@ describe('InboxPage', () => {
       screen.getByRole('button', { name: 'Reintentar' }),
     ).toBeInTheDocument()
   })
+
+  it('updates campaign_id search and refetches through the campaign query key', async () => {
+    const user = userEvent.setup()
+    mockInboxQuery({
+      data: makeInboxResponse({
+        campaign_filter_options: [
+          {
+            campaign_id: campaignId,
+            campaign_name: 'Campaign A',
+            pending_action_count: 1,
+            pending_waiting_count: 0,
+          },
+        ],
+      }),
+    })
+    const { router } = renderInboxPage()
+
+    await user.click(
+      await screen.findByRole('combobox', { name: 'Filtrar por campaña' }),
+    )
+    await user.click(await screen.findByRole('option', { name: 'Campaign A' }))
+
+    expect(router.state.location.search).toEqual({
+      campaign_id: campaignId,
+    })
+    expect(useInboxQuery).toHaveBeenLastCalledWith({ campaignId })
+  })
+
+  it('removes campaign_id search when All campaigns is selected', async () => {
+    const user = userEvent.setup()
+    mockInboxQuery({
+      data: makeInboxResponse({
+        campaign_id: campaignId,
+        campaign_filter_options: [
+          {
+            campaign_id: campaignId,
+            campaign_name: 'Campaign A',
+            pending_action_count: 1,
+            pending_waiting_count: 0,
+          },
+        ],
+      }),
+    })
+    const { router } = renderInboxPage(`/inbox?campaign_id=${campaignId}`)
+
+    await screen.findByRole('heading', { name: 'Inbox' })
+    expect(useInboxQuery).toHaveBeenLastCalledWith({ campaignId })
+
+    await user.click(
+      screen.getByRole('combobox', { name: 'Filtrar por campaña' }),
+    )
+    await user.click(screen.getByRole('option', { name: 'All campaigns' }))
+
+    expect(router.state.location.search).toEqual({})
+    expect(useInboxQuery).toHaveBeenLastCalledWith({ campaignId: undefined })
+  })
+
+  it('marks all as read with the current campaign id', async () => {
+    const user = userEvent.setup()
+    mockInboxQuery({
+      data: makeInboxResponse({
+        campaign_id: campaignId,
+        campaign_filter_options: [
+          {
+            campaign_id: campaignId,
+            campaign_name: 'Campaign A',
+            pending_action_count: 1,
+            pending_waiting_count: 0,
+          },
+          {
+            campaign_id: otherCampaignId,
+            campaign_name: 'Campaign B',
+            pending_action_count: 0,
+            pending_waiting_count: 2,
+          },
+        ],
+      }),
+    })
+    renderInboxPage(`/inbox?campaign_id=${campaignId}`)
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Mark all as read' }),
+    )
+
+    expect(markVisibleReadMutate).toHaveBeenCalledWith({
+      campaign_id: campaignId,
+      sections: undefined,
+    })
+  })
+
+  it('refresh invalidates inbox queries', async () => {
+    const user = userEvent.setup()
+    mockInboxQuery({
+      data: makeInboxResponse(),
+    })
+    const { queryClient } = renderInboxPage()
+    const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await user.click(
+      await screen.findByRole('button', { name: 'Refresh inbox' }),
+    )
+
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['inbox'] })
+  })
 })
 
 function mockInboxQuery({
@@ -170,14 +298,21 @@ function mockInboxQuery({
   } as unknown as ReturnType<typeof useInboxQuery>)
 }
 
-function renderInboxPage() {
+function renderInboxPage(initialEntry = '/inbox') {
   const rootRoute = createRootRoute({
     component: Outlet,
   })
   const inboxRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: '/',
-    component: InboxPage,
+    path: '/inbox',
+    validateSearch: (search: Record<string, unknown>) => ({
+      campaign_id:
+        typeof search.campaign_id === 'string' ? search.campaign_id : undefined,
+    }),
+    component: function TestInboxRoute() {
+      const search = inboxRoute.useSearch()
+      return <InboxPage campaignId={search.campaign_id} />
+    },
   })
   const discoveryRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -195,10 +330,21 @@ function renderInboxPage() {
       discoveryRoute,
       campaignsRoute,
     ]),
-    history: createMemoryHistory({ initialEntries: ['/'] }),
+    history: createMemoryHistory({ initialEntries: [initialEntry] }),
+  })
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
 
-  return render(<RouterProvider router={router} />)
+  return {
+    router,
+    queryClient,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    ),
+  }
 }
 
 function makeInboxResponse(

@@ -6,12 +6,16 @@ import type { InboxItem, InboxResponse } from './api/inbox'
 import { useInboxQuery } from './hooks/useInboxQuery'
 import { InboxEmptyState } from './InboxEmptyState'
 import { InboxSection } from './InboxSection'
+import { InboxToolbar } from './InboxToolbar'
 
-const campaignId = undefined
 const skeletonSections = [0, 1] as const
 const skeletonRows = [0, 1, 2] as const
 
-export function InboxPage() {
+interface InboxPageProps {
+  campaignId?: string
+}
+
+export function InboxPage({ campaignId }: InboxPageProps) {
   const inboxQuery = useInboxQuery({ campaignId })
 
   if (inboxQuery.isLoading) {
@@ -28,10 +32,16 @@ export function InboxPage() {
     return <InboxErrorState onRetry={() => void inboxQuery.refetch()} />
   }
 
-  return <InboxPageContent data={data} />
+  return <InboxPageContent data={data} campaignId={campaignId} />
 }
 
-function InboxPageContent({ data }: { data: InboxResponse }) {
+function InboxPageContent({
+  data,
+  campaignId,
+}: {
+  data: InboxResponse
+  campaignId?: string
+}) {
   const actionItems = sortByNewest(data.action_items)
   const waitingItems = sortByNewest(data.waiting_items)
   const isEmpty = data.counts.action === 0 && data.counts.waiting === 0
@@ -44,6 +54,11 @@ function InboxPageContent({ data }: { data: InboxResponse }) {
           <h1 className="text-3xl font-semibold text-foreground">{t`Inbox`}</h1>
           <p className="text-sm text-muted-foreground">{copy.description}</p>
         </header>
+        <InboxToolbar
+          campaignId={campaignId}
+          campaignFilterOptions={data.campaign_filter_options}
+          counts={data.counts}
+        />
 
         {isEmpty ? (
           <InboxEmptyState emptyState={data.empty_state} />

@@ -16,7 +16,7 @@ export function useMarkInboxVisibleReadMutation() {
   >({
     mutationFn: markInboxVisibleRead,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: inboxQueryKey })
+      return queryClient.invalidateQueries({ queryKey: inboxQueryKey })
     },
   })
 }

@@ -40,9 +40,8 @@ Agregar `InboxToolbar` con tres controles: filtro de campaign (lista de `campaig
 - [ ] Unit test: cambiar filtro → query key cambia; mark-all calls mutation con campaign actual.
 
 ## Done summary
-
-_(filled on completion)_
-
+InboxToolbar implementado correctamente con filtro, refresh e invalidación por prefix matching, mark-all con disabled state y Idempotency-Key en ambas mutations; mark-read individual con toast diferenciado 409 vs otros errores y hook que invalida en onError; tests cubren los acceptance criteria explícitos; typecheck, lint y suite pasan sin errores
 ## Evidence
-
-_(filled on completion)_
+- Commits:
+- Tests:
+- PRs:

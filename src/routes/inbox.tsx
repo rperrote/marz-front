@@ -76,6 +76,7 @@ export const Route = createFileRoute('/inbox')({
 })
 
 function InboxRoute() {
+  const search = Route.useSearch()
   const { accountId, sessionKind } = Route.useRouteContext()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -87,7 +88,7 @@ function InboxRoute() {
       accountId={accountId}
       pathname={pathname}
     >
-      <InboxPage />
+      <InboxPage campaignId={search.campaign_id} />
     </AppShell>
   )
 }
