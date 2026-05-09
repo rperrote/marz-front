@@ -1,4 +1,3 @@
-import { t } from '@lingui/core/macro'
 import {
   createFileRoute,
   redirect,
@@ -6,6 +5,7 @@ import {
 } from '@tanstack/react-router'
 
 import { AppShell } from '#/features/identity/app-shell/AppShell'
+import { InboxPage } from '#/features/inbox/InboxPage'
 import { inboxSearchSchema } from '#/features/inbox/inboxSearchSchema'
 import { track } from '#/shared/analytics/track'
 import { getMeQueryKey } from '#/shared/api/generated/accounts/accounts'
@@ -87,11 +87,7 @@ function InboxRoute() {
       accountId={accountId}
       pathname={pathname}
     >
-      <div className="flex h-full items-center justify-center">
-        <p className="text-sm text-muted-foreground">
-          {t`Inbox estará disponible pronto.`}
-        </p>
-      </div>
+      <InboxPage />
     </AppShell>
   )
 }
