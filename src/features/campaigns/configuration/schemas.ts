@@ -309,8 +309,16 @@ export const OperationalTargetingSchema = z
     }
   })
 
-const BonusPercentageSchema = z.number().int().min(1).max(100)
-const BonusWindowHoursSchema = z.number().int().min(1).max(720)
+const BonusPercentageSchema = z
+  .number()
+  .int('Ingresá un porcentaje entero.')
+  .min(1, 'El porcentaje debe ser entre 1 y 100.')
+  .max(100, 'El porcentaje debe ser entre 1 y 100.')
+const BonusWindowHoursSchema = z
+  .number()
+  .int('Ingresá una cantidad de horas entera.')
+  .min(1, 'La ventana debe ser entre 1 y 720 horas.')
+  .max(720, 'La ventana debe ser entre 1 y 720 horas.')
 
 const SpeedBonusWindowSchema = z.object({
   window_id: z.string().uuid().optional(),
@@ -320,7 +328,10 @@ const SpeedBonusWindowSchema = z.object({
 
 const PerformanceBonusMilestoneSchema = z.object({
   milestone_id: z.string().uuid().optional(),
-  views: z.number().int().positive(),
+  views: z
+    .number()
+    .int('Ingresá una cantidad de views entera.')
+    .positive('Las views deben ser mayores a 0.'),
   window_hours: BonusWindowHoursSchema,
   bonus_pct: BonusPercentageSchema,
 })

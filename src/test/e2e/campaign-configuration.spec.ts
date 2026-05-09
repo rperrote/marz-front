@@ -24,6 +24,27 @@ type OperationalTargeting = {
   adjusted_from_brief: boolean
 }
 
+type BonusConfig = {
+  enabled: boolean
+  speed_bonus: {
+    enabled: boolean
+    windows: Array<{
+      window_id?: string
+      window_hours: number
+      bonus_pct: number
+    }>
+  }
+  performance_bonus: {
+    enabled: boolean
+    milestones: Array<{
+      milestone_id?: string
+      views: number
+      window_hours: number
+      bonus_pct: number
+    }>
+  }
+}
+
 function makeConfiguration(state: {
   currentStep: ConfigurationStep
   completedSteps: ConfigurationStep[]
@@ -31,6 +52,7 @@ function makeConfiguration(state: {
   contentType: 'influencer_posts' | 'ugc_videos' | null
   pricingModel: 'fixed_per_video' | 'per_views' | null
   operationalTargeting: OperationalTargeting
+  bonusConfig: BonusConfig
 }) {
   return {
     campaign_id: campaignId,
@@ -45,11 +67,7 @@ function makeConfiguration(state: {
     content_type: state.contentType,
     pricing_model: state.pricingModel,
     operational_targeting: state.operationalTargeting,
-    bonus_config: {
-      enabled: false,
-      speed_bonus: { enabled: false, windows: [] },
-      performance_bonus: { enabled: false, milestones: [] },
-    },
+    bonus_config: state.bonusConfig,
     brief_summary: {
       confirmed_at: '2026-05-09T10:00:00Z',
       objective: 'brand_awareness',
@@ -98,6 +116,11 @@ test.describe('Campaign configuration wizard', () => {
       contentType: null as 'influencer_posts' | 'ugc_videos' | null,
       pricingModel: null as 'fixed_per_video' | 'per_views' | null,
       operationalTargeting: initialOperationalTargeting,
+      bonusConfig: {
+        enabled: false,
+        speed_bonus: { enabled: false, windows: [] },
+        performance_bonus: { enabled: false, milestones: [] },
+      } as BonusConfig,
     }
     let briefEndpointWasMutated = false
 
@@ -185,6 +208,83 @@ test.describe('Campaign configuration wizard', () => {
         await route.fulfill({ json: makeConfiguration(state) })
       },
     )
+    await page.route(
+      `**/v1/campaigns/${campaignId}/configuration/bonus`,
+      async (route) => {
+        const body = route.request().postDataJSON() as {
+          bonus_config: BonusConfig
+          configuration_version: number
+        }
+        expect(body).toEqual({
+          bonus_config: {
+            enabled: true,
+            speed_bonus: {
+              enabled: true,
+              windows: [
+                {
+                  window_hours: 24,
+                  bonus_pct: 25,
+                },
+                {
+                  window_hours: 72,
+                  bonus_pct: 10,
+                },
+              ],
+            },
+            performance_bonus: {
+              enabled: true,
+              milestones: [
+                {
+                  views: 50000,
+                  window_hours: 168,
+                  bonus_pct: 15,
+                },
+                {
+                  views: 200000,
+                  window_hours: 336,
+                  bonus_pct: 30,
+                },
+              ],
+            },
+          },
+          configuration_version: 4,
+        })
+        state.bonusConfig = {
+          enabled: true,
+          speed_bonus: {
+            enabled: true,
+            windows: body.bonus_config.speed_bonus.windows.map(
+              (window, index) => ({
+                ...window,
+                window_id: `00000000-0000-4000-8000-00000000030${String(
+                  index + 1,
+                )}`,
+              }),
+            ),
+          },
+          performance_bonus: {
+            enabled: true,
+            milestones: body.bonus_config.performance_bonus.milestones.map(
+              (milestone, index) => ({
+                ...milestone,
+                milestone_id: `00000000-0000-4000-8000-00000000040${String(
+                  index + 1,
+                )}`,
+              }),
+            ),
+          },
+        }
+        state.currentStep = 'review'
+        state.completedSteps = [
+          'content_type',
+          'pricing_model',
+          'targeting',
+          'bonus',
+        ]
+        state.configurationVersion = 5
+        await route.fulfill({ json: makeConfiguration(state) })
+      },
+    )
 
     await onboardedBrandUser.signIn(page)
     await page.goto(`/campaigns/${campaignId}/configuration`)
@@ -230,7 +330,42 @@ test.describe('Campaign configuration wizard', () => {
     await expect(page).toHaveURL(
       new RegExp(`/campaigns/${campaignId}/configuration/bonus$`),
     )
+    await page.getByRole('switch', { name: 'Activar bonus de pago' }).click()
+    await page.getByRole('button', { name: /speed bonus/i }).click()
+    await page.getByRole('button', { name: /performance bonus/i }).click()
+
+    await page.getByRole('button', { name: 'Agregar ventana' }).click()
+    await page.getByLabel('Horas ventana 1').fill('24')
+    await page.getByLabel('Porcentaje bonus 1').fill('25')
+    await page.getByLabel('Horas ventana 2').fill('72')
+    await page.getByLabel('Porcentaje bonus 2').fill('10')
+
+    await page.getByRole('button', { name: 'Agregar milestone' }).click()
+    await page.getByLabel('Views milestone 1').fill('50000')
+    await page.getByLabel('Horas milestone 1').fill('168')
+    await page.getByLabel('Porcentaje milestone 1').fill('15')
+    await page.getByLabel('Views milestone 2').fill('200000')
+    await page.getByLabel('Horas milestone 2').fill('336')
+    await page.getByLabel('Porcentaje milestone 2').fill('30')
+
+    await page.getByRole('button', { name: /continuar/i }).click()
+
+    await expect(page).toHaveURL(
+      new RegExp(`/campaigns/${campaignId}/configuration/review$`),
+    )
     await expect.poll(() => briefEndpointWasMutated).toBe(false)
+
+    await page.goto(`/campaigns/${campaignId}/configuration/bonus`)
+    await expect(page.getByLabel('Horas ventana 1')).toHaveValue('24')
+    await expect(page.getByLabel('Horas ventana 2')).toHaveValue('72')
+    await expect(page.getByLabel('Views milestone 1')).toHaveValue('50000')
+    await expect(page.getByLabel('Views milestone 2')).toHaveValue('200000')
+    expect(state.bonusConfig.speed_bonus.windows[0]?.window_id).toBe(
+      '00000000-0000-4000-8000-000000000301',
+    )
+    expect(
+      state.bonusConfig.performance_bonus.milestones[1]?.milestone_id,
+    ).toBe('00000000-0000-4000-8000-000000000402')
 
     await page.goto(`/campaigns/${campaignId}/configuration/targeting`)
     await expect(

@@ -61,9 +61,8 @@ Full design system: `src/styles.css`.
 - [ ] Validación visual desktop dark ≥95% match contra `kI2DY`.
 
 ## Done summary
-
-_Pending implementation._
-
+Dark variants agregadas en ambos componentes, parseNumberInput extraído a shared local — todos los fixes del round anterior resueltos sin introducir nuevos problemas.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

@@ -4,6 +4,7 @@ import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
 import { cn } from '#/lib/utils'
+import { BonusStep } from './BonusStep'
 import { ContentTypeStep } from './ContentTypeStep'
 import { PricingModelStep } from './PricingModelStep'
 import { TargetingStep } from './TargetingStep'
@@ -239,6 +240,12 @@ export function CampaignConfigurationStepSlot({
         campaignId={activeConfig.campaign_id}
         config={activeConfig}
       />
+    )
+  }
+
+  if (step === 'bonus') {
+    return (
+      <BonusStep campaignId={activeConfig.campaign_id} config={activeConfig} />
     )
   }
 
