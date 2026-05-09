@@ -48,11 +48,8 @@ Componente puro `LinkPreviewBlock` que renderiza los 3 outcomes de `PublishedLin
 - [ ] Sin estado interno; componente puro.
 
 ## Done summary
-
-_To fill at completion._
-
+LinkPreviewBlock implementa correctamente los 3 outcomes, tests pasan, tipos sin any, tokens shadcn sin hardcoding, rel/target correctos, fallback de imagen verificado. Tipos definidos inline por RAFITA:BLOCKER documentado: deuda conocida, no error del diff.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

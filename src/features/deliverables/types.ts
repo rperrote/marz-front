@@ -78,3 +78,42 @@ export interface DraftTimelineMessage {
   payload: Record<string, unknown> | null
   created_at: string
 }
+
+// RAFITA:BLOCKER: src/shared/api/generated no expone PublishedLink* en este worktree.
+// pnpm api:sync no puede regenerar acá: tsx falla con listen EPERM y el bypass
+// con node --experimental-strip-types no puede fetch localhost:8080/openapi.yaml.
+export type PublishedLinkStatus =
+  | 'submitted'
+  | 'changes_requested'
+  | 'approved'
+  | 'rejected'
+
+export type PublishedLinkPreview =
+  | {
+      outcome: 'title_and_thumbnail'
+      title: string
+      thumbnail_url: string
+    }
+  | {
+      outcome: 'url_only'
+    }
+  | {
+      outcome: 'failed'
+    }
+
+export interface PublishedLink {
+  id: string
+  deliverable_id: string
+  url: string
+  status: PublishedLinkStatus
+  preview: PublishedLinkPreview
+  submitted_at: string
+  submitted_by_account_id: string
+  approved_at?: string | null
+  approved_by_account_id?: string | null
+}
+
+export interface DeliverableLinksResponse {
+  links: PublishedLink[]
+  current_link_id: string | null
+}

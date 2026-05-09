@@ -46,7 +46,7 @@ const baseSnapshot: OfferSnapshot = {
   total_amount: '4500.00',
   currency: 'USD',
   deadline: '2026-10-12',
-  speed_bonus: null,
+  bonus_terms: null,
   sent_at: '2026-04-25T10:00:00Z',
   expires_at: '2026-04-28T10:00:00Z',
 }

@@ -40,11 +40,25 @@ function renderSidebar(
     component: () => null,
   })
 
+  const offersRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/offers',
+    component: () => null,
+  })
+
+  const earningsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/earnings',
+    component: () => null,
+  })
+
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       workspaceRoute,
       inboxRoute,
       paymentsRoute,
+      offersRoute,
+      earningsRoute,
     ]),
     history: createMemoryHistory({ initialEntries: [pathname] }),
   })
@@ -90,6 +104,14 @@ describe('AppSidebar', () => {
     expect(currentItems[0]).toHaveAccessibleName('Workspace')
   })
 
+  it('marks inbox as active on /inbox', async () => {
+    renderSidebar('/inbox')
+
+    const inboxLink = await screen.findByRole('link', { name: 'Inbox' })
+
+    expect(inboxLink).toHaveAttribute('aria-current', 'page')
+  })
+
   it('renders payments for brand only and marks it active by pathname', async () => {
     const { unmount } = renderSidebar('/payments', 'brand')
 
@@ -124,7 +146,7 @@ describe('AppSidebar', () => {
 
     await user.tab()
     await user.tab()
-    expect(await screen.findByRole('tooltip')).toHaveTextContent('Workspace')
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Inbox')
   })
 
   it('shows Próximamente for disabled item tooltips', async () => {
@@ -176,10 +198,17 @@ describe('AppSidebar', () => {
     renderSidebar('/workspace', 'creator')
     const creatorSidebar = await screen.findByTestId('app-sidebar')
 
-    for (const name of ['Home', 'Workspace', 'Inbox', 'Analytics']) {
+    for (const name of [
+      'Home',
+      'Workspace',
+      'Inbox',
+      'Offers',
+      'Earnings',
+      'Analytics',
+    ]) {
       expect(
         within(creatorSidebar).getByRole(
-          /Workspace|Inbox/.test(name) ? 'link' : 'button',
+          /Workspace|Inbox|Offers|Earnings/.test(name) ? 'link' : 'button',
           { name },
         ),
       ).toBeInTheDocument()

@@ -15,6 +15,7 @@ interface MultistagePanelGroupProps {
     viewerRole?: DeliverableListItemProps['viewerRole']
     onUploadDraft: DeliverableListItemProps['onUploadDraft']
     onMarkAsPaid?: DeliverableListItemProps['onMarkAsPaid']
+    onSubmitLink?: DeliverableListItemProps['onSubmitLink']
   }>
 }
 
@@ -70,6 +71,7 @@ export function MultistagePanelGroup({
             viewerRole,
             onUploadDraft,
             onMarkAsPaid,
+            onSubmitLink,
           }) => (
             <DeliverableListItem
               key={deliverable.id}
@@ -79,6 +81,7 @@ export function MultistagePanelGroup({
               viewerRole={viewerRole}
               onUploadDraft={onUploadDraft}
               onMarkAsPaid={onMarkAsPaid}
+              onSubmitLink={onSubmitLink}
             />
           ),
         )}

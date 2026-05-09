@@ -54,9 +54,8 @@ Layout principal `EarningsPage` con header, KPI grid, period selector y monthly 
 - [ ] `pnpm typecheck` y `pnpm test` pasan.
 
 ## Done summary
-
-_Pending implementation._
-
+Fixes aplicados correctamente: labels lazy en periodOptions y gridTemplateColumns dinámico en chart. Sin nuevos problemas.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

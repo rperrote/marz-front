@@ -20,21 +20,21 @@ export function renderWithValidation(ui: React.ReactElement) {
     account: {
       id: 'account-1',
       email: 'brand@example.com',
-      kind: 'brand',
       full_name: 'Test Brand',
+      kind: 'brand',
       onboarding_status: 'onboarded',
-      created_at: '2026-01-01T00:00:00.000Z',
       redirect_to: null,
+      created_at: '2026-05-08T00:00:00.000Z',
       brand_workspace: {
         id: 'brand-workspace-1',
         name: 'Test Brand',
-        plan: 'free',
+        plan: 'test',
       },
     },
     brandWorkspace: {
       id: 'brand-workspace-1',
       name: 'Test Brand',
-      plan: 'free',
+      plan: 'test',
     },
   }
 

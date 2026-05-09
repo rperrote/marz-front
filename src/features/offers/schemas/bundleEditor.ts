@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { t } from '@lingui/core/macro'
 import { todayString } from '../utils/dateUtils'
+import { offerBonusTermsFormSchema } from './bonusTerms'
 
 const bundleDeliverableSchema = z.object({
   id: z.string(),
@@ -27,20 +28,14 @@ export const bundleEditorBaseSchema = z.object({
     .refine((val) => val > todayString(), {
       message: t`Deadline must be a future date`,
     }),
-  speed_bonus_enabled: z.boolean(),
-  speed_bonus: z
-    .object({
-      early_deadline: z.string(),
-      bonus_amount: z.string(),
-    })
-    .nullable(),
+  bonus_terms: offerBonusTermsFormSchema,
   deliverables: z
     .array(bundleDeliverableSchema)
     .min(2, t`Minimum 2 deliverables`),
 })
 
-export const bundleEditorSubmitSchema = bundleEditorBaseSchema
-  .superRefine((data, ctx) => {
+export const bundleEditorSubmitSchema = bundleEditorBaseSchema.superRefine(
+  (data, ctx) => {
     const declared = data.deliverables.filter((d) => d.amount.length > 0)
     // Partial declaration
     if (declared.length > 0 && declared.length !== data.deliverables.length) {
@@ -62,38 +57,5 @@ export const bundleEditorSubmitSchema = bundleEditorBaseSchema
         })
       }
     }
-  })
-  .refine(
-    (data) => {
-      if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-      return (
-        data.speed_bonus.early_deadline.length > 0 &&
-        data.speed_bonus.early_deadline > todayString()
-      )
-    },
-    {
-      message: t`Early deadline must be a future date`,
-      path: ['speed_bonus', 'early_deadline'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-      return data.speed_bonus.early_deadline < data.deadline
-    },
-    {
-      message: t`Early deadline must be before the deadline`,
-      path: ['speed_bonus', 'early_deadline'],
-    },
-  )
-  .refine(
-    (data) => {
-      if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-      const amount = parseFloat(data.speed_bonus.bonus_amount)
-      return !isNaN(amount) && amount > 0
-    },
-    {
-      message: t`Bonus amount must be greater than 0`,
-      path: ['speed_bonus', 'bonus_amount'],
-    },
-  )
+  },
+)

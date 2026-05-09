@@ -3,12 +3,15 @@ import type { InfiniteData, QueryClient } from '@tanstack/react-query'
 import type {
   ConversationDeliverablesResponse,
   DeliverableDTO,
+  DeliverableLinksResponse,
+  PublishedLink,
 } from '#/features/deliverables/types'
 import {
   trackDeliverableTotalRounds,
   trackMultistageStageUnlocked,
   trackTimeToResolveRound,
 } from '#/features/deliverables/analytics'
+import { getDeliverableLinksQueryKey } from '#/features/deliverables/hooks/useDeliverableLinks'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
 import {
@@ -49,6 +52,13 @@ export function createWsHandlers(
   queryClient: QueryClient,
   sessionKind?: 'brand' | 'creator',
 ): Record<string, EventHandler> {
+  const handleDeliverableUpdated: EventHandler = (envelope) => {
+    const payload = (
+      envelope as DomainEventEnvelope<DeliverableChangedWSPayload>
+    ).payload
+    updateDeliverableCaches(queryClient, payload)
+  }
+
   return {
     'draft.submitted': (envelope) => {
       const payload = (envelope as DomainEventEnvelope<DraftSubmittedWSPayload>)
@@ -141,34 +151,9 @@ export function createWsHandlers(
       })
     },
 
-    'deliverable.changed': (envelope) => {
-      const payload = (
-        envelope as DomainEventEnvelope<DeliverableChangedWSPayload>
-      ).payload
-      const key = getConversationDeliverablesQueryKey(payload.conversation_id)
+    'deliverable.changed': handleDeliverableUpdated,
 
-      queryClient.setQueryData(key, (old: unknown) => {
-        if (!old || typeof old !== 'object') return old
-        const response = old as { deliverables?: DeliverableDTO[] }
-        if (!Array.isArray(response.deliverables)) return old
-
-        if (
-          typeof payload.deliverable !== 'object' ||
-          payload.deliverable === null
-        )
-          return old
-        // RAFITA:ANY: DeliverableChangedWSPayload.deliverable is typed as unknown
-        // until B.6 deploys and Orval regenerates. Guard above prevents
-        // null/non-object shapes.
-        const updated = payload.deliverable as DeliverableDTO
-        return {
-          ...response,
-          deliverables: response.deliverables.map((d) =>
-            d.id === updated.id ? updated : d,
-          ),
-        }
-      })
-    },
+    'deliverable.updated': handleDeliverableUpdated,
 
     'stage.approved': (envelope) => {
       const payload = (envelope as DomainEventEnvelope<StageApprovedWSPayload>)
@@ -232,6 +217,9 @@ export function createWsHandlers(
         queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
       })
       void queryClient.invalidateQueries({
+        queryKey: ['deliverable'],
+      })
+      void queryClient.invalidateQueries({
         queryKey: getConversationOffersQueryKey(payload.conversation_id),
       })
     },
@@ -262,6 +250,95 @@ function getCachedDeliverableAnalytics(
   if (!deliverable) return undefined
 
   return { deliverable, deliverableIndex }
+}
+
+function updateDeliverableCaches(
+  queryClient: QueryClient,
+  payload: DeliverableChangedWSPayload,
+) {
+  const updated = payload.deliverable
+  const deliverableKey = ['deliverable', updated.id] as const
+  const cachedDeliverable =
+    queryClient.getQueryData<DeliverableDTO>(deliverableKey)
+  if (
+    !cachedDeliverable ||
+    !isStaleOrSameDeliverableUpdate(cachedDeliverable, updated)
+  ) {
+    queryClient.setQueryData(deliverableKey, updated)
+  }
+
+  const conversationDeliverablesKey = getConversationDeliverablesQueryKey(
+    payload.conversation_id,
+  )
+  const cachedConversation =
+    queryClient.getQueryData<ConversationDeliverablesResponse>(
+      conversationDeliverablesKey,
+    )
+  if (cachedConversation) {
+    const deliverableIndex = cachedConversation.deliverables.findIndex(
+      (deliverable) => deliverable.id === updated.id,
+    )
+    const cachedItem = cachedConversation.deliverables[deliverableIndex]
+
+    if (cachedItem && !isStaleOrSameDeliverableUpdate(cachedItem, updated)) {
+      const deliverables = replaceAt(
+        cachedConversation.deliverables,
+        deliverableIndex,
+        updated,
+      )
+      queryClient.setQueryData(conversationDeliverablesKey, {
+        ...cachedConversation,
+        deliverables,
+      })
+    }
+  }
+
+  if (payload.current_link) {
+    upsertCurrentLink(queryClient, updated.id, payload.current_link)
+  }
+}
+
+function isStaleOrSameDeliverableUpdate(
+  cached: DeliverableDTO,
+  incoming: DeliverableDTO,
+) {
+  return Date.parse(incoming.updated_at) <= Date.parse(cached.updated_at)
+}
+
+function upsertCurrentLink(
+  queryClient: QueryClient,
+  deliverableId: string,
+  currentLink: PublishedLink,
+) {
+  queryClient.setQueryData<DeliverableLinksResponse>(
+    getDeliverableLinksQueryKey(deliverableId),
+    (old) => {
+      if (!old) {
+        return {
+          links: [currentLink],
+          current_link_id: currentLink.id,
+        }
+      }
+
+      const linkIndex = old.links.findIndex(
+        (link) => link.id === currentLink.id,
+      )
+      const links =
+        linkIndex >= 0
+          ? replaceAt(old.links, linkIndex, currentLink)
+          : [...old.links, currentLink]
+
+      return {
+        ...old,
+        links,
+        current_link_id: currentLink.id,
+      }
+    },
+  )
+}
+
+function replaceAt<T>(items: T[], index: number, item: T): T[] {
+  return [...items.slice(0, index), item, ...items.slice(index + 1)]
 }
 
 function secondsBetween(startIso: string, endIso: string): number {

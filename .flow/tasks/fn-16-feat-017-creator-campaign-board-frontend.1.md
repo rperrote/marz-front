@@ -50,9 +50,8 @@ DESIGN.md no existe en este repo, pero los tokens del `.pen` están mapeados en 
 - [ ] `pnpm typecheck` y `pnpm lint` limpios
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+Ruta _creator/campaigns con validateSearch Zod, schema de search params completo, sidebar item, y regeneración de routeTree — todo correcto, typecheck/lint/tests limpios
 ## Evidence
-
-_To be filled by worker on completion._
+- Commits:
+- Tests:
+- PRs:

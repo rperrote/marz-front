@@ -24,16 +24,16 @@ export const shellNavigationConfig: ShellNavigationConfig = {
       disabledReason: DISABLED_REASON,
     },
     {
-      id: 'workspace',
-      label: 'Workspace',
-      icon: 'message-square',
-      href: '/workspace',
-    },
-    {
       id: 'inbox',
       label: 'Inbox',
       icon: 'inbox',
       href: '/inbox',
+    },
+    {
+      id: 'workspace',
+      label: 'Workspace',
+      icon: 'message-square',
+      href: '/workspace',
     },
     {
       id: 'payments',
@@ -72,16 +72,28 @@ export const shellNavigationConfig: ShellNavigationConfig = {
       disabledReason: DISABLED_REASON,
     },
     {
+      id: 'inbox',
+      label: 'Inbox',
+      icon: 'inbox',
+      href: '/inbox',
+    },
+    {
       id: 'workspace',
       label: 'Workspace',
       icon: 'message-square',
       href: '/workspace',
     },
     {
-      id: 'inbox',
-      label: 'Inbox',
-      icon: 'inbox',
-      href: '/inbox',
+      id: 'offers',
+      label: 'Offers',
+      icon: 'briefcase-business',
+      href: '/offers',
+    },
+    {
+      id: 'earnings',
+      label: 'Earnings',
+      icon: 'dollar-sign',
+      href: '/earnings',
     },
     {
       id: 'analytics',

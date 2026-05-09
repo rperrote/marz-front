@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ApiError, customFetch, setAuthTokenProvider } from './mutator'
+import {
+  ApiError,
+  customFetch,
+  setAuthTokenProvider,
+  setBrandWorkspaceIdProvider,
+} from './mutator'
 
 vi.mock('#/env', () => ({
   env: { VITE_API_URL: 'https://api.test' },
@@ -38,6 +43,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
+  setBrandWorkspaceIdProvider(() => null)
   mockNavigate.mockClear()
   mockSignOut.mockClear()
   mockGetToken.mockClear()
@@ -145,6 +151,28 @@ describe('customFetch', () => {
     expect(apiError.status).toBe(400)
     expect(apiError.code).toBe('validation_error')
     expect(apiError.details?.field_errors?.email).toEqual(['invalid format'])
+  })
+
+  it('injects brand workspace and preserves caller idempotency headers', async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(jsonResponse(200, { ok: true }))
+
+    setBrandWorkspaceIdProvider(() => 'brand-workspace-1')
+
+    await customFetch('/campaigns/1/matches/2:contact', {
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'mutation-key-1' },
+      body: JSON.stringify({ mode: 'in_platform_invite' }),
+    })
+
+    const [, init] = fetchSpy.mock.calls[0]!
+    const headers = init?.headers as Record<string, string>
+    expect(headers).toMatchObject({
+      Authorization: 'Bearer valid-token',
+      'X-Brand-Workspace-Id': 'brand-workspace-1',
+      'Idempotency-Key': 'mutation-key-1',
+    })
   })
 
   it('422 → throw ApiError with details', async () => {

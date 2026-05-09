@@ -3,12 +3,47 @@ import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 import { ApiError } from '#/shared/api/mutator'
-import type * as BrandSessionContextModule from '#/features/identity/session/BrandSessionContext'
 import { useInitBriefBuilder } from '../hooks/useInitBriefBuilder'
 import { useProcessBrief } from '../hooks/useProcessBrief'
 import { P1Input } from './P1Input'
 import { useBriefBuilderStore } from '../store'
 import { renderWithValidation } from '../test-utils'
+import type { BrandSession } from '#/features/identity/session/BrandSessionContext'
+
+const mockBrandSession = vi.hoisted(
+  () =>
+    ({
+      account: {
+        id: 'brand-account-1',
+        email: 'brand@example.com',
+        kind: 'brand',
+        full_name: 'Brand Test',
+        created_at: '2026-01-01T00:00:00.000Z',
+        redirect_to: null,
+        onboarding_status: 'onboarded',
+        brand_workspace: {
+          id: 'brand-workspace-1',
+          name: 'Brand Test',
+          logo_url: null,
+          website_url: 'https://brand.example',
+          plan: 'free',
+        },
+        creator_profile: null,
+        verified_at: null,
+      },
+      brandWorkspace: {
+        id: 'brand-workspace-1',
+        name: 'Brand Test',
+        logo_url: null,
+        website_url: 'https://brand.example',
+        plan: 'free',
+      },
+    }) satisfies BrandSession,
+)
+
+vi.mock('#/features/identity/session/BrandSessionContext', () => ({
+  useBrandSession: () => mockBrandSession,
+}))
 
 vi.mock('../hooks/useInitBriefBuilder', async (importOriginal) => {
   const actual = await importOriginal()
@@ -25,27 +60,6 @@ vi.mock('../hooks/useProcessBrief', async (importOriginal) => {
     useProcessBrief: vi.fn(),
   }
 })
-
-vi.mock(
-  '#/features/identity/session/BrandSessionContext',
-  async (importOriginal) => {
-    const actual = await importOriginal<typeof BrandSessionContextModule>()
-
-    return {
-      ...actual,
-      useBrandSession: () => ({
-        account: {
-          id: 'account-1',
-          kind: 'brand',
-        },
-        brandWorkspace: {
-          id: 'brand-workspace-1',
-          website_url: 'https://brand.example',
-        },
-      }),
-    }
-  },
-)
 
 const mockInitMutateAsync = vi.fn()
 const mockProcessMutateAsync = vi.fn()

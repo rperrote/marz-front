@@ -60,9 +60,8 @@ Dialog de postulación con textarea (1..2000), submit con `Idempotency-Key` UUID
 - [ ] Axe sin violations críticas en dialog abierto
 
 ## Done summary
-
-_To be filled by worker on completion._
-
+Los tres fixes del round anterior están aplicados: applyBackendFieldErrors para 422, form.SubmitButton en lugar de Subscribe+Button manual, y validators solo onChange. El resto del diff no introduce problemas nuevos.
 ## Evidence
-
-_To be filled by worker on completion._
+- Commits:
+- Tests:
+- PRs:

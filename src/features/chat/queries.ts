@@ -8,7 +8,6 @@ import type {
 } from '#/shared/api/generated/model'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
 import { toMessagePayload } from '#/features/chat/utils/messagePayload'
-
 import type {
   ConversationDetailResponse,
   MessageItem,

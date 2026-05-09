@@ -55,11 +55,8 @@ Modificar el panel lateral derecho (`BrandContextPanel/V2`, `BrandContextPanel/V
 - [ ] `current_link` upserted correctamente en `['deliverable', id, 'links']`.
 
 ## Done summary
-
-_To fill at completion._
-
+Handler WS idempotente, upsert de current_link, badges y URL en DeliverableCard/ListItem — correcto, tipado, tests cubriendo los casos nuevos, typecheck y suite en verde.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

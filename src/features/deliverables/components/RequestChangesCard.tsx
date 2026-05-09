@@ -1,31 +1,74 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { cn } from '#/lib/utils'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
 import { formatMessageDateTime } from '#/shared/ui/formatMessageDateTime'
+import { getRecord, getString } from '#/shared/utils/record'
 import { ChangeCategoryChip } from './ChangeCategoryChip'
-import { trackRequestChangesCardSeen } from '#/features/deliverables/analytics'
+import {
+  trackLinkCardSeen,
+  trackRequestChangesCardSeen,
+  useTrackOnceVisible,
+} from '#/features/deliverables/analytics'
 import type { DraftTimelineMessage } from '../types'
-import type { ChangesRequestedSnapshot } from '#/shared/ws/types'
+import type { PublishedLinkPreview } from '#/features/deliverables/types'
+import type {
+  ChangesRequestedSnapshot,
+  LinkChangesRequestedSnapshot,
+} from '#/shared/ws/types'
+import { LinkPreviewBlock } from './LinkPreviewBlock'
+import { parseLinkPreview } from './LinkSubmittedCard'
 
 interface RequestChangesCardProps {
   message: DraftTimelineMessage
   currentAccountId: string
   counterpartDisplayName: string
   sessionKind?: 'brand' | 'creator'
+  target?: 'draft' | 'link'
 }
+
+type RequestChangesSnapshot =
+  | (ChangesRequestedSnapshot & { target: 'draft' })
+  | (LinkChangesRequestedSnapshot & { target: 'link' })
 
 function extractSnapshot(
   payload: Record<string, unknown> | null,
-): ChangesRequestedSnapshot | null {
+  target: 'draft' | 'link',
+): RequestChangesSnapshot | null {
   if (!payload) return null
   const snapshot =
     (payload.snapshot as Record<string, unknown> | undefined) ?? payload
-  if (typeof snapshot.draft_version !== 'number') return null
   if (!Array.isArray(snapshot.categories)) return null
-  return snapshot as unknown as ChangesRequestedSnapshot
+
+  if (target === 'draft') {
+    if (typeof snapshot.draft_version !== 'number') return null
+    return { ...(snapshot as unknown as ChangesRequestedSnapshot), target }
+  }
+
+  const link = getRecord(snapshot.link) ?? snapshot
+  if (typeof link.url !== 'string') return null
+
+  return {
+    event_type: 'LinkChangesRequested',
+    deliverable_id: getString(snapshot.deliverable_id) ?? '',
+    deliverable_platform: getString(snapshot.deliverable_platform) ?? '',
+    deliverable_format: getString(snapshot.deliverable_format) ?? '',
+    deliverable_offer_stage_id:
+      getString(snapshot.deliverable_offer_stage_id) ?? null,
+    link: {
+      id: getString(link.id) ?? '',
+      url: link.url,
+      status: 'changes_requested',
+      preview: link.preview ?? snapshot.preview ?? null,
+    },
+    categories: snapshot.categories,
+    notes: getString(snapshot.notes),
+    requested_at: getString(snapshot.requested_at) ?? '',
+    requested_by_account_id: getString(snapshot.requested_by_account_id) ?? '',
+    target,
+  }
 }
 
 const CATEGORY_LABELS: Record<string, () => string> = {
@@ -36,18 +79,42 @@ const CATEGORY_LABELS: Record<string, () => string> = {
   other: () => t`Other`,
 }
 
+const urlOnlyPreview: PublishedLinkPreview = { outcome: 'url_only' }
+
 export function RequestChangesCard({
   message,
   currentAccountId,
   counterpartDisplayName,
   sessionKind,
+  target = 'draft',
 }: RequestChangesCardProps) {
   const snapshot = useMemo(
-    () => extractSnapshot(message.payload),
-    [message.payload],
+    () => extractSnapshot(message.payload, target),
+    [message.payload, target],
   )
   const cardRef = useRef<HTMLDivElement>(null)
   const seenRef = useRef(false)
+  const linkPreview = useMemo<PublishedLinkPreview | null>(
+    () =>
+      snapshot?.target === 'link'
+        ? (parseLinkPreview(snapshot.link.preview) ?? urlOnlyPreview)
+        : null,
+    [snapshot],
+  )
+  const handleLinkCardSeen = useCallback(() => {
+    if (snapshot?.target !== 'link') return
+    trackLinkCardSeen({
+      deliverable_id: snapshot.deliverable_id,
+      link_id: snapshot.link.id,
+      platform: snapshot.deliverable_platform,
+      outcome: linkPreview?.outcome ?? 'url_only',
+    })
+  }, [linkPreview?.outcome, snapshot])
+  useTrackOnceVisible(
+    cardRef,
+    snapshot?.target === 'link' ? `link_card_seen:${snapshot.link.id}` : null,
+    handleLinkCardSeen,
+  )
 
   useEffect(() => {
     if (!snapshot || sessionKind !== 'creator' || !cardRef.current) return
@@ -124,11 +191,13 @@ export function RequestChangesCard({
               </span>
             </div>
 
-            <div className="text-xs text-muted-foreground">
-              {t`v${snapshot.draft_version}`}
-            </div>
+            {snapshot.target === 'draft' ? (
+              <div className="text-xs text-muted-foreground">
+                {t`v${snapshot.draft_version}`}
+              </div>
+            ) : null}
 
-            {snapshot.draft_thumbnail_url ? (
+            {snapshot.target === 'draft' && snapshot.draft_thumbnail_url ? (
               <div className="relative w-full overflow-hidden rounded-lg bg-muted">
                 <img
                   src={snapshot.draft_thumbnail_url}
@@ -136,6 +205,19 @@ export function RequestChangesCard({
                   className="h-full w-full object-cover"
                 />
               </div>
+            ) : null}
+
+            {snapshot.target === 'link' ? (
+              <LinkPreviewBlock
+                preview={linkPreview ?? urlOnlyPreview}
+                url={snapshot.link.url}
+                analytics={{
+                  deliverableId: snapshot.deliverable_id,
+                  linkId: snapshot.link.id,
+                  platform: snapshot.deliverable_platform,
+                  outcome: linkPreview?.outcome ?? 'url_only',
+                }}
+              />
             ) : null}
 
             {snapshot.categories.length > 0 ? (
