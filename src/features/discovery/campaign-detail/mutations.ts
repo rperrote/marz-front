@@ -15,6 +15,11 @@ import type {
   CreateCampaignInviteRequest,
   DiscoveryApplicationDecisionResponse,
 } from '#/shared/api/generated/model'
+import {
+  trackDiscoveryApplicationDecided,
+  trackDiscoveryInviteCreated,
+  trackDiscoveryMatchContacted,
+} from '#/shared/analytics/discoveryTracking'
 import { ApiError } from '#/shared/api/mutator'
 
 import { getCampaignDiscoveryQueryKey } from './queries'
@@ -56,8 +61,12 @@ export function useContactMatch(
       }
       return response.data
     },
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
       idempotency.reset()
+      trackDiscoveryMatchContacted({
+        campaignId,
+        mode: variables.data.invite?.mode,
+      })
       await invalidateDiscovery(queryClient, campaignId)
     },
     onError: (error) => {
@@ -101,6 +110,10 @@ export function useAcceptApplication(
     },
     onSuccess: async (data: DiscoveryApplicationDecisionResponse) => {
       idempotency.reset()
+      trackDiscoveryApplicationDecided({
+        campaignId,
+        decision: 'accept',
+      })
       await invalidateDiscovery(queryClient, campaignId, { participants: true })
       if (data.conversation?.id) {
         options.onConversationReady?.(data.conversation.id)
@@ -144,6 +157,10 @@ export function useRejectApplication(campaignId: string) {
     },
     onSuccess: async () => {
       idempotency.reset()
+      trackDiscoveryApplicationDecided({
+        campaignId,
+        decision: 'reject',
+      })
       await invalidateDiscovery(queryClient, campaignId)
     },
     onError: handleDiscoveryMutationError,
@@ -173,8 +190,12 @@ export function useCreateCampaignInvite(campaignId: string) {
       }
       return response.data
     },
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
       idempotency.reset()
+      trackDiscoveryInviteCreated({
+        campaignId,
+        mode: variables.mode,
+      })
       toast.success(t`Invitación enviada`)
       await invalidateDiscovery(queryClient, campaignId)
     },
