@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 
 import { AppShell } from '#/features/identity/app-shell/AppShell'
+import { MissingWorkspaceFallback } from '#/features/identity/app-shell/MissingWorkspaceFallback'
 import { getMeQueryKey } from '#/shared/api/generated/accounts/accounts'
 import type { meResponse } from '#/shared/api/generated/accounts/accounts'
 import { getServerMe } from '#/shared/auth/getServerMe'
@@ -44,26 +45,34 @@ export const Route = createFileRoute('/_brand')({
       throw redirect({ to: '/auth' })
     }
 
+    if (me.kind !== 'brand' && me.kind !== 'creator') {
+      throw redirect({ to: '/auth' })
+    }
+
+    if (me.kind === 'creator') {
+      throw redirect({ to: '/workspace' })
+    }
+
     if (me.onboarding_status !== 'onboarded') {
       const destination = me.redirect_to ?? '/onboarding/brand'
       throw redirect({ to: destination })
     }
 
-    if (me.kind !== 'brand') {
-      const home = me.kind === 'creator' ? '/offers' : '/auth'
-      throw redirect({ to: home })
-    }
-
     return {
       accountId: me.id,
+      hasBrandWorkspace: Boolean(me.brand_workspace),
     }
   },
   component: BrandLayout,
 })
 
 function BrandLayout() {
-  const { accountId } = Route.useRouteContext()
+  const { accountId, hasBrandWorkspace } = Route.useRouteContext()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+
+  if (!hasBrandWorkspace) {
+    return <MissingWorkspaceFallback />
+  }
 
   return (
     <AppShell accountKind="brand" accountId={accountId} pathname={pathname}>

@@ -43,14 +43,17 @@ export const Route = createFileRoute('/_creator')({
       throw redirect({ to: '/auth' })
     }
 
+    if (me.kind !== 'brand' && me.kind !== 'creator') {
+      throw redirect({ to: '/auth' })
+    }
+
+    if (me.kind === 'brand') {
+      throw redirect({ to: '/workspace' })
+    }
+
     if (me.onboarding_status !== 'onboarded') {
       const destination = me.redirect_to ?? '/onboarding/creator'
       throw redirect({ to: destination })
-    }
-
-    if (me.kind !== 'creator') {
-      const home = me.kind === 'brand' ? '/campaigns' : '/auth'
-      throw redirect({ to: home })
     }
 
     return {

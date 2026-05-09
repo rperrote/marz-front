@@ -57,6 +57,7 @@ describe('/_creator beforeLoad', () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_creator_pending',
         kind: 'creator',
         onboarding_status: 'onboarding_pending',
         redirect_to: '/onboarding/creator',
@@ -71,6 +72,7 @@ describe('/_creator beforeLoad', () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_creator_pending',
         kind: 'creator',
         onboarding_status: 'kind_pending',
         redirect_to: null,
@@ -81,17 +83,18 @@ describe('/_creator beforeLoad', () => {
     )
   })
 
-  it('redirects to /campaigns when kind is brand', async () => {
+  it('redirects to /workspace when kind is brand', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_brand_1',
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
       },
     }
     await expect(callBeforeLoad()).rejects.toEqual(
-      redirect({ to: '/campaigns' }),
+      redirect({ to: '/workspace' }),
     )
   })
 
@@ -99,9 +102,23 @@ describe('/_creator beforeLoad', () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_pending_kind',
         kind: null,
         onboarding_status: 'onboarded',
         redirect_to: null,
+      },
+    }
+    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
+  })
+
+  it('redirects to /auth when kind is invalid', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_invalid_kind',
+        kind: 'admin',
+        onboarding_status: 'onboarding_pending',
+        redirect_to: '/onboarding/creator',
       },
     }
     await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))

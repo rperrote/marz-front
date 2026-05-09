@@ -36,7 +36,7 @@ async function callBeforeLoad(
       beforeLoad: (opts: {
         context: { queryClient: ReturnType<typeof makeQueryClient> }
         location: { pathname: string }
-      }) => Promise<{ accountId: string }>
+      }) => Promise<{ accountId: string; hasBrandWorkspace: boolean }>
     }
   ).beforeLoad
   return beforeLoad({ context: { queryClient }, location: { pathname } })
@@ -57,9 +57,11 @@ describe('/_brand beforeLoad', () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_brand_pending',
         kind: 'brand',
         onboarding_status: 'onboarding_pending',
         redirect_to: '/onboarding/brand',
+        brand_workspace: { id: 'ws_1' },
       },
     }
     await expect(callBeforeLoad()).rejects.toEqual(
@@ -71,9 +73,11 @@ describe('/_brand beforeLoad', () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_brand_pending',
         kind: 'brand',
         onboarding_status: 'kind_pending',
         redirect_to: null,
+        brand_workspace: { id: 'ws_1' },
       },
     }
     await expect(callBeforeLoad()).rejects.toEqual(
@@ -81,22 +85,26 @@ describe('/_brand beforeLoad', () => {
     )
   })
 
-  it('redirects to /offers when kind is creator', async () => {
+  it('redirects to /workspace when kind is creator', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_creator_1',
         kind: 'creator',
         onboarding_status: 'onboarded',
         redirect_to: null,
       },
     }
-    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/offers' }))
+    await expect(callBeforeLoad()).rejects.toEqual(
+      redirect({ to: '/workspace' }),
+    )
   })
 
   it('redirects to /auth when kind is null', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
+        id: 'acct_pending_kind',
         kind: null,
         onboarding_status: 'onboarded',
         redirect_to: null,
@@ -105,7 +113,20 @@ describe('/_brand beforeLoad', () => {
     await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
   })
 
-  it('returns AppShell context when kind is brand and onboarded', async () => {
+  it('redirects to /auth when kind is invalid', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_invalid_kind',
+        kind: 'admin',
+        onboarding_status: 'onboarding_pending',
+        redirect_to: '/onboarding/brand',
+      },
+    }
+    await expect(callBeforeLoad()).rejects.toEqual(redirect({ to: '/auth' }))
+  })
+
+  it('returns AppShell context when kind is brand, onboarded, and has workspace', async () => {
     mockServerMeResult = {
       ok: true,
       body: {
@@ -113,10 +134,29 @@ describe('/_brand beforeLoad', () => {
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
+        brand_workspace: { id: 'ws_1' },
       },
     }
     await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
       accountId: 'acct_brand_1',
+      hasBrandWorkspace: true,
+    })
+  })
+
+  it('returns MissingWorkspace fallback context when brand is onboarded without workspace', async () => {
+    mockServerMeResult = {
+      ok: true,
+      body: {
+        id: 'acct_brand_1',
+        kind: 'brand',
+        onboarding_status: 'onboarded',
+        redirect_to: null,
+        brand_workspace: null,
+      },
+    }
+    await expect(callBeforeLoad('/_brand/campaigns')).resolves.toEqual({
+      accountId: 'acct_brand_1',
+      hasBrandWorkspace: false,
     })
   })
 
@@ -129,12 +169,14 @@ describe('/_brand beforeLoad', () => {
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
+        brand_workspace: { id: 'ws_cached' },
       },
     })
     qc.getQueryState.mockReturnValue({ dataUpdatedAt: Date.now() })
 
     await expect(callBeforeLoad('/_brand/campaigns', qc)).resolves.toEqual({
       accountId: 'acct_brand_cached',
+      hasBrandWorkspace: true,
     })
   })
 
@@ -147,6 +189,7 @@ describe('/_brand beforeLoad', () => {
         kind: 'brand',
         onboarding_status: 'onboarded',
         redirect_to: null,
+        brand_workspace: { id: 'ws_seed' },
       },
     }
     await callBeforeLoad('/_brand/campaigns', qc)
