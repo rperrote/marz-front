@@ -13,6 +13,10 @@ vi.mock('../hooks/useCreatorEarnings', () => ({
   useCreatorEarningsQuery: mockUseCreatorEarningsQuery,
 }))
 
+vi.mock('./EarningsPaymentsTable', () => ({
+  EarningsPaymentsTable: () => <section aria-label="Payments table" />,
+}))
+
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
     (strings: TemplateStringsArray, ...values: unknown[]) =>
@@ -71,10 +75,19 @@ describe('EarningsPage', () => {
       data: earningsResponse,
     })
 
-    render(<EarningsPage period="90d" onPeriodChange={vi.fn()} />)
+    render(
+      <EarningsPage
+        period="90d"
+        q="acme"
+        cursor="cursor-1"
+        onPeriodChange={vi.fn()}
+      />,
+    )
 
     expect(mockUseCreatorEarningsQuery).toHaveBeenCalledWith({
       period: '90d',
+      q: 'acme',
+      cursor: 'cursor-1',
       limit: 25,
     })
     expect(

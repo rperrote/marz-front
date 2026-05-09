@@ -57,9 +57,8 @@ Payments table con search bar + export CSV. Tabla paginable (keyset), search act
 - [ ] `pnpm typecheck` y `pnpm test` pasan.
 
 ## Done summary
-
-_Pending implementation._
-
+Tabla semántica corregida con td por columna y tr clickeable, useNavigate unificado a una instancia tipada, mock de tests actualizado. Sin issues bloqueantes.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

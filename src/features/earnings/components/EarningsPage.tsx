@@ -7,16 +7,26 @@ import { useCreatorEarningsQuery } from '../hooks/useCreatorEarnings'
 import { EarningsKpiGrid } from './EarningsKpiGrid'
 import { EarningsPeriodControl } from './EarningsPeriodControl'
 import { MonthlyEarningsChart } from './MonthlyEarningsChart'
+import { EarningsPaymentsTable } from './EarningsPaymentsTable'
 import { PendingBonusPanel } from './PendingBonusPanel'
 
 interface EarningsPageProps {
   period: CreatorEarningsPeriod
+  q?: string
+  cursor?: string
   onPeriodChange: (period: CreatorEarningsPeriod) => void
 }
 
-export function EarningsPage({ period, onPeriodChange }: EarningsPageProps) {
+export function EarningsPage({
+  period,
+  q,
+  cursor,
+  onPeriodChange,
+}: EarningsPageProps) {
   const earningsQuery = useCreatorEarningsQuery({
     period,
+    q,
+    cursor,
     limit: 25,
   })
 
@@ -51,6 +61,11 @@ export function EarningsPage({ period, onPeriodChange }: EarningsPageProps) {
           pendingBonuses={earningsQuery.data.pending_bonuses}
         />
       </div>
+      <EarningsPaymentsTable
+        period={period}
+        q={q}
+        payments={earningsQuery.data.payments}
+      />
     </EarningsPageShell>
   )
 }

@@ -30,6 +30,11 @@ function EarningsRoute() {
   }
 
   return (
-    <EarningsPage period={search.period} onPeriodChange={handlePeriodChange} />
+    <EarningsPage
+      period={search.period}
+      q={search.q}
+      cursor={search.cursor}
+      onPeriodChange={handlePeriodChange}
+    />
   )
 }
