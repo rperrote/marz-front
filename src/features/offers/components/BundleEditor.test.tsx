@@ -243,7 +243,7 @@ describe('BundleEditor', () => {
     ).toBeInTheDocument()
   })
 
-  it('speedBonusEarlyDeadlineBeforeDeadline', async () => {
+  it('validates speed bonus windows', async () => {
     const user = userEvent.setup()
     renderEditor()
 
@@ -268,22 +268,24 @@ describe('BundleEditor', () => {
     await user.type(screen.getByLabelText(/total amount/i), '1000.00')
     await user.type(screen.getByLabelText(/^deadline$/i), '2099-12-31')
 
-    const toggle = screen.getByRole('switch')
-    await user.click(toggle)
-
-    await user.type(screen.getByLabelText(/early deadline/i), '2099-12-31')
-    await user.type(screen.getByLabelText(/bonus amount/i), '100.00')
+    await user.click(screen.getByRole('button', { name: /add window/i }))
+    const hours = screen.getByLabelText(/window hours/i)
+    await user.clear(hours)
+    await user.type(hours, '0')
+    await user.type(screen.getByLabelText(/bonus percentage/i), '0')
+    await user.tab()
 
     const submitButton = screen.getByRole('button', { name: /send offer/i })
     await user.click(submitButton)
 
     expect(mockMutateAsync).not.toHaveBeenCalled()
+    expect(await screen.findByText(/minimum 1 hour/i)).toBeInTheDocument()
     expect(
-      await screen.findByText(/early deadline must be before the deadline/i),
+      await screen.findByText(/bonus percentage must be greater than 0/i),
     ).toBeInTheDocument()
   })
 
-  it('submits successfully with type bundle and correct fields', async () => {
+  it('submits successfully with type bundle and sorted bonus_terms', async () => {
     mockMutateAsync.mockResolvedValueOnce({
       data: { id: 'offer-1' },
       status: 200,
@@ -312,6 +314,17 @@ describe('BundleEditor', () => {
 
     await user.type(screen.getByLabelText(/total amount/i), '1000.00')
     await user.type(screen.getByLabelText(/^deadline$/i), '2099-12-31')
+    await user.click(screen.getByRole('button', { name: /add window/i }))
+    await user.click(screen.getByRole('button', { name: /add window/i }))
+
+    const hours = screen.getAllByLabelText(/window hours/i)
+    const percentages = screen.getAllByLabelText(/bonus percentage/i)
+    await user.clear(hours[0]!)
+    await user.type(hours[0]!, '72')
+    await user.type(percentages[0]!, '20')
+    await user.clear(hours[1]!)
+    await user.type(hours[1]!, '24')
+    await user.type(percentages[1]!, '10')
 
     const submitButton = screen.getByRole('button', { name: /send offer/i })
     await user.click(submitButton)
@@ -323,14 +336,21 @@ describe('BundleEditor', () => {
     const payload = mockMutateAsync.mock.calls[0]![0]
     expect(payload.type).toBe('bundle')
     expect(payload.campaign_id).toBe('camp-1')
-    expect(payload.total_amount).toBe('1000.00')
+    expect(payload.amount).toBe('1000.00')
     expect(payload.deadline).toBe('2099-12-31')
+    expect(payload.bonus_terms).toEqual({
+      speed_bonus_windows: [
+        { window_hours: 24, bonus_pct: '10' },
+        { window_hours: 72, bonus_pct: '20' },
+      ],
+    })
     expect(payload.deliverables).toHaveLength(2)
     expect(payload.deliverables[0]).toMatchObject({
+      position: 1,
       platform: 'youtube',
       format: 'yt_long',
       quantity: 1,
-      amount: undefined,
+      amount: null,
     })
   })
 

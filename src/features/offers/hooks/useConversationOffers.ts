@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'
-import type { OfferStatus, OfferSpeedBonus } from '#/features/offers/types'
+import type { OfferBonusTerms } from '#/shared/api/generated/model'
+import type { OfferStatus } from '#/features/offers/types'
 import type { DeliverableStatus } from '#/features/deliverables/types'
 
 export { getConversationOffersQueryKey }
@@ -34,7 +35,7 @@ export interface ConversationOfferBaseDTO {
   total_amount: string
   currency: string
   deadline: string
-  speed_bonus: OfferSpeedBonus | null
+  bonus_terms: OfferBonusTerms | null
   sent_at: string
   expires_at: string
   accepted_at: string | null

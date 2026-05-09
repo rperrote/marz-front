@@ -597,7 +597,7 @@ function getSupportedActions(actions: InboxInlineAction[]) {
 }
 
 function getTriggerLabel(actions: InboxInlineAction[]) {
-  if (actions.length === 1 && isReplyAction(actions[0]!)) return t`Responder`
+  if (actions.length === 1 && isReplyAction(actions[0])) return t`Responder`
   return t`Acciones`
 }
 

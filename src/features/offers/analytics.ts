@@ -19,7 +19,7 @@ interface OfferSentBasePayload {
   actor_kind: 'brand'
   offer_type: OfferType
   platform_mix: string[]
-  has_speed_bonus: boolean
+  has_bonus_terms: boolean
   total_amount_bucket: AmountBucket
   deadline_days_from_now: number
 }

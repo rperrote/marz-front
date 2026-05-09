@@ -1,5 +1,7 @@
 import {
   BarChart3,
+  BriefcaseBusiness,
+  DollarSign,
   Home,
   Inbox,
   Megaphone,
@@ -22,6 +24,8 @@ interface AppSidebarProps {
 
 const iconByName: Record<string, LucideIcon> = {
   'bar-chart-3': BarChart3,
+  'briefcase-business': BriefcaseBusiness,
+  'dollar-sign': DollarSign,
   home: Home,
   inbox: Inbox,
   megaphone: Megaphone,

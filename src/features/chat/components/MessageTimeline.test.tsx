@@ -573,7 +573,7 @@ describe('MessageTimeline', () => {
               total_amount: '1000.00',
               currency: 'USD',
               deadline: '2026-05-01T00:00:00Z',
-              speed_bonus: null,
+              bonus_terms: null,
               sent_at: '2026-04-01T00:00:00Z',
               expires_at: '2026-04-08T00:00:00Z',
               deliverables: [

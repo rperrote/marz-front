@@ -52,9 +52,8 @@ Aside "Bonos que podés alcanzar a tiempo": lista paginada de speed pending bonu
 - [ ] `pnpm typecheck` y `pnpm test` pasan.
 
 ## Done summary
-
-_Pending implementation._
-
+Todos los fixes aplicados: Link de TanStack Router, dependencias escalares en countdown, inyección de now, isSpeedBonus como boolean, mock del router en tests.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

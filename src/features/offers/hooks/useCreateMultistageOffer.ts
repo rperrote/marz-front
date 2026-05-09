@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
+import type { CreateMultiStageOfferRequest as GeneratedCreateMultiStageOfferRequest } from '#/shared/api/generated/model'
 
 import {
   trackOfferEvent,
@@ -7,17 +8,7 @@ import {
   maxDeadlineFromNow,
 } from '../analytics'
 
-export interface CreateMultistageOfferRequest {
-  type: 'multistage'
-  campaign_id: string
-  conversation_id: string
-  stages: Array<{
-    name: string
-    description: string
-    deadline: string
-    amount: string
-  }>
-}
+export type CreateMultistageOfferRequest = GeneratedCreateMultiStageOfferRequest
 
 interface OfferDTO {
   id: string
@@ -30,7 +21,7 @@ interface OfferDTO {
   total_amount: string
   currency: string
   deadline: string
-  speed_bonus: null
+  bonus_terms: null
   sent_at: string
   expires_at: string
   accepted_at: string | null
@@ -42,9 +33,6 @@ interface CreateOfferResponse {
   status: number
 }
 
-// CLOSER:DRIFT: backend `CreateMultiStageOfferRequest` requires `description`,
-// a top-level `deliverable: OfferDeliverableDTO`, and stages with `position`. Stage
-// `name`/`description`/`deadline`/`amount` already match. Migration tracked.
 export function useCreateMultistageOffer() {
   return useMutation<CreateOfferResponse, Error, CreateMultistageOfferRequest>({
     mutationFn: (data) =>
@@ -62,7 +50,7 @@ export function useCreateMultistageOffer() {
         offer_type: 'multistage',
         platform_mix: [],
         stages_count: variables.stages.length,
-        has_speed_bonus: false,
+        has_bonus_terms: false,
         total_amount_bucket: toAmountBucket(total, 'USD'),
         deadline_days_from_now: maxDeadlineFromNow(
           variables.stages.map((stage) => stage.deadline),

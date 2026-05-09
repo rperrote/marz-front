@@ -42,9 +42,8 @@ Hooks de data y manejo de URL state para el dashboard. Define `useCreatorEarning
 - [ ] `pnpm typecheck` y `pnpm test` pasan.
 
 ## Done summary
-
-_Pending implementation._
-
+validateSearch correcto, hooks tipados sin any, tests cubren todos los acceptance criteria, typecheck y test suite pasan sin errores
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:
