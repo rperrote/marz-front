@@ -12,8 +12,10 @@ import { useSendOfferSheetStore } from '../store/sendOfferSheetStore'
 import { useActiveCampaigns } from '../hooks/useActiveCampaigns'
 import { useCreateSingleOffer } from '../hooks/useCreateSingleOffer'
 import { todayString } from '../utils/dateUtils'
-import { SpeedBonusFields } from './SpeedBonusFields'
+import { BonusTermsFields, BonusWindowRow } from './BonusTermsFields'
 import { DeliverableSummaryRow } from './DeliverableSummaryRow'
+import { offerBonusTermsFormSchema } from '../schemas/bonusTerms'
+import { sortBonusTerms } from '../utils/bonusTerms'
 
 function getPlatformOptions() {
   return [
@@ -60,50 +62,9 @@ export function createSendOfferSchemas() {
       .string()
       .min(1, t`Select a deadline`)
       .refine((v) => v > todayString(), t`Deadline must be a future date`),
-    speed_bonus_enabled: z.boolean(),
-    speed_bonus: z
-      .object({
-        early_deadline: z.string(),
-        bonus_amount: z.string(),
-      })
-      .nullable(),
+    bonus_terms: offerBonusTermsFormSchema,
   })
-
   const sendOfferSubmitSchema = sendOfferBaseSchema
-    .refine(
-      (data) => {
-        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-        return (
-          data.speed_bonus.early_deadline.length > 0 &&
-          data.speed_bonus.early_deadline > todayString()
-        )
-      },
-      {
-        message: t`Early deadline must be a future date`,
-        path: ['speed_bonus', 'early_deadline'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-        return data.speed_bonus.early_deadline < data.deadline
-      },
-      {
-        message: t`Early deadline must be before the deadline`,
-        path: ['speed_bonus', 'early_deadline'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data.speed_bonus_enabled || !data.speed_bonus) return true
-        const amount = parseFloat(data.speed_bonus.bonus_amount)
-        return !isNaN(amount) && amount > 0
-      },
-      {
-        message: t`Bonus amount must be greater than 0`,
-        path: ['speed_bonus', 'bonus_amount'],
-      },
-    )
 
   return { sendOfferBaseSchema, sendOfferSubmitSchema }
 }
@@ -114,11 +75,15 @@ export const defaultValues = {
   format: '',
   amount: '',
   deadline: '',
-  speed_bonus_enabled: false,
-  speed_bonus: null as {
-    early_deadline: string
-    bonus_amount: string
-  } | null,
+  bonus_terms: {
+    speed_bonus_windows: [],
+  } as {
+    speed_bonus_windows: Array<{
+      id: string
+      window_hours: number
+      bonus_pct: string
+    }>
+  },
 }
 
 export type SendOfferFormValues = typeof defaultValues
@@ -153,25 +118,20 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
       setBackendBanner(null)
 
       const payload = {
+        type: 'single' as const,
         campaign_id: value.campaign_id,
         conversation_id: conversationId,
-        platform: value.platform as 'youtube' | 'instagram' | 'tiktok',
-        format: value.format as
-          | 'yt_long'
-          | 'yt_short'
-          | 'ig_reel'
-          | 'ig_story'
-          | 'ig_post'
-          | 'tiktok_post',
         amount: value.amount,
         deadline: value.deadline,
-        speed_bonus:
-          value.speed_bonus_enabled && value.speed_bonus
-            ? {
-                early_deadline: value.speed_bonus.early_deadline,
-                bonus_amount: value.speed_bonus.bonus_amount,
-              }
+        bonus_terms:
+          value.bonus_terms.speed_bonus_windows.length > 0
+            ? sortBonusTerms(value.bonus_terms)
             : undefined,
+        description: '',
+        deliverable: {
+          platform: value.platform,
+          format: value.format,
+        },
       }
 
       try {
@@ -199,11 +159,10 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
   const selectedPlatform = useStore(form.store, (s) => s.values.platform)
   const amountValue = useStore(form.store, (s) => s.values.amount)
-  const speedBonusEnabled = useStore(
+  const bonusWindows = useStore(
     form.store,
-    (s) => s.values.speed_bonus_enabled,
+    (s) => s.values.bonus_terms.speed_bonus_windows,
   )
-  const speedBonusValues = useStore(form.store, (s) => s.values.speed_bonus)
 
   const selectedCampaign = useMemo(
     () => campaigns.find((c) => c.id === selectedCampaignId),
@@ -216,11 +175,7 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
     : Infinity
 
   const parsedAmount = parseFloat(amountValue) || 0
-  const parsedBonus =
-    speedBonusEnabled && speedBonusValues
-      ? parseFloat(speedBonusValues.bonus_amount) || 0
-      : 0
-  const totalAmount = parsedAmount + parsedBonus
+  const totalAmount = parsedAmount
   const exceedsBudget =
     isFinite(budgetRemaining) && parsedAmount > budgetRemaining
 
@@ -232,18 +187,6 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
   const currentFormatOptions = selectedPlatform
     ? (formatOptionsByPlatform[selectedPlatform] ?? [])
     : []
-
-  function handleSpeedBonusToggle(enabled: boolean) {
-    form.setFieldValue('speed_bonus_enabled', enabled)
-    if (enabled) {
-      form.setFieldValue('speed_bonus', {
-        early_deadline: '',
-        bonus_amount: '',
-      })
-    } else {
-      form.setFieldValue('speed_bonus', null)
-    }
-  }
 
   return (
     <form
@@ -333,30 +276,55 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
           )}
         </form.AppField>
 
-        <SpeedBonusFields
-          enabled={speedBonusEnabled}
-          onToggle={handleSpeedBonusToggle}
-        >
-          <form.AppField name="speed_bonus.early_deadline">
-            {(field) => (
-              <field.TextField
-                label={t`Early deadline`}
-                type="date"
-                min={todayString()}
-              />
-            )}
-          </form.AppField>
-
-          <form.AppField name="speed_bonus.bonus_amount">
-            {(field) => (
-              <field.TextField
-                label={t`Bonus amount (${currency})`}
-                placeholder="0.00"
-                inputMode="decimal"
-              />
-            )}
-          </form.AppField>
-        </SpeedBonusFields>
+        <form.AppField name="bonus_terms.speed_bonus_windows" mode="array">
+          {(field) => (
+            <BonusTermsFields
+              onAdd={() =>
+                field.pushValue({
+                  id: crypto.randomUUID(),
+                  window_hours: 24,
+                  bonus_pct: '',
+                })
+              }
+            >
+              {bonusWindows.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-border bg-background px-3 py-4 text-sm text-muted-foreground">
+                  {t`No speed bonus windows yet.`}
+                </p>
+              ) : null}
+              {bonusWindows.map((window, index) => (
+                <BonusWindowRow
+                  key={window.id}
+                  index={index}
+                  onRemove={() => field.removeValue(index)}
+                >
+                  <form.AppField
+                    name={`bonus_terms.speed_bonus_windows[${index}].window_hours`}
+                  >
+                    {(windowField) => (
+                      <windowField.NumberField
+                        label={t`Window hours`}
+                        min={1}
+                        placeholder="24"
+                      />
+                    )}
+                  </form.AppField>
+                  <form.AppField
+                    name={`bonus_terms.speed_bonus_windows[${index}].bonus_pct`}
+                  >
+                    {(bonusField) => (
+                      <bonusField.TextField
+                        label={t`Bonus percentage`}
+                        placeholder="25"
+                        inputMode="decimal"
+                      />
+                    )}
+                  </form.AppField>
+                </BonusWindowRow>
+              ))}
+            </BonusTermsFields>
+          )}
+        </form.AppField>
 
         <DeliverableSummaryRow
           label={t`Total`}

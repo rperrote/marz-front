@@ -1,9 +1,12 @@
 import { z } from 'zod'
 
-const offerSpeedBonusSchema = z.object({
-  early_deadline: z.string(),
-  bonus_amount: z.string(),
-  currency: z.string(),
+const offerBonusTermsSchema = z.object({
+  speed_bonus_windows: z.array(
+    z.object({
+      window_hours: z.number(),
+      bonus_pct: z.string(),
+    }),
+  ),
 })
 
 export const offerSnapshotSchema = z.object({
@@ -16,7 +19,7 @@ export const offerSnapshotSchema = z.object({
   total_amount: z.string(),
   currency: z.string(),
   deadline: z.string(),
-  speed_bonus: offerSpeedBonusSchema.nullable(),
+  bonus_terms: offerBonusTermsSchema.nullable(),
   sent_at: z.string(),
   expires_at: z.string(),
 })
@@ -40,7 +43,7 @@ export const offerSnapshotBundleSchema = z.object({
   total_amount: z.string(),
   currency: z.string(),
   deadline: z.string(),
-  speed_bonus: offerSpeedBonusSchema.nullable(),
+  bonus_terms: offerBonusTermsSchema.nullable(),
   sent_at: z.string(),
   expires_at: z.string(),
   deliverables: z.array(bundleDeliverableSnapshotSchema),

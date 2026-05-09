@@ -138,7 +138,7 @@ describe('SendOfferSidesheet', () => {
       expect(await screen.findByText(/use format 0\.00/i)).toBeInTheDocument()
     })
 
-    it('shows error when early_deadline >= deadline on submit', async () => {
+    it('shows error when speed bonus window is invalid on submit', async () => {
       const user = userEvent.setup()
       renderSheet()
 
@@ -158,17 +158,19 @@ describe('SendOfferSidesheet', () => {
       await user.type(screen.getByLabelText(/amount/i), '1000.00')
       await user.type(screen.getByLabelText(/^deadline$/i), '2099-12-31')
 
-      const toggle = screen.getByRole('switch')
-      await user.click(toggle)
-
-      await user.type(screen.getByLabelText(/early deadline/i), '2099-12-31')
-      await user.type(screen.getByLabelText(/bonus amount/i), '100.00')
+      await user.click(screen.getByRole('button', { name: /add window/i }))
+      const hours = screen.getByLabelText(/window hours/i)
+      await user.clear(hours)
+      await user.type(hours, '0')
+      await user.type(screen.getByLabelText(/bonus percentage/i), '0')
+      await user.tab()
 
       const submitButton = screen.getByRole('button', { name: /send offer/i })
       await user.click(submitButton)
 
+      expect(await screen.findByText(/minimum 1 hour/i)).toBeInTheDocument()
       expect(
-        await screen.findByText(/early deadline must be before the deadline/i),
+        await screen.findByText(/bonus percentage must be greater than 0/i),
       ).toBeInTheDocument()
     })
   })

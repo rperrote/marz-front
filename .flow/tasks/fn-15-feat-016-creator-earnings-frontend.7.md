@@ -51,9 +51,8 @@ Migrar el editor de Send Offer al nuevo contrato `bonus_terms.speed_bonus_window
 - [ ] `pnpm test` pasa.
 
 ## Done summary
-
-_Pending implementation._
-
+Los tres problemas del round anterior están corregidos: hasBonusWindows eliminado, bonus_terms omitido cuando no hay ventanas, key estable con id de crypto.randomUUID. sortBonusTerms strip-ea correctamente el campo id interno antes del submit. Sin dead code, sin type issues, sin señales de alarma.
 ## Evidence
-
-_Pending implementation._
+- Commits:
+- Tests:
+- PRs:

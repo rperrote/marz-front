@@ -28,7 +28,7 @@ const base: ConversationOfferBaseDTO = {
   total_amount: '4500.00',
   currency: 'USD',
   deadline: '2024-10-12',
-  speed_bonus: null,
+  bonus_terms: null,
   sent_at: '2024-09-01T12:00:00Z',
   expires_at: '2024-09-04T12:00:00Z',
   accepted_at: null,
@@ -115,18 +115,16 @@ describe('CurrentOfferBlock', () => {
     expect(screen.getByText('Accepted')).toBeInTheDocument()
   })
 
-  it('renders speed bonus when present', () => {
+  it('renders speed bonus windows when present', () => {
     const withBonus = {
       ...singleOffer,
-      speed_bonus: {
-        early_deadline: '2024-10-05',
-        bonus_amount: '675.00',
-        currency: 'USD',
+      bonus_terms: {
+        speed_bonus_windows: [{ window_hours: 24, bonus_pct: '15' }],
       },
     }
     render(<CurrentOfferBlock offer={withBonus} actorKind="brand" />)
     expect(screen.getByText('Speed bonus')).toBeInTheDocument()
-    expect(screen.getByText('+$675.00')).toBeInTheDocument()
+    expect(screen.getByText('+15% / 24h')).toBeInTheDocument()
   })
 
   it('renders platform deliverable', () => {

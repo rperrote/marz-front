@@ -1,10 +1,6 @@
-export type OfferStatus = 'sent' | 'accepted' | 'rejected' | 'expired'
+import type { OfferBonusTerms } from '#/shared/api/generated/model'
 
-export interface OfferSpeedBonus {
-  early_deadline: string
-  bonus_amount: string
-  currency: string
-}
+export type OfferStatus = 'sent' | 'accepted' | 'rejected' | 'expired'
 
 export interface OfferSnapshot {
   offer_id: string
@@ -16,7 +12,7 @@ export interface OfferSnapshot {
   total_amount: string
   currency: string
   deadline: string
-  speed_bonus: OfferSpeedBonus | null
+  bonus_terms: OfferBonusTerms | null
   sent_at: string
   expires_at: string
 }
@@ -70,7 +66,7 @@ export interface OfferSnapshotBundle {
   total_amount: string
   currency: string
   deadline: string
-  speed_bonus: OfferSpeedBonus | null
+  bonus_terms: OfferBonusTerms | null
   sent_at: string
   expires_at: string
   deliverables: BundleDeliverableSnapshot[]

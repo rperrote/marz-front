@@ -12,6 +12,7 @@ import type { OfferStatus } from '#/features/offers/types'
 import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
 import { MultiStageStagesList } from './MultiStageStagesList'
+import { formatBonusWindowsLabel } from '../utils/bonusTerms'
 
 const statusConfig: Record<
   OfferStatus,
@@ -124,6 +125,7 @@ export function CurrentOfferBlock({
   }
 
   const badge = statusConfig[offer.status]
+  const bonusLabel = formatBonusWindowsLabel(offer.bonus_terms)
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -157,15 +159,11 @@ export function CurrentOfferBlock({
             {formatOfferDeadline(offer.deadline)}
           </dd>
         </div>
-        {offer.speed_bonus ? (
+        {bonusLabel ? (
           <div className="flex items-baseline justify-between gap-4">
             <dt className="text-xs text-muted-foreground">{t`Speed bonus`}</dt>
             <dd className="font-mono text-xs font-medium text-success">
-              +
-              {formatOfferAmount(
-                offer.speed_bonus.bonus_amount,
-                offer.speed_bonus.currency,
-              )}
+              {bonusLabel}
             </dd>
           </div>
         ) : null}

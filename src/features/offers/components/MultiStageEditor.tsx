@@ -67,7 +67,14 @@ export function MultiStageEditor({
         type: 'multistage' as const,
         campaign_id: value.campaign_id,
         conversation_id: conversationId,
-        stages: value.stages.map((s) => ({
+        bonus_terms: null,
+        description: '',
+        deliverable: {
+          platform: 'multistage',
+          format: 'multistage',
+        },
+        stages: value.stages.map((s, index) => ({
+          position: index + 1,
           name: s.name,
           description: s.description,
           deadline: s.deadline,
