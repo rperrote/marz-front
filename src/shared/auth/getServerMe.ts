@@ -11,6 +11,12 @@ export interface ServerMeBrandWorkspace {
   plan: string
 }
 
+export type BrandWorkspaceRole = 'owner' | 'admin' | 'member'
+
+export interface ServerMeMembership {
+  role?: BrandWorkspaceRole
+}
+
 export interface ServerMeBody {
   id: string
   email: string
@@ -21,6 +27,7 @@ export interface ServerMeBody {
   redirect_to: string | null
   onboarding_status: string
   brand_workspace: ServerMeBrandWorkspace | null
+  membership?: ServerMeMembership | null
 }
 
 export interface ServerMeOk {
@@ -35,20 +42,24 @@ export interface ServerMeFail {
 
 export type ServerMeResult = ServerMeOk | ServerMeFail
 
+function parseBrandWorkspaceRole(
+  value: unknown,
+): BrandWorkspaceRole | undefined {
+  return value === 'owner' || value === 'admin' || value === 'member'
+    ? value
+    : undefined
+}
+
 export const getServerMe = createServerFn({ method: 'GET' }).handler(
   async (): Promise<ServerMeResult> => {
     const authObject = await auth()
-    console.log('[getServerMe] userId:', authObject.userId)
 
     if (!authObject.userId) {
-      console.log('[getServerMe] no userId → ok:false')
       return { ok: false, body: null }
     }
 
     const token = await authObject.getToken()
-    console.log('[getServerMe] token present:', !!token)
     if (!token) {
-      console.log('[getServerMe] no token → ok:false')
       return { ok: false, body: null }
     }
 
@@ -59,16 +70,14 @@ export const getServerMe = createServerFn({ method: 'GET' }).handler(
         Authorization: `Bearer ${token}`,
       },
     })
-    console.log('[getServerMe] /v1/me status:', res.status)
 
     if (!res.ok) {
-      const body = await res.text().catch(() => '')
-      console.log('[getServerMe] /v1/me error body:', body.slice(0, 300))
       return { ok: false, body: null }
     }
 
     const raw = (await res.json()) as ServerMeBody
     const workspace = raw.brand_workspace
+    const role = parseBrandWorkspaceRole(raw.membership?.role)
     return {
       ok: true,
       body: {
@@ -89,6 +98,7 @@ export const getServerMe = createServerFn({ method: 'GET' }).handler(
               plan: workspace.plan,
             }
           : null,
+        membership: role ? { role } : null,
       },
     }
   },

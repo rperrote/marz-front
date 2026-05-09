@@ -1,23 +1,29 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { Button } from '#/components/ui/button'
+import { useRouteTopbar } from '#/features/identity/app-shell/useRouteTopbar'
 
 export const Route = createFileRoute('/_brand/campaigns/')({
   component: CampaignsPage,
 })
 
+const campaignsTopbarConfig = {
+  title: 'Campaigns',
+  actions: (
+    <Button asChild>
+      <Link to="/campaigns/new">
+        <Plus className="size-4" />
+        Nueva campaña
+      </Link>
+    </Button>
+  ),
+}
+
 function CampaignsPage() {
+  useRouteTopbar(campaignsTopbarConfig)
+
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Campaigns</h1>
-        <Button asChild>
-          <Link to="/campaigns/new">
-            <Plus className="size-4" />
-            Nueva campaña
-          </Link>
-        </Button>
-      </div>
       <CampaignsEmptyState />
     </div>
   )

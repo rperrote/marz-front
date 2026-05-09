@@ -55,11 +55,8 @@ Endurecer los guards de los pathless route groups para garantizar separación es
 - [ ] `pnpm typecheck`, `pnpm test`, `pnpm lint` pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+Guards refactorizados correctamente: kind inválido → /auth, mismatch → /workspace, missing workspace → fallback sin redirect. Tests cubren todos los acceptance criteria. MissingWorkspaceFallback correcto en i18n, accesibilidad y bounds de BC. Rules of Hooks respetadas en BrandLayout.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

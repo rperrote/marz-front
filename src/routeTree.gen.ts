@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/workspace'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DsOnboardingRouteImport } from './routes/ds-onboarding'
 import { Route as DsRouteImport } from './routes/ds'
@@ -42,6 +43,11 @@ import { Route as BrandCampaignsCampaignIdBriefRouteImport } from './routes/_bra
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/workspace',
   path: '/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthRoute = HealthRouteImport.update({
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/campaigns': typeof BrandCampaignsRouteWithChildren
   '/offers': typeof CreatorOffersRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/offers': typeof CreatorOffersRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/check-email': typeof AuthCheckEmailRoute
@@ -248,6 +256,7 @@ export interface FileRoutesById {
   '/ds': typeof DsRoute
   '/ds-onboarding': typeof DsOnboardingRoute
   '/health': typeof HealthRoute
+  '/inbox': typeof InboxRoute
   '/workspace': typeof WorkspaceRouteWithChildren
   '/_brand/campaigns': typeof BrandCampaignsRouteWithChildren
   '/_creator/offers': typeof CreatorOffersRoute
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/workspace'
     | '/campaigns'
     | '/offers'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/offers'
     | '/auth/callback'
     | '/auth/check-email'
@@ -334,6 +345,7 @@ export interface FileRouteTypes {
     | '/ds'
     | '/ds-onboarding'
     | '/health'
+    | '/inbox'
     | '/workspace'
     | '/_brand/campaigns'
     | '/_creator/offers'
@@ -366,6 +378,7 @@ export interface RootRouteChildren {
   DsRoute: typeof DsRoute
   DsOnboardingRoute: typeof DsOnboardingRoute
   HealthRoute: typeof HealthRoute
+  InboxRoute: typeof InboxRoute
   WorkspaceRoute: typeof WorkspaceRouteWithChildren
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthCheckEmailRoute: typeof AuthCheckEmailRoute
@@ -383,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace'
       fullPath: '/workspace'
       preLoaderRoute: typeof WorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health': {
@@ -698,6 +718,7 @@ const rootRouteChildren: RootRouteChildren = {
   DsRoute: DsRoute,
   DsOnboardingRoute: DsOnboardingRoute,
   HealthRoute: HealthRoute,
+  InboxRoute: InboxRoute,
   WorkspaceRoute: WorkspaceRouteWithChildren,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthCheckEmailRoute: AuthCheckEmailRoute,

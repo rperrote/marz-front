@@ -5,9 +5,9 @@ import { t } from '@lingui/core/macro'
 import { Button } from '#/components/ui/button'
 import { SystemEventCard, StatTile } from '#/shared/ui/SystemEventCard'
 import { useNow } from '#/shared/hooks/useNow'
+import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import type { OfferSnapshotBundle, OfferStatus } from '../types'
 import {
-  formatOfferAmount,
   formatOfferDeadline,
   formatOfferPlatform,
   formatExpiresIn,

@@ -12,3 +12,3023 @@ msgstr ""
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:87
+msgid "¿Cómo llegaste a Marz?"
+msgstr "¿Cómo llegaste a Marz?"
+
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:68
+msgid "¿Cómo se llama tu marca?"
+msgstr "¿Cómo se llama tu marca?"
+
+#: src/features/identity/onboarding/creator/screens/C1NameHandleScreen.tsx:39
+msgid "¿Cómo te conocen?"
+msgstr "¿Cómo te conocen?"
+
+#: src/features/identity/onboarding/creator/screens/C12GenderScreen.tsx:29
+msgid "¿Cuál es tu género?"
+msgstr "¿Cuál es tu género?"
+
+#: src/features/identity/onboarding/creator/screens/C11BirthdayScreen.tsx:76
+msgid "¿Cuándo es tu cumpleaños?"
+msgstr "¿Cuándo es tu cumpleaños?"
+
+#: src/features/identity/onboarding/brand/screens/B8TimingScreen.tsx:26
+msgid "¿Cuándo querés empezar?"
+msgstr "¿Cuándo querés empezar?"
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:36
+msgid "¿Cuánto hiciste con marcas?"
+msgstr "¿Cuánto hiciste con marcas?"
+
+#: src/features/identity/onboarding/brand/screens/B6BudgetScreen.tsx:54
+msgid "¿Cuánto pensás invertir por mes?"
+msgstr "¿Cuánto pensás invertir por mes?"
+
+#: src/features/identity/onboarding/creator/screens/C13LocationScreen.tsx:29
+msgid "¿Desde dónde creás?"
+msgstr "¿Desde dónde creás?"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:67
+msgid "¿En qué nivel estás hoy?"
+msgstr "¿En qué nivel estás hoy?"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:42
+msgid "¿En qué te especializás?"
+msgstr "¿En qué te especializás?"
+
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:68
+msgid "¿En qué vertical opera tu marca?"
+msgstr "¿En qué vertical opera tu marca?"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:50
+msgid "¿Qué objetivo tenés usando Marz?"
+msgstr "¿Qué objetivo tenés usando Marz?"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:49
+msgid "¿Qué objetivo tiene {brandName} usando Marz?"
+msgstr "¿Qué objetivo tiene {brandName} usando Marz?"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:70
+msgid "¿Qué tipo de contenido hacés?"
+msgstr "¿Qué tipo de contenido hacés?"
+
+#: src/features/identity/onboarding/creator/screens/C16ReferralScreen.tsx:21
+msgid "¿Quién te invitó?"
+msgstr "¿Quién te invitó?"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:132
+msgid "¿Quién te recomendó Marz?"
+msgstr "¿Quién te recomendó Marz?"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:166
+msgid ". Te los mostramos cuando termines."
+msgstr ". Te los mostramos cuando termines."
+
+#: src/features/identity/onboarding/creator/screens/C19PrimingSocialProof.tsx:22
+msgid "“Entré con 60K en TikTok. En 4 meses cerré 11 colabs con marcas fintech y pasé a vivir de esto. La diferencia fue el matching, no tener que buscar yo.”"
+msgstr "“Entré con 60K en TikTok. En 4 meses cerré 11 colabs con marcas fintech y pasé a vivir de esto. La diferencia fue el matching, no tener que buscar yo.”"
+
+#. placeholder {0}: snapshot.deliverable_display_label
+#: src/features/chat/components/systemEvents/PaymentMarkedCard.tsx:39
+msgid "{0} · {declaredDate}"
+msgstr "{0} · {declaredDate}"
+
+#. placeholder {0}: selected.length
+#. placeholder {1}: CONTENT_TYPE_OPTIONS.length
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:88
+msgid "{0} de {1} seleccionados"
+msgstr "{0} de {1} seleccionados"
+
+#. placeholder {0}: selected.length
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:59
+msgid "{0} de 5 seleccionados"
+msgstr "{0} de 5 seleccionados"
+
+#. placeholder {0}: cards.length
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:93
+msgid "{0} tarifas"
+msgstr "{0} tarifas"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:79
+msgid "{brandName} está en Marz. Probando gratis durante 7 días."
+msgstr "{brandName} está en Marz. Probando gratis durante 7 días."
+
+#: src/features/chat/components/NewMessagesPill.tsx:11
+msgid "{count} mensajes nuevos"
+msgstr "{count} mensajes nuevos"
+
+#: src/features/offers/components/OfferAcceptedCardOut.tsx:32
+msgid "{creatorName} accepted the offer"
+msgstr "{creatorName} accepted the offer"
+
+#: src/features/offers/components/OfferAcceptedCardOut.tsx:22
+msgid "{creatorName} accepted the offer, deadline {deadline}"
+msgstr "{creatorName} accepted the offer, deadline {deadline}"
+
+#: src/features/offers/utils/formatOffer.ts:32
+msgid "{days}d {hours}h left"
+msgstr "{days}d {hours}h left"
+
+#: src/features/offers/components/OfferAcceptedCardOut.tsx:35
+msgid "{firstName} is preparing the draft. Deadline is {deadline}."
+msgstr "{firstName} is preparing the draft. Deadline is {deadline}."
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:35
+msgid "{firstName}, ¿cuánto hiciste con marcas?"
+msgstr "{firstName}, ¿cuánto hiciste con marcas?"
+
+#: src/features/offers/utils/formatOffer.ts:34
+msgid "{hours}h {minutes}m left"
+msgstr "{hours}h {minutes}m left"
+
+#: src/features/offers/utils/formatOffer.ts:35
+msgid "{minutes}m left"
+msgstr "{minutes}m left"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:86
+msgid "{missingCount, plural, one {A una tarifa le falta monto} other {A # tarifas les falta monto}}"
+msgstr "{missingCount, plural, one {A una tarifa le falta monto} other {A # tarifas les falta monto}}"
+
+#: src/features/identity/onboarding/creator/screens/C19PrimingSocialProof.tsx:36
+msgid "@valenmed · 190K TikTok · 3 años en Marz"
+msgstr "@valenmed · 190K TikTok · 3 años en Marz"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:31
+msgid "/ mes"
+msgstr "/ mes"
+
+#: src/features/identity/onboarding/brand/screens/B6BudgetScreen.tsx:69
+msgid "/mes"
+msgstr "/mes"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:305
+msgid "/mo"
+msgstr "/mo"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:305
+msgid "/mo · anual"
+msgstr "/mo · anual"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:191
+#: src/features/identity/onboarding/creator/screens/C3PrimingBrandsWaiting.tsx:50
+msgid "+{remaining} más"
+msgstr "+{remaining} más"
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:22
+msgid "+20 campañas · es mi ingreso principal"
+msgstr "+20 campañas · es mi ingreso principal"
+
+#: src/features/chat/components/NewMessagesPill.tsx:11
+msgid "1 mensaje nuevo"
+msgstr "1 mensaje nuevo"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:73
+msgid "100/mes"
+msgstr "100/mes"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:43
+msgid "100K–200K followers"
+msgstr "100K–200K followers"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:25
+msgid "1K–5K followers"
+msgstr "1K–5K followers"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:55
+msgid "1M+ followers"
+msgstr "1M+ followers"
+
+#: src/features/identity/onboarding/creator/screens/C8PrimingTestimonials.tsx:89
+msgid "2.340 creadores activos · 0% take rate · payouts 24h"
+msgstr "2.340 creadores activos · 0% take rate · payouts 24h"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:49
+msgid "200K–1M followers"
+msgstr "200K–1M followers"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:37
+msgid "20K–100K followers"
+msgstr "20K–100K followers"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:50
+msgid "30/mes"
+msgstr "30/mes"
+
+#: src/features/identity/onboarding/brand/screens/B3PrimingSocialProof.tsx:62
+msgid "5 años"
+msgstr "5 años"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:31
+msgid "5K–20K followers"
+msgstr "5K–20K followers"
+
+#. placeholder {0}: labelOf(rc.format)
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:71
+msgid "A la tarifa {0} le falta monto"
+msgstr "A la tarifa {0} le falta monto"
+
+#: src/features/deliverables/components/ApproveDraftButton.tsx:61
+#: src/features/deliverables/components/DraftSubmittedCard.tsx:230
+msgid "A newer version was submitted"
+msgstr "A newer version was submitted"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:79
+msgid "A/B testing"
+msgstr "A/B testing"
+
+#: src/features/identity/onboarding/brand/screens/B3PrimingSocialProof.tsx:24
+msgid "Acá no entrás solo."
+msgstr "Acá no entrás solo."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:45
+msgid "Accedé a la red de creadores de Marz."
+msgstr "Accedé a la red de creadores de Marz."
+
+#: src/features/offers/components/OfferCardBundle.tsx:123
+#: src/features/offers/components/OfferCardMultiStage.tsx:174
+#: src/features/offers/components/OfferCardReceived.tsx:94
+msgid "Accept Offer"
+msgstr "Accept Offer"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:24
+#: src/features/offers/components/OfferArchiveItem.tsx:18
+#: src/features/offers/components/OfferCardSent.tsx:24
+#: src/features/offers/utils/offerStatus.ts:14
+msgid "Accepted"
+msgstr "Accepted"
+
+#: src/features/offers/components/OfferCardBundle.tsx:123
+#: src/features/offers/components/OfferCardMultiStage.tsx:174
+#: src/features/offers/components/OfferCardReceived.tsx:94
+msgid "Accepting…"
+msgstr "Accepting…"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:35
+msgid "Acceso a la red completa"
+msgstr "Acceso a la red completa"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:105
+msgid "Acceso API"
+msgstr "Acceso API"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:102
+msgid "Account manager dedicado"
+msgstr "Account manager dedicado"
+
+#: src/features/offers/components/BundleEditor.tsx:328
+msgid "Add deliverable"
+msgstr "Add deliverable"
+
+#: src/features/offers/components/MultiStageEditor.tsx:231
+msgid "Add stage"
+msgstr "Add stage"
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:263
+msgid "Additional notes"
+msgstr "Additional notes"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:132
+msgid "Agendar una llamada"
+msgstr "Agendar una llamada"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:415
+msgid "Agregar canal"
+msgstr "Agregar canal"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:502
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:505
+msgid "Agregar dimensión"
+msgstr "Agregar dimensión"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:92
+msgid "Agregar filtro"
+msgstr "Agregar filtro"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:200
+msgid "Agregar señal negativa"
+msgstr "Agregar señal negativa"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:192
+msgid "Agregar señal positiva"
+msgstr "Agregar señal positiva"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:83
+msgid "Agregar señal…"
+msgstr "Agregar señal…"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:391
+msgid "Agregar tarifa..."
+msgstr "Agregar tarifa..."
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:61
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:116
+msgid "AI"
+msgstr "AI"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:45
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:22
+msgid "AI / tech"
+msgstr "AI / tech"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:25
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:58
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:34
+msgid "AI / Tech"
+msgstr "AI / Tech"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:55
+msgid "AI matching + outreach"
+msgstr "AI matching + outreach"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:51
+msgid "Alcance"
+msgstr "Alcance"
+
+#: src/features/deliverables/hooks/useRequestChangesFlow.ts:162
+msgid "Algo salió mal. Intentá de nuevo."
+msgstr "Algo salió mal. Intentá de nuevo."
+
+#: src/features/identity/onboarding/creator/screens/C12GenderScreen.tsx:32
+msgid "Algunas campañas filtran por género de creador. Opcional."
+msgstr "Algunas campañas filtran por género de creador. Opcional."
+
+#: src/features/offers/components/MultiStageStagesList.tsx:125
+#: src/features/offers/components/OfferCardMultiStage.tsx:79
+msgid "Amount"
+msgstr "Amount"
+
+#: src/features/offers/components/BundleEditor.tsx:302
+#: src/features/offers/components/SingleEditor.tsx:313
+msgid "Amount ({currency})"
+msgstr "Amount ({currency})"
+
+#: src/features/offers/components/SingleEditor.tsx:58
+#: src/features/offers/schemas/bundleEditor.ts:11
+#: src/features/offers/schemas/bundleEditor.ts:22
+#: src/features/offers/schemas/multiStageEditor.ts:25
+msgid "Amount must be greater than 0"
+msgstr "Amount must be greater than 0"
+
+#: src/features/offers/schemas/bundleEditor.ts:60
+msgid "Amounts must sum to total"
+msgstr "Amounts must sum to total"
+
+#: src/features/identity/onboarding/creator/screens/C11BirthdayScreen.tsx:116
+msgid "Año"
+msgstr "Año"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:218
+msgid "Anual"
+msgstr "Anual"
+
+#: src/features/deliverables/components/ApproveDraftButton.tsx:57
+msgid "Approve draft"
+msgstr "Approve draft"
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:17
+#: src/features/deliverables/components/DraftVersionList.tsx:21
+#: src/features/deliverables/components/MultistagePanelGroup.tsx:25
+#: src/features/offers/components/MultiStageStagesList.tsx:46
+msgid "Approved"
+msgstr "Approved"
+
+#. placeholder {0}: new Date(snapshot.approved_at).toLocaleDateString()
+#: src/features/deliverables/components/DraftApprovedCard.tsx:49
+msgid "Approved by {approverName} on {0}"
+msgstr "Approved by {approverName} on {0}"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:109
+msgid "Apps"
+msgstr "Apps"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:43
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:20
+msgid "apps móviles"
+msgstr "apps móviles"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:23
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:54
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:32
+msgid "Apps móviles"
+msgstr "Apps móviles"
+
+#: src/features/offers/components/OffersArchiveBlock.tsx:47
+#: src/features/offers/components/OffersArchiveBlock.tsx:67
+msgid "Archived offers"
+msgstr "Archived offers"
+
+#: src/features/chat/workspace/ConversationRailItem.tsx:59
+msgid "Archivo adjunto"
+msgstr "Archivo adjunto"
+
+#: src/features/identity/onboarding/creator/screens/C13LocationScreen.tsx:48
+msgid "Argentina"
+msgstr "Argentina"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:44
+msgid "Armá tu primera campaña y brief"
+msgstr "Armá tu primera campaña y brief"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:110
+msgid "Armando tu shortlist…"
+msgstr "Armando tu shortlist…"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:57
+msgid "Así es trabajar con Marz."
+msgstr "Así es trabajar con Marz."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:97
+msgid "Así se ve lo que podés alcanzar."
+msgstr "Así se ve lo que podés alcanzar."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:103
+msgid "Attribution / ROAS"
+msgstr "Attribution / ROAS"
+
+#: src/features/deliverables/components/RequestChangesCard.tsx:34
+#: src/features/deliverables/components/RequestChangesModal.tsx:30
+msgid "Audio"
+msgstr "Audio"
+
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:153
+msgid "Avatar"
+msgstr "Avatar"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:103
+msgid "Aventura"
+msgstr "Aventura"
+
+#: src/features/offers/components/OfferCardSent.tsx:23
+msgid "Awaiting response"
+msgstr "Awaiting response"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:24
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:38
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:27
+msgid "awareness"
+msgstr "awareness"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:16
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:39
+msgid "Awareness"
+msgstr "Awareness"
+
+#: src/features/identity/onboarding/creator/screens/C9PrimingBenchmark2.tsx:28
+msgid "Basado en tu nicho y alcance, podés acceder a campañas que te pagan lo que vale tu trabajo."
+msgstr "Basado en tu nicho y alcance, podés acceder a campañas que te pagan lo que vale tu trabajo."
+
+#: src/features/identity/onboarding/creator/screens/C13LocationScreen.tsx:32
+msgid "Base geográfica. Importa para campañas con foco regional."
+msgstr "Base geográfica. Importa para campañas con foco regional."
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:281
+msgid "Be specific — mention timestamps if possible (e.g. 'at 0:42 the product logo is cropped')"
+msgstr "Be specific — mention timestamps if possible (e.g. 'at 0:42 the product logo is cropped')"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:18
+msgid "Beauty"
+msgstr "Beauty"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:76
+msgid "Bebidas"
+msgstr "Bebidas"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:46
+msgid "Behind the scenes"
+msgstr "Behind the scenes"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:39
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:16
+msgid "belleza"
+msgstr "belleza"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:19
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:48
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:28
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:92
+msgid "Belleza"
+msgstr "Belleza"
+
+#: src/features/offers/components/BundleEditor.tsx:364
+#: src/features/offers/components/SingleEditor.tsx:353
+msgid "Bonus amount ({currency})"
+msgstr "Bonus amount ({currency})"
+
+#: src/features/offers/components/SingleEditor.tsx:103
+#: src/features/offers/schemas/bundleEditor.ts:96
+msgid "Bonus amount must be greater than 0"
+msgstr "Bonus amount must be greater than 0"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:48
+msgid "Brand Awareness"
+msgstr "Brand Awareness"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:149
+#: src/features/offers/components/OfferCardBundle.tsx:60
+#: src/features/offers/components/OfferCardMultiStage.tsx:140
+#: src/features/offers/components/OfferCardReceived.tsx:75
+#: src/features/offers/components/OfferCardSent.tsx:48
+msgid "Budget"
+msgstr "Budget"
+
+#. placeholder {0}: BUDGET_LABEL[store.monthly_budget_range]
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:133
+msgid "Budget {0}"
+msgstr "Budget {0}"
+
+#: src/features/identity/onboarding/creator/screens/C13LocationScreen.tsx:66
+msgid "Buenos Aires"
+msgstr "Buenos Aires"
+
+#: src/features/offers/components/OfferTypeBadge.tsx:10
+#: src/features/offers/components/OfferTypeChooser.tsx:29
+msgid "Bundle"
+msgstr "Bundle"
+
+#. placeholder {0}: badge.label
+#: src/features/offers/components/OfferCardBundle.tsx:53
+msgid "Bundle offer, total {amount}, deadline {deadline}, status {0}"
+msgstr "Bundle offer, total {amount}, deadline {deadline}, status {0}"
+
+#: src/features/chat/workspace/ConversationSearchInput.tsx:72
+msgid "Buscar conversaciones"
+msgstr "Buscar conversaciones"
+
+#: src/features/chat/workspace/ConversationSearchInput.tsx:73
+msgid "Buscar conversaciones…"
+msgstr "Buscar conversaciones…"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:11
+msgid "Business"
+msgstr "Business"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:32
+msgid "Búsqueda"
+msgstr "Búsqueda"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:92
+msgid "Cabello"
+msgstr "Cabello"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:158
+msgid "Cambiar foto"
+msgstr "Cambiar foto"
+
+#: src/features/offers/components/BundleEditor.tsx:197
+#: src/features/offers/components/MultiStageEditor.tsx:167
+#: src/features/offers/components/SingleEditor.tsx:269
+msgid "Campaign"
+msgstr "Campaign"
+
+#: src/features/offers/components/OfferCardReceived.tsx:62
+msgid "Campaign offer received, total {amount}, deadline {deadline}"
+msgstr "Campaign offer received, total {amount}, deadline {deadline}"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:337
+msgid "Campaña"
+msgstr "Campaña"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:48
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:71
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:95
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:119
+msgid "CAMPAÑAS"
+msgstr "CAMPAÑAS"
+
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:212
+msgid "Canales"
+msgstr "Canales"
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:317
+#: src/features/deliverables/components/UploadProgressOverlay.tsx:38
+#: src/features/offers/components/BundleEditor.tsx:382
+#: src/features/offers/components/MultiStageEditor.tsx:261
+#: src/features/offers/components/SendOfferSidesheet.tsx:159
+#: src/features/offers/components/SingleEditor.tsx:371
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/features/deliverables/components/InlineVideoPlayer.tsx:57
+msgid "Cannot play this video"
+msgstr "Cannot play this video"
+
+#: src/features/chat/workspace/ConversationRail.tsx:161
+msgid "Cargando conversaciones"
+msgstr "Cargando conversaciones"
+
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:54
+msgid "Cargo"
+msgstr "Cargo"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:73
+msgid "Carrera"
+msgstr "Carrera"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:54
+msgid "Celebridad"
+msgstr "Celebridad"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:152
+msgid "Change offer type?"
+msgstr "Change offer type?"
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:16
+#: src/features/deliverables/components/DraftVersionList.tsx:25
+#: src/features/deliverables/components/RequestChangesCard.tsx:112
+msgid "Changes requested"
+msgstr "Changes requested"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:154
+msgid "Changing the offer type will discard the entered data. Continue?"
+msgstr "Changing the offer type will discard the entered data. Continue?"
+
+#: src/features/identity/onboarding/brand/screens/B3PrimingSocialProof.tsx:27
+msgid "Cinco años potenciando marcas con creadores de contenido."
+msgstr "Cinco años potenciando marcas con creadores de contenido."
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:87
+msgid "Cine"
+msgstr "Cine"
+
+#: src/features/identity/onboarding/creator/screens/C13LocationScreen.tsx:60
+msgid "Ciudad"
+msgstr "Ciudad"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:112
+msgid "clicks al sitio / mes"
+msgstr "clicks al sitio / mes"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:23
+msgid "Clicks, signups, ventas"
+msgstr "Clicks, signups, ventas"
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:213
+#: src/features/offers/components/SendOfferSidesheet.tsx:98
+msgid "Close"
+msgstr "Close"
+
+#. placeholder {0}: avgPerCollab.toLocaleString('es-AR')
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:113
+msgid "Cobrás ${0} promedio"
+msgstr "Cobrás ${0} promedio"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:16
+msgid "COBRO GARANTIZADO"
+msgstr "COBRO GARANTIZADO"
+
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:66
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:80
+msgid "Colabs al mes"
+msgstr "Colabs al mes"
+
+#: src/features/offers/components/OfferCardBundle.tsx:85
+msgid "Collapse deliverables"
+msgstr "Collapse deliverables"
+
+#. placeholder {0}: enrichmentData.primary_color_hex
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:110
+msgid "Color primario: {0}"
+msgstr "Color primario: {0}"
+
+#. placeholder {0}: enrichmentData.secondary_color_hex
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:119
+msgid "Color secundario: {0}"
+msgstr "Color secundario: {0}"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:90
+msgid "Comedia"
+msgstr "Comedia"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:9
+msgid "Comedy"
+msgstr "Comedy"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:35
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:12
+msgid "comida"
+msgstr "comida"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:15
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:40
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:24
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:76
+msgid "Comida"
+msgstr "Comida"
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:20
+msgid "Completed"
+msgstr "Completed"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:27
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:41
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:30
+msgid "comunidad"
+msgstr "comunidad"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:34
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:42
+msgid "Comunidad"
+msgstr "Comunidad"
+
+#. placeholder {0}: BUDGET_LABEL[budget]
+#. placeholder {1}: OBJECTIVE_LABEL[objective]()
+#. placeholder {2}: VERTICAL_LABEL[vertical]()
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:100
+msgid "Con {0}/mes y foco en {1}, tu primer mes promedio en {2} LatAm."
+msgstr "Con {0}/mes y foco en {1}, tu primer mes promedio en {2} LatAm."
+
+#: src/features/identity/onboarding/creator/screens/C7ChannelsScreen.tsx:29
+msgid "Conectá tus cuentas y qué publicás"
+msgstr "Conectá tus cuentas y qué publicás"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:36
+msgid "Consolidado"
+msgstr "Consolidado"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:35
+msgid "Construir base de fans"
+msgstr "Construir base de fans"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:105
+msgid "Contanos cómo venís con creadores"
+msgstr "Contanos cómo venís con creadores"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:80
+msgid "Content review workflow"
+msgstr "Content review workflow"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:161
+msgid "Continue"
+msgstr "Continue"
+
+#: src/features/chat/workspace/ConversationRailItem.tsx:55
+msgid "Conversación iniciada"
+msgstr "Conversación iniciada"
+
+#: src/features/chat/components/EmptyConversationFallback.tsx:8
+msgid "Conversación no disponible"
+msgstr "Conversación no disponible"
+
+#: src/features/chat/workspace/WorkspaceLayout.tsx:31
+msgid "Conversaciones"
+msgstr "Conversaciones"
+
+#. placeholder {0}: counterpart.display_name
+#: src/features/chat/components/ConversationHeader.tsx:28
+msgid "Conversation with {0}"
+msgstr "Conversation with {0}"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:49
+msgid "Conversión"
+msgstr "Conversión"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:117
+msgid "CPC estimado"
+msgstr "CPC estimado"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:121
+msgid "CREADORES"
+msgstr "CREADORES"
+
+#: src/features/identity/onboarding/creator/screens/C19PrimingSocialProof.tsx:43
+msgid "creadores activos"
+msgstr "creadores activos"
+
+#: src/features/identity/onboarding/creator/screens/C9PrimingBenchmark2.tsx:25
+msgid "Creadores de tu tier facturan 3x más con Marz."
+msgstr "Creadores de tu tier facturan 3x más con Marz."
+
+#: src/features/identity/onboarding/creator/screens/C8PrimingTestimonials.tsx:47
+msgid "Creadores reales hablando de Marz"
+msgstr "Creadores reales hablando de Marz"
+
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:111
+msgid "Creator"
+msgstr "Creator"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:30
+msgid "Creciendo"
+msgstr "Creciendo"
+
+#. placeholder {0}: BUDGET_LABEL[budget]
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:57
+msgid "Cruzamos con tu budget de {0}"
+msgstr "Cruzamos con tu budget de {0}"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:44
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:21
+msgid "crypto"
+msgstr "crypto"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:24
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:57
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:33
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:115
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:15
+msgid "Crypto"
+msgstr "Crypto"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:125
+msgid "Cuadrada, cara visible, sin filtros locos. Usamos la misma que marcas verán."
+msgstr "Cuadrada, cara visible, sin filtros locos. Usamos la misma que marcas verán."
+
+#: src/features/chat/components/PresenceBadge.tsx:26
+msgid "Cuenta inactiva"
+msgstr "Cuenta inactiva"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:122
+msgid "Cultura"
+msgstr "Cultura"
+
+#: src/features/offers/components/BundleEditor.tsx:206
+#: src/features/offers/components/MultiStageEditor.tsx:176
+#: src/features/offers/components/SingleEditor.tsx:278
+msgid "Currency"
+msgstr "Currency"
+
+#: src/features/deliverables/components/DraftVersionList.tsx:78
+msgid "Current"
+msgstr "Current"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:133
+msgid "Current Offer"
+msgstr "Current Offer"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:17
+msgid "Dar a conocer la marca"
+msgstr "Dar a conocer la marca"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:43
+msgid "Day in the life"
+msgstr "Day in the life"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:370
+#: src/features/deliverables/components/MultistagePanelGroup.tsx:59
+#: src/features/offers/components/BundleEditor.tsx:230
+#: src/features/offers/components/CurrentOfferBlock.tsx:155
+#: src/features/offers/components/OfferCardBundle.tsx:61
+#: src/features/offers/components/OfferCardReceived.tsx:76
+#: src/features/offers/components/OfferCardSent.tsx:49
+#: src/features/offers/components/SingleEditor.tsx:329
+msgid "Deadline"
+msgstr "Deadline"
+
+#: src/features/offers/components/SingleEditor.tsx:62
+#: src/features/offers/schemas/bundleEditor.ts:28
+msgid "Deadline must be a future date"
+msgstr "Deadline must be a future date"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:65
+msgid "Deals"
+msgstr "Deals"
+
+#: src/features/offers/schemas/bundleEditor.ts:49
+msgid "Declare all amounts or none"
+msgstr "Declare all amounts or none"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:115
+msgid "DeFi"
+msgstr "DeFi"
+
+#: src/features/offers/components/BundlePlatformRow.tsx:34
+msgid "Deliverable"
+msgstr "Deliverable"
+
+#. placeholder {0}: index + 1
+#: src/features/offers/components/BundlePlatformRow.tsx:34
+msgid "Deliverable {0}"
+msgstr "Deliverable {0}"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:56
+#: src/features/offers/components/CurrentOfferBlock.tsx:87
+#: src/features/offers/components/OfferCardBundle.tsx:88
+msgid "Deliverables"
+msgstr "Deliverables"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:535
+msgid "Descalificadores"
+msgstr "Descalificadores"
+
+#: src/features/chat/components/PresenceBadge.tsx:22
+msgid "Desconectado"
+msgstr "Desconectado"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:145
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:379
+msgid "Descripción"
+msgstr "Descripción"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:392
+msgid "Descripción del perfil ideal"
+msgstr "Descripción del perfil ideal"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:61
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:116
+msgid "Dev"
+msgstr "Dev"
+
+#: src/features/identity/onboarding/creator/screens/C11BirthdayScreen.tsx:84
+msgid "Día"
+msgstr "Día"
+
+#. placeholder {0}: String(index + 1)
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:111
+msgid "Dimensión {0}"
+msgstr "Dimensión {0}"
+
+#: src/features/deliverables/components/RequestChangesCard.tsx:35
+#: src/features/deliverables/components/RequestChangesModal.tsx:31
+msgid "Discount code"
+msgstr "Discount code"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:108
+msgid "Dos preguntas rápidas. Usamos esto para recomendarte el mejor plan."
+msgstr "Dos preguntas rápidas. Usamos esto para recomendarte el mejor plan."
+
+#: src/features/deliverables/components/DraftApprovedCard.tsx:43
+msgid "Draft approved"
+msgstr "Draft approved"
+
+#: src/features/deliverables/components/DraftSubmittedCard.tsx:159
+msgid "Draft submitted"
+msgstr "Draft submitted"
+
+#: src/features/deliverables/components/RequestChangesCard.tsx:135
+msgid "Draft thumbnail"
+msgstr "Draft thumbnail"
+
+#: src/features/deliverables/components/UploadDraftDialog.tsx:170
+msgid "Drag and drop your video here, or click to browse"
+msgstr "Drag and drop your video here, or click to browse"
+
+#: src/features/deliverables/components/UploadDraftDialog.tsx:151
+msgid "Drop zone"
+msgstr "Drop zone"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:33
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:10
+msgid "e-commerce"
+msgstr "e-commerce"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:13
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:32
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:22
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:63
+msgid "E-commerce"
+msgstr "E-commerce"
+
+#: src/features/offers/components/BundleEditor.tsx:354
+#: src/features/offers/components/SingleEditor.tsx:343
+msgid "Early deadline"
+msgstr "Early deadline"
+
+#: src/features/offers/components/SingleEditor.tsx:82
+#: src/features/offers/schemas/bundleEditor.ts:75
+msgid "Early deadline must be a future date"
+msgstr "Early deadline must be a future date"
+
+#: src/features/offers/components/SingleEditor.tsx:92
+#: src/features/offers/schemas/bundleEditor.ts:85
+msgid "Early deadline must be before the deadline"
+msgstr "Early deadline must be before the deadline"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:417
+msgid "Edad máxima"
+msgstr "Edad máxima"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:399
+msgid "Edad mínima"
+msgstr "Edad mínima"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:329
+msgid "Editá lo que necesites antes de confirmar la campaña."
+msgstr "Editá lo que necesites antes de confirmar la campaña."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:34
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:11
+msgid "educación"
+msgstr "educación"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:14
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:37
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:23
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:70
+msgid "Educación"
+msgstr "Educación"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:474
+msgid "Ej: AR, US, MX"
+msgstr "Ej: AR, US, MX"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:539
+msgid "Ej: contenido +18, tabaco, apuestas"
+msgstr "Ej: contenido +18, tabaco, apuestas"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:137
+msgid "Ej: Engagement rate"
+msgstr "Ej: Engagement rate"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:486
+msgid "Ej: fitness, moda, gaming"
+msgstr "Ej: fitness, moda, gaming"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:342
+msgid "Ej: Lanzamiento verano 2026"
+msgstr "Ej: Lanzamiento verano 2026"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:49
+msgid "El archivo supera los 5MB permitidos."
+msgstr "El archivo supera los 5MB permitidos."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:68
+msgid "El plan que eligen equipos que miden creadores como canal performance."
+msgstr "El plan que eligen equipos que miden creadores como canal performance."
+
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:69
+msgid "Elegí la categoría que mejor represente tu industria."
+msgstr "Elegí la categoría que mejor represente tu industria."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:180
+msgid "Elegí tu plan, {firstName}."
+msgstr "Elegí tu plan, {firstName}."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:180
+msgid "Elegí tu plan."
+msgstr "Elegí tu plan."
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:190
+msgid "Eliminar {tag}"
+msgstr "Eliminar {tag}"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:255
+msgid "Eliminar canal"
+msgstr "Eliminar canal"
+
+#. placeholder {0}: String(index + 1)
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:119
+msgid "Eliminar dimensión {0}"
+msgstr "Eliminar dimensión {0}"
+
+#. placeholder {0}: String(idx + 1)
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:78
+msgid "Eliminar filtro {0}"
+msgstr "Eliminar filtro {0}"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:141
+msgid "Eliminar foto"
+msgstr "Eliminar foto"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:65
+msgid "Eliminar señal {signal}"
+msgstr "Eliminar señal {signal}"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:377
+msgid "Eliminar tarifa"
+msgstr "Eliminar tarifa"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:24
+msgid "Emergente"
+msgstr "Emergente"
+
+#: src/features/identity/onboarding/brand/screens/B8TimingScreen.tsx:14
+msgid "En 1–2 semanas"
+msgstr "En 1–2 semanas"
+
+#: src/features/chat/components/PresenceBadge.tsx:18
+msgid "En línea"
+msgstr "En línea"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:50
+msgid "Engagement"
+msgstr "Engagement"
+
+#: src/features/offers/schemas/multiStageEditor.ts:6
+msgid "Enter a stage name"
+msgstr "Enter a stage name"
+
+#: src/features/offers/schemas/bundleEditor.ts:19
+msgid "Enter a total amount"
+msgstr "Enter a total amount"
+
+#: src/features/offers/components/SingleEditor.tsx:56
+#: src/features/offers/schemas/multiStageEditor.ts:9
+msgid "Enter an amount"
+msgstr "Enter an amount"
+
+#: src/features/identity/onboarding/creator/screens/C1NameHandleScreen.tsx:32
+msgid "Entre 3 y 30 caracteres: letras, números y guion bajo."
+msgstr "Entre 3 y 30 caracteres: letras, números y guion bajo."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:38
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:15
+msgid "entretenimiento"
+msgstr "entretenimiento"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:18
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:45
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:27
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:86
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:121
+msgid "Entretenimiento"
+msgstr "Entretenimiento"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:41
+msgid "Entrevistas"
+msgstr "Entrevistas"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:52
+msgid "Enviá tus primeros invites (100 este mes)"
+msgstr "Enviá tus primeros invites (100 este mes)"
+
+#: src/features/chat/components/MessageComposer.tsx:175
+msgid "Enviar mensaje"
+msgstr "Enviar mensaje"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:126
+msgid "Equipo Marz dedicado"
+msgstr "Equipo Marz dedicado"
+
+#: src/features/chat/mutations/useSendMessageMutation.ts:175
+msgid "Error al enviar el mensaje. Intenta nuevamente."
+msgstr "Error al enviar el mensaje. Intenta nuevamente."
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:95
+msgid "Error al subir la imagen. Intentá de nuevo."
+msgstr "Error al subir la imagen. Intentá de nuevo."
+
+#: src/features/campaigns/brief-builder/screens/P2Progress.tsx:51
+msgid "Error en el análisis"
+msgstr "Error en el análisis"
+
+#: src/features/deliverables/components/DeliverableListPanel.tsx:41
+msgid "Error loading deliverables"
+msgstr "Error loading deliverables"
+
+#: src/features/chat/components/MessageComposer.tsx:147
+msgid "Escribí un mensaje..."
+msgstr "Escribí un mensaje..."
+
+#: src/features/chat/components/TypingIndicator.tsx:27
+#: src/features/chat/components/TypingIndicator.tsx:42
+msgid "Escribiendo..."
+msgstr "Escribiendo..."
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:95
+msgid "Esports"
+msgstr "Esports"
+
+#: src/features/chat/components/EmptyConversationFallback.tsx:11
+msgid "Esta conversación no existe o no tenés acceso."
+msgstr "Esta conversación no existe o no tenés acceso."
+
+#: src/features/chat/components/PresenceBadge.tsx:53
+msgid "Esta cuenta está inactiva y no puede recibir mensajes"
+msgstr "Esta cuenta está inactiva y no puede recibir mensajes"
+
+#: src/features/campaigns/brief-builder/screens/P2Progress.tsx:78
+msgid "Estamos armando una propuesta personalizada para tu campaña."
+msgstr "Estamos armando una propuesta personalizada para tu campaña."
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:113
+msgid "Estamos cruzando tu perfil con 2.340 creadores activos."
+msgstr "Estamos cruzando tu perfil con 2.340 creadores activos."
+
+#: src/features/identity/onboarding/brand/screens/B8TimingScreen.tsx:15
+msgid "Este mes"
+msgstr "Este mes"
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:39
+msgid "Esto nos ayuda a matchearte con marcas del nivel correcto."
+msgstr "Esto nos ayuda a matchearte con marcas del nivel correcto."
+
+#: src/features/identity/onboarding/brand/screens/B8TimingScreen.tsx:16
+msgid "Estoy explorando"
+msgstr "Estoy explorando"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:127
+msgid "Estrategia + curaduría"
+msgstr "Estrategia + curaduría"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:29
+msgid "Estrenar producto o campaña"
+msgstr "Estrenar producto o campaña"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:71
+msgid "Estudio"
+msgstr "Estudio"
+
+#: src/features/chat/components/MessageTimeline.tsx:221
+msgid "Evento del sistema"
+msgstr "Evento del sistema"
+
+#: src/features/offers/components/OfferCardBundle.tsx:85
+msgid "Expand deliverables"
+msgstr "Expand deliverables"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:26
+#: src/features/offers/components/OfferArchiveItem.tsx:20
+#: src/features/offers/components/OfferCardSent.tsx:26
+#: src/features/offers/utils/formatOffer.ts:29
+#: src/features/offers/utils/offerStatus.ts:22
+msgid "Expired"
+msgstr "Expired"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:37
+msgid "Faceless / Clipping"
+msgstr "Faceless / Clipping"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:189
+msgid "Facturación"
+msgstr "Facturación"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:83
+msgid "Failed to load campaigns. Please try again."
+msgstr "Failed to load campaigns. Please try again."
+
+#: src/features/identity/onboarding/creator/screens/C3PrimingBrandsWaiting.tsx:24
+msgid "Feed activo ahora mismo"
+msgstr "Feed activo ahora mismo"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:56
+#: src/features/identity/onboarding/creator/screens/C12GenderScreen.tsx:11
+msgid "Femenino"
+msgstr "Femenino"
+
+#: src/features/deliverables/components/UploadErrorBanner.tsx:16
+msgid "File too large (max 2 GB)."
+msgstr "File too large (max 2 GB)."
+
+#. placeholder {0}: VERTICAL_LABEL[vertical]()
+#. placeholder {1}: OBJECTIVE_LABEL[objective]()
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:49
+msgid "Filtrados por {0} LatAm + {1}"
+msgstr "Filtrados por {0} LatAm + {1}"
+
+#. placeholder {0}: VERTICAL_LABEL[vertical]()
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:56
+msgid "Filtramos por vertical {0}"
+msgstr "Filtramos por vertical {0}"
+
+#: src/features/chat/workspace/ConversationFilterTabs.tsx:39
+msgid "Filtrar conversaciones"
+msgstr "Filtrar conversaciones"
+
+#: src/features/chat/workspace/CampaignFilterSelect.tsx:58
+msgid "Filtrar por campaña"
+msgstr "Filtrar por campaña"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:526
+msgid "Filtros duros"
+msgstr "Filtros duros"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:115
+msgid "Finanzas"
+msgstr "Finanzas"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:14
+msgid "Finanzas personales"
+msgstr "Finanzas personales"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:31
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:8
+msgid "fintech"
+msgstr "fintech"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:11
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:28
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:20
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:55
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:6
+msgid "Fintech"
+msgstr "Fintech"
+
+#: src/features/identity/onboarding/creator/screens/C3PrimingBrandsWaiting.tsx:33
+msgid "Fintech, SaaS, gaming, lifestyle, beauty — categorías activas."
+msgstr "Fintech, SaaS, gaming, lifestyle, beauty — categorías activas."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:36
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:13
+msgid "fitness"
+msgstr "fitness"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:16
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:41
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:25
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:77
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:13
+msgid "Fitness"
+msgstr "Fitness"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:16
+msgid "Food"
+msgstr "Food"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:76
+msgid "Foodie"
+msgstr "Foodie"
+
+#: src/features/offers/components/BundleEditor.tsx:277
+#: src/features/offers/components/SingleEditor.tsx:303
+msgid "Format"
+msgstr "Format"
+
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:71
+msgid "Formato inválido. Usá formato E.164."
+msgstr "Formato inválido. Usá formato E.164."
+
+#: src/features/identity/onboarding/creator/screens/C15WhatsappScreen.tsx:23
+msgid "Formato: +54911XXXXXXXX"
+msgstr "Formato: +54911XXXXXXXX"
+
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:200
+msgid "Formatos"
+msgstr "Formatos"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:98
+msgid "Fuente"
+msgstr "Fuente"
+
+#: src/shared/ui/PaymentCard.tsx:22
+msgid "Funds are on the way."
+msgstr "Funds are on the way."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:40
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:17
+msgid "gaming"
+msgstr "gaming"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:20
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:49
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:29
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:94
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:8
+msgid "Gaming"
+msgstr "Gaming"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:105
+msgid "Gastronomía"
+msgstr "Gastronomía"
+
+#: src/features/campaigns/brief-builder/screens/P2Progress.tsx:77
+msgid "Generando tu brief"
+msgstr "Generando tu brief"
+
+#: src/features/identity/onboarding/creator/screens/C12GenderScreen.tsx:38
+msgid "Género"
+msgstr "Género"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:437
+msgid "Géneros"
+msgstr "Géneros"
+
+#: src/shared/ui/PaymentCard.tsx:21
+msgid "Great job on the video!"
+msgstr "Great job on the video!"
+
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:62
+msgid "Growth Lead"
+msgstr "Growth Lead"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:77
+msgid "Gym"
+msgstr "Gym"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:108
+msgid "Hablar con ventas"
+msgstr "Hablar con ventas"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:117
+msgid "Hablemos"
+msgstr "Hablemos"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:296
+msgid "Handle"
+msgstr "Handle"
+
+#: src/features/identity/onboarding/creator/screens/C16ReferralScreen.tsx:28
+msgid "Handle o nombre (opcional)"
+msgstr "Handle o nombre (opcional)"
+
+#: src/features/identity/onboarding/creator/screens/C1NameHandleScreen.tsx:61
+msgid "Handle principal"
+msgstr "Handle principal"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:45
+msgid "Hasta 5 nichos. Matching va a ser más preciso."
+msgstr "Hasta 5 nichos. Matching va a ser más preciso."
+
+#: src/features/identity/onboarding/creator/screens/C3PrimingBrandsWaiting.tsx:30
+msgid "Hay {TOTAL} marcas buscando creadores esta semana."
+msgstr "Hay {TOTAL} marcas buscando creadores esta semana."
+
+#: src/features/identity/onboarding/creator/screens/C7ChannelsScreen.tsx:46
+msgid "Hay formatos inválidos para la plataforma seleccionada."
+msgstr "Hay formatos inválidos para la plataforma seleccionada."
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:14
+msgid "Hice 1–5 campañas"
+msgstr "Hice 1–5 campañas"
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:18
+msgid "Hice 6–20 campañas"
+msgstr "Hice 6–20 campañas"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:49
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:72
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:96
+msgid "HIRES"
+msgstr "HIRES"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:42
+msgid "Humor / Sketches"
+msgstr "Humor / Sketches"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:19
+msgid "Idioma"
+msgstr "Idioma"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:72
+msgid "Idiomas"
+msgstr "Idiomas"
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:15
+msgid "In review"
+msgstr "In review"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:374
+msgid "INCLUYE"
+msgstr "INCLUYE"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:227
+msgid "Información insuficiente para este campo"
+msgstr "Información insuficiente para este campo"
+
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:69
+msgid "Ingresá el nombre y la web de tu marca para comenzar."
+msgstr "Ingresá el nombre y la web de tu marca para comenzar."
+
+#: src/features/chat/components/MessageTimeline.tsx:324
+msgid "Inicio de la conversación"
+msgstr "Inicio de la conversación"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:62
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:21
+#: src/features/offers/components/BundleEditor.tsx:26
+#: src/features/offers/components/SingleEditor.tsx:21
+msgid "Instagram"
+msgstr "Instagram"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:479
+msgid "Intereses"
+msgstr "Intereses"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:59
+msgid "Inversión"
+msgstr "Inversión"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:50
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:73
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:97
+msgid "INVITES"
+msgstr "INVITES"
+
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:276
+msgid "Ir a mi dashboard"
+msgstr "Ir a mi dashboard"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:117
+msgid "Ir al dashboard"
+msgstr "Ir al dashboard"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:174
+msgid "JPEG, PNG o WebP. Máximo 5MB."
+msgstr "JPEG, PNG o WebP. Máximo 5MB."
+
+#: src/features/chat/workspace/CampaignFilterSelect.tsx:43
+msgid "La campaña ya no está disponible"
+msgstr "La campaña ya no está disponible"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:219
+msgid "La información proporcionada no fue suficiente para generar el brief completo. Llená los campos manualmente."
+msgstr "La información proporcionada no fue suficiente para generar el brief completo. Llená los campos manualmente."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:26
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:40
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:29
+msgid "lanzamiento"
+msgstr "lanzamiento"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:28
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:41
+msgid "Lanzamiento"
+msgstr "Lanzamiento"
+
+#: src/features/identity/onboarding/brand/screens/B8TimingScreen.tsx:13
+msgid "Lanzo ya"
+msgstr "Lanzo ya"
+
+#: src/features/chat/workspace/ConversationRailEmpty.tsx:19
+msgid "Las conversaciones aparecen cuando se inicia una colaboración (vía Match, Application, Invite u Offer)"
+msgstr "Las conversaciones aparecen cuando se inicia una colaboración (vía Match, Application, Invite u Offer)"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:39
+msgid "Las dos cosas"
+msgstr "Las dos cosas"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:73
+msgid "Las marcas buscan tipos específicos. Marcá los que te salen bien."
+msgstr "Las marcas buscan tipos específicos. Marcá los que te salen bien."
+
+#: src/features/identity/onboarding/creator/screens/C11BirthdayScreen.tsx:79
+msgid "Las marcas filtran por rango de edad. Nunca publicamos la fecha exacta."
+msgstr "Las marcas filtran por rango de edad. Nunca publicamos la fecha exacta."
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:138
+msgid "LatAm"
+msgstr "LatAm"
+
+#: src/features/identity/onboarding/brand/screens/B3PrimingSocialProof.tsx:65
+msgid "liderando campañas"
+msgstr "liderando campañas"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:58
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:64
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:92
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:104
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:107
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:113
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:118
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:10
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:32
+msgid "Lifestyle"
+msgstr "Lifestyle"
+
+#: src/features/chat/workspace/ConversationSearchInput.tsx:82
+msgid "Limpiar búsqueda"
+msgstr "Limpiar búsqueda"
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:18
+msgid "Link review"
+msgstr "Link review"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:39
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:76
+msgid "Listo, {firstName}."
+msgstr "Listo, {firstName}."
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:76
+msgid "Listo."
+msgstr "Listo."
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:19
+msgid "Live"
+msgstr "Live"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:14
+msgid "Lo hago pero quiero escalar"
+msgstr "Lo hago pero quiero escalar"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:51
+msgid "Lo que cambia al entrar a Marz"
+msgstr "Lo que cambia al entrar a Marz"
+
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:37
+msgid "Lo usamos para coordinar arranque. Nada de spam."
+msgstr "Lo usamos para coordinar arranque. Nada de spam."
+
+#: src/features/offers/components/OffersArchiveBlock.tsx:87
+msgid "Load more"
+msgstr "Load more"
+
+#: src/features/deliverables/components/DeliverableListPanel.tsx:29
+msgid "Loading deliverables"
+msgstr "Loading deliverables"
+
+#: src/features/offers/components/OffersArchiveBlock.tsx:87
+msgid "Loading..."
+msgstr "Loading..."
+
+#: src/features/deliverables/components/MultistagePanelGroup.tsx:23
+#: src/features/offers/components/MultiStageStagesList.tsx:43
+msgid "Locked"
+msgstr "Locked"
+
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:99
+msgid "Logo de la marca"
+msgstr "Logo de la marca"
+
+#: src/features/offers/components/BundleEditor.tsx:37
+#: src/features/offers/components/SingleEditor.tsx:32
+msgid "Long Video"
+msgstr "Long Video"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:419
+msgid "Los creadores con tarifas reciben más ofertas de las marcas."
+msgstr "Los creadores con tarifas reciben más ofertas de las marcas."
+
+#. placeholder {0}: VERTICAL_LABEL[vertical]()
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:123
+msgid "Los números son referencias históricas en {0} LatAm. Variables como creador, formato y hook mueven fuerte."
+msgstr "Los números son referencias históricas en {0} LatAm. Variables como creador, formato y hook mueven fuerte."
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:53
+msgid "Los que no responden en 72h vuelven a tu cuota"
+msgstr "Los que no responden en 72h vuelven a tu cuota"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:30
+msgid "Los traigo yo"
+msgstr "Los traigo yo"
+
+#: src/features/identity/onboarding/creator/screens/C1NameHandleScreen.tsx:56
+msgid "Lucas Romero"
+msgstr "Lucas Romero"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:107
+msgid "Lujo"
+msgstr "Lujo"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:92
+msgid "Makeup"
+msgstr "Makeup"
+
+#: src/features/identity/onboarding/brand/screens/B6BudgetScreen.tsx:31
+msgid "Marcas de fintech invierten entre $8K y $15K/mes"
+msgstr "Marcas de fintech invierten entre $8K y $15K/mes"
+
+#: src/features/identity/onboarding/brand/screens/B3PrimingSocialProof.tsx:18
+msgid "Marcas de fintech ya trabajan con Marz"
+msgstr "Marcas de fintech ya trabajan con Marz"
+
+#: src/features/identity/onboarding/brand/screens/B6BudgetScreen.tsx:48
+msgid "Marcas similares invierten entre $8K y $15K/mes"
+msgstr "Marcas similares invierten entre $8K y $15K/mes"
+
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:49
+msgid "María"
+msgstr "María"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:115
+msgid "Marz lo opera todo. Vos aprobás, nosotros ejecutamos."
+msgstr "Marz lo opera todo. Vos aprobás, nosotros ejecutamos."
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:55
+#: src/features/identity/onboarding/creator/screens/C12GenderScreen.tsx:10
+msgid "Masculino"
+msgstr "Masculino"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:48
+msgid "Masivo"
+msgstr "Masivo"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:156
+msgid "Matching pre-calculado con tu vertical"
+msgstr "Matching pre-calculado con tu vertical"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:16
+msgid "Máx. seguidores"
+msgstr "Máx. seguidores"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:60
+msgid "Menos fricción. Más plata. Más tiempo para crear."
+msgstr "Menos fricción. Más plata. Más tiempo para crear."
+
+#: src/features/chat/components/MessageComposer.tsx:129
+msgid "Mensaje"
+msgstr "Mensaje"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:204
+msgid "Mensual"
+msgstr "Mensual"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:83
+msgid "Mental"
+msgstr "Mental"
+
+#: src/features/identity/onboarding/creator/screens/C11BirthdayScreen.tsx:100
+msgid "Mes"
+msgstr "Mes"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:58
+msgid "Métricas 30 días"
+msgstr "Métricas 30 días"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:81
+msgid "Métricas ilimitadas"
+msgstr "Métricas ilimitadas"
+
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:78
+msgid "Mi Marca"
+msgstr "Mi Marca"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:17
+msgid "Mín. engagement %"
+msgstr "Mín. engagement %"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:15
+msgid "Mín. seguidores"
+msgstr "Mín. seguidores"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:81
+msgid "Mindfulness"
+msgstr "Mindfulness"
+
+#: src/features/offers/schemas/bundleEditor.ts:9
+msgid "Minimum 1"
+msgstr "Minimum 1"
+
+#: src/features/offers/schemas/bundleEditor.ts:39
+msgid "Minimum 2 deliverables"
+msgstr "Minimum 2 deliverables"
+
+#: src/features/offers/schemas/multiStageEditor.ts:14
+msgid "Minimum 2 stages"
+msgstr "Minimum 2 stages"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:98
+msgid "Mobile games"
+msgstr "Mobile games"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:42
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:19
+msgid "moda"
+msgstr "moda"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:22
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:51
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:31
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:107
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:19
+msgid "Moda"
+msgstr "Moda"
+
+#: src/features/deliverables/components/UploadDraftDialog.tsx:173
+msgid "MP4, MOV, or WebM up to 2 GB"
+msgstr "MP4, MOV, or WebM up to 2 GB"
+
+#: src/features/offers/components/OfferTypeBadge.tsx:11
+#: src/features/offers/components/OfferTypeChooser.tsx:34
+msgid "Multi-stage"
+msgstr "Multi-stage"
+
+#. placeholder {0}: badge.label
+#: src/features/offers/components/OfferCardMultiStage.tsx:133
+msgid "Multi-stage offer, total {amount}, status {0}"
+msgstr "Multi-stage offer, total {amount}, status {0}"
+
+#: src/features/offers/components/OfferTypeChooser.tsx:30
+msgid "Multiple deliverables in one offer"
+msgstr "Multiple deliverables in one offer"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:88
+msgid "Música"
+msgstr "Música"
+
+#: src/features/offers/schemas/multiStageEditor.ts:38
+msgid "Must be after the previous stage"
+msgstr "Must be after the previous stage"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:120
+msgid "Nada"
+msgstr "Nada"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:56
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:120
+msgid "Negocios"
+msgstr "Negocios"
+
+#: src/features/offers/components/OfferCardBundle.tsx:46
+#: src/features/offers/components/OfferCardMultiStage.tsx:125
+#: src/features/offers/components/OfferCardReceived.tsx:66
+msgid "New campaign offer"
+msgstr "New campaign offer"
+
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:193
+msgid "Nichos"
+msgstr "Nichos"
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:46
+msgid "Nivel de experiencia"
+msgstr "Nivel de experiencia"
+
+#: src/features/chat/components/ChatHeaderActions.tsx:63
+msgid "No active campaigns"
+msgstr "No active campaigns"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:100
+msgid "No active offer"
+msgstr "No active offer"
+
+#: src/features/deliverables/components/DeliverableListPanel.tsx:53
+msgid "No active offer yet."
+msgstr "No active offer yet."
+
+#: src/features/deliverables/components/RequestChangesCard.tsx:159
+msgid "No additional notes"
+msgstr "No additional notes"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:57
+#: src/features/identity/onboarding/creator/screens/C12GenderScreen.tsx:14
+msgid "No binario"
+msgstr "No binario"
+
+#: src/features/chat/workspace/ConversationRailEmpty.tsx:24
+msgid "No hay conversaciones con respuesta pendiente"
+msgstr "No hay conversaciones con respuesta pendiente"
+
+#: src/features/chat/workspace/ConversationRailEmpty.tsx:29
+msgid "No hay conversaciones no leídas"
+msgstr "No hay conversaciones no leídas"
+
+#: src/features/chat/workspace/ConversationRailEmpty.tsx:27
+msgid "No hay conversaciones para esta campaña"
+msgstr "No hay conversaciones para esta campaña"
+
+#: src/features/chat/workspace/ConversationRailEmpty.tsx:21
+msgid "No hay conversaciones que coincidan"
+msgstr "No hay conversaciones que coincidan"
+
+#: src/features/chat/components/MessageTimeline.tsx:268
+msgid "No hay mensajes todavía"
+msgstr "No hay mensajes todavía"
+
+#: src/features/identity/onboarding/creator/screens/C8PrimingTestimonials.tsx:50
+msgid "No pagamos para que digan esto. Les preguntamos y esto salió."
+msgstr "No pagamos para que digan esto. Les preguntamos y esto salió."
+
+#: src/features/offers/components/OffersArchiveBlock.tsx:51
+msgid "No past offers"
+msgstr "No past offers"
+
+#: src/features/chat/workspace/ConversationRail.tsx:94
+msgid "No se pudieron cargar las conversaciones"
+msgstr "No se pudieron cargar las conversaciones"
+
+#. placeholder {0}: error.message
+#: src/features/chat/mutations/useSendMessageMutation.ts:161
+msgid "No se pudo enviar el mensaje: {0}"
+msgstr "No se pudo enviar el mensaje: {0}"
+
+#: src/features/chat/components/MessageComposer.tsx:177
+msgid "No se puede enviar a una cuenta inactiva"
+msgstr "No se puede enviar a una cuenta inactiva"
+
+#: src/features/chat/components/MessageComposer.tsx:148
+msgid "No se puede enviar mensajes"
+msgstr "No se puede enviar mensajes"
+
+#: src/features/identity/onboarding/creator/screens/C7ChannelsScreen.tsx:44
+msgid "No se puede repetir un formato dentro del mismo canal."
+msgstr "No se puede repetir un formato dentro del mismo canal."
+
+#: src/features/deliverables/hooks/useRequestChangesFlow.ts:151
+msgid "No tenés permiso para realizar esta acción."
+msgstr "No tenés permiso para realizar esta acción."
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:131
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:341
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:43
+msgid "Nombre"
+msgstr "Nombre"
+
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:72
+msgid "Nombre de la marca"
+msgstr "Nombre de la marca"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:138
+msgid "Nombre o handle de quien te pasó el dato"
+msgstr "Nombre o handle de quien te pasó el dato"
+
+#: src/features/identity/onboarding/creator/screens/C1NameHandleScreen.tsx:48
+msgid "Nombre público"
+msgstr "Nombre público"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:90
+msgid "Nos ayuda a entender qué funciona."
+msgstr "Nos ayuda a entender qué funciona."
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:11
+msgid "Nunca lo hice"
+msgstr "Nunca lo hice"
+
+#: src/features/identity/onboarding/creator/screens/C2ExperienceScreen.tsx:10
+msgid "Nunca trabajé con marcas"
+msgstr "Nunca trabajé con marcas"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:77
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:82
+msgid "Nutrición"
+msgstr "Nutrición"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:350
+msgid "Objetivo"
+msgstr "Objetivo"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:60
+msgid "Objetivo principal"
+msgstr "Objetivo principal"
+
+#: src/features/campaigns/brief-builder/screens/P2Progress.tsx:52
+msgid "Ocurrió un error inesperado."
+msgstr "Ocurrió un error inesperado."
+
+#: src/features/offers/components/OfferAcceptedCardIn.tsx:26
+#: src/features/offers/components/OfferAcceptedCardOut.tsx:26
+#: src/features/offers/components/OfferCardReceived.tsx:111
+msgid "Offer accepted"
+msgstr "Offer accepted"
+
+#: src/features/offers/components/OfferCardReceived.tsx:114
+#: src/features/offers/components/OfferExpiredBubble.tsx:39
+#: src/features/offers/components/OfferExpiredBubble.tsx:41
+#: src/features/offers/hooks/useOfferActions.ts:71
+msgid "Offer expired"
+msgstr "Offer expired"
+
+#: src/features/offers/hooks/useOfferActions.ts:113
+msgid "Offer is no longer actionable"
+msgstr "Offer is no longer actionable"
+
+#: src/features/offers/components/OfferCardReceived.tsx:112
+#: src/features/offers/components/OfferRejectedBubble.tsx:14
+#: src/features/offers/components/OfferRejectedBubble.tsx:16
+msgid "Offer rejected"
+msgstr "Offer rejected"
+
+#: src/features/offers/components/BundleEditor.tsx:118
+#: src/features/offers/components/MultiStageEditor.tsx:81
+#: src/features/offers/components/OfferCardBundle.tsx:46
+#: src/features/offers/components/OfferCardMultiStage.tsx:125
+#: src/features/offers/components/OfferCardSent.tsx:41
+#: src/features/offers/components/SingleEditor.tsx:180
+msgid "Offer sent"
+msgstr "Offer sent"
+
+#: src/features/offers/components/OfferCardSent.tsx:39
+msgid "Offer sent, total {amount}, deadline {deadline}"
+msgstr "Offer sent, total {amount}, deadline {deadline}"
+
+#: src/features/offers/components/OfferTypeChooser.tsx:42
+msgid "Offer type"
+msgstr "Offer type"
+
+#: src/features/offers/components/OfferTypeBadge.tsx:29
+msgid "Offer type: {label}"
+msgstr "Offer type: {label}"
+
+#: src/features/offers/components/OfferTypeChooser.tsx:25
+msgid "One deliverable, one payment"
+msgstr "One deliverable, one payment"
+
+#: src/features/deliverables/components/MultistagePanelGroup.tsx:24
+#: src/features/offers/components/MultiStageStagesList.tsx:44
+msgid "Open"
+msgstr "Open"
+
+#: src/features/chat/components/ChatHeaderActions.tsx:35
+msgid "Open transcript"
+msgstr "Open transcript"
+
+#. placeholder {0}: OBJECTIVE_LABEL[objective]()
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:58
+msgid "Ordenamos por {0} histórico"
+msgstr "Ordenamos por {0} histórico"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:137
+msgid "Origen de creadores"
+msgstr "Origen de creadores"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:140
+msgid "ORIGEN DE CREADORES"
+msgstr "ORIGEN DE CREADORES"
+
+#: src/features/deliverables/components/RequestChangesCard.tsx:36
+#: src/features/deliverables/components/RequestChangesModal.tsx:32
+msgid "Other"
+msgstr "Other"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:35
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:59
+msgid "Otro"
+msgstr "Otro"
+
+#: src/features/deliverables/components/RequestChangesCard.tsx:33
+#: src/features/deliverables/components/RequestChangesModal.tsx:29
+msgid "Pacing"
+msgstr "Pacing"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:18
+msgid "Pago después de aprobar el post. Sin perseguir pagos."
+msgstr "Pago después de aprobar el post. Sin perseguir pagos."
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:21
+msgid "Paid"
+msgstr "Paid"
+
+#: src/features/identity/onboarding/creator/screens/C13LocationScreen.tsx:36
+msgid "País"
+msgstr "País"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:467
+msgid "Países (código ISO 2 letras)"
+msgstr "Países (código ISO 2 letras)"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:92
+msgid "Para equipos que gastan $10K+/mes y necesitan control total."
+msgstr "Para equipos que gastan $10K+/mes y necesitan control total."
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:20
+msgid "Parenting"
+msgstr "Parenting"
+
+#: src/shared/ui/PaymentCard.tsx:17
+msgid "Payment of {amount} received"
+msgstr "Payment of {amount} received"
+
+#: src/shared/ui/PaymentCard.tsx:18
+msgid "Payment of {amount} sent"
+msgstr "Payment of {amount} sent"
+
+#: src/features/identity/onboarding/creator/screens/C19PrimingSocialProof.tsx:44
+msgid "payout promedio"
+msgstr "payout promedio"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:51
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:74
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:98
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:122
+msgid "PAYOUTS"
+msgstr "PAYOUTS"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:57
+msgid "Payouts automáticos 24h"
+msgstr "Payouts automáticos 24h"
+
+#: src/features/identity/onboarding/creator/screens/C10BestVideosScreen.tsx:70
+msgid "Pegá links de Reels de Instagram, TikToks o Shorts de YouTube."
+msgstr "Pegá links de Reels de Instagram, TikToks o Shorts de YouTube."
+
+#: src/features/deliverables/components/DeliverableStatusBadge.tsx:14
+#: src/features/offers/components/OfferArchiveItem.tsx:17
+msgid "Pending"
+msgstr "Pending"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:377
+msgid "Perfil de creador ideal (ICP)"
+msgstr "Perfil de creador ideal (ICP)"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:25
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:39
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:28
+msgid "performance"
+msgstr "performance"
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:22
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:40
+msgid "Performance"
+msgstr "Performance"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:59
+msgid "Personalizando tu plan"
+msgstr "Personalizando tu plan"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:163
+msgid "Peso"
+msgstr "Peso"
+
+#. placeholder {0}: String(index + 1)
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:185
+msgid "Peso dimensión {0}"
+msgstr "Peso dimensión {0}"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:452
+msgid "Plataformas"
+msgstr "Plataformas"
+
+#: src/features/offers/components/BundleEditor.tsx:264
+#: src/features/offers/components/SingleEditor.tsx:293
+msgid "Platform"
+msgstr "Platform"
+
+#: src/features/chat/components/ChatHeaderActions.tsx:32
+msgid "Play draft"
+msgstr "Play draft"
+
+#. placeholder {0}: draft.version
+#: src/features/deliverables/components/DraftVersionList.tsx:89
+msgid "Play draft v{0}"
+msgstr "Play draft v{0}"
+
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:43
+msgid "Podés ganar hasta"
+msgstr "Podés ganar hasta"
+
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:116
+msgid "por colab en tu nicho"
+msgstr "por colab en tu nicho"
+
+#: src/features/chat/workspace/ConversationFilterTabs.tsx:16
+msgid "Por responder"
+msgstr "Por responder"
+
+#: src/features/offers/components/BundleEditor.tsx:43
+#: src/features/offers/components/BundleEditor.tsx:45
+#: src/features/offers/components/SingleEditor.tsx:38
+#: src/features/offers/components/SingleEditor.tsx:40
+msgid "Post"
+msgstr "Post"
+
+#: src/features/identity/onboarding/creator/screens/C12GenderScreen.tsx:18
+msgid "Prefiero no decir"
+msgstr "Prefiero no decir"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:239
+msgid "Prefiero seguir sin acceso a la red de creadores →"
+msgstr "Prefiero seguir sin acceso a la red de creadores →"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:363
+msgid "Presupuesto (USD)"
+msgstr "Presupuesto (USD)"
+
+#: src/features/identity/onboarding/brand/screens/B6BudgetScreen.tsx:87
+msgid "Presupuesto mensual"
+msgstr "Presupuesto mensual"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:133
+msgid "Preview de avatar"
+msgstr "Preview de avatar"
+
+#: src/features/chat/components/ChatHeaderActions.tsx:29
+msgid "Preview deliverable"
+msgstr "Preview deliverable"
+
+#. placeholder {0}: previewDraft.version
+#: src/features/deliverables/components/DraftVersionList.tsx:111
+msgid "Preview draft v{0}"
+msgstr "Preview draft v{0}"
+
+#. placeholder {0}: snapshot.position
+#. placeholder {1}: snapshot.name
+#: src/features/offers/components/StageOpenedBubble.tsx:16
+msgid "Previous stage approved — Stage {0}: {1} is now open"
+msgstr "Previous stage approved — Stage {0}: {1} is now open"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:235
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:292
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:225
+msgid "Principal"
+msgstr "Principal"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:61
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:84
+msgid "Probar 7 días gratis"
+msgstr "Probar 7 días gratis"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:18
+msgid "Probé sin muchos resultados"
+msgstr "Probé sin muchos resultados"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:29
+msgid "Product demos"
+msgstr "Product demos"
+
+#: src/features/deliverables/components/RequestChangesCard.tsx:32
+#: src/features/deliverables/components/RequestChangesModal.tsx:28
+msgid "Product placement"
+msgstr "Product placement"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:61
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:111
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:116
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:12
+msgid "Productividad"
+msgstr "Productividad"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:342
+msgid "Próximamente"
+msgstr "Próximamente"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:91
+msgid "Proyección con tu budget y objetivo"
+msgstr "Proyección con tu budget y objetivo"
+
+#: src/features/offers/components/BundleEditor.tsx:292
+msgid "Quantity"
+msgstr "Quantity"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:153
+msgid "Qué evalúa esta dimensión"
+msgstr "Qué evalúa esta dimensión"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:85
+msgid "Qué sigue ahora"
+msgstr "Qué sigue ahora"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:34
+msgid "Quiero descubrirlos en Marz"
+msgstr "Quiero descubrirlos en Marz"
+
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:54
+msgid "Rango histórico de creadores activos con tu nicho y disponibilidad en los últimos 6 meses."
+msgstr "Rango histórico de creadores activos con tu nicho y disponibilidad en los últimos 6 meses."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:82
+msgid "Reasignación automática"
+msgstr "Reasignación automática"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:76
+msgid "Recetas"
+msgstr "Recetas"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:279
+msgid "RECOMENDADO PARA VOS"
+msgstr "RECOMENDADO PARA VOS"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:54
+msgid "Red de creadores"
+msgstr "Red de creadores"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:42
+msgid "Reddit"
+msgstr "Reddit"
+
+#: src/features/offers/components/BundleEditor.tsx:41
+#: src/features/offers/components/SingleEditor.tsx:36
+msgid "Reel"
+msgstr "Reel"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:42
+msgid "Referente"
+msgstr "Referente"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:29
+msgid "Referido"
+msgstr "Referido"
+
+#: src/features/campaigns/brief-builder/screens/P2Progress.tsx:67
+msgid "Reintentando…"
+msgstr "Reintentando…"
+
+#: src/features/campaigns/brief-builder/screens/P2Progress.tsx:67
+#: src/features/chat/workspace/ConversationRail.tsx:101
+msgid "Reintentar"
+msgstr "Reintentar"
+
+#: src/features/offers/components/OfferCardBundle.tsx:131
+#: src/features/offers/components/OfferCardMultiStage.tsx:182
+#: src/features/offers/components/OfferCardReceived.tsx:102
+msgid "Reject"
+msgstr "Reject"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:25
+#: src/features/offers/components/OfferArchiveItem.tsx:19
+#: src/features/offers/components/OfferCardSent.tsx:25
+#: src/features/offers/utils/offerStatus.ts:18
+msgid "Rejected"
+msgstr "Rejected"
+
+#: src/features/offers/components/OfferCardBundle.tsx:131
+#: src/features/offers/components/OfferCardMultiStage.tsx:182
+#: src/features/offers/components/OfferCardReceived.tsx:102
+msgid "Rejecting…"
+msgstr "Rejecting…"
+
+#: src/features/offers/components/BundlePlatformRow.tsx:43
+msgid "Remove deliverable"
+msgstr "Remove deliverable"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:104
+msgid "Reportes custom"
+msgstr "Reportes custom"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:129
+msgid "Reportes semanales"
+msgstr "Reportes semanales"
+
+#: src/features/deliverables/components/DraftSubmittedCard.tsx:223
+#: src/features/deliverables/components/DraftSubmittedCard.tsx:235
+#: src/features/deliverables/components/DraftSubmittedCard.tsx:245
+#: src/features/deliverables/components/RequestChangesModal.tsx:61
+#: src/features/deliverables/components/RequestChangesModal.tsx:207
+msgid "Request changes"
+msgstr "Request changes"
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:347
+msgid "Request changes for this draft"
+msgstr "Request changes for this draft"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:76
+msgid "Restaurantes"
+msgstr "Restaurantes"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:89
+msgid "Retry"
+msgstr "Retry"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:66
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:89
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:97
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:112
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:26
+msgid "Reviews"
+msgstr "Reviews"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:328
+msgid "Revisá tu brief"
+msgstr "Revisá tu brief"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:48
+msgid "Revisá tus matchs de creadores"
+msgstr "Revisá tus matchs de creadores"
+
+#: src/features/offers/components/SpeedBonusFields.tsx:33
+msgid "Reward faster delivery"
+msgstr "Reward faster delivery"
+
+#: src/features/deliverables/components/DeliverableListItem.tsx:97
+msgid "rounds"
+msgstr "rounds"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:77
+msgid "Running"
+msgstr "Running"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:37
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:14
+msgid "salud"
+msgstr "salud"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:17
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:42
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:26
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:79
+msgid "Salud"
+msgstr "Salud"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:495
+msgid "Scoring Dimensions"
+msgstr "Scoring Dimensions"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:56
+msgid "Script Lab básico"
+msgstr "Script Lab básico"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:78
+msgid "Script Lab completo"
+msgstr "Script Lab completo"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:128
+msgid "Scripts + QA"
+msgstr "Scripts + QA"
+
+#: src/features/identity/onboarding/creator/screens/C7ChannelsScreen.tsx:42
+msgid "Seleccioná exactamente un canal como principal."
+msgstr "Seleccioná exactamente un canal como principal."
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:351
+msgid "Seleccioná un objetivo"
+msgstr "Seleccioná un objetivo"
+
+#: src/features/chat/workspace/EmptyConversationState.tsx:7
+msgid "Seleccioná una conversación"
+msgstr "Seleccioná una conversación"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:166
+msgid "Seleccionar imagen"
+msgstr "Seleccionar imagen"
+
+#: src/features/offers/components/BundleEditor.tsx:198
+#: src/features/offers/components/MultiStageEditor.tsx:168
+#: src/features/offers/components/SingleEditor.tsx:46
+#: src/features/offers/components/SingleEditor.tsx:270
+#: src/features/offers/schemas/bundleEditor.ts:16
+#: src/features/offers/schemas/multiStageEditor.ts:13
+msgid "Select a campaign"
+msgstr "Select a campaign"
+
+#: src/features/offers/components/SingleEditor.tsx:61
+#: src/features/offers/schemas/bundleEditor.ts:26
+#: src/features/offers/schemas/multiStageEditor.ts:8
+msgid "Select a deadline"
+msgstr "Select a deadline"
+
+#: src/features/offers/components/BundleEditor.tsx:278
+#: src/features/offers/components/SingleEditor.tsx:52
+#: src/features/offers/components/SingleEditor.tsx:304
+#: src/features/offers/schemas/bundleEditor.ts:8
+msgid "Select a format"
+msgstr "Select a format"
+
+#: src/features/offers/components/BundleEditor.tsx:265
+#: src/features/offers/components/SingleEditor.tsx:48
+#: src/features/offers/components/SingleEditor.tsx:294
+#: src/features/offers/schemas/bundleEditor.ts:7
+msgid "Select a platform"
+msgstr "Select a platform"
+
+#: src/features/deliverables/components/UploadDraftDialog.tsx:181
+msgid "Select video file"
+msgstr "Select video file"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:199
+msgid "Señales negativas"
+msgstr "Señales negativas"
+
+#: src/features/campaigns/brief-builder/components/ScoringDimensionCard.tsx:191
+msgid "Señales positivas"
+msgstr "Señales positivas"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:77
+msgid "Send an offer to {creatorName}"
+msgstr "Send an offer to {creatorName}"
+
+#: src/features/chat/components/ChatHeaderActions.tsx:46
+#: src/features/chat/components/ChatHeaderActions.tsx:58
+#: src/features/offers/components/BundleEditor.tsx:386
+#: src/features/offers/components/MultiStageEditor.tsx:265
+#: src/features/offers/components/SendOfferSidesheet.tsx:75
+#: src/features/offers/components/SendOfferSidesheet.tsx:106
+#: src/features/offers/components/SingleEditor.tsx:375
+msgid "Send Offer"
+msgstr "Send Offer"
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:324
+msgid "Send request"
+msgstr "Send request"
+
+#: src/features/offers/components/BundleEditor.tsx:387
+#: src/features/offers/components/MultiStageEditor.tsx:266
+#: src/features/offers/components/SingleEditor.tsx:376
+msgid "Sending..."
+msgstr "Sending..."
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:324
+msgid "Sending…"
+msgstr "Sending…"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:23
+#: src/features/offers/utils/offerStatus.ts:10
+msgid "Sent"
+msgstr "Sent"
+
+#: src/features/offers/components/OfferTypeChooser.tsx:35
+msgid "Sequential deliverables with milestones"
+msgstr "Sequential deliverables with milestones"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:315
+msgid "Servicio fully managed"
+msgstr "Servicio fully managed"
+
+#: src/features/offers/components/BundleEditor.tsx:38
+#: src/features/offers/components/SingleEditor.tsx:33
+msgid "Short"
+msgstr "Short"
+
+#: src/features/offers/components/OfferCardMultiStage.tsx:101
+msgid "Show less"
+msgstr "Show less"
+
+#: src/features/offers/components/OfferCardMultiStage.tsx:101
+msgid "Show more"
+msgstr "Show more"
+
+#: src/features/identity/onboarding/creator/screens/C16ReferralScreen.tsx:24
+msgid "Si alguien te pasó el link, dejalo. Los bonificamos."
+msgstr "Si alguien te pasó el link, dejalo. Los bonificamos."
+
+#: src/features/identity/onboarding/brand/screens/B8TimingScreen.tsx:29
+msgid "Si lanzás ya, priorizamos creadores disponibles esta semana."
+msgstr "Si lanzás ya, priorizamos creadores disponibles esta semana."
+
+#: src/features/chat/workspace/ConversationFilterTabs.tsx:15
+msgid "Sin leer"
+msgstr "Sin leer"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:25
+msgid "Sin managers. Sin comisiones. Sin intermediarios."
+msgstr "Sin managers. Sin comisiones. Sin intermediarios."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:315
+msgid "Sin take rate"
+msgstr "Sin take rate"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:183
+msgid "Sin take rate. Sin letra chica. Trial de 7 días en Starter y Growth."
+msgstr "Sin take rate. Sin letra chica. Trial de 7 días en Starter y Growth."
+
+#: src/features/offers/components/OfferTypeBadge.tsx:9
+#: src/features/offers/components/OfferTypeChooser.tsx:24
+msgid "Single"
+msgstr "Single"
+
+#: src/features/identity/onboarding/brand/screens/B1IdentityScreen.tsx:83
+msgid "Sitio web"
+msgstr "Sitio web"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:74
+msgid "Skills"
+msgstr "Skills"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:92
+msgid "Skincare"
+msgstr "Skincare"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:130
+msgid "SLA custom"
+msgstr "SLA custom"
+
+#: src/features/identity/onboarding/creator/screens/C15WhatsappScreen.tsx:33
+msgid "Solo para avisar cuando una marca te acepta. Sin spam."
+msgstr "Solo para avisar cuando una marca te acepta. Sin spam."
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:32
+msgid "Solo recibís campañas que calzan con vos. Cero DMs cruzados."
+msgstr "Solo recibís campañas que calzan con vos. Cero DMs cruzados."
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:54
+msgid "Solo se permiten imágenes JPEG, PNG o WebP."
+msgstr "Solo se permiten imágenes JPEG, PNG o WebP."
+
+#: src/features/deliverables/components/UploadErrorBanner.tsx:22
+#: src/features/deliverables/hooks/useApproveDraft.ts:30
+#: src/features/offers/hooks/useOfferActions.ts:75
+#: src/features/offers/hooks/useOfferActions.ts:117
+msgid "Something went wrong. Try again."
+msgstr "Something went wrong. Try again."
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:106
+msgid "Soporte 24/7"
+msgstr "Soporte 24/7"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:59
+msgid "Soporte por email"
+msgstr "Soporte por email"
+
+#: src/features/offers/components/CurrentOfferBlock.tsx:162
+#: src/features/offers/components/OfferCardBundle.tsx:67
+msgid "Speed bonus"
+msgstr "Speed bonus"
+
+#: src/features/offers/components/SpeedBonusFields.tsx:25
+msgid "Speed Bonus"
+msgstr "Speed Bonus"
+
+#. placeholder {0}: snapshot.position
+#. placeholder {1}: snapshot.total
+#. placeholder {2}: snapshot.name
+#: src/features/offers/components/StageOpenedBubble.tsx:15
+msgid "Stage {0}/{1}: {2} is now open"
+msgstr "Stage {0}/{1}: {2} is now open"
+
+#: src/features/offers/components/OfferCardMultiStage.tsx:142
+msgid "Stages"
+msgstr "Stages"
+
+#: src/features/offers/components/OfferAcceptedCardIn.tsx:36
+msgid "Start preparing your draft. Deadline is {deadline}."
+msgstr "Start preparing your draft. Deadline is {deadline}."
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:61
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:116
+msgid "Startups"
+msgstr "Startups"
+
+#. placeholder {0}: badge.label
+#: src/features/offers/components/OfferCardBundle.tsx:142
+#: src/features/offers/components/OfferCardMultiStage.tsx:193
+msgid "Status: {0}"
+msgstr "Status: {0}"
+
+#: src/features/offers/components/BundleEditor.tsx:42
+#: src/features/offers/components/SingleEditor.tsx:37
+msgid "Story"
+msgstr "Story"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:33
+msgid "Storytelling"
+msgstr "Storytelling"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:96
+msgid "Streaming"
+msgstr "Streaming"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:107
+msgid "Streetwear"
+msgstr "Streetwear"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:158
+msgid "Subiendo…"
+msgstr "Subiendo…"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:158
+msgid "Subir foto"
+msgstr "Subir foto"
+
+#: src/features/deliverables/components/DraftVersionList.tsx:29
+msgid "Submitted"
+msgstr "Submitted"
+
+#: src/features/identity/onboarding/creator/screens/C19PrimingSocialProof.tsx:45
+msgid "take rate"
+msgstr "take rate"
+
+#: src/features/identity/onboarding/creator/components/ChannelEditor.tsx:327
+msgid "Tarifas"
+msgstr "Tarifas"
+
+#. placeholder {0}: VERTICAL_LABEL[vertical]()
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:45
+msgid "Te ayudamos con un template base para {0}"
+msgstr "Te ayudamos con un template base para {0}"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:32
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:9
+msgid "tech"
+msgstr "tech"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:12
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:29
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:21
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:61
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:110
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:116
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:119
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:7
+msgid "Tech"
+msgstr "Tech"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:57
+msgid "Tech LatAm"
+msgstr "Tech LatAm"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:107
+msgid "Tendencias"
+msgstr "Tendencias"
+
+#: src/features/chat/components/MessageComposer.tsx:92
+msgid "Texto recortado al límite de {MAX_LENGTH} caracteres"
+msgstr "Texto recortado al límite de {MAX_LENGTH} caracteres"
+
+#. placeholder {0}: selectedCampaign?.budget_remaining ?? '0.00'
+#: src/features/offers/components/BundleEditor.tsx:223
+#: src/features/offers/components/MultiStageEditor.tsx:247
+#: src/features/offers/components/SingleEditor.tsx:322
+msgid "This amount exceeds the campaign's remaining budget ({currency} {0})"
+msgstr "This amount exceeds the campaign's remaining budget ({currency} {0})"
+
+#: src/features/offers/components/BundleEditor.tsx:121
+#: src/features/offers/components/MultiStageEditor.tsx:84
+#: src/features/offers/components/SingleEditor.tsx:183
+msgid "This campaign is no longer active"
+msgstr "This campaign is no longer active"
+
+#: src/features/deliverables/components/UploadErrorBanner.tsx:14
+msgid "This file format isn't supported. Use MP4, MOV, or WebM."
+msgstr "This file format isn't supported. Use MP4, MOV, or WebM."
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:29
+msgid "TIEMPO RECUPERADO"
+msgstr "TIEMPO RECUPERADO"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:76
+msgid "Tier"
+msgstr "Tier"
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:63
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:36
+#: src/features/offers/components/BundleEditor.tsx:27
+#: src/features/offers/components/SingleEditor.tsx:22
+msgid "TikTok"
+msgstr "TikTok"
+
+#: src/features/identity/onboarding/brand/screens/B8TimingScreen.tsx:36
+msgid "Timing"
+msgstr "Timing"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:55
+msgid "Tipo de filtro"
+msgstr "Tipo de filtro"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:109
+msgid "To {creatorName}"
+msgstr "To {creatorName}"
+
+#: src/features/chat/workspace/ConversationFilterTabs.tsx:14
+msgid "Todas"
+msgstr "Todas"
+
+#: src/features/chat/workspace/CampaignFilterSelect.tsx:61
+#: src/features/chat/workspace/CampaignFilterSelect.tsx:64
+msgid "Todas las campañas"
+msgstr "Todas las campañas"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:101
+msgid "Todo lo de Growth, +:"
+msgstr "Todo lo de Growth, +:"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:125
+msgid "Todo lo de Scale, +:"
+msgstr "Todo lo de Scale, +:"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:77
+msgid "Todo lo de Starter, +:"
+msgstr "Todo lo de Starter, +:"
+
+#. placeholder {0}: stage.name
+#: src/features/offers/components/MultiStageStagesList.tsx:96
+#: src/features/offers/components/OfferCardMultiStage.tsx:63
+msgid "Toggle stage {0}"
+msgstr "Toggle stage {0}"
+
+#: src/features/offers/components/BundleEditor.tsx:373
+#: src/features/offers/components/CurrentOfferBlock.tsx:72
+#: src/features/offers/components/MultiStageEditor.tsx:252
+#: src/features/offers/components/OfferCardBundle.tsx:107
+#: src/features/offers/components/OfferCardMultiStage.tsx:160
+#: src/features/offers/components/SingleEditor.tsx:362
+msgid "Total"
+msgstr "Total"
+
+#. placeholder {0}: String(sum)
+#: src/features/campaigns/brief-builder/components/WeightSumIndicator.tsx:21
+msgid "Total {0} / 100"
+msgstr "Total {0} / 100"
+
+#: src/features/offers/components/BundleEditor.tsx:214
+msgid "Total amount ({currency})"
+msgstr "Total amount ({currency})"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:115
+msgid "Trading"
+msgstr "Trading"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:40
+msgid "Traigo algunos y sumo de la red"
+msgstr "Traigo algunos y sumo de la red"
+
+#: src/features/identity/onboarding/creator/screens/C5NichesScreen.tsx:17
+msgid "Travel"
+msgstr "Travel"
+
+#: src/features/deliverables/components/UploadErrorBanner.tsx:34
+msgid "Try again"
+msgstr "Try again"
+
+#: src/features/chat/components/MessageTimeline.tsx:241
+#: src/features/deliverables/components/DraftApprovedCard.tsx:38
+#: src/features/deliverables/components/DraftSubmittedCard.tsx:148
+#: src/features/deliverables/components/RequestChangesCard.tsx:96
+msgid "Tú"
+msgstr "Tú"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:116
+msgid "Tu experiencia con creadores"
+msgstr "Tu experiencia con creadores"
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:119
+msgid "TU EXPERIENCIA CON CREADORES"
+msgstr "TU EXPERIENCIA CON CREADORES"
+
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:38
+msgid "Tu marca"
+msgstr "Tu marca"
+
+#: src/features/identity/onboarding/creator/screens/C20ConfirmationScreen.tsx:166
+msgid "Tu nombre"
+msgstr "Tu nombre"
+
+#: src/features/identity/onboarding/creator/screens/C1NameHandleScreen.tsx:42
+msgid "Tu nombre público y tu handle principal."
+msgstr "Tu nombre público y tu handle principal."
+
+#: src/features/identity/onboarding/brand/screens/B4ObjectiveScreen.tsx:53
+msgid "Tu objetivo define a quién te mostramos y qué scripts te armamos."
+msgstr "Tu objetivo define a quién te mostramos y qué scripts te armamos."
+
+#: src/features/identity/onboarding/creator/screens/C9PrimingBenchmark2.tsx:19
+msgid "Tu potencial según tu perfil"
+msgstr "Tu potencial según tu perfil"
+
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:22
+msgid "TU TARIFA, COMPLETA"
+msgstr "TU TARIFA, COMPLETA"
+
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:59
+#: src/features/identity/onboarding/creator/screens/C8bPrimingBenchmark.tsx:111
+msgid "Tu tarifa, tu calendario, tu estilo. Nosotros operamos el resto."
+msgstr "Tu tarifa, tu calendario, tu estilo. Nosotros operamos el resto."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:46
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:26
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:23
+msgid "tu vertical"
+msgstr "tu vertical"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:35
+msgid "Tu vertical"
+msgstr "Tu vertical"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:102
+msgid "Turismo"
+msgstr "Turismo"
+
+#: src/features/identity/onboarding/creator/screens/C10BestVideosScreen.tsx:67
+msgid "Tus 3 mejores videos"
+msgstr "Tus 3 mejores videos"
+
+#: src/features/identity/onboarding/creator/screens/C7ChannelsScreen.tsx:53
+msgid "Tus tarifas son privadas. Las marcas ven rango, nunca tu número exacto."
+msgstr "Tus tarifas son privadas. Las marcas ven rango, nunca tu número exacto."
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:40
+msgid "Tutoriales"
+msgstr "Tutoriales"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:18
+msgid "Ubicación"
+msgstr "Ubicación"
+
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:34
+msgid "Último paso antes del match"
+msgstr "Último paso antes del match"
+
+#: src/features/identity/onboarding/creator/screens/C15WhatsappScreen.tsx:30
+msgid "Un WhatsApp al que llegarte"
+msgstr "Un WhatsApp al que llegarte"
+
+#: src/features/identity/onboarding/creator/screens/C17AvatarScreen.tsx:122
+msgid "Una foto para tu perfil"
+msgstr "Una foto para tu perfil"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:67
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:25
+msgid "Unboxing"
+msgstr "Unboxing"
+
+#: src/features/deliverables/components/UploadDraftDialog.tsx:133
+msgid "Upload a video draft for review"
+msgstr "Upload a video draft for review"
+
+#: src/features/deliverables/components/DeliverableListItem.tsx:70
+#: src/features/deliverables/components/DeliverableListItem.tsx:138
+#: src/features/deliverables/components/DeliverableListPanel.tsx:79
+#: src/features/deliverables/components/UploadDraftDialog.tsx:130
+#: src/features/offers/components/OfferAcceptedCardIn.tsx:44
+msgid "Upload draft"
+msgstr "Upload draft"
+
+#. placeholder {0}: uploadDeliverable.current_version + 1
+#: src/features/deliverables/components/DeliverableListPanel.tsx:78
+msgid "Upload draft v{0}"
+msgstr "Upload draft v{0}"
+
+#: src/features/deliverables/components/DeliverableListItem.tsx:70
+msgid "Upload draft v{nextVersion}"
+msgstr "Upload draft v{nextVersion}"
+
+#: src/features/deliverables/components/UploadErrorBanner.tsx:18
+msgid "Upload failed. Check your connection and try again."
+msgstr "Upload failed. Check your connection and try again."
+
+#: src/features/deliverables/components/UploadDraftDialog.tsx:68
+msgid "Upload in progress. Cancel?"
+msgstr "Upload in progress. Cancel?"
+
+#: src/features/deliverables/components/UploadProgressOverlay.tsx:29
+msgid "Upload progress"
+msgstr "Upload progress"
+
+#: src/features/identity/onboarding/creator/screens/C10BestVideosScreen.tsx:105
+msgid "URL de IG / TikTok / YT"
+msgstr "URL de IG / TikTok / YT"
+
+#: src/features/identity/onboarding/creator/screens/C4TierScreen.tsx:70
+msgid "Usamos tu nivel para mostrarte ofertas acordes."
+msgstr "Usamos tu nivel para mostrarte ofertas acordes."
+
+#: src/features/identity/onboarding/brand/screens/B6BudgetScreen.tsx:57
+msgid "Usamos tu respuesta para recomendarte el mejor plan."
+msgstr "Usamos tu respuesta para recomendarte el mejor plan."
+
+#: src/features/identity/onboarding/creator/screens/C18PrimingEarnings.tsx:50
+msgid "USD / mes"
+msgstr "USD / mes"
+
+#: src/features/identity/onboarding/brand/screens/B3PrimingSocialProof.tsx:37
+msgid "USD manejados en campañas"
+msgstr "USD manejados en campañas"
+
+#: src/features/offers/components/SingleEditor.tsx:57
+#: src/features/offers/schemas/bundleEditor.ts:20
+msgid "Use format 0.00"
+msgstr "Use format 0.00"
+
+#. placeholder {0}: snapshot.draft_version
+#. placeholder {0}: snapshot.version
+#: src/features/deliverables/components/DraftSubmittedCard.tsx:186
+#: src/features/deliverables/components/RequestChangesCard.tsx:128
+msgid "v{0}"
+msgstr "v{0}"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:70
+msgid "Valor"
+msgstr "Valor"
+
+#: src/features/campaigns/brief-builder/components/HardFilterForm.tsx:20
+msgid "Verificado"
+msgstr "Verificado"
+
+#: src/features/identity/onboarding/creator/screens/C7ChannelsScreen.tsx:32
+msgid "Verificamos followers y engagement. Cargá tu tarifa por formato — las marcas ven rango, no tu precio directo."
+msgstr "Verificamos followers y engagement. Cargá tu tarifa por formato — las marcas ven rango, no tu precio directo."
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:41
+#: src/features/identity/onboarding/brand/screens/B14ConfirmationScreen.tsx:18
+msgid "viajes"
+msgstr "viajes"
+
+#: src/features/identity/onboarding/brand/screens/B12LoadingScreen.tsx:21
+#: src/features/identity/onboarding/brand/screens/B2VerticalScreen.tsx:50
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:30
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:101
+msgid "Viajes"
+msgstr "Viajes"
+
+#: src/features/identity/onboarding/creator/screens/C6ContentTypesScreen.tsx:34
+msgid "Video Ads"
+msgstr "Video Ads"
+
+#: src/features/identity/onboarding/brand/screens/B3PrimingSocialProof.tsx:51
+msgid "views generados"
+msgstr "views generados"
+
+#: src/features/identity/onboarding/brand/screens/B10PrimingProjection.tsx:107
+msgid "views proyectados / mes"
+msgstr "views proyectados / mes"
+
+#: src/features/campaigns/brief-builder/screens/P2Progress.tsx:57
+msgid "Volver al formulario"
+msgstr "Volver al formulario"
+
+#: src/features/identity/onboarding/brand/screens/B13PaywallScreen.tsx:120
+msgid "VOS HACÉS"
+msgstr "VOS HACÉS"
+
+#: src/features/deliverables/components/DeliverableListItem.tsx:69
+msgid "Waiting for brand review"
+msgstr "Waiting for brand review"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:115
+msgid "Web3"
+msgstr "Web3"
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:77
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:80
+msgid "Wellness"
+msgstr "Wellness"
+
+#: src/features/deliverables/components/RequestChangesModal.tsx:243
+msgid "What needs to change?"
+msgstr "What needs to change?"
+
+#: src/features/identity/onboarding/brand/screens/B9ContactScreen.tsx:69
+#: src/features/identity/onboarding/creator/screens/C15WhatsappScreen.tsx:37
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+#: src/features/identity/onboarding/brand/screens/B11AttributionScreen.tsx:26
+msgid "X / Twitter"
+msgstr "X / Twitter"
+
+#: src/features/deliverables/hooks/useRequestChangesFlow.ts:131
+msgid "Ya se solicitó un cambio para este borrador."
+msgstr "Ya se solicitó un cambio para este borrador."
+
+#: src/features/identity/onboarding/brand/screens/B7PrimingMatchPreview.tsx:162
+msgid "Ya tenemos {TOTAL_CREATORS} creadores que encajan con tu marca."
+msgstr "Ya tenemos {TOTAL_CREATORS} creadores que encajan con tu marca."
+
+#: src/features/identity/onboarding/brand/screens/B5ExperienceScreen.tsx:29
+msgid "Ya tengo mis creadores"
+msgstr "Ya tengo mis creadores"
+
+#: src/features/offers/components/OfferAcceptedCardIn.tsx:33
+msgid "You accepted the offer"
+msgstr "You accepted the offer"
+
+#: src/features/offers/components/OfferAcceptedCardIn.tsx:22
+msgid "You accepted the offer, deadline {deadline}"
+msgstr "You accepted the offer, deadline {deadline}"
+
+#: src/features/offers/components/SendOfferSidesheet.tsx:95
+msgid "You don't have any active campaigns. Create a campaign first to send offers."
+msgstr "You don't have any active campaigns. Create a campaign first to send offers."
+
+#: src/features/campaigns/brief-builder/screens/P3Review.tsx:61
+#: src/features/offers/components/BundleEditor.tsx:25
+#: src/features/offers/components/SingleEditor.tsx:20
+msgid "YouTube"
+msgstr "YouTube"

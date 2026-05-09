@@ -51,11 +51,8 @@ Definir la configuración tipada de navegación del shell para `kind='brand'` y 
 - [ ] `pnpm typecheck` y `pnpm test` pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+navigation.ts y navigation.test.ts implementan la spec F.1 correctamente: tipos, orden de items, habilitados MVP, resolveActiveSidebarItem con prefix-match estricto. Todos los acceptance criteria cubiertos. El fix colateral en P1Input.test.tsx es válido. 130 tests pasan, typecheck limpio.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

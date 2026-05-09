@@ -5,9 +5,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { cn } from '#/lib/utils'
 import { useBrandOnboardingStore } from '../store'
 import { STEPS, getStepId } from '../steps'
-import { Vertical } from '#/shared/api/generated/model/vertical'
-import { MarketingObjective } from '#/shared/api/generated/model/marketingObjective'
-import { MonthlyBudgetRange } from '#/shared/api/generated/model/monthlyBudgetRange'
+import { MarketingObjective, MonthlyBudgetRange, Vertical } from '../types'
 
 const VERTICAL_LABEL: Record<Vertical, () => string> = {
   fintech: () => t`Fintech`,

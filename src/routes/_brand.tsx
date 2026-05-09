@@ -1,17 +1,22 @@
-import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useRouterState,
+} from '@tanstack/react-router'
 
-import { track } from '#/shared/analytics/track'
+import { AppShell } from '#/features/identity/app-shell/AppShell'
+import { MissingWorkspaceFallback } from '#/features/identity/app-shell/MissingWorkspaceFallback'
 import { getMeQueryKey } from '#/shared/api/generated/accounts/accounts'
 import type { meResponse } from '#/shared/api/generated/accounts/accounts'
 import { getServerMe } from '#/shared/auth/getServerMe'
 import type { ServerMeBody } from '#/shared/auth/getServerMe'
-import { BrandShell } from '../features/identity/components/BrandShell'
 import { BrandSessionProvider } from '../features/identity/session/BrandSessionContext'
 
 const STALE_TIME = 30_000
 
 export const Route = createFileRoute('/_brand')({
-  beforeLoad: async ({ context, location }) => {
+  beforeLoad: async ({ context }) => {
     const { queryClient } = context
 
     const cached = queryClient.getQueryData<meResponse>(getMeQueryKey())
@@ -37,43 +42,43 @@ export const Route = createFileRoute('/_brand')({
     }
 
     if (!me) {
-      track('onboarding_redirect_enforced', {
-        from: location.pathname,
-        to: '/auth',
-        reason: 'no_session',
-      })
       throw redirect({ to: '/auth' })
     }
 
+    if (me.kind !== 'brand' && me.kind !== 'creator') {
+      throw redirect({ to: '/auth' })
+    }
+
+    if (me.kind === 'creator') {
+      throw redirect({ to: '/workspace' })
+    }
+
     if (me.onboarding_status !== 'onboarded') {
-      const destination = me.redirect_to ?? '/auth'
-      track('onboarding_redirect_enforced', {
-        from: location.pathname,
-        to: destination,
-        reason: 'onboarding_incomplete',
-      })
+      const destination = me.redirect_to ?? '/onboarding/brand'
       throw redirect({ to: destination })
     }
 
-    if (me.kind !== 'brand') {
-      const home = me.kind === 'creator' ? '/offers' : '/auth'
-      track('onboarding_redirect_enforced', {
-        from: location.pathname,
-        to: home,
-        reason: 'kind_mismatch',
-      })
-      throw redirect({ to: home })
+    return {
+      accountId: me.id,
+      hasBrandWorkspace: Boolean(me.brand_workspace),
     }
   },
   component: BrandLayout,
 })
 
 function BrandLayout() {
+  const { accountId, hasBrandWorkspace } = Route.useRouteContext()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+
+  if (!hasBrandWorkspace) {
+    return <MissingWorkspaceFallback />
+  }
+
   return (
-    <BrandSessionProvider>
-      <BrandShell>
+    <AppShell accountKind="brand" accountId={accountId} pathname={pathname}>
+      <BrandSessionProvider>
         <Outlet />
-      </BrandShell>
-    </BrandSessionProvider>
+      </BrandSessionProvider>
+    </AppShell>
   )
 }

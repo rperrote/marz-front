@@ -73,9 +73,8 @@ Full design system: `src/styles.css` + `marz-design/marzv2.pen` (Pencil MCP).
 - [ ] Accesibilidad: focus trap, ESC cierra sheet/dialog, aria-labels presentes.
 
 ## Done summary
-
-_Pendiente — completar al cerrar el task._
-
+fixtures.ts: fixture chatPairWithCompletedDeliverable correcto — cleanup exhaustivo en todos los paths de error, deliverableId resuelto via API autenticada con header correcto, ChatPair.deliverableId opcional no rompe fixtures existentes. mark-as-paid.spec.ts: guard test usa deliverableId real y falla explícito si el fixture no lo provee. Sin issues bloqueantes en el diff.
 ## Evidence
-
-_Pendiente — agregar links a PR, screenshots, test runs._
+- Commits:
+- Tests:
+- PRs:

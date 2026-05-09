@@ -1,4 +1,8 @@
 import type { WSMessageCreatedPayload } from '#/shared/api/generated/model'
+import type {
+  DeliverableDTO,
+  PublishedLink,
+} from '#/features/deliverables/types'
 import type { DomainEventEnvelope } from './events'
 
 // Discriminated union over `type` ('text' | 'system_event'); system events
@@ -88,6 +92,67 @@ export interface ChangesRequestedSnapshot {
   requested_by_account_id: string
 }
 
+export interface PaymentMarkedSnapshot {
+  event_type: 'PaymentMarked'
+  deliverable_id: string
+  amount: string
+  currency: string
+  deliverable_display_label: string
+  declared_at: string
+}
+
+export interface LinkSubmittedSnapshot {
+  event_type: 'LinkSubmitted'
+  deliverable_id: string
+  deliverable_platform: string
+  deliverable_format: string
+  deliverable_offer_stage_id: string | null
+  link: {
+    id: string
+    url: string
+    status: 'submitted' | 'changes_requested' | 'approved' | 'rejected'
+    preview: unknown | null
+    submitted_at: string
+    submitted_by_account_id: string
+  }
+  message?: string | null
+  payout_amount_formatted?: string | null
+}
+
+export interface LinkApprovedSnapshot {
+  event_type: 'LinkApproved'
+  deliverable_id: string
+  deliverable_platform: string
+  deliverable_format: string
+  deliverable_offer_stage_id: string | null
+  link: {
+    id: string
+    url: string
+    status: 'approved'
+    preview: unknown | null
+  }
+  approved_at: string
+  approved_by_account_id: string
+}
+
+export interface LinkChangesRequestedSnapshot {
+  event_type: 'LinkChangesRequested'
+  deliverable_id: string
+  deliverable_platform: string
+  deliverable_format: string
+  deliverable_offer_stage_id: string | null
+  link: {
+    id: string
+    url: string
+    status: 'changes_requested'
+    preview: unknown | null
+  }
+  categories: string[]
+  notes: string | null
+  requested_at: string
+  requested_by_account_id: string
+}
+
 export interface DraftSubmittedWSPayload {
   conversation_id: string
   deliverable_id: string
@@ -117,8 +182,8 @@ export interface ChangesRequestedWSPayload {
 
 export interface DeliverableChangedWSPayload {
   conversation_id: string
-  // Will be typed as DeliverableDTO once B.6 is deployed and Orval regenerates.
-  deliverable: unknown
+  deliverable: DeliverableDTO
+  current_link?: PublishedLink | null
 }
 
 export interface StageApprovedWSPayload {
@@ -170,6 +235,9 @@ export type DomainWsEvent =
     })
   | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
       event_type: 'deliverable.changed'
+    })
+  | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
+      event_type: 'deliverable.updated'
     })
   | (DomainEventEnvelope<StageApprovedWSPayload> & {
       event_type: 'stage.approved'

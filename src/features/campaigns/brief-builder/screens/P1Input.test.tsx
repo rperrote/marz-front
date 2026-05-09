@@ -27,6 +27,10 @@ vi.mock('../hooks/useProcessBrief', async (importOriginal) => {
 
 vi.mock('#/features/identity/session/BrandSessionContext', () => ({
   useBrandSession: () => ({
+    account: {
+      id: 'account-1',
+      kind: 'brand',
+    },
     brandWorkspace: {
       id: 'brand-workspace-1',
       website_url: 'https://brand.example',

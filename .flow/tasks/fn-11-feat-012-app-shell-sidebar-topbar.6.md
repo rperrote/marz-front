@@ -51,11 +51,8 @@ Migrar la ruta común `/workspace` (Chats) para que monte un único `AppShell` p
 - [ ] `pnpm typecheck`, `pnpm test`, `pnpm lint` pasan.
 
 ## Done summary
-
-_To fill at completion._
-
+Migración limpia: BrandShell/CreatorShell reemplazados por AppShell parametrizado, guard de kind reordenado antes del onboarding check según spec, tests unitarios y E2E cubren todos los acceptance criteria, sin imports muertos ni deuda técnica.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import { forwardRef } from 'react'
 import type { ReactNode } from 'react'
 
 import { cn } from '#/lib/utils'
@@ -51,34 +52,33 @@ interface SystemEventCardProps {
   className?: string
 }
 
-export function SystemEventCard({
-  tone,
-  kicker,
-  icon: Icon,
-  headerVariant = 'tint',
-  children,
-  className,
-}: SystemEventCardProps) {
-  const header =
-    headerVariant === 'solid' ? toneHeaderSolid[tone] : toneHeaderTint[tone]
-  return (
-    <div
-      className={cn(
-        'overflow-hidden rounded-2xl border-2 bg-card',
-        toneBorder[tone],
-        className,
-      )}
-    >
-      <div className={cn('flex items-center gap-2 px-4 py-2.5', header)}>
-        <Icon className="size-4" />
-        <span className="text-xs font-semibold uppercase tracking-widest">
-          {kicker}
-        </span>
+export const SystemEventCard = forwardRef<HTMLDivElement, SystemEventCardProps>(
+  function SystemEventCardRoot(
+    { tone, kicker, icon: Icon, headerVariant = 'tint', children, className },
+    ref,
+  ) {
+    const header =
+      headerVariant === 'solid' ? toneHeaderSolid[tone] : toneHeaderTint[tone]
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'overflow-hidden rounded-2xl border-2 bg-card',
+          toneBorder[tone],
+          className,
+        )}
+      >
+        <div className={cn('flex items-center gap-2 px-4 py-2.5', header)}>
+          <Icon className="size-4" />
+          <span className="text-xs font-semibold uppercase tracking-widest">
+            {kicker}
+          </span>
+        </div>
+        <div className="p-4">{children}</div>
       </div>
-      <div className="p-4">{children}</div>
-    </div>
-  )
-}
+    )
+  },
+)
 
 /** Key-value tile used inside cards (BUDGET, DEADLINE, etc). */
 export function StatTile({ label, value }: { label: string; value: string }) {
