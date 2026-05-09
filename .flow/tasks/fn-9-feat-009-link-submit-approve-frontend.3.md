@@ -63,11 +63,8 @@ Esta task es el **early proof point** del epic — valida tipos Orval, contrato 
 - [ ] `Idempotency-Key` se regenera por intento (no reusa el mismo en re-open).
 
 ## Done summary
-
-_To fill at completion._
-
+Form migrado a useAppForm con requireDirty en SubmitButton; placeholder y i18n resueltos; no hay violaciones de reglas duras.
 ## Evidence
-
 - Commits:
 - Tests:
 - PRs:

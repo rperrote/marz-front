@@ -1,9 +1,21 @@
 export function toMessagePayload(
-  value: unknown,
+  payload: unknown,
 ): Record<string, unknown> | null {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return null
+  if (isMessagePayload(payload)) return payload
+
+  return null
+}
+
+export function isMessagePayload(
+  payload: unknown,
+): payload is Record<string, unknown> {
+  if (
+    payload === null ||
+    typeof payload !== 'object' ||
+    Array.isArray(payload)
+  ) {
+    return false
   }
 
-  return value as Record<string, unknown>
+  return true
 }

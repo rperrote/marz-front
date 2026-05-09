@@ -7,11 +7,13 @@ type ButtonProps = ComponentProps<typeof Button>
 interface SubmitButtonProps extends Omit<ButtonProps, 'type' | 'disabled'> {
   label: ReactNode
   loadingLabel?: ReactNode
+  requireDirty?: boolean
 }
 
 export function SubmitButton({
   label,
   loadingLabel,
+  requireDirty = false,
   ...buttonProps
 }: SubmitButtonProps) {
   const form = useFormContext()
@@ -19,11 +21,16 @@ export function SubmitButton({
     <form.Subscribe
       selector={(state) => ({
         canSubmit: state.canSubmit,
+        isDirty: state.isDirty,
         isSubmitting: state.isSubmitting,
       })}
     >
-      {({ canSubmit, isSubmitting }) => (
-        <Button {...buttonProps} type="submit" disabled={!canSubmit}>
+      {({ canSubmit, isDirty, isSubmitting }) => (
+        <Button
+          {...buttonProps}
+          type="submit"
+          disabled={!canSubmit || (requireDirty && !isDirty)}
+        >
           {isSubmitting && loadingLabel ? loadingLabel : label}
         </Button>
       )}

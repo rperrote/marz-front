@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
@@ -15,6 +15,7 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 const mockMutate = vi.fn()
+const mockRequestLinkChangesSubmit = vi.fn()
 const mockTrackRequestChangesModalOpened = vi.fn()
 const mockTrackRequestChangesModalDismissed = vi.fn()
 
@@ -22,6 +23,20 @@ vi.mock('#/features/deliverables/api/requestChanges', () => ({
   useRequestChangesMutation: () => ({
     mutate: mockMutate,
     isPending: false,
+  }),
+}))
+
+vi.mock('#/features/deliverables/hooks/useRequestLinkChanges', () => ({
+  useRequestLinkChanges: () => ({
+    categories: new Set(['audio']),
+    notes: '',
+    canSubmit: true,
+    submitStatus: 'idle',
+    error: null,
+    toggleCategory: vi.fn(),
+    setNotes: vi.fn(),
+    submit: mockRequestLinkChangesSubmit,
+    reset: vi.fn(),
   }),
 }))
 
@@ -67,6 +82,7 @@ describe('RequestChangesModal', () => {
   beforeEach(() => {
     vi.useRealTimers()
     mockMutate.mockReset()
+    mockRequestLinkChangesSubmit.mockClear()
     mockTrackRequestChangesModalOpened.mockClear()
     mockTrackRequestChangesModalDismissed.mockClear()
   })
@@ -136,7 +152,9 @@ describe('RequestChangesModal', () => {
 
     await user.click(screen.getByRole('button', { name: /request changes/i }))
     await user.click(screen.getByRole('button', { name: /audio/i }))
-    await user.click(screen.getByRole('button', { name: /send request/i }))
+    await user.click(
+      screen.getByRole('button', { name: /request changes on draft/i }),
+    )
 
     expect(mockTrackRequestChangesModalDismissed).not.toHaveBeenCalled()
   })
@@ -197,7 +215,9 @@ describe('RequestChangesModal', () => {
     renderModal()
 
     await user.click(screen.getByRole('button', { name: /request changes/i }))
-    const submitButton = screen.getByRole('button', { name: /send request/i })
+    const submitButton = screen.getByRole('button', {
+      name: /request changes on draft/i,
+    })
 
     expect(submitButton).toHaveAttribute('disabled')
   })
@@ -209,7 +229,9 @@ describe('RequestChangesModal', () => {
     await user.click(screen.getByRole('button', { name: /request changes/i }))
     await user.click(screen.getByRole('button', { name: /pacing/i }))
 
-    const submitButton = screen.getByRole('button', { name: /send request/i })
+    const submitButton = screen.getByRole('button', {
+      name: /request changes on draft/i,
+    })
     expect(submitButton).not.toHaveAttribute('disabled')
   })
 
@@ -220,7 +242,9 @@ describe('RequestChangesModal', () => {
     await user.click(screen.getByRole('button', { name: /request changes/i }))
     await user.click(screen.getByRole('button', { name: /other/i }))
 
-    const submitButton = screen.getByRole('button', { name: /send request/i })
+    const submitButton = screen.getByRole('button', {
+      name: /request changes on draft/i,
+    })
     expect(submitButton).toHaveAttribute('disabled')
   })
 
@@ -235,7 +259,9 @@ describe('RequestChangesModal', () => {
       'Fix the intro please',
     )
 
-    const submitButton = screen.getByRole('button', { name: /send request/i })
+    const submitButton = screen.getByRole('button', {
+      name: /request changes on draft/i,
+    })
     expect(submitButton).not.toHaveAttribute('disabled')
   })
 
@@ -256,7 +282,9 @@ describe('RequestChangesModal', () => {
     await user.click(screen.getByRole('button', { name: /request changes/i }))
     await user.click(screen.getByRole('button', { name: /audio/i }))
     await user.type(screen.getByLabelText(/additional notes/i), 'Too loud')
-    await user.click(screen.getByRole('button', { name: /send request/i }))
+    await user.click(
+      screen.getByRole('button', { name: /request changes on draft/i }),
+    )
 
     expect(mockMutate).toHaveBeenCalledTimes(1)
     const { body } = mockMutate.mock.calls[0]![0]
@@ -267,9 +295,7 @@ describe('RequestChangesModal', () => {
   it('renders inline variant without dialog', () => {
     renderModal({ inline: true })
 
-    expect(
-      screen.queryByRole('button', { name: /request changes/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getAllByText('Test Video').length).toBeGreaterThanOrEqual(1)
   })
 
@@ -284,8 +310,35 @@ describe('RequestChangesModal', () => {
   it('renders placeholder when playbackUrl is missing', () => {
     renderModal({ playbackUrl: undefined, inline: true })
     expect(
-      screen.getByRole('button', { name: /send request/i }),
+      screen.getByRole('button', { name: /request changes on draft/i }),
     ).toBeInTheDocument()
+  })
+
+  it('renders link target copy and submits through link changes flow', async () => {
+    const user = userEvent.setup()
+    renderModal({
+      target: 'link',
+      linkId: 'link-1',
+      draftId: undefined,
+      title: 'Request changes on link',
+      triggerLabel: 'Request changes on link',
+    })
+
+    await user.click(
+      screen.getByRole('button', { name: /request changes on link/i }),
+    )
+
+    expect(
+      screen.getAllByText('Request changes on link').length,
+    ).toBeGreaterThanOrEqual(1)
+
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /request changes on link/i,
+      }),
+    )
+
+    expect(mockRequestLinkChangesSubmit).toHaveBeenCalledTimes(1)
   })
 
   it('is axe-clean', async () => {
