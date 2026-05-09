@@ -13,6 +13,7 @@ import {
 } from './CampaignDetailHeader'
 import { CampaignDetailTabs } from './CampaignDetailTabs'
 import type { CampaignDetailTabId } from './CampaignDetailTabs'
+import { OverviewTab } from './OverviewTab'
 import { useCampaignDetailQuery } from './useCampaignDetailQuery'
 
 export interface CampaignDetailSearch {
@@ -96,7 +97,7 @@ export function CampaignDetailPage({
       tab={search.tab}
       onTabChange={handleTabChange}
     >
-      <CampaignDetailBody tab={search.tab} />
+      <CampaignDetailBody campaignId={campaignId} tab={search.tab} />
     </CampaignDetailShell>
   )
 }
@@ -123,7 +124,13 @@ function CampaignDetailShell({
   )
 }
 
-function CampaignDetailBody({ tab }: { tab: CampaignDetailTabId }) {
+function CampaignDetailBody({
+  campaignId,
+  tab,
+}: {
+  campaignId: string
+  tab: CampaignDetailTabId
+}) {
   const titleByTab: Record<CampaignDetailNavigableTab, string> = {
     overview: t`Overview`,
     discovery: t`Discovery`,
@@ -138,6 +145,10 @@ function CampaignDetailBody({ tab }: { tab: CampaignDetailTabId }) {
         description={t`Esta sección todavía no está disponible.`}
       />
     )
+  }
+
+  if (tab === 'overview') {
+    return <OverviewTab campaignId={campaignId} />
   }
 
   return (
