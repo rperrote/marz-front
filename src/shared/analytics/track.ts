@@ -15,6 +15,14 @@ type AnalyticsEvent =
   | 'conversation_rail_search'
   | 'conversation_filter_changed'
   | 'conversation_campaign_filter_changed'
+  | 'campaign_board_viewed'
+  | 'campaign_board_searched'
+  | 'campaign_board_filtered'
+  | 'campaign_board_sorted'
+  | 'campaign_board_brief_opened'
+  | 'campaign_board_application_started'
+  | 'campaign_board_application_submitted'
+  | 'campaign_board_empty_state_seen'
 
 interface TrackedEvent {
   event: AnalyticsEvent

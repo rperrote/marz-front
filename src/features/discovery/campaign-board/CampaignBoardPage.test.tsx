@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -13,6 +13,7 @@ import { formatDeadline } from './CampaignBoardCard'
 import { useBoardSearchSync } from './hooks/useBoardSearchSync'
 import { useCampaignBoardQuery } from './hooks/useCampaignBoardQuery'
 import type { CampaignBoardSearch } from './search-schema'
+import { trackBoardEvent } from './utils/analytics'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -31,6 +32,10 @@ vi.mock('./hooks/useCampaignBoardQuery', () => ({
 
 vi.mock('./hooks/useBoardSearchSync', () => ({
   useBoardSearchSync: vi.fn(),
+}))
+
+vi.mock('./utils/analytics', () => ({
+  trackBoardEvent: vi.fn(),
 }))
 
 vi.mock('./CampaignBriefSheet', () => ({
@@ -74,19 +79,25 @@ vi.mock('./ApplicationDialog', () => ({
   ApplicationDialog: ({
     open,
     campaignName,
+    onSubmitted,
   }: {
     open: boolean
     campaignName?: string
+    onSubmitted?: () => void
   }) =>
     open ? (
       <div role="dialog" aria-label="Postularme">
         {campaignName}
+        <button type="button" onClick={onSubmitted}>
+          Enviar mock
+        </button>
       </div>
     ) : null,
 }))
 
 const mockUseCampaignBoardQuery = vi.mocked(useCampaignBoardQuery)
 const mockUseBoardSearchSync = vi.mocked(useBoardSearchSync)
+const mockTrackBoardEvent = vi.mocked(trackBoardEvent)
 
 const baseSearch: CampaignBoardSearch = {
   recommended_only: false,
@@ -237,6 +248,28 @@ describe('CampaignBoardPage', () => {
     expect(screen.getByRole('button', { name: 'Postularme' })).toBeEnabled()
   })
 
+  it('tracks the board view after data loads', () => {
+    mockBoardQuery({ data: makeBoardResponse(), isSuccess: true })
+
+    renderCampaignBoardPage()
+
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith('campaign_board_viewed', {
+      total_campaigns: 24,
+      recommended_campaigns: 12,
+    })
+  })
+
+  it('does not track the board view while loading', () => {
+    mockBoardQuery({ isPending: true, isFetching: true })
+
+    renderCampaignBoardPage()
+
+    expect(mockTrackBoardEvent).not.toHaveBeenCalledWith(
+      'campaign_board_viewed',
+      expect.anything(),
+    )
+  })
+
   it('renders submitted state with a link to view the application', () => {
     mockBoardQuery({
       data: makeBoardResponse([
@@ -271,6 +304,31 @@ describe('CampaignBoardPage', () => {
     expect(
       screen.getByRole('dialog', { name: 'Postularme' }),
     ).toHaveTextContent('Lanzamiento auriculares M-Pro 2')
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith(
+      'campaign_board_application_started',
+      {
+        match_score_range: 'high',
+        recommended: true,
+      },
+    )
+  })
+
+  it('tracks application submission from the dialog callback', async () => {
+    const user = userEvent.setup()
+    mockBoardQuery({ data: makeBoardResponse(), isSuccess: true })
+
+    renderCampaignBoardPage()
+
+    await user.click(screen.getByRole('button', { name: 'Postularme' }))
+    await user.click(screen.getByRole('button', { name: 'Enviar mock' }))
+
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith(
+      'campaign_board_application_submitted',
+      {
+        match_score_range: 'high',
+        recommended: true,
+      },
+    )
   })
 
   it('opens the brief sheet from a campaign card', async () => {
@@ -284,6 +342,13 @@ describe('CampaignBoardPage', () => {
     expect(
       screen.getByRole('dialog', { name: 'Brief de campaña' }),
     ).toHaveTextContent(campaignId)
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith(
+      'campaign_board_brief_opened',
+      {
+        match_score_range: 'high',
+        recommended: true,
+      },
+    )
   })
 
   it('renders loading skeletons', () => {
@@ -305,6 +370,89 @@ describe('CampaignBoardPage', () => {
     expect(screen.getAllByRole('button', { name: 'Actualizar' })).toHaveLength(
       2,
     )
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith(
+      'campaign_board_empty_state_seen',
+      {
+        empty_state_type: 'error',
+      },
+    )
+  })
+
+  it('renders the no-campaigns empty state', () => {
+    mockBoardQuery({
+      data: {
+        ...makeBoardResponse([]),
+        counts: {
+          total_visible: 0,
+          recommended: 0,
+          matching_filters: 0,
+        },
+      },
+      isSuccess: true,
+    })
+
+    renderCampaignBoardPage()
+
+    expect(
+      screen.getByRole('heading', { name: 'Sin campañas por ahora' }),
+    ).toBeInTheDocument()
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith(
+      'campaign_board_empty_state_seen',
+      {
+        empty_state_type: 'no_campaigns',
+      },
+    )
+  })
+
+  it('tracks filtered changes from filters', async () => {
+    const user = userEvent.setup()
+    mockBoardQuery({ data: makeBoardResponse(), isSuccess: true })
+
+    renderCampaignBoardPage()
+
+    await user.click(
+      screen.getByRole('switch', { name: 'Solo recomendadas para mí' }),
+    )
+
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith(
+      'campaign_board_filtered',
+      {
+        filter_types: ['recommended_only'],
+        recommended_only: true,
+      },
+    )
+  })
+
+  it('tracks sorted changes from the sort control', async () => {
+    const user = userEvent.setup()
+    mockBoardQuery({ data: makeBoardResponse(), isSuccess: true })
+
+    renderCampaignBoardPage()
+
+    await user.click(screen.getByRole('combobox', { name: 'Ordenar campañas' }))
+    await user.click(screen.getByRole('option', { name: 'Fee más alto' }))
+
+    expect(mockTrackBoardEvent).toHaveBeenCalledWith('campaign_board_sorted', {
+      sort_option: 'fee_desc',
+    })
+  })
+
+  it('tracks searched changes after debounce', async () => {
+    const user = userEvent.setup()
+    mockBoardQuery({ data: makeBoardResponse(), isSuccess: true })
+
+    renderCampaignBoardPage()
+
+    await user.type(screen.getByLabelText('Buscar campañas'), 'tech')
+
+    await waitFor(() => {
+      expect(mockTrackBoardEvent).toHaveBeenCalledWith(
+        'campaign_board_searched',
+        {
+          has_query: true,
+        },
+      )
+    })
   })
 
   it('has no axe violations on the loaded page', async () => {

@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
 
-import { Button } from '#/components/ui/button'
 import type { CreatorCampaignBoardCard } from '#/shared/api/generated/model'
 
 import { ApplicationDialog } from './ApplicationDialog'
+import { CampaignBoardEmptyState } from './CampaignBoardEmptyState'
 import { CampaignBoardFilters } from './CampaignBoardFilters'
 import { CampaignBriefSheet } from './CampaignBriefSheet'
 import {
@@ -15,16 +15,137 @@ import { CampaignBoardHeader } from './CampaignBoardHeader'
 import { CampaignBoardSort } from './CampaignBoardSort'
 import { useCampaignBoardQuery } from './hooks/useCampaignBoardQuery'
 import { useBoardSearchSync } from './hooks/useBoardSearchSync'
+import type { CampaignBoardSearch } from './search-schema'
+import { trackBoardEvent } from './utils/analytics'
+import {
+  activeFilterTypes,
+  classifyEmptyState,
+} from './utils/classifyEmptyState'
 
 export function CampaignBoardPage() {
   const { search, setSearch, resetSearch } = useBoardSearchSync()
   const boardQuery = useCampaignBoardQuery(search)
   const cards = boardQuery.data?.data ?? []
+  const emptyStateType = classifyEmptyState({
+    data: boardQuery.data,
+    search,
+    error: boardQuery.isError,
+  })
+  const hasTrackedViewedRef = useRef(false)
+  const trackedEmptyStateTypesRef = useRef(new Set<string>())
   const [selectedBriefCampaignId, setSelectedBriefCampaignId] = useState<
     string | null
   >(null)
   const [applicationCard, setApplicationCard] =
     useState<CreatorCampaignBoardCard | null>(null)
+
+  useEffect(() => {
+    if (!boardQuery.isSuccess) return
+    if (hasTrackedViewedRef.current) return
+
+    hasTrackedViewedRef.current = true
+    trackBoardEvent('campaign_board_viewed', {
+      total_campaigns: boardQuery.data.counts.total_visible,
+      recommended_campaigns: boardQuery.data.counts.recommended,
+    })
+  }, [boardQuery.data, boardQuery.isSuccess])
+
+  useEffect(() => {
+    if (!emptyStateType) return
+    if (trackedEmptyStateTypesRef.current.has(emptyStateType)) return
+
+    trackedEmptyStateTypesRef.current.add(emptyStateType)
+    trackBoardEvent('campaign_board_empty_state_seen', {
+      empty_state_type: emptyStateType,
+    })
+  }, [emptyStateType])
+
+  function handleSearchChange(patch: Partial<CampaignBoardSearch>) {
+    if ('q' in patch && patch.q !== search.q) {
+      trackBoardEvent('campaign_board_searched', {
+        has_query: Boolean(patch.q),
+      })
+    }
+
+    if (
+      'sort' in patch &&
+      patch.sort !== undefined &&
+      patch.sort !== search.sort
+    ) {
+      trackBoardEvent('campaign_board_sorted', { sort_option: patch.sort })
+    }
+
+    const tracksFilterChange = Object.keys(patch).some(
+      (key) => key !== 'q' && key !== 'sort' && key !== 'cursor',
+    )
+
+    if (tracksFilterChange) {
+      const nextSearch = { ...search, ...patch }
+      trackBoardEvent('campaign_board_filtered', {
+        filter_types: activeFilterTypes(nextSearch),
+        recommended_only: nextSearch.recommended_only,
+      })
+    }
+
+    setSearch(patch)
+  }
+
+  function handleResetSearch() {
+    trackBoardEvent('campaign_board_filtered', {
+      filter_types: [],
+      recommended_only: false,
+    })
+    resetSearch()
+  }
+
+  function findCard(campaignId: string) {
+    return cards.find((card) => card.campaign_id === campaignId)
+  }
+
+  function campaignInteractionPayload(card: CreatorCampaignBoardCard) {
+    return {
+      match_score_range: card.match.band,
+      recommended: card.match.recommended,
+    }
+  }
+
+  function openBrief(campaignId: string) {
+    const card = findCard(campaignId)
+    if (card) {
+      trackBoardEvent('campaign_board_brief_opened', {
+        ...campaignInteractionPayload(card),
+      })
+    }
+    setSelectedBriefCampaignId(campaignId)
+  }
+
+  function startApplication(card: CreatorCampaignBoardCard) {
+    trackBoardEvent('campaign_board_application_started', {
+      ...campaignInteractionPayload(card),
+    })
+    setApplicationCard(card)
+  }
+
+  function handleEmptyStateAction() {
+    if (emptyStateType === 'error') {
+      void boardQuery.refetch()
+      return
+    }
+
+    if (emptyStateType === 'no_filters') {
+      handleResetSearch()
+      return
+    }
+
+    if (emptyStateType === 'no_campaigns') {
+      // F.4-creator-profile-navigation: profile navigation is pending.
+      return
+    }
+
+    if (emptyStateType === 'no_recommendations') {
+      handleSearchChange({ recommended_only: false })
+    }
+  }
 
   return (
     <main className="min-h-full bg-background">
@@ -37,8 +158,8 @@ export function CampaignBoardPage() {
         <CampaignBoardFilters
           search={search}
           available={boardQuery.data?.filters.available}
-          onSearchChange={setSearch}
-          onReset={resetSearch}
+          onSearchChange={handleSearchChange}
+          onReset={handleResetSearch}
         />
 
         <div className="flex items-center justify-between gap-4">
@@ -51,31 +172,30 @@ export function CampaignBoardPage() {
           />
           <CampaignBoardSort
             value={search.sort}
-            onChange={(sort) => setSearch({ sort })}
+            onChange={(sort) => handleSearchChange({ sort })}
           />
         </div>
 
         {boardQuery.isPending ? <CampaignBoardGridSkeleton /> : null}
 
-        {boardQuery.isError ? (
-          <CampaignBoardErrorState onRetry={() => void boardQuery.refetch()} />
-        ) : null}
-
-        {boardQuery.isSuccess && cards.length === 0 ? (
-          <CampaignBoardEmptyState recommendedOnly={search.recommended_only} />
+        {emptyStateType ? (
+          <CampaignBoardEmptyState
+            type={emptyStateType}
+            onAction={handleEmptyStateAction}
+          />
         ) : null}
 
         {boardQuery.isSuccess && cards.length > 0 ? (
           <CampaignBoardGrid
             cards={cards}
-            onViewBrief={setSelectedBriefCampaignId}
-            onApply={setApplicationCard}
+            onViewBrief={openBrief}
+            onApply={startApplication}
           />
         ) : null}
       </div>
       <CampaignBriefSheet
         campaignId={selectedBriefCampaignId}
-        onApply={setApplicationCard}
+        onApply={startApplication}
         onOpenChange={(open) => {
           if (!open) setSelectedBriefCampaignId(null)
         }}
@@ -91,7 +211,13 @@ export function CampaignBoardPage() {
         onOpenChange={(open) => {
           if (!open) setApplicationCard(null)
         }}
-        onViewApplication={setSelectedBriefCampaignId}
+        onViewApplication={openBrief}
+        onSubmitted={() => {
+          if (!applicationCard) return
+          trackBoardEvent('campaign_board_application_submitted', {
+            ...campaignInteractionPayload(applicationCard),
+          })
+        }}
       />
     </main>
   )
@@ -116,52 +242,5 @@ function CampaignBoardResultSummary({
         {t`${recommended ?? 0} recomendadas para vos`}
       </p>
     </div>
-  )
-}
-
-function CampaignBoardErrorState({ onRetry }: { onRetry: () => void }) {
-  return (
-    <section className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-8 text-center">
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold text-foreground">
-          {t`No pudimos cargar las campañas`}
-        </h2>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t`Intentá actualizar el board. Si sigue fallando, probá de nuevo más tarde.`}
-        </p>
-      </div>
-      <Button type="button" className="rounded-xl" onClick={onRetry}>
-        {t`Actualizar`}
-      </Button>
-    </section>
-  )
-}
-
-function CampaignBoardEmptyState({
-  recommendedOnly,
-}: {
-  recommendedOnly: boolean
-}) {
-  const message = recommendedOnly
-    ? t`No tenemos recomendaciones para vos en este momento. Sacá el filtro para ver todo el board.`
-    : t`Todavía no hay campañas abiertas que matcheen con vos. Te avisamos cuando lleguen.`
-
-  return (
-    <section className="flex min-h-[320px] flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-8 text-center">
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold text-foreground">
-          {t`Sin campañas por ahora`}
-        </h2>
-        <p className="max-w-md text-sm text-muted-foreground">{message}</p>
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        className="rounded-xl"
-        data-ticket="F.4-creator-profile-navigation"
-      >
-        {t`Editar mi perfil`}
-      </Button>
-    </section>
   )
 }

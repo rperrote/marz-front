@@ -38,6 +38,7 @@ interface ApplicationDialogProps {
   campaignName?: string
   onOpenChange: (open: boolean) => void
   onViewApplication?: (campaignId: string) => void
+  onSubmitted?: () => void
 }
 
 function isApiErrorCode(error: unknown, status: number, code: string) {
@@ -52,6 +53,7 @@ export function ApplicationDialog({
   campaignName,
   onOpenChange,
   onViewApplication,
+  onSubmitted,
 }: ApplicationDialogProps) {
   const queryClient = useQueryClient()
   const mutation = useSubmitCampaignApplicationMutation()
@@ -76,6 +78,7 @@ export function ApplicationDialog({
           data: { message },
           idempotencyKey,
         })
+        onSubmitted?.()
         toast.success(t`Postulación enviada`)
         onOpenChange(false)
       } catch (error) {
@@ -89,6 +92,7 @@ export function ApplicationDialog({
               data: { message },
               idempotencyKey: retryKey,
             })
+            onSubmitted?.()
             toast.success(t`Postulación enviada`)
             onOpenChange(false)
           } catch (retryError) {

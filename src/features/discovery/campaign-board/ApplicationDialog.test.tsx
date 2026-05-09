@@ -60,11 +60,13 @@ function renderDialog({
   open = true,
   onOpenChange = vi.fn(),
   onViewApplication = vi.fn(),
+  onSubmitted = vi.fn(),
   queryClient = createQueryClient(),
 }: {
   open?: boolean
   onOpenChange?: (open: boolean) => void
   onViewApplication?: (campaignId: string) => void
+  onSubmitted?: () => void
   queryClient?: QueryClient
 } = {}) {
   function Wrapper({ children }: { children: ReactNode }) {
@@ -80,11 +82,18 @@ function renderDialog({
       campaignName="Lanzamiento auriculares M-Pro 2"
       onOpenChange={onOpenChange}
       onViewApplication={onViewApplication}
+      onSubmitted={onSubmitted}
     />,
     { wrapper: Wrapper },
   )
 
-  return { ...result, onOpenChange, onViewApplication, queryClient }
+  return {
+    ...result,
+    onOpenChange,
+    onViewApplication,
+    onSubmitted,
+    queryClient,
+  }
 }
 
 describe('ApplicationDialog', () => {
@@ -130,7 +139,7 @@ describe('ApplicationDialog', () => {
   it('submits with a UUID idempotency key and closes on success', async () => {
     const user = userEvent.setup()
     mutateAsync.mockResolvedValueOnce({})
-    const { onOpenChange } = renderDialog()
+    const { onOpenChange, onSubmitted } = renderDialog()
 
     await user.type(screen.getByLabelText('Mensaje'), 'Quiero participar')
     await user.click(screen.getByRole('button', { name: 'Enviar postulación' }))
@@ -145,6 +154,7 @@ describe('ApplicationDialog', () => {
     expect(uuidB).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     )
+    expect(onSubmitted).toHaveBeenCalledTimes(1)
     expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
@@ -155,7 +165,7 @@ describe('ApplicationDialog', () => {
         new ApiError(409, 'idempotency_conflict', 'Conflict'),
       )
       .mockResolvedValueOnce({})
-    renderDialog()
+    const { onSubmitted } = renderDialog()
 
     await user.type(screen.getByLabelText('Mensaje'), 'Quiero participar')
     await user.click(screen.getByRole('button', { name: 'Enviar postulación' }))
@@ -173,6 +183,7 @@ describe('ApplicationDialog', () => {
       data: { message: 'Quiero participar' },
       idempotencyKey: uuidC,
     })
+    expect(onSubmitted).toHaveBeenCalledTimes(1)
   })
 
   it('closes and exposes a view action when the application already exists', async () => {
