@@ -31,6 +31,7 @@ describe('campaign detail search schema', () => {
         q: 'aria',
         status: 'active',
         platform: 'instagram',
+        creator_account_id: 'creator-1',
         sort: 'score',
       }),
     ).toEqual({
@@ -39,6 +40,7 @@ describe('campaign detail search schema', () => {
       q: 'aria',
       status: 'active',
       platform: 'instagram',
+      creator_account_id: 'creator-1',
       sort: 'score',
     })
   })
@@ -47,13 +49,25 @@ describe('campaign detail search schema', () => {
     expect(
       campaignDetailSearchSchema.parse({
         tab: 'creators',
-        status: 'pending',
+        status: 'unknown',
         platform: 'threads',
       }),
     ).toMatchObject({
       tab: 'creators',
       status: undefined,
       platform: undefined,
+    })
+  })
+
+  it('keeps deliverable status values for videos', () => {
+    expect(
+      campaignDetailSearchSchema.parse({
+        tab: 'videos',
+        status: 'draft_submitted',
+      }),
+    ).toMatchObject({
+      tab: 'videos',
+      status: 'draft_submitted',
     })
   })
 

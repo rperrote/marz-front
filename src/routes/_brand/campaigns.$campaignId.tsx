@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { CampaignDetailPage } from '#/features/campaigns/detail/CampaignDetailPage'
 import { campaignDetailQueryOptions } from '#/features/campaigns/detail/useCampaignDetailQuery'
 import {
+  DeliverableStatus,
   ListCampaignParticipantsPlatform,
   ListCampaignParticipantsStatus,
 } from '#/shared/api/generated/model'
@@ -18,8 +19,8 @@ const campaignDetailSectionSchema = z
   .default('matches')
   .catch('matches')
 
-const campaignParticipantsStatusSchema = z
-  .enum(ListCampaignParticipantsStatus)
+const campaignDetailStatusSchema = z
+  .union([z.enum(ListCampaignParticipantsStatus), z.enum(DeliverableStatus)])
   .optional()
   .catch(undefined)
 
@@ -32,8 +33,9 @@ export const campaignDetailSearchSchema = z.object({
   tab: campaignDetailTabSchema,
   section: campaignDetailSectionSchema,
   q: z.string().optional().catch(undefined),
-  status: campaignParticipantsStatusSchema,
+  status: campaignDetailStatusSchema,
   platform: campaignParticipantsPlatformSchema,
+  creator_account_id: z.string().optional().catch(undefined),
   sort: z.string().optional().catch(undefined),
 })
 

@@ -5,10 +5,11 @@ import type { ReactNode } from 'react'
 
 import { Button } from '#/components/ui/button'
 import { DiscoveryTab } from '#/features/discovery/campaign-detail/DiscoveryTab'
+import { ListCampaignParticipantsStatus } from '#/shared/api/generated/model'
 import type {
   CampaignPlanCapabilities,
+  DeliverableStatus,
   ListCampaignParticipantsPlatform,
-  ListCampaignParticipantsStatus,
 } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
 
@@ -22,13 +23,16 @@ import type { CampaignDetailTabId } from './CampaignDetailTabs'
 import { OverviewTab } from './OverviewTab'
 import { CreatorsTab } from './creators/CreatorsTab'
 import { useCampaignDetailQuery } from './useCampaignDetailQuery'
+import { VideosTab } from './videos/VideosTab'
+import { isCampaignVideoStatus } from './videos/VideosFilters'
 
 export interface CampaignDetailSearch {
   tab: CampaignDetailTabId
   section: 'matches' | 'applications' | 'active' | 'invited'
   q?: string
-  status?: ListCampaignParticipantsStatus
+  status?: ListCampaignParticipantsStatus | DeliverableStatus
   platform?: ListCampaignParticipantsPlatform
+  creator_account_id?: string
   sort?: string
 }
 
@@ -147,13 +151,6 @@ function CampaignDetailBody({
   search: CampaignDetailSearch
   planCapabilities: CampaignPlanCapabilities
 }) {
-  const titleByTab: Record<CampaignDetailNavigableTab, string> = {
-    overview: t`Overview`,
-    discovery: t`Discovery`,
-    creators: t`Creators`,
-    videos: t`Videos`,
-  }
-
   if (tab === 'analytics') {
     return (
       <BodyPlaceholder
@@ -184,7 +181,9 @@ function CampaignDetailBody({
         planCapabilities={planCapabilities}
         search={{
           search: search.q,
-          status: search.status,
+          status: isCampaignParticipantStatus(search.status)
+            ? search.status
+            : undefined,
           platform: search.platform,
         }}
       />
@@ -192,9 +191,17 @@ function CampaignDetailBody({
   }
 
   return (
-    <BodyPlaceholder
-      title={titleByTab[tab]}
-      description={t`El contenido de esta sección se completa en las próximas tasks.`}
+    <VideosTab
+      campaignId={campaignId}
+      search={{
+        search: search.q,
+        status:
+          search.status && isCampaignVideoStatus(search.status)
+            ? search.status
+            : undefined,
+        platform: search.platform,
+        creator_account_id: search.creator_account_id,
+      }}
     />
   )
 }
@@ -248,4 +255,10 @@ function EmptyState({
       {action ? <div className="mt-5">{action}</div> : null}
     </section>
   )
+}
+
+function isCampaignParticipantStatus(
+  status: CampaignDetailSearch['status'],
+): status is ListCampaignParticipantsStatus {
+  return status ? Object.hasOwn(ListCampaignParticipantsStatus, status) : false
 }
