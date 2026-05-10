@@ -320,10 +320,30 @@ const BonusWindowHoursSchema = z
   .min(1, 'La ventana debe ser entre 1 y 720 horas.')
   .max(720, 'La ventana debe ser entre 1 y 720 horas.')
 
+export const BONUS_CURRENCY = 'USD'
+const BONUS_AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/
+
+const BonusFixedAmountSchema = z
+  .string()
+  .regex(BONUS_AMOUNT_PATTERN, 'Ingresá un monto en USD (máx. 2 decimales).')
+  .refine((value) => Number(value) > 0, 'El monto debe ser mayor a 0.')
+
+export const BonusAmountSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('percentage'),
+    percentage: BonusPercentageSchema,
+  }),
+  z.object({
+    type: z.literal('fixed'),
+    amount: BonusFixedAmountSchema,
+    currency: z.string(),
+  }),
+])
+
 const SpeedBonusWindowSchema = z.object({
   window_id: z.string().uuid().optional(),
   window_hours: BonusWindowHoursSchema,
-  bonus_pct: BonusPercentageSchema,
+  bonus: BonusAmountSchema,
 })
 
 const PerformanceBonusMilestoneSchema = z.object({
@@ -333,7 +353,7 @@ const PerformanceBonusMilestoneSchema = z.object({
     .int('Ingresá una cantidad de views entera.')
     .positive('Las views deben ser mayores a 0.'),
   window_hours: BonusWindowHoursSchema,
-  bonus_pct: BonusPercentageSchema,
+  bonus: BonusAmountSchema,
 })
 
 export const BonusConfigSchema = z
@@ -393,23 +413,6 @@ export const BonusConfigSchema = z
         })
       }
       seenWindowHours.add(window.window_hours)
-
-      const previousWindow = value.speed_bonus.windows[index - 1]
-      if (previousWindow && previousWindow.window_hours > window.window_hours) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['speed_bonus', 'windows', index, 'window_hours'],
-          message: 'Ordená las ventanas por plazo ascendente.',
-        })
-      }
-
-      if (previousWindow && previousWindow.bonus_pct < window.bonus_pct) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['speed_bonus', 'windows', index, 'bonus_pct'],
-          message: 'El porcentaje no puede subir en plazos más largos.',
-        })
-      }
     }
 
     const seenMilestoneViews = new Set<number>()
@@ -425,17 +428,10 @@ export const BonusConfigSchema = z
         })
       }
       seenMilestoneViews.add(milestone.views)
-
-      const previousMilestone = value.performance_bonus.milestones[index - 1]
-      if (previousMilestone && previousMilestone.views > milestone.views) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['performance_bonus', 'milestones', index, 'views'],
-          message: 'Ordená los milestones por views ascendentes.',
-        })
-      }
     }
   })
+
+export type BonusAmountValues = z.infer<typeof BonusAmountSchema>
 
 export type OperationalTargetingValues = z.infer<
   typeof OperationalTargetingSchema

@@ -370,7 +370,8 @@ function BonusSummary({ config }: { config: CampaignConfiguration }) {
         <BonusGroup
           title={t`Speed Bonus`}
           items={speedWindows.map(
-            (window) => t`≤ ${window.window_hours} hs · +${window.bonus_pct}%`,
+            (window) =>
+              t`≤ ${window.window_hours} hs · ${formatBonusAmount(window.bonus)}`,
           )}
         />
       ) : null}
@@ -379,7 +380,7 @@ function BonusSummary({ config }: { config: CampaignConfiguration }) {
           title={t`Performance Bonus`}
           items={performanceMilestones.map(
             (milestone) =>
-              t`${formatNumber(milestone.views)} views en ${formatHours(milestone.window_hours)} · +${milestone.bonus_pct}%`,
+              t`${formatNumber(milestone.views)} views en ${formatHours(milestone.window_hours)} · ${formatBonusAmount(milestone.bonus)}`,
           )}
         />
       ) : null}
@@ -440,4 +441,13 @@ function formatHours(hours: number) {
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat('es-AR').format(value)
+}
+
+function formatBonusAmount(
+  bonus: CampaignConfiguration['bonus_config']['speed_bonus']['windows'][number]['bonus'],
+) {
+  if (bonus.type === 'percentage') {
+    return `+${bonus.percentage}%`
+  }
+  return `+${bonus.currency} ${bonus.amount}`
 }

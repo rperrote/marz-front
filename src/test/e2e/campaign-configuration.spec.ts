@@ -24,6 +24,10 @@ type OperationalTargeting = {
   adjusted_from_brief: boolean
 }
 
+type BonusAmount =
+  | { type: 'percentage'; percentage: number }
+  | { type: 'fixed'; amount: string; currency: string }
+
 type BonusConfig = {
   enabled: boolean
   speed_bonus: {
@@ -31,7 +35,7 @@ type BonusConfig = {
     windows: Array<{
       window_id?: string
       window_hours: number
-      bonus_pct: number
+      bonus: BonusAmount
     }>
   }
   performance_bonus: {
@@ -40,7 +44,7 @@ type BonusConfig = {
       milestone_id?: string
       views: number
       window_hours: number
-      bonus_pct: number
+      bonus: BonusAmount
     }>
   }
 }
@@ -305,11 +309,11 @@ test.describe('Campaign configuration wizard', () => {
               windows: [
                 {
                   window_hours: 24,
-                  bonus_pct: 25,
+                  bonus: { type: 'percentage', percentage: 25 },
                 },
                 {
                   window_hours: 72,
-                  bonus_pct: 10,
+                  bonus: { type: 'fixed', amount: '10.00', currency: 'USD' },
                 },
               ],
             },
@@ -319,12 +323,12 @@ test.describe('Campaign configuration wizard', () => {
                 {
                   views: 50000,
                   window_hours: 168,
-                  bonus_pct: 15,
+                  bonus: { type: 'percentage', percentage: 15 },
                 },
                 {
                   views: 200000,
                   window_hours: 336,
-                  bonus_pct: 30,
+                  bonus: { type: 'fixed', amount: '100.00', currency: 'USD' },
                 },
               ],
             },
@@ -464,17 +468,25 @@ test.describe('Campaign configuration wizard', () => {
 
     await page.getByRole('button', { name: 'Agregar ventana' }).click()
     await page.getByLabel('Horas ventana 1').fill('24')
-    await page.getByLabel('Porcentaje bonus 1').fill('25')
+    await page.getByLabel('Porcentaje de Speed 1').fill('25')
     await page.getByLabel('Horas ventana 2').fill('72')
-    await page.getByLabel('Porcentaje bonus 2').fill('10')
+    await page
+      .getByRole('group', { name: 'Tipo de bonus para Speed 2' })
+      .getByRole('radio', { name: 'Monto fijo en USD' })
+      .click()
+    await page.getByLabel('Monto de Speed 2 en USD').fill('10.00')
 
     await page.getByRole('button', { name: 'Agregar milestone' }).click()
     await page.getByLabel('Views milestone 1').fill('50000')
     await page.getByLabel('Horas milestone 1').fill('168')
-    await page.getByLabel('Porcentaje milestone 1').fill('15')
+    await page.getByLabel('Porcentaje de Milestone 1').fill('15')
     await page.getByLabel('Views milestone 2').fill('200000')
     await page.getByLabel('Horas milestone 2').fill('336')
-    await page.getByLabel('Porcentaje milestone 2').fill('30')
+    await page
+      .getByRole('group', { name: 'Tipo de bonus para Milestone 2' })
+      .getByRole('radio', { name: 'Monto fijo en USD' })
+      .click()
+    await page.getByLabel('Monto de Milestone 2 en USD').fill('100.00')
 
     await page.getByRole('button', { name: /continuar/i }).click()
 

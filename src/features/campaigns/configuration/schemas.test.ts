@@ -23,11 +23,11 @@ const validBonusConfig = {
     windows: [
       {
         window_hours: 24,
-        bonus_pct: 20,
+        bonus: { type: 'percentage', percentage: 20 },
       },
       {
         window_hours: 72,
-        bonus_pct: 10,
+        bonus: { type: 'fixed', amount: '10.00', currency: 'USD' },
       },
     ],
   },
@@ -37,12 +37,12 @@ const validBonusConfig = {
       {
         views: 10000,
         window_hours: 168,
-        bonus_pct: 10,
+        bonus: { type: 'percentage', percentage: 10 },
       },
       {
         views: 50000,
         window_hours: 336,
-        bonus_pct: 20,
+        bonus: { type: 'fixed', amount: '100.00', currency: 'USD' },
       },
     ],
   },
@@ -122,7 +122,7 @@ describe('BonusConfigSchema', () => {
         windows: [
           {
             window_hours: 721,
-            bonus_pct: 101,
+            bonus: { type: 'percentage', percentage: 101 },
           },
         ],
       },
@@ -135,7 +135,38 @@ describe('BonusConfigSchema', () => {
           path: ['speed_bonus', 'windows', 0, 'window_hours'],
         }),
         expect.objectContaining({
-          path: ['speed_bonus', 'windows', 0, 'bonus_pct'],
+          path: ['speed_bonus', 'windows', 0, 'bonus', 'percentage'],
+        }),
+      ]),
+    )
+  })
+
+  it('rejects fixed bonus amounts that are zero or non-decimal', () => {
+    const result = BonusConfigSchema.safeParse({
+      ...validBonusConfig,
+      speed_bonus: {
+        enabled: true,
+        windows: [
+          {
+            window_hours: 24,
+            bonus: { type: 'fixed', amount: '0', currency: 'USD' },
+          },
+          {
+            window_hours: 48,
+            bonus: { type: 'fixed', amount: '12.345', currency: 'USD' },
+          },
+        ],
+      },
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: ['speed_bonus', 'windows', 0, 'bonus', 'amount'],
+        }),
+        expect.objectContaining({
+          path: ['speed_bonus', 'windows', 1, 'bonus', 'amount'],
         }),
       ]),
     )
@@ -149,11 +180,11 @@ describe('BonusConfigSchema', () => {
         windows: [
           {
             window_hours: 24,
-            bonus_pct: 20,
+            bonus: { type: 'percentage', percentage: 20 },
           },
           {
             window_hours: 24,
-            bonus_pct: 10,
+            bonus: { type: 'percentage', percentage: 10 },
           },
         ],
       },
@@ -163,12 +194,12 @@ describe('BonusConfigSchema', () => {
           {
             views: 10000,
             window_hours: 168,
-            bonus_pct: 10,
+            bonus: { type: 'percentage', percentage: 10 },
           },
           {
             views: 10000,
             window_hours: 336,
-            bonus_pct: 20,
+            bonus: { type: 'percentage', percentage: 20 },
           },
         ],
       },

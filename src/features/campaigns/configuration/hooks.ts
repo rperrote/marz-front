@@ -65,7 +65,17 @@ const CampaignConfigurationResponseSchema = z.object({
         z.object({
           window_id: z.string().uuid(),
           window_hours: z.number().int().positive(),
-          bonus_pct: z.number().int().min(1).max(100),
+          bonus: z.discriminatedUnion('type', [
+            z.object({
+              type: z.literal('percentage'),
+              percentage: z.number().int().min(1).max(100),
+            }),
+            z.object({
+              type: z.literal('fixed'),
+              amount: z.string(),
+              currency: z.string(),
+            }),
+          ]),
         }),
       ),
     }),
@@ -76,7 +86,17 @@ const CampaignConfigurationResponseSchema = z.object({
           milestone_id: z.string().uuid(),
           views: z.number().int().positive(),
           window_hours: z.number().int().positive(),
-          bonus_pct: z.number().int().min(1).max(100),
+          bonus: z.discriminatedUnion('type', [
+            z.object({
+              type: z.literal('percentage'),
+              percentage: z.number().int().min(1).max(100),
+            }),
+            z.object({
+              type: z.literal('fixed'),
+              amount: z.string(),
+              currency: z.string(),
+            }),
+          ]),
         }),
       ),
     }),

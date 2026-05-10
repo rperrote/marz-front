@@ -45,8 +45,8 @@ function compactSearch(search: CampaignBoardSearchPatch): CampaignBoardSearch {
 }
 
 export function useBoardSearchSync() {
-  const search = useSearch({ from: '/_creator/campaigns' })
-  const navigate = useNavigate({ from: '/campaigns' })
+  const search = useSearch({ from: '/_creator/discover/campaigns' })
+  const navigate = useNavigate({ from: '/discover/campaigns' })
 
   const setSearch = useCallback(
     (patch: CampaignBoardSearchPatch) => {

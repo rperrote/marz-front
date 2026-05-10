@@ -44,8 +44,8 @@ function getInitials(name: string) {
 
 function getCampaignDeliverables(
   campaign: SnapshotRecord,
-  fallbackDeliverables: string[],
-  fallbackPlatforms: string[],
+  fallbackDeliverables: string[] | null | undefined,
+  fallbackPlatforms: string[] | null | undefined,
 ): DeliverableChip[] {
   const campaignDeliverables = campaign.deliverables
   if (Array.isArray(campaignDeliverables)) {
@@ -75,11 +75,12 @@ function getCampaignDeliverables(
     })
   }
 
-  if (fallbackDeliverables.length === 0) return []
+  if (!fallbackDeliverables || fallbackDeliverables.length === 0) return []
 
   return fallbackDeliverables.map((format, index) => ({
     format,
-    platform: fallbackPlatforms[index] ?? fallbackPlatforms[0] ?? t`General`,
+    platform:
+      fallbackPlatforms?.[index] ?? fallbackPlatforms?.[0] ?? t`General`,
   }))
 }
 

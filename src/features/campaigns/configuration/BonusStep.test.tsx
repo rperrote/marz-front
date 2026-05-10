@@ -74,7 +74,7 @@ function makeBonusConfig(
         {
           window_id: speedWindowId,
           window_hours: 24,
-          bonus_pct: 25,
+          bonus: { type: 'percentage', percentage: 25 },
         },
       ],
     },
@@ -85,7 +85,7 @@ function makeBonusConfig(
           milestone_id: milestoneId,
           views: 50000,
           window_hours: 168,
-          bonus_pct: 15,
+          bonus: { type: 'percentage', percentage: 15 },
         },
       ],
     },
@@ -180,27 +180,47 @@ describe('bonus config helpers', () => {
     })
   })
 
-  it('detects duplicate speed windows and increasing speed bonus percentages', () => {
+  it('detects duplicate speed windows', () => {
     expect(
       speedBonusSectionError([
-        { window_hours: 24, bonus_pct: 20 },
-        { window_hours: 24, bonus_pct: 10 },
+        {
+          window_hours: 24,
+          bonus: { type: 'percentage', percentage: 20 },
+        },
+        {
+          window_hours: 24,
+          bonus: { type: 'percentage', percentage: 10 },
+        },
       ]),
     ).toContain('ventanas duplicadas')
 
     expect(
       speedBonusSectionError([
-        { window_hours: 24, bonus_pct: 10 },
-        { window_hours: 72, bonus_pct: 20 },
+        {
+          window_hours: 24,
+          bonus: { type: 'percentage', percentage: 10 },
+        },
+        {
+          window_hours: 72,
+          bonus: { type: 'percentage', percentage: 20 },
+        },
       ]),
-    ).toContain('no puede crecer')
+    ).toBeUndefined()
   })
 
   it('detects duplicate performance milestones', () => {
     expect(
       performanceBonusSectionError([
-        { views: 10000, window_hours: 168, bonus_pct: 10 },
-        { views: 10000, window_hours: 336, bonus_pct: 20 },
+        {
+          views: 10000,
+          window_hours: 168,
+          bonus: { type: 'percentage', percentage: 10 },
+        },
+        {
+          views: 10000,
+          window_hours: 336,
+          bonus: { type: 'percentage', percentage: 20 },
+        },
       ]),
     ).toContain('milestones duplicados')
   })
@@ -306,8 +326,15 @@ describe('BonusStep', () => {
       (mockCustomFetch.mock.calls[0]?.[1] as { body: string }).body,
     ) as { bonus_config: BonusConfigValues }
     expect(body.bonus_config.speed_bonus.windows).toEqual([
-      { window_id: speedWindowId, window_hours: 24, bonus_pct: 25 },
-      { window_hours: 48, bonus_pct: 20 },
+      {
+        window_id: speedWindowId,
+        window_hours: 24,
+        bonus: { type: 'percentage', percentage: 25 },
+      },
+      {
+        window_hours: 48,
+        bonus: { type: 'percentage', percentage: 25 },
+      },
     ])
     expect(body.bonus_config.performance_bonus.milestones).toHaveLength(1)
     expect(
@@ -337,8 +364,8 @@ describe('BonusStep', () => {
     await user.clear(screen.getByLabelText('Horas ventana 1'))
     await user.type(screen.getByLabelText('Horas ventana 1'), '721')
     await user.tab()
-    await user.clear(screen.getByLabelText('Porcentaje bonus 1'))
-    await user.type(screen.getByLabelText('Porcentaje bonus 1'), '101')
+    await user.clear(screen.getByLabelText('Porcentaje de Speed 1'))
+    await user.type(screen.getByLabelText('Porcentaje de Speed 1'), '101')
     await user.tab()
     await user.clear(screen.getByLabelText('Views milestone 1'))
     await user.type(screen.getByLabelText('Views milestone 1'), '0')

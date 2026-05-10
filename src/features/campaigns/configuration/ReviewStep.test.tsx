@@ -106,7 +106,7 @@ function makeConfig(
           {
             window_id: '00000000-0000-4000-8000-000000000101',
             window_hours: 24,
-            bonus_pct: 25,
+            bonus: { type: 'percentage', percentage: 25 },
           },
         ],
       },
@@ -117,7 +117,7 @@ function makeConfig(
             milestone_id: '00000000-0000-4000-8000-000000000201',
             views: 10000,
             window_hours: 72,
-            bonus_pct: 10,
+            bonus: { type: 'fixed', amount: '50.00', currency: 'USD' },
           },
         ],
       },

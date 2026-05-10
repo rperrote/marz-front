@@ -21,8 +21,8 @@ import {
   useUpdateCampaignBonusMutation,
 } from './hooks'
 import type { CampaignConfiguration } from './hooks'
-import { BonusConfigSchema } from './schemas'
-import type { BonusConfigValues } from './schemas'
+import { BONUS_CURRENCY, BonusAmountSchema, BonusConfigSchema } from './schemas'
+import type { BonusAmountValues, BonusConfigValues } from './schemas'
 
 type SpeedBonusWindow = BonusConfigValues['speed_bonus']['windows'][number]
 type PerformanceBonusMilestone =
@@ -90,14 +90,6 @@ export function speedBonusSectionError(
     seenWindowHours.add(window.window_hours)
   }
 
-  const sortedWindows = sortSpeedWindows(windows)
-  for (const [index, window] of sortedWindows.entries()) {
-    const previousWindow = sortedWindows[index - 1]
-    if (previousWindow && previousWindow.bonus_pct < window.bonus_pct) {
-      return t`El bonus no puede crecer cuando la ventana de horas es más larga.`
-    }
-  }
-
   return undefined
 }
 
@@ -115,13 +107,18 @@ export function performanceBonusSectionError(
   return undefined
 }
 
+const DEFAULT_PERCENTAGE_BONUS: BonusAmountValues = {
+  type: 'percentage',
+  percentage: 10,
+}
+
 export function nextSpeedBonusWindow(
   windows: SpeedBonusWindow[],
 ): SpeedBonusWindow {
   const lastWindow = sortSpeedWindows(windows).at(-1)
   return {
     window_hours: lastWindow ? Math.min(lastWindow.window_hours + 24, 720) : 24,
-    bonus_pct: lastWindow ? Math.max(lastWindow.bonus_pct - 5, 1) : 10,
+    bonus: lastWindow ? lastWindow.bonus : DEFAULT_PERCENTAGE_BONUS,
   }
 }
 
@@ -137,8 +134,17 @@ export function nextPerformanceBonusMilestone(
     window_hours: lastMilestone
       ? Math.min(lastMilestone.window_hours + 168, 720)
       : 168,
-    bonus_pct: lastMilestone ? lastMilestone.bonus_pct : 10,
+    bonus: lastMilestone ? lastMilestone.bonus : DEFAULT_PERCENTAGE_BONUS,
   }
+}
+
+export function toggleBonusAmountMode(
+  bonus: BonusAmountValues,
+  mode: 'percentage' | 'fixed',
+): BonusAmountValues {
+  if (bonus.type === mode) return bonus
+  if (mode === 'percentage') return { type: 'percentage', percentage: 10 }
+  return { type: 'fixed', amount: '', currency: BONUS_CURRENCY }
 }
 
 function sortSpeedWindows(windows: SpeedBonusWindow[]): SpeedBonusWindow[] {
@@ -327,27 +333,26 @@ export function BonusStep({ campaignId, config }: BonusStepProps) {
                     >
                       {(windowHoursField) => (
                         <form.AppField
-                          name={`speed_bonus.windows[${index}].bonus_pct`}
+                          name={`speed_bonus.windows[${index}].bonus`}
+                          validators={{ onChange: BonusAmountSchema }}
                         >
-                          {(bonusPctField) => (
+                          {(bonusField) => (
                             <SpeedBonusRow
                               index={index}
                               windowHours={windowHoursField.state.value}
-                              bonusPct={bonusPctField.state.value}
+                              bonus={bonusField.state.value}
                               windowHoursError={fieldError(
                                 windowHoursField.state.meta,
                               )}
-                              bonusPctError={fieldError(
-                                bonusPctField.state.meta,
-                              )}
+                              bonusError={fieldError(bonusField.state.meta)}
                               onWindowHoursChange={(value) =>
                                 windowHoursField.handleChange(value)
                               }
-                              onBonusPctChange={(value) =>
-                                bonusPctField.handleChange(value)
+                              onBonusChange={(value) =>
+                                bonusField.handleChange(value)
                               }
                               onWindowHoursBlur={windowHoursField.handleBlur}
-                              onBonusPctBlur={bonusPctField.handleBlur}
+                              onBonusBlur={bonusField.handleBlur}
                               onRemove={() => field.removeValue(index)}
                             />
                           )}
@@ -390,22 +395,23 @@ export function BonusStep({ campaignId, config }: BonusStepProps) {
                           >
                             {(windowHoursField) => (
                               <form.AppField
-                                name={`performance_bonus.milestones[${index}].bonus_pct`}
+                                name={`performance_bonus.milestones[${index}].bonus`}
+                                validators={{ onChange: BonusAmountSchema }}
                               >
-                                {(bonusPctField) => (
+                                {(bonusField) => (
                                   <PerformanceBonusRow
                                     index={index}
                                     views={viewsField.state.value}
                                     windowHours={windowHoursField.state.value}
-                                    bonusPct={bonusPctField.state.value}
+                                    bonus={bonusField.state.value}
                                     viewsError={fieldError(
                                       viewsField.state.meta,
                                     )}
                                     windowHoursError={fieldError(
                                       windowHoursField.state.meta,
                                     )}
-                                    bonusPctError={fieldError(
-                                      bonusPctField.state.meta,
+                                    bonusError={fieldError(
+                                      bonusField.state.meta,
                                     )}
                                     onViewsChange={(value) =>
                                       viewsField.handleChange(value)
@@ -413,14 +419,14 @@ export function BonusStep({ campaignId, config }: BonusStepProps) {
                                     onWindowHoursChange={(value) =>
                                       windowHoursField.handleChange(value)
                                     }
-                                    onBonusPctChange={(value) =>
-                                      bonusPctField.handleChange(value)
+                                    onBonusChange={(value) =>
+                                      bonusField.handleChange(value)
                                     }
                                     onViewsBlur={viewsField.handleBlur}
                                     onWindowHoursBlur={
                                       windowHoursField.handleBlur
                                     }
-                                    onBonusPctBlur={bonusPctField.handleBlur}
+                                    onBonusBlur={bonusField.handleBlur}
                                     onRemove={() => field.removeValue(index)}
                                   />
                                 )}

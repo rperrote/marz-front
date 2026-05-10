@@ -4,22 +4,24 @@ import { t } from '@lingui/core/macro'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { cn } from '#/lib/utils'
+import type { BonusAmountValues } from '../schemas'
+import { BonusAmountField } from './BonusAmountField'
 import { parseNumberInput } from './parseNumberInput'
 
 interface PerformanceBonusRowProps {
   index: number
   views: number
   windowHours: number
-  bonusPct: number
+  bonus: BonusAmountValues
   viewsError?: string
   windowHoursError?: string
-  bonusPctError?: string
+  bonusError?: string
   onViewsChange: (value: number) => void
   onWindowHoursChange: (value: number) => void
-  onBonusPctChange: (value: number) => void
+  onBonusChange: (value: BonusAmountValues) => void
   onViewsBlur: () => void
   onWindowHoursBlur: () => void
-  onBonusPctBlur: () => void
+  onBonusBlur: () => void
   onRemove: () => void
 }
 
@@ -27,24 +29,25 @@ export function PerformanceBonusRow({
   index,
   views,
   windowHours,
-  bonusPct,
+  bonus,
   viewsError,
   windowHoursError,
-  bonusPctError,
+  bonusError,
   onViewsChange,
   onWindowHoursChange,
-  onBonusPctChange,
+  onBonusChange,
   onViewsBlur,
   onWindowHoursBlur,
-  onBonusPctBlur,
+  onBonusBlur,
   onRemove,
 }: PerformanceBonusRowProps) {
-  const hasError = Boolean(viewsError ?? windowHoursError ?? bonusPctError)
+  const hasError = Boolean(viewsError ?? windowHoursError ?? bonusError)
+  const rowLabel = t`Milestone ${String(index + 1)}`
 
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 lg:flex-row lg:items-center',
+        'flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 lg:flex-row lg:items-start',
         hasError && 'border-destructive/50',
       )}
     >
@@ -62,7 +65,7 @@ export function PerformanceBonusRow({
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:w-[460px]">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:w-[520px]">
         <label className="flex flex-col gap-1">
           <span className="sr-only">{t`Views milestone ${String(index + 1)}`}</span>
           <div className="flex items-center rounded-xl border border-input bg-muted/60 px-2">
@@ -116,42 +119,19 @@ export function PerformanceBonusRow({
           ) : null}
         </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="sr-only">
-            {t`Porcentaje milestone ${String(index + 1)}`}
-          </span>
-          <div className="flex items-center rounded-xl border border-input bg-muted/60 px-2">
-            <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-              +
-            </span>
-            <Input
-              value={bonusPct === 0 ? '' : bonusPct}
-              onChange={(event) =>
-                onBonusPctChange(parseNumberInput(event.target.value))
-              }
-              onBlur={onBonusPctBlur}
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={100}
-              aria-invalid={bonusPctError ? true : undefined}
-              aria-label={t`Porcentaje milestone ${String(index + 1)}`}
-              className="h-9 border-0 bg-transparent px-1 font-mono shadow-none focus-visible:ring-0"
-            />
-            <span className="text-xs text-muted-foreground">%</span>
-          </div>
-          {bonusPctError ? (
-            <span role="alert" className="text-xs text-destructive">
-              {bonusPctError}
-            </span>
-          ) : null}
-        </label>
+        <BonusAmountField
+          label={rowLabel}
+          bonus={bonus}
+          error={bonusError}
+          onChange={onBonusChange}
+          onBlur={onBonusBlur}
+        />
 
         <Button
           type="button"
           variant="ghost"
           size="icon-sm"
-          className="self-start text-muted-foreground hover:text-destructive sm:self-center"
+          className="self-start text-muted-foreground hover:text-destructive"
           onClick={onRemove}
           aria-label={t`Eliminar milestone ${String(index + 1)}`}
         >
