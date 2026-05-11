@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { useMarkRead } from '#/shared/api/generated/chat/chat'
@@ -18,8 +19,13 @@ export function useMarkConversationReadMutation(conversationId: string) {
     },
   })
 
+  const { mutate } = mutation
+  const stableMutate = useCallback(() => {
+    mutate({ conversationId })
+  }, [mutate, conversationId])
+
   return {
     ...mutation,
-    mutate: () => mutation.mutate({ conversationId }),
+    mutate: stableMutate,
   }
 }

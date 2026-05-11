@@ -4,16 +4,19 @@ export function ContextPanel({
   headerSlot,
   offerSlot,
   archiveSlot,
+  errorSlot,
 }: {
-  headerSlot: ReactNode
+  headerSlot?: ReactNode
   offerSlot?: ReactNode
   archiveSlot?: ReactNode
+  errorSlot?: ReactNode
 }) {
   return (
-    <aside className="flex w-full max-w-sm flex-col gap-4 rounded-2xl bg-muted/40 p-3">
+    <aside className="flex h-full w-[360px] shrink-0 flex-col gap-3 overflow-y-auto bg-muted p-4">
       {headerSlot}
       {offerSlot}
       {archiveSlot}
+      {errorSlot}
     </aside>
   )
 }

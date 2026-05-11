@@ -125,14 +125,22 @@ function withDeliverableStatuses<T extends ConversationOfferDTO>(
   }
 }
 
+const defaultProps = {
+  actorKind: 'brand' as const,
+  deliverables: [],
+  stages: [],
+  sessionKind: 'brand' as const,
+  onUploadDraft: () => {},
+}
+
 describe('CurrentOfferBlock', () => {
   it('renders empty state when current is null', () => {
-    render(<CurrentOfferBlock offer={null} actorKind="brand" />)
+    render(<CurrentOfferBlock offer={null} {...defaultProps} />)
     expect(screen.getByText('No active offer')).toBeInTheDocument()
   })
 
   it('renders offer with sent badge', () => {
-    render(<CurrentOfferBlock offer={singleOffer} actorKind="brand" />)
+    render(<CurrentOfferBlock offer={singleOffer} {...defaultProps} />)
     expect(screen.getByText('Current Offer')).toBeInTheDocument()
     expect(screen.getByText('Sent')).toBeInTheDocument()
     expect(screen.getByText('$4,500.00')).toBeInTheDocument()
@@ -145,7 +153,7 @@ describe('CurrentOfferBlock', () => {
       status: 'accepted' as const,
       accepted_at: '2024-09-02T12:00:00Z',
     }
-    render(<CurrentOfferBlock offer={accepted} actorKind="brand" />)
+    render(<CurrentOfferBlock offer={accepted} {...defaultProps} />)
     expect(screen.getByText('Accepted')).toBeInTheDocument()
   })
 
@@ -156,30 +164,15 @@ describe('CurrentOfferBlock', () => {
         speed_bonus_windows: [{ window_hours: 24, bonus_pct: '15' }],
       },
     }
-    render(<CurrentOfferBlock offer={withBonus} actorKind="brand" />)
+    render(<CurrentOfferBlock offer={withBonus} {...defaultProps} />)
     expect(screen.getByText('Speed bonus')).toBeInTheDocument()
     expect(screen.getByText('+15% / 24h')).toBeInTheDocument()
   })
 
-  it('renders platform deliverable', () => {
-    render(<CurrentOfferBlock offer={singleOffer} actorKind="brand" />)
-    expect(screen.getByText('YouTube Video')).toBeInTheDocument()
-  })
-
-  it('rendersBundle', () => {
-    render(<CurrentOfferBlock offer={bundleOffer} actorKind="brand" />)
-    expect(screen.getByText('YouTube Video × 1')).toBeInTheDocument()
-    expect(screen.getByText('Instagram Reel × 2')).toBeInTheDocument()
-    expect(screen.getByText('Total')).toBeInTheDocument()
-    expect(screen.getAllByText('$4,500.00').length).toBeGreaterThanOrEqual(2)
-  })
-
   it('rendersMultiStage', () => {
-    render(<CurrentOfferBlock offer={multistageOffer} actorKind="brand" />)
+    render(<CurrentOfferBlock offer={multistageOffer} {...defaultProps} />)
     expect(screen.getByText('Concept')).toBeInTheDocument()
     expect(screen.getByText('Production')).toBeInTheDocument()
-    expect(screen.getByText('Locked')).toBeInTheDocument()
-    expect(screen.getByText('Open')).toBeInTheDocument()
   })
 
   it.each([
@@ -204,7 +197,7 @@ describe('CurrentOfferBlock', () => {
             offer,
             statuses as DeliverableStatus[],
           )}
-          actorKind="brand"
+          {...defaultProps}
         />,
       )
 
@@ -234,7 +227,7 @@ describe('CurrentOfferBlock', () => {
           'completed',
           'completed',
         ])}
-        actorKind="brand"
+        {...defaultProps}
       />,
     )
 
@@ -243,7 +236,7 @@ describe('CurrentOfferBlock', () => {
 
   it('is axe-clean', async () => {
     const { container } = render(
-      <CurrentOfferBlock offer={singleOffer} actorKind="brand" />,
+      <CurrentOfferBlock offer={singleOffer} {...defaultProps} />,
     )
     expect(await axe(container)).toHaveNoViolations()
   })

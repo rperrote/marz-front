@@ -17,6 +17,7 @@ import { useBrandWorkspaceProvider } from '#/features/identity/hooks/useBrandWor
 import { useClerkTokenProvider } from '#/features/identity/hooks/useClerkTokenProvider'
 import { MobileRedirectGuard } from '#/features/identity/onboarding/components/MobileRedirectGuard'
 import { installBeforeUnloadListener } from '#/shared/analytics/beforeunload'
+import { TooltipProvider } from '#/components/ui/tooltip'
 import { AppI18nProvider } from '#/shared/i18n/provider'
 import { resolveLocale } from '#/shared/i18n/server'
 import { loadCatalog } from '#/shared/i18n/setup'
@@ -84,7 +85,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <ClerkTokenBridge />
           <MobileRedirectGuard />
           <AppI18nProvider initialLocale={locale} initialMessages={messages}>
-            {children}
+            <TooltipProvider>{children}</TooltipProvider>
           </AppI18nProvider>
           <Toaster position="bottom-center" />
         </ClerkProvider>

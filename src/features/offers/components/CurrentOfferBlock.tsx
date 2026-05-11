@@ -4,14 +4,13 @@ import { t } from '@lingui/core/macro'
 import { Badge } from '#/components/ui/badge'
 import type { ConversationOfferDTO } from '#/features/offers/hooks/useConversationOffers'
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
-import {
-  formatOfferDeadline,
-  formatOfferPlatform,
-} from '#/features/offers/utils/formatOffer'
+import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
 import type { OfferStatus } from '#/features/offers/types'
+import type { DeliverableDTO, StageDTO } from '#/features/deliverables/types'
+import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
-import { MultiStageStagesList } from './MultiStageStagesList'
+import { OfferDeliverablesList } from './OfferDeliverablesList'
 import { formatBonusWindowsLabel } from '../utils/bonusTerms'
 
 const statusConfig: Record<
@@ -54,68 +53,13 @@ function getOfferBadge(offer: ConversationOfferDTO) {
 interface CurrentOfferBlockProps {
   offer: ConversationOfferDTO | null
   actorKind: ActorKind
-}
-
-function OfferTypeContent({
-  offer,
-  actorKind,
-}: {
-  offer: ConversationOfferDTO
-  actorKind: ActorKind
-}) {
-  if (offer.type === 'multistage') {
-    return (
-      <MultiStageStagesList
-        stages={offer.stages}
-        offerStatus={offer.status}
-        currency={offer.currency}
-        actorKind={actorKind}
-      />
-    )
-  }
-
-  if (offer.type === 'bundle') {
-    return (
-      <div className="mt-3 space-y-2">
-        <div className="mb-1.5 font-mono text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
-          {t`Deliverables`}
-        </div>
-        {offer.deliverables.map((d, i) => (
-          <div
-            key={i}
-            className="flex items-baseline justify-between gap-4 text-xs"
-          >
-            <span className="text-foreground">
-              {formatOfferPlatform(d.platform, d.format)} × {d.quantity}
-            </span>
-            <span className="font-mono text-foreground">
-              {formatOfferAmount(d.amount, offer.currency)}
-            </span>
-          </div>
-        ))}
-        <div className="flex items-baseline justify-between gap-4 border-t border-border pt-2 text-xs font-semibold">
-          <span className="text-foreground">{t`Total`}</span>
-          <span className="font-mono text-foreground">
-            {formatOfferAmount(offer.total_amount, offer.currency)}
-          </span>
-        </div>
-      </div>
-    )
-  }
-
-  const deliverable = offer.deliverables[0]
-  if (!deliverable) return null
-
-  return (
-    <div className="mt-3">
-      <div className="mb-1.5 font-mono text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
-        {t`Deliverables`}
-      </div>
-      <div className="text-xs text-foreground">
-        {formatOfferPlatform(deliverable.platform, deliverable.format)}
-      </div>
-    </div>
-  )
+  deliverables: DeliverableDTO[]
+  stages: StageDTO[]
+  sessionKind: 'brand' | 'creator'
+  viewerRole?: MarkAsPaidViewer['role']
+  onUploadDraft: (deliverableId: string) => void
+  onMarkAsPaid?: (deliverableId: string) => void
+  onSubmitLink?: (deliverableId: string, isResubmission: boolean) => void
 }
 
 function EmptyState() {
@@ -131,6 +75,13 @@ function EmptyState() {
 export function CurrentOfferBlock({
   offer,
   actorKind,
+  deliverables,
+  stages,
+  sessionKind,
+  viewerRole,
+  onUploadDraft,
+  onMarkAsPaid,
+  onSubmitLink,
 }: CurrentOfferBlockProps) {
   const trackedRef = useRef(false)
 
@@ -193,7 +144,17 @@ export function CurrentOfferBlock({
         ) : null}
       </dl>
 
-      <OfferTypeContent offer={offer} actorKind={actorKind} />
+      <OfferDeliverablesList
+        offer={offer}
+        deliverables={deliverables}
+        stages={stages}
+        sessionKind={sessionKind}
+        viewerRole={viewerRole}
+        actorKind={actorKind}
+        onUploadDraft={onUploadDraft}
+        onMarkAsPaid={onMarkAsPaid}
+        onSubmitLink={onSubmitLink}
+      />
     </div>
   )
 }

@@ -129,7 +129,7 @@ function formatDeadline(deadline: string | null) {
   }).format(date)
 }
 
-function formatList(items: string[]) {
-  if (items.length === 0) return t`Sin plataformas`
+function formatList(items: string[] | null) {
+  if (!items || items.length === 0) return t`Sin plataformas`
   return items.map(formatPlatform).join(', ')
 }

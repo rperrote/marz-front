@@ -8,9 +8,10 @@ export function useCanSendOffer({
   conversationId: string
 }): CanSendOfferMeta {
   const meQuery = useMe()
-  const { data: activeCampaigns } = useActiveCampaigns()
-
   const kind = meQuery.data?.status === 200 ? meQuery.data.data.kind : undefined
+  const { data: activeCampaigns } = useActiveCampaigns({
+    enabled: kind === 'brand',
+  })
 
   if (kind !== 'brand') {
     return { visible: false, disabled: false }

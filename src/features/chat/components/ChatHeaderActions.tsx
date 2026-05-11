@@ -26,15 +26,30 @@ export function ChatHeaderActions({
 
   return (
     <div className="flex items-center gap-1">
-      <IconButton aria-label={t`Preview deliverable`}>
-        <Eye />
-      </IconButton>
-      <IconButton aria-label={t`Play draft`}>
-        <Play />
-      </IconButton>
-      <IconButton aria-label={t`Open transcript`}>
-        <FileText />
-      </IconButton>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <IconButton aria-label={t`Preview deliverable`}>
+            <Eye />
+          </IconButton>
+        </TooltipTrigger>
+        <TooltipContent>{t`Preview deliverable`}</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <IconButton aria-label={t`Play draft`}>
+            <Play />
+          </IconButton>
+        </TooltipTrigger>
+        <TooltipContent>{t`Play draft`}</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <IconButton aria-label={t`Open transcript`}>
+            <FileText />
+          </IconButton>
+        </TooltipTrigger>
+        <TooltipContent>{t`Open transcript`}</TooltipContent>
+      </Tooltip>
 
       {visible ? (
         <Tooltip>

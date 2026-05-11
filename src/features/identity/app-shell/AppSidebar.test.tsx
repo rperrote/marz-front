@@ -204,13 +204,13 @@ describe('AppSidebar', () => {
       'Home',
       'Workspace',
       'Inbox',
-      'Offers',
+      'Campaigns',
       'Earnings',
       'Analytics',
     ]) {
       expect(
         within(creatorSidebar).getByRole(
-          /Workspace|Inbox|Offers|Earnings/.test(name) ? 'link' : 'button',
+          /Workspace|Inbox|Campaigns|Earnings/.test(name) ? 'link' : 'button',
           { name },
         ),
       ).toBeInTheDocument()

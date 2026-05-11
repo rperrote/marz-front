@@ -83,10 +83,10 @@ export const shellNavigationConfig: ShellNavigationConfig = {
       href: '/workspace',
     },
     {
-      id: 'offers',
-      label: 'Offers',
-      icon: 'briefcase-business',
-      href: '/offers',
+      id: 'campaigns',
+      label: 'Campaigns',
+      icon: 'briefcase',
+      href: '/discover/campaigns',
     },
     {
       id: 'earnings',
