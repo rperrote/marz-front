@@ -10,6 +10,7 @@ interface DraftApprovedCardProps {
   message: DraftTimelineMessage
   currentAccountId: string
   counterpartDisplayName: string
+  sessionKind?: 'brand' | 'creator'
 }
 
 function extractSnapshot(
@@ -26,6 +27,7 @@ export function DraftApprovedCard({
   message,
   currentAccountId,
   counterpartDisplayName,
+  sessionKind,
 }: DraftApprovedCardProps) {
   const snapshot = useMemo(
     () => extractSnapshot(message.payload),
@@ -40,13 +42,14 @@ export function DraftApprovedCard({
   return (
     <SystemEventCard
       tone="success"
-      kicker={t`Draft approved`}
+      kicker={t`Draft aprobado`}
       icon={Check}
       headerVariant="solid"
+      side={sessionKind === 'brand' ? 'out' : 'in'}
     >
       <div className="space-y-4">
         <p className="text-sm text-foreground">
-          {t`Approved by ${approverName} on ${new Date(snapshot.approved_at).toLocaleDateString()}`}
+          {t`Aprobado por ${approverName} el ${new Date(snapshot.approved_at).toLocaleDateString()}`}
         </p>
       </div>
     </SystemEventCard>

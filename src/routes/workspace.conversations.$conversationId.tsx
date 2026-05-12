@@ -110,6 +110,7 @@ function ConversationRoute() {
           sessionKind={sessionKind}
           viewerRole={viewerRole}
           onMarkAsPaid={setPaymentDeliverableId}
+          onUploadDraft={setUploadDeliverableId}
           highlightPaymentId={highlightPaymentId}
         />
       </div>
@@ -146,6 +147,7 @@ function ConversationRoute() {
             if (!open) setUploadDeliverableId(null)
           }}
           deliverableId={uploadDeliverableId}
+          conversationId={conversationId}
           onSuccess={() => setUploadDeliverableId(null)}
           title={uploadLabel}
           analytics={uploadAnalytics}

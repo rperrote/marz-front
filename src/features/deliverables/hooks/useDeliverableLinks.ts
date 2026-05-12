@@ -13,13 +13,13 @@ export function getDeliverableLinksQueryKey(deliverableId: string) {
   return ['deliverable', deliverableId, 'links'] as const
 }
 
-// RAFITA:BLOCKER: src/shared/api/generated does not expose list-links yet.
-// Replace this manual query with the Orval hook once api:sync includes it.
+// El endpoint vive en GET /v1/links?deliverable_id={id}. Cuando esté en el
+// spec, migrar a Orval con pnpm api:sync.
 export async function fetchDeliverableLinks(
   deliverableId: string,
 ): Promise<DeliverableLinksResponse> {
   const response = await customFetch<ApiResponse<DeliverableLinksResponse>>(
-    `/v1/deliverables/${encodeURIComponent(deliverableId)}/links`,
+    `/v1/links?deliverable_id=${encodeURIComponent(deliverableId)}`,
   )
   return response.data
 }

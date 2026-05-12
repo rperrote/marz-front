@@ -27,7 +27,7 @@ function makeDeliverable(overrides?: Partial<DeliverableDTO>): DeliverableDTO {
     current_draft: null,
     drafts_count: 0,
     change_requests_count: 0,
-    drafts: [],
+
     latest_change_request: null,
     change_requests: [],
     created_at: '2026-04-01T00:00:00Z',

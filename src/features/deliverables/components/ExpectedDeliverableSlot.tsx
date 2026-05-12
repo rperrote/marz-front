@@ -1,4 +1,4 @@
-import { Film, Instagram, Music, Plus, Twitter, Youtube } from 'lucide-react'
+import { Film, Instagram, Music, Twitter, Upload, Youtube } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
@@ -16,6 +16,7 @@ interface ExpectedDeliverableSlotProps {
   platform: string
   format: string
   sessionKind: 'brand' | 'creator'
+  offerStatus: 'sent' | 'accepted' | 'rejected' | 'expired'
   onUploadDraft?: () => void
 }
 
@@ -23,11 +24,13 @@ export function ExpectedDeliverableSlot({
   platform,
   format,
   sessionKind,
+  offerStatus,
   onUploadDraft,
 }: ExpectedDeliverableSlotProps) {
   const PlatformIcon = platformIcon[platform] ?? Film
   const label = formatOfferPlatform(platform, format)
   const isCreator = sessionKind === 'creator'
+  const isAccepted = offerStatus === 'accepted'
 
   return (
     <div className="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3">
@@ -38,19 +41,22 @@ export function ExpectedDeliverableSlot({
             {label}
           </span>
         </div>
-        <Badge className="shrink-0 bg-info px-2 py-0.5 text-xs text-info-foreground">
-          {t`Waiting draft`}
-        </Badge>
+        {isAccepted && !isCreator ? (
+          <Badge className="shrink-0 bg-warning px-2 py-0.5 text-xs text-warning-foreground">
+            {t`Esperando draft`}
+          </Badge>
+        ) : null}
       </div>
 
-      {isCreator && onUploadDraft ? (
+      {isAccepted && isCreator ? (
         <button
           type="button"
           onClick={onUploadDraft}
-          className="flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          disabled={!onUploadDraft}
+          className="flex w-full items-center justify-center gap-1.5 rounded-full bg-info px-3 py-2 text-xs font-medium text-info-foreground transition-colors hover:bg-info/90 disabled:opacity-50"
         >
-          <Plus className="size-3.5" />
-          {t`Upload draft`}
+          <Upload className="size-3.5" />
+          {t`Subir draft`}
         </button>
       ) : null}
     </div>

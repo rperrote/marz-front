@@ -28,8 +28,8 @@ interface RequestLinkChangesResponse {
   status: number
 }
 
-// RAFITA:BLOCKER: src/shared/api/generated does not expose request-link-changes yet.
-// Replace this manual mutation with the Orval hook once api:sync includes it.
+// El endpoint vive en POST /v1/links/{linkId}/request-changes. Cuando esté en
+// el spec, migrar a Orval con pnpm api:sync.
 export function useRequestLinkChangesMutation() {
   const queryClient = useQueryClient()
 
@@ -38,9 +38,9 @@ export function useRequestLinkChangesMutation() {
     Error,
     RequestLinkChangesMutationVariables
   >({
-    mutationFn: ({ deliverableId, linkId, body, idempotencyKey }) =>
+    mutationFn: ({ linkId, body, idempotencyKey }) =>
       customFetch<RequestLinkChangesResponse>(
-        `/v1/deliverables/${encodeURIComponent(deliverableId)}/links/${encodeURIComponent(linkId)}/request-changes`,
+        `/v1/links/${encodeURIComponent(linkId)}/request-changes`,
         {
           method: 'POST',
           headers: {

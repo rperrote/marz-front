@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { Upload } from 'lucide-react'
 import { t } from '@lingui/core/macro'
+import { useQueryClient } from '@tanstack/react-query'
 
 import {
   Dialog,
@@ -11,6 +12,8 @@ import {
 import { useDraftUploadFlow } from '#/features/deliverables/hooks/useDraftUploadFlow'
 import type { Draft } from '#/features/deliverables/api/draftUpload'
 import type { DeliverableDTO, OfferType } from '#/features/deliverables/types'
+import { getGetConversationDeliverablesQueryKey } from '#/shared/api/generated/deliverables/deliverables'
+import { getListMessagesQueryKey } from '#/shared/api/generated/chat/chat'
 import { UploadProgressOverlay } from './UploadProgressOverlay'
 import { UploadErrorBanner } from './UploadErrorBanner'
 
@@ -18,6 +21,7 @@ interface UploadDraftDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   deliverableId: string
+  conversationId?: string
   onSuccess: (draft: Draft) => void
   title?: string
   analytics?: {
@@ -33,10 +37,12 @@ export function UploadDraftDialog({
   open,
   onOpenChange,
   deliverableId,
+  conversationId,
   onSuccess,
   title,
   analytics,
 }: UploadDraftDialogProps) {
+  const queryClient = useQueryClient()
   const { status, progress, error, draft, start, cancel, reset } =
     useDraftUploadFlow(deliverableId, analytics)
 
@@ -53,9 +59,17 @@ export function UploadDraftDialog({
 
   useEffect(() => {
     if (status === 'done' && draft) {
+      if (conversationId) {
+        void queryClient.invalidateQueries({
+          queryKey: getGetConversationDeliverablesQueryKey(conversationId),
+        })
+        void queryClient.invalidateQueries({
+          queryKey: getListMessagesQueryKey(conversationId),
+        })
+      }
       onSuccess(draft)
     }
-  }, [status, draft, onSuccess])
+  }, [status, draft, onSuccess, queryClient, conversationId])
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -125,12 +139,10 @@ export function UploadDraftDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg" aria-labelledby="upload-draft-title">
-        <DialogTitle id="upload-draft-title" className="sr-only">
-          {title ?? t`Upload draft`}
-        </DialogTitle>
+      <DialogContent className="max-w-lg">
+        <DialogTitle className="sr-only">{title ?? t`Subir draft`}</DialogTitle>
         <DialogDescription className="sr-only">
-          {t`Upload a video draft for review`}
+          {t`Subí un video draft para revisión`}
         </DialogDescription>
 
         {status === 'requesting' ||

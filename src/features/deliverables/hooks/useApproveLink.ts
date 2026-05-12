@@ -17,8 +17,8 @@ interface OptimisticContext {
   previousDeliverable: unknown
 }
 
-// RAFITA:BLOCKER: src/shared/api/generated does not expose approve-link yet.
-// Replace this manual mutation with the Orval hook once api:sync includes it.
+// El endpoint vive en /v1/links/{linkId}/approve. Cuando esté en el spec,
+// migrar a Orval con pnpm api:sync.
 export function useApproveLinkMutation() {
   const queryClient = useQueryClient()
 
@@ -28,9 +28,9 @@ export function useApproveLinkMutation() {
     ApproveLinkMutationVariables,
     OptimisticContext
   >({
-    mutationFn: ({ deliverableId, linkId, idempotencyKey }) =>
+    mutationFn: ({ linkId, idempotencyKey }) =>
       customFetch<ApiResponse<void>>(
-        `/v1/deliverables/${encodeURIComponent(deliverableId)}/links/${encodeURIComponent(linkId)}/approve`,
+        `/v1/links/${encodeURIComponent(linkId)}/approve`,
         {
           method: 'POST',
           headers: {

@@ -7,11 +7,13 @@ import { formatOfferDeadline } from '../utils/formatOffer'
 interface OfferAcceptedCardOutProps {
   snapshot: { campaign_name: string; deadline: string }
   creatorName: string
+  side?: 'in' | 'out'
 }
 
 export function OfferAcceptedCardOut({
   snapshot,
   creatorName,
+  side,
 }: OfferAcceptedCardOutProps) {
   const deadline = formatOfferDeadline(snapshot.deadline)
   const firstName = creatorName.split(' ')[0] ?? creatorName
@@ -19,20 +21,21 @@ export function OfferAcceptedCardOut({
   return (
     <div
       role="article"
-      aria-label={t`${creatorName} accepted the offer, deadline ${deadline}`}
+      aria-label={t`${creatorName} aceptó la oferta, deadline ${deadline}`}
     >
       <SystemEventCard
         tone="success"
-        kicker={t`Offer accepted`}
+        kicker={t`Oferta aceptada`}
         icon={Check}
         headerVariant="solid"
+        side={side}
       >
         <div>
           <h3 className="text-lg font-semibold text-foreground">
-            {t`${creatorName} accepted the offer`}
+            {t`${creatorName} aceptó la oferta`}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {t`${firstName} is preparing the draft. Deadline is ${deadline}.`}
+            {t`${firstName} está preparando el draft. Deadline ${deadline}.`}
           </p>
         </div>
       </SystemEventCard>

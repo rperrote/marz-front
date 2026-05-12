@@ -4,7 +4,6 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
   useImperativeHandle,
 } from 'react'
 import type { VirtuosoHandle } from 'react-virtuoso'
@@ -39,6 +38,21 @@ import { MessageBubble } from './MessageBubble'
 import { getEventBubbleMeta } from '../utils/eventBubbleMeta'
 import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 
+// OfferSent lo emite el brand pero author_account_id puede ser un actor de sistema.
+// Para ese evento derivamos direction del kind del viewer. Resto: comparacion normal.
+function resolveEventDirection(args: {
+  eventType: string | null | undefined
+  authorAccountId: string | null
+  currentAccountId: string
+  sessionKind: 'brand' | 'creator' | undefined
+}): 'in' | 'out' {
+  const { eventType, authorAccountId, currentAccountId, sessionKind } = args
+  if (eventType === 'OfferSent' || eventType === 'offer_sent') {
+    return sessionKind === 'brand' ? 'out' : 'in'
+  }
+  return authorAccountId === currentAccountId ? 'out' : 'in'
+}
+
 // react-virtuoso chosen over @tanstack/react-virtual: built-in reverse list mode,
 // automatic scroll anchoring on prepend, and firstItemIndex shifting — all critical
 // for chat history pagination. TanStack Virtual would require manual scroll-height
@@ -54,6 +68,7 @@ interface MessageTimelineProps {
   sessionKind: 'brand' | 'creator' | undefined
   viewerRole?: MarkAsPaidViewerRole
   onMarkAsPaid?: (deliverableId: string) => void
+  onUploadDraft?: (deliverableId: string) => void
   onAtBottomStateChange?: (atBottom: boolean) => void
   timelineRef?: React.Ref<MessageTimelineHandle>
   highlightPaymentId?: string
@@ -70,6 +85,7 @@ export function MessageTimeline({
   sessionKind,
   viewerRole,
   onMarkAsPaid,
+  onUploadDraft,
   onAtBottomStateChange,
   timelineRef,
   highlightPaymentId,
@@ -117,70 +133,6 @@ export function MessageTimeline({
     Boolean(highlightPaymentId) &&
     (data?.pages.length ?? 0) > 0 &&
     highlightedTimelineIndex === -1
-
-  const lastEventBubble = useMemo(() => {
-    for (let i = grouped.messages.length - 1; i >= 0; i--) {
-      const m = grouped.messages[i]!
-      if (m.type !== 'system_event') continue
-      const meta = getEventBubbleMeta(m.event_type)
-      if (meta) return { index: i, meta, messageId: m.id }
-    }
-    return null
-  }, [grouped.messages])
-
-  const timelineContainerRef = useRef<HTMLDivElement>(null)
-  const [isLastEventVisible, setIsLastEventVisible] = useState(true)
-
-  useEffect(() => {
-    if (!lastEventBubble) {
-      setIsLastEventVisible(true)
-      return
-    }
-    const root = timelineContainerRef.current
-    if (!root) return
-
-    let observed: HTMLElement | null = null
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          setIsLastEventVisible(entry.isIntersecting)
-        }
-      },
-      { root, threshold: 0 },
-    )
-
-    const findAndObserve = () => {
-      const next = root.querySelector<HTMLElement>(
-        `[data-message-id="${lastEventBubble.messageId}"]`,
-      )
-      if (next === observed) return
-      if (observed) io.unobserve(observed)
-      observed = next
-      if (observed) {
-        io.observe(observed)
-      } else {
-        setIsLastEventVisible(false)
-      }
-    }
-    findAndObserve()
-
-    const mo = new MutationObserver(findAndObserve)
-    mo.observe(root, { childList: true, subtree: true })
-
-    return () => {
-      io.disconnect()
-      mo.disconnect()
-    }
-  }, [lastEventBubble])
-
-  const handlePinnedClick = useCallback(() => {
-    if (!lastEventBubble) return
-    virtuosoRef.current?.scrollToIndex({
-      index: firstItemIndex + lastEventBubble.index,
-      align: 'center',
-      behavior: 'smooth',
-    })
-  }, [firstItemIndex, lastEventBubble])
 
   const trackedPageCountRef = useRef(0)
 
@@ -258,6 +210,7 @@ export function MessageTimeline({
                   message={message}
                   currentAccountId={currentAccountId}
                   counterpartDisplayName={counterpartDisplayName}
+                  sessionKind={sessionKind}
                 />
               )
             case 'ChangesRequested':
@@ -342,9 +295,11 @@ export function MessageTimeline({
             <OfferTimelineEntry
               message={message}
               currentAccountId={currentAccountId}
+              conversationId={conversationId}
               counterpartDisplayName={
                 conversationDetail?.counterpart.display_name ?? ''
               }
+              onUploadDraft={onUploadDraft}
             />
           )
         }
@@ -389,6 +344,7 @@ export function MessageTimeline({
       conversationDetail?.counterpart.display_name,
       conversationId,
       onMarkAsPaid,
+      onUploadDraft,
       highlightPaymentId,
       sessionKind,
       viewerRole,
@@ -407,13 +363,20 @@ export function MessageTimeline({
 
       if (!bubbleMeta) return content
 
+      const direction: 'in' | 'out' = resolveEventDirection({
+        eventType: message.event_type,
+        authorAccountId: message.author_account_id,
+        currentAccountId,
+        sessionKind,
+      })
+
       return (
         <div data-message-id={message.id}>
           {content}
           <div className="flex justify-center py-2">
             <EventBubble
               severity={bubbleMeta.severity}
-              direction="in"
+              direction={direction}
               icon={bubbleMeta.icon}
             >
               {bubbleMeta.label}
@@ -422,7 +385,7 @@ export function MessageTimeline({
         </div>
       )
     },
-    [renderMessageContent],
+    [renderMessageContent, currentAccountId, sessionKind],
   )
 
   if (grouped.messages.length === 0) {
@@ -440,28 +403,11 @@ export function MessageTimeline({
 
   return (
     <div
-      ref={timelineContainerRef}
       className="relative flex flex-1 flex-col overflow-hidden"
       style={{ minHeight: 0 }}
       data-testid="message-timeline"
     >
       {shouldShowHighlightFallback ? <PaymentHighlightFallback /> : null}
-      {lastEventBubble && !isLastEventVisible ? (
-        <button
-          type="button"
-          onClick={handlePinnedClick}
-          className="absolute left-1/2 top-2 z-10 -translate-x-1/2"
-          aria-label={t`Go to latest status`}
-        >
-          <EventBubble
-            severity={lastEventBubble.meta.severity}
-            direction="in"
-            icon={lastEventBubble.meta.icon}
-          >
-            {lastEventBubble.meta.label}
-          </EventBubble>
-        </button>
-      ) : null}
       <GroupedVirtuoso
         ref={virtuosoRef}
         key={conversationId}

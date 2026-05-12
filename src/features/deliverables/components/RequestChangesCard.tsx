@@ -176,7 +176,7 @@ export function RequestChangesCard({
       <div className="max-w-[75%]">
         <SystemEventCard
           tone="warning"
-          kicker={t`Changes requested`}
+          kicker={t`Cambios solicitados`}
           icon={AlertCircle}
           headerVariant="solid"
         >

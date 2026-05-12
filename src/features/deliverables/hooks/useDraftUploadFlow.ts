@@ -47,38 +47,6 @@ interface DraftV2UploadAnalytics {
 const ALLOWED_MIME_TYPES = ['video/mp4', 'video/quicktime', 'video/webm']
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024
 
-function readVideoDuration(file: File): Promise<number | null> {
-  return new Promise((resolve) => {
-    const video = document.createElement('video')
-    const url = URL.createObjectURL(file)
-    video.preload = 'metadata'
-
-    const cleanup = () => {
-      URL.revokeObjectURL(url)
-      video.onloadedmetadata = null
-      video.onerror = null
-      video.src = ''
-    }
-
-    video.onloadedmetadata = () => {
-      const duration = video.duration
-      cleanup()
-      if (Number.isFinite(duration) && !Number.isNaN(duration)) {
-        resolve(duration)
-      } else {
-        resolve(null)
-      }
-    }
-
-    video.onerror = () => {
-      cleanup()
-      resolve(null)
-    }
-
-    video.src = url
-  })
-}
-
 export function useDraftUploadFlow(
   deliverableId: string,
   analytics?: DraftV2UploadAnalytics,
@@ -282,18 +250,11 @@ export function useDraftUploadFlow(
 
         setState((prev) => ({ ...prev, status: 'completing' }))
 
-        let durationSec: number | null = null
-        try {
-          durationSec = await readVideoDuration(file)
-        } catch {
-          durationSec = null
-        }
-
         try {
           const completeRes = await completeMutation.mutateAsync({
             deliverableId,
             intentId: intent.intent_id,
-            body: { duration_sec: durationSec },
+            body: {},
           })
 
           trackUploadCompleted({

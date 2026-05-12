@@ -32,13 +32,13 @@ export function formatOfferPlatform(platform: string, format: string): string {
 
 export function formatExpiresIn(expiresAt: string, now: Date): string {
   const diff = new Date(expiresAt).getTime() - now.getTime()
-  if (diff <= 0) return t`Expired`
+  if (diff <= 0) return t`Expirada`
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  if (days > 0) return t`${days}d ${hours}h left`
+  if (days > 0) return t`Quedan ${days}d ${hours}h`
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-  if (hours > 0) return t`${hours}h ${minutes}m left`
-  return t`${minutes}m left`
+  if (hours > 0) return t`Quedan ${hours}h ${minutes}m`
+  return t`Quedan ${minutes}m`
 }
 
 export function isOfferExpired(expiresAt: string, now: Date): boolean {

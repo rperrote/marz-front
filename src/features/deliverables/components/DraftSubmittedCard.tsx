@@ -110,6 +110,7 @@ export function DraftSubmittedCard({
 
   const currentVersion = deliverable?.current_version ?? null
   const deliverableStatus = deliverable?.status ?? null
+  const matchedDraft = deliverable?.current_draft ?? null
   const requestChangesAnalytics = useMemo(() => {
     if (
       snapshotVersion == null ||
@@ -156,9 +157,10 @@ export function DraftSubmittedCard({
     <div ref={cardRef}>
       <SystemEventCard
         tone="info"
-        kicker={t`Draft submitted`}
+        kicker={t`Draft enviado`}
         icon={Upload}
         headerVariant="solid"
+        side={isBrand ? 'in' : 'out'}
       >
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-sm">
@@ -188,16 +190,22 @@ export function DraftSubmittedCard({
             </div>
           </div>
 
-          {isBrand && (
+          {isBrand && (matchedDraft?.playback_url ?? snapshot.playback_url) ? (
             <InlineVideoPlayer
-              playbackUrl={snapshot.playback_url}
-              thumbnailUrl={snapshot.thumbnail_url ?? undefined}
-              durationSec={snapshot.duration_sec ?? undefined}
+              playbackUrl={matchedDraft?.playback_url ?? snapshot.playback_url}
+              thumbnailUrl={
+                matchedDraft?.thumbnail_url ??
+                snapshot.thumbnail_url ??
+                undefined
+              }
+              durationSec={
+                matchedDraft?.duration_sec ?? snapshot.duration_sec ?? undefined
+              }
               aspect={deriveAspect(snapshot.deliverable_format)}
               deliverableId={snapshot.deliverable_id}
               draftId={snapshot.draft_id}
             />
-          )}
+          ) : null}
 
           {isBrand && (
             <div className="flex gap-2">
@@ -220,29 +228,39 @@ export function DraftSubmittedCard({
                         disabled
                         aria-describedby={`request-changes-tooltip-${snapshot.deliverable_id}`}
                       >
-                        {t`Request changes`}
+                        {t`Solicitar cambios`}
                       </Button>
                       <span
                         id={`request-changes-tooltip-${snapshot.deliverable_id}`}
                         role="tooltip"
                         className="sr-only"
                       >
-                        {t`A newer version was submitted`}
+                        {t`Se envió una versión más nueva`}
                       </span>
                     </>
                   ) : (
                     <RequestChangesModal
-                      title={t`Request changes`}
+                      title={t`Solicitar cambios`}
                       deliverableId={snapshot.deliverable_id}
                       draftId={snapshot.draft_id}
-                      playbackUrl={snapshot.playback_url}
-                      thumbnailUrl={snapshot.thumbnail_url ?? undefined}
-                      durationSec={snapshot.duration_sec ?? undefined}
+                      playbackUrl={
+                        matchedDraft?.playback_url ?? snapshot.playback_url
+                      }
+                      thumbnailUrl={
+                        matchedDraft?.thumbnail_url ??
+                        snapshot.thumbnail_url ??
+                        undefined
+                      }
+                      durationSec={
+                        matchedDraft?.duration_sec ??
+                        snapshot.duration_sec ??
+                        undefined
+                      }
                       aspect={deriveAspect(snapshot.deliverable_format)}
                       analytics={requestChangesAnalytics}
                       trigger={
                         <Button variant="outline" className="w-full">
-                          {t`Request changes`}
+                          {t`Solicitar cambios`}
                         </Button>
                       }
                     />

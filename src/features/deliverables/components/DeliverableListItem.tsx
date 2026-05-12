@@ -24,6 +24,10 @@ import { canMarkDeliverableAsPaid } from '#/shared/payments/markAsPaidPermission
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import { DraftVersionList } from './DraftVersionList'
 import { DeliverableStatusBadge } from './DeliverableStatusBadge'
+import {
+  formatOfferDeadline,
+  formatOfferPlatform,
+} from '#/features/offers/utils/formatOffer'
 
 const platformIcon: Record<string, LucideIcon> = {
   youtube: Youtube,
@@ -78,13 +82,9 @@ export function DeliverableListItem({
     !isLocked &&
     !isNonUploadable &&
     (deliverable.status === 'pending' ||
-      deliverable.status === 'changes_requested')
+      deliverable.status === 'changes_requested' ||
+      deliverable.status === 'draft_submitted')
 
-  const isUploadDisabled =
-    isCreator &&
-    !isLocked &&
-    !isNonUploadable &&
-    deliverable.status === 'draft_submitted'
   const canSubmitLink =
     isCreator &&
     !isLocked &&
@@ -92,20 +92,15 @@ export function DeliverableListItem({
       deliverable.status === 'link_submitted')
   const isLinkResubmission =
     deliverable.status === 'link_submitted' || hasPreviousLinkChanges
-  const submitLinkLabel = isLinkResubmission
-    ? t`Re-submit link`
-    : t`Submit link`
+  const submitLinkLabel = isLinkResubmission ? t`Reenviar link` : t`Enviar link`
   const shouldShowCurrentLink =
     deliverable.status === 'link_submitted' ||
     deliverable.status === 'link_approved' ||
     deliverable.status === 'completed' ||
     linksQuery.data?.current_link_id != null
 
-  const uploadButtonLabel = (() => {
-    if (deliverable.status === 'draft_submitted')
-      return t`Waiting for brand review`
-    return nextVersion === 1 ? t`Upload draft` : t`Upload draft v${nextVersion}`
-  })()
+  const uploadButtonLabel =
+    nextVersion === 1 ? t`Subir draft` : t`Subir draft v${nextVersion}`
 
   const handleUploadClick = () => {
     onUploadDraft(deliverable.id)
@@ -124,8 +119,13 @@ export function DeliverableListItem({
     onSubmitLink?.(deliverable.id, isLinkResubmission)
   }
 
+  const formatLabel = formatOfferPlatform(
+    deliverable.platform,
+    deliverable.format,
+  )
   const metaParts: string[] = []
-  if (deliverable.deadline) metaParts.push(deliverable.deadline)
+  if (deliverable.deadline)
+    metaParts.push(formatOfferDeadline(deliverable.deadline))
   if (deliverable.current_version)
     metaParts.push(`v${deliverable.current_version}`)
   const metaLine = metaParts.join(' · ')
@@ -141,7 +141,7 @@ export function DeliverableListItem({
         <PlatformIcon className="size-3.5 shrink-0 text-muted-foreground" />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="truncate text-sm font-semibold text-foreground">
-            {deliverable.format}
+            {formatLabel}
           </span>
           {metaLine ? (
             <span className="truncate text-xs text-muted-foreground">
@@ -155,13 +155,13 @@ export function DeliverableListItem({
         />
       </div>
 
-      {deliverable.drafts.length > 0 && (
+      {deliverable.current_draft ? (
         <DraftVersionList
-          drafts={deliverable.drafts}
-          changeRequests={deliverable.change_requests}
+          drafts={[deliverable.current_draft]}
+          changeRequests={[]}
           deliverableId={deliverable.id}
         />
-      )}
+      ) : null}
 
       {shouldShowCurrentLink && (
         <CurrentLinkSummary
@@ -172,17 +172,11 @@ export function DeliverableListItem({
         />
       )}
 
-      {canUpload || isUploadDisabled ? (
+      {canUpload ? (
         <button
           type="button"
-          disabled={isUploadDisabled}
           onClick={handleUploadClick}
-          className={cn(
-            'flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium transition-colors',
-            isUploadDisabled
-              ? 'cursor-not-allowed text-muted-foreground opacity-60'
-              : 'text-foreground hover:bg-muted',
-          )}
+          className="flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
           <Plus className="size-3.5" />
           {uploadButtonLabel}
@@ -190,7 +184,7 @@ export function DeliverableListItem({
       ) : sessionKind === 'creator' && isLocked ? (
         <div className="flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-muted-foreground opacity-60">
           <Lock className="size-3.5" />
-          {t`Upload draft`}
+          {t`Subir draft`}
         </div>
       ) : canSubmitLink ? (
         <button
@@ -207,7 +201,7 @@ export function DeliverableListItem({
           onClick={handleMarkAsPaidClick}
           className="flex w-full items-center justify-center rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
-          {t`Mark as paid`}
+          {t`Marcar como pagado`}
         </button>
       ) : null}
     </div>
@@ -233,7 +227,7 @@ function CurrentLinkSummary({
     return (
       <div
         className="h-9 animate-pulse rounded-lg bg-muted"
-        aria-label={t`Loading current link`}
+        aria-label={t`Cargando link actual`}
       />
     )
   }
@@ -249,7 +243,7 @@ function CurrentLinkSummary({
         className="rounded-lg border border-dashed border-border bg-background px-3 py-2 text-xs text-muted-foreground"
         data-testid="current-link-empty"
       >
-        {t`No current link yet.`}
+        {t`Todavía no hay link.`}
       </div>
     )
   }
@@ -257,7 +251,7 @@ function CurrentLinkSummary({
   const currentLinkStatusMeta = getCurrentLinkStatusMeta(currentLink.status)
   const linkLabel =
     deliverableStatus === 'link_approved' || deliverableStatus === 'completed'
-      ? t`Link approved`
+      ? t`Link aprobado`
       : currentLinkStatusMeta.label
 
   return (
@@ -284,18 +278,18 @@ function getCurrentLinkStatusMeta(status: PublishedLinkStatus): {
   tone: 'info' | 'success' | 'destructive' | 'neutral'
 } {
   if (status === 'approved') {
-    return { label: t`Link approved`, tone: 'success' }
+    return { label: t`Link aprobado`, tone: 'success' }
   }
 
   if (status === 'changes_requested') {
-    return { label: t`Changes requested`, tone: 'destructive' }
+    return { label: t`Cambios solicitados`, tone: 'destructive' }
   }
 
   if (status === 'rejected') {
-    return { label: t`Rejected`, tone: 'destructive' }
+    return { label: t`Rechazado`, tone: 'destructive' }
   }
 
-  return { label: t`Link submitted`, tone: 'neutral' }
+  return { label: t`Link enviado`, tone: 'neutral' }
 }
 
 function StatusBadge({

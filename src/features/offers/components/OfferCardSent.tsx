@@ -1,4 +1,5 @@
-import { Timer, Sparkles } from 'lucide-react'
+import { Check, CircleX, Hourglass, Timer, Sparkles } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
@@ -13,13 +14,26 @@ interface OfferCardSentProps {
 function getStatusLabel(status: OfferStatus): string {
   switch (status) {
     case 'sent':
-      return t`Awaiting response`
+      return t`A la espera de respuesta`
     case 'accepted':
-      return t`Accepted`
+      return t`Aceptada`
     case 'rejected':
-      return t`Rejected`
+      return t`Rechazada`
     case 'expired':
-      return t`Expired`
+      return t`Expirada`
+  }
+}
+
+function getStatusIcon(status: OfferStatus): LucideIcon {
+  switch (status) {
+    case 'sent':
+      return Timer
+    case 'accepted':
+      return Check
+    case 'rejected':
+      return CircleX
+    case 'expired':
+      return Hourglass
   }
 }
 
@@ -28,18 +42,19 @@ export function OfferCardSent({ snapshot, status }: OfferCardSentProps) {
   const deadline = formatOfferDeadline(snapshot.deadline)
   const platform = formatOfferPlatform(snapshot.platform, snapshot.format)
   const statusLabel = getStatusLabel(status)
+  const StatusIcon = getStatusIcon(status)
 
   return (
     <div className="flex justify-end">
       <div
         role="article"
-        aria-label={t`Offer sent, total ${amount}, deadline ${deadline}`}
+        aria-label={t`Oferta enviada, total ${amount}, deadline ${deadline}`}
         className="w-full max-w-[460px] overflow-hidden rounded-xl border-2 border-primary bg-card"
       >
         <div className="flex items-center gap-2 border-b border-primary/40 bg-accent px-4 py-2.5">
           <Timer className="size-3 text-primary" />
           <span className="font-mono text-xs font-semibold uppercase tracking-wider text-primary">
-            {t`Offer sent`}
+            {t`Oferta enviada`}
           </span>
         </div>
 
@@ -49,7 +64,7 @@ export function OfferCardSent({ snapshot, status }: OfferCardSentProps) {
           </h3>
 
           <div className="flex gap-3">
-            <StatTile label={t`Budget`} value={amount} />
+            <StatTile label={t`Presupuesto`} value={amount} />
             <StatTile label={t`Deadline`} value={deadline} />
           </div>
 
@@ -58,7 +73,7 @@ export function OfferCardSent({ snapshot, status }: OfferCardSentProps) {
           </div>
 
           <div className="flex items-center justify-center gap-2 rounded-md bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground">
-            <Timer className="size-4" />
+            <StatusIcon className="size-4" />
             <span>{statusLabel}</span>
           </div>
         </div>

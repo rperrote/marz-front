@@ -8,7 +8,8 @@ const offerBonusTermsSchema = z.object({
         bonus_pct: z.string(),
       }),
     )
-    .nullable(),
+    .nullable()
+    .transform((value) => value ?? []),
 })
 
 export const offerSnapshotSchema = z.object({

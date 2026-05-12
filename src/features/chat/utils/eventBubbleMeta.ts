@@ -26,51 +26,51 @@ export function getEventBubbleMeta(
   switch (eventType) {
     case 'OfferSent':
     case 'offer_sent':
-      return { label: t`Offer sent`, severity: 'info', icon: Send }
+      return { label: t`Oferta enviada`, severity: 'info', icon: Send }
     case 'OfferAccepted':
     case 'offer_accepted':
-      return { label: t`Offer accepted`, severity: 'success', icon: Check }
+      return { label: t`Oferta aceptada`, severity: 'success', icon: Check }
     case 'OfferRejected':
     case 'offer_rejected':
       return {
-        label: t`Offer rejected`,
+        label: t`Oferta rechazada`,
         severity: 'destructive',
         icon: CircleX,
       }
     case 'OfferExpired':
     case 'offer_expired':
-      return { label: t`Offer expired`, severity: 'warning', icon: Hourglass }
+      return { label: t`Oferta expirada`, severity: 'warning', icon: Hourglass }
     case 'DraftSubmitted':
       return {
-        label: t`Draft submitted — awaiting review`,
+        label: t`Draft enviado — pendiente de revisión`,
         severity: 'info',
         icon: Upload,
       }
     case 'DraftApproved':
-      return { label: t`Draft approved`, severity: 'success', icon: Check }
+      return { label: t`Draft aprobado`, severity: 'success', icon: Check }
     case 'ChangesRequested':
       return {
-        label: t`Changes requested`,
+        label: t`Cambios solicitados`,
         severity: 'warning',
         icon: Hourglass,
       }
     case 'LinkSubmitted':
       return {
-        label: t`Link submitted — awaiting review`,
+        label: t`Link enviado — pendiente de revisión`,
         severity: 'info',
         icon: LinkIcon,
       }
     case 'LinkApproved':
-      return { label: t`Link approved`, severity: 'success', icon: Check }
+      return { label: t`Link aprobado`, severity: 'success', icon: Check }
     case 'LinkChangesRequested':
       return {
-        label: t`Link changes requested`,
+        label: t`Cambios solicitados en el link`,
         severity: 'warning',
         icon: Hourglass,
       }
     case 'PaymentMarked':
       return {
-        label: t`Payment marked as paid`,
+        label: t`Pago marcado como realizado`,
         severity: 'success',
         icon: Wallet,
       }

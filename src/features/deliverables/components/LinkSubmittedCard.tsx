@@ -136,12 +136,13 @@ export function LinkSubmittedCard({
     <SystemEventCard
       ref={cardRef}
       tone="success"
-      kicker={t`Published link`}
+      kicker={t`Link publicado`}
       icon={LinkIcon}
+      side={sessionKind === 'brand' ? 'in' : 'out'}
     >
       <div className="space-y-4">
         <p className="text-sm text-foreground">
-          {snapshot.message ?? t`Just published! Sharing the link here.`}
+          {snapshot.message ?? t`¡Recién publicado! Acá va el link.`}
         </p>
 
         {preview ? (

@@ -52,7 +52,10 @@ export function useRequestChangesFlow(
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
   const [error, setError] = useState<RequestChangesFlowError | null>(null)
 
-  const mutation = useRequestChangesMutation(deliverableId, draftId)
+  const mutation = useRequestChangesMutation(deliverableId)
+  // El backend ya no usa draft_id en el path; lo mantenemos en la firma del
+  // hook para no romper callers, pero no se envía.
+  void draftId
 
   const canSubmit = useMemo(() => {
     if (categories.size === 0) return false

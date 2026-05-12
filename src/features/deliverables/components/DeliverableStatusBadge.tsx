@@ -11,14 +11,14 @@ const statusMeta: Record<
     tone: 'info' | 'success' | 'destructive' | 'neutral' | 'terminal'
   }
 > = {
-  pending: { label: t`Pending`, tone: 'neutral' },
-  draft_submitted: { label: t`In review`, tone: 'info' },
-  changes_requested: { label: t`Changes requested`, tone: 'destructive' },
-  draft_approved: { label: t`Approved`, tone: 'success' },
-  link_submitted: { label: t`Link review`, tone: 'info' },
-  link_approved: { label: t`Live`, tone: 'success' },
-  completed: { label: t`Completed`, tone: 'success' },
-  paid: { label: t`Paid`, tone: 'terminal' },
+  pending: { label: t`Pendiente`, tone: 'neutral' },
+  draft_submitted: { label: t`En revisión`, tone: 'info' },
+  changes_requested: { label: t`Cambios solicitados`, tone: 'destructive' },
+  draft_approved: { label: t`Aprobado`, tone: 'success' },
+  link_submitted: { label: t`Revisión de link`, tone: 'info' },
+  link_approved: { label: t`En vivo`, tone: 'success' },
+  completed: { label: t`Completado`, tone: 'success' },
+  paid: { label: t`Pagado`, tone: 'terminal' },
 }
 
 const toneClass: Record<

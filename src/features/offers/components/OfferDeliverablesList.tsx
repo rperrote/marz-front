@@ -55,7 +55,7 @@ function FlatList({
   return (
     <div className="mt-3 space-y-2">
       <div className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {t`Deliverables`}
+        {t`Entregables`}
       </div>
       <div className="space-y-2">
         {showExpectedSingle ? (
@@ -63,6 +63,9 @@ function FlatList({
             platform={offer.deliverable.platform}
             format={offer.deliverable.format}
             sessionKind={sessionKind}
+            offerStatus={
+              offer.status as 'sent' | 'accepted' | 'rejected' | 'expired'
+            }
           />
         ) : (
           deliverables.map((deliverable) => (
@@ -133,7 +136,7 @@ function MultistageList({
   return (
     <div className="mt-3 space-y-2">
       <div className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {t`Stages`}
+        {t`Etapas`}
       </div>
       <div className="space-y-2">
         {offer.stages.map((stage, i) => {
@@ -181,10 +184,10 @@ interface StageGroupProps {
 type StageStatus = NonNullable<OfferStageDTO['status']>
 
 const stageBadge: Record<StageStatus, { label: string; className: string }> = {
-  locked: { label: t`Upcoming`, className: 'bg-muted text-foreground' },
-  open: { label: t`Open`, className: 'bg-info text-info-foreground' },
+  locked: { label: t`Próximo`, className: 'bg-muted text-foreground' },
+  open: { label: t`Abierto`, className: 'bg-info text-info-foreground' },
   approved: {
-    label: t`Done`,
+    label: t`Listo`,
     className: 'bg-success text-success-foreground',
   },
 }
@@ -216,7 +219,7 @@ function StageGroup({
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        aria-label={t`Toggle stage ${stage.name}`}
+        aria-label={t`Alternar etapa ${stage.name}`}
         className="flex w-full items-center justify-between gap-2 px-3 py-3 text-left"
       >
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -245,7 +248,7 @@ function StageGroup({
           )}
           {deliverables.length === 0 ? (
             <p className="text-xs text-muted-foreground">
-              {t`No deliverables yet.`}
+              {t`Todavía no hay entregables.`}
             </p>
           ) : (
             <div className="space-y-2">

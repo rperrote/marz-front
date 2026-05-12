@@ -59,13 +59,13 @@ export function OfferCardReceived({
       <div
         ref={cardRef}
         role="article"
-        aria-label={t`Campaign offer received, total ${amount}, deadline ${deadline}`}
+        aria-label={t`Oferta de campaña recibida, total ${amount}, deadline ${deadline}`}
         className="w-full max-w-[460px] overflow-hidden rounded-xl border-2 border-primary bg-card"
       >
         <div className="flex items-center gap-2 border-b border-primary/40 bg-accent px-4 py-2.5">
           <Sparkles className="size-3 text-primary" />
           <span className="font-mono text-xs font-semibold uppercase tracking-wider text-primary">
-            {t`New campaign offer`}
+            {t`Nueva oferta de campaña`}
           </span>
         </div>
 
@@ -75,7 +75,7 @@ export function OfferCardReceived({
           </h3>
 
           <div className="flex gap-3">
-            <StatTile label={t`Budget`} value={amount} />
+            <StatTile label={t`Presupuesto`} value={amount} />
             <StatTile label={t`Deadline`} value={deadline} />
           </div>
 
@@ -91,7 +91,7 @@ export function OfferCardReceived({
                   onClick={onAccept}
                   disabled={isAccepting || isRejecting}
                 >
-                  {isAccepting ? t`Accepting…` : t`Accept Offer`}
+                  {isAccepting ? t`Aceptando…` : t`Aceptar oferta`}
                 </Button>
                 <Button
                   variant="outline"
@@ -99,7 +99,7 @@ export function OfferCardReceived({
                   onClick={onReject}
                   disabled={isAccepting || isRejecting}
                 >
-                  {isRejecting ? t`Rejecting…` : t`Reject`}
+                  {isRejecting ? t`Rechazando…` : t`Rechazar`}
                 </Button>
               </div>
               <p className="text-center text-xs text-muted-foreground">
@@ -108,10 +108,10 @@ export function OfferCardReceived({
             </div>
           ) : (
             <div className="flex items-center justify-center rounded-md bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground">
-              {status === 'accepted' && t`Offer accepted`}
-              {status === 'rejected' && t`Offer rejected`}
+              {status === 'accepted' && t`Oferta aceptada`}
+              {status === 'rejected' && t`Oferta rechazada`}
               {(status === 'expired' || (status === 'sent' && expired)) &&
-                t`Offer expired`}
+                t`Oferta expirada`}
             </div>
           )}
         </div>

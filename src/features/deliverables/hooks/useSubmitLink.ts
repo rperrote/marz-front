@@ -4,9 +4,8 @@ import { t } from '@lingui/core/macro'
 import { ApiError, customFetch } from '#/shared/api/mutator'
 import type { PublishedLink } from '#/features/deliverables/types'
 
-// RAFITA:BLOCKER: src/shared/api/generated does not expose the submit-link
-// endpoint in this worktree. Replace this manual mutation with the Orval hook
-// after `pnpm api:sync` can pull the backend contract.
+// El endpoint vive en /v1/links con deliverable_id en el body. Cuando esté en
+// el spec, migrar a Orval con pnpm api:sync.
 
 export interface SubmitLinkBody {
   url: string
@@ -38,16 +37,13 @@ export function useSubmitLinkMutation() {
     SubmitLinkMutationParams
   >({
     mutationFn: ({ deliverableId, body, idempotencyKey }) =>
-      customFetch<SubmitLinkMutationResponse>(
-        `/v1/deliverables/${encodeURIComponent(deliverableId)}/links`,
-        {
-          method: 'POST',
-          headers: {
-            'Idempotency-Key': idempotencyKey,
-          },
-          body: JSON.stringify(body),
+      customFetch<SubmitLinkMutationResponse>(`/v1/links`, {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
         },
-      ),
+        body: JSON.stringify({ ...body, deliverable_id: deliverableId }),
+      }),
     onSuccess: async (_response, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({

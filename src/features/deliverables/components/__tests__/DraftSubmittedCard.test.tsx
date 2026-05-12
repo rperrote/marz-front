@@ -108,7 +108,7 @@ function mockDeliverablesResponse(
           current_draft: null,
           drafts_count: 1,
           change_requests_count: 0,
-          drafts: [],
+
           latest_change_request: null,
           change_requests: [],
           created_at: '2026-04-27T12:00:00Z',

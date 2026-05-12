@@ -31,6 +31,7 @@ interface ConversationViewProps {
   sessionKind: 'brand' | 'creator' | undefined
   viewerRole?: MarkAsPaidViewerRole
   onMarkAsPaid?: (deliverableId: string) => void
+  onUploadDraft?: (deliverableId: string) => void
   highlightPaymentId?: string
 }
 
@@ -40,6 +41,7 @@ export function ConversationView({
   sessionKind,
   viewerRole,
   onMarkAsPaid,
+  onUploadDraft,
   highlightPaymentId,
 }: ConversationViewProps) {
   const queryClient = useQueryClient()
@@ -177,6 +179,7 @@ export function ConversationView({
           sessionKind={sessionKind}
           viewerRole={viewerRole}
           onMarkAsPaid={onMarkAsPaid}
+          onUploadDraft={onUploadDraft}
           highlightPaymentId={highlightPaymentId}
           onAtBottomStateChange={onAtBottomStateChange}
           timelineRef={timelineRef}

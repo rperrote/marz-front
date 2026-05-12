@@ -18,8 +18,6 @@ export function getActiveCampaignsQueryKey() {
   })
 }
 
-// RAFITA:BLOCKER: brandWorkspaceId hardcoded to 'default' — no workspace store exposed by Identity yet.
-// When Identity exposes the active workspace via session/store, replace 'default' with the real id.
 export function useActiveCampaigns(options?: { enabled?: boolean }) {
   return useListCampaigns(
     { status: CampaignConfigurationStatus.active },

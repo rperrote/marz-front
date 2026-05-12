@@ -1,4 +1,7 @@
 import { useMe } from '#/shared/api/generated/accounts/accounts'
+import { useOfferActions } from '#/features/offers/hooks/useOfferActions'
+import { useConversationOffersPaginated } from '#/features/offers/hooks/useConversationOffers'
+import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
 
 import type {
   OfferSnapshot,
@@ -38,13 +41,6 @@ const EVENT_TYPE_MAP: Record<string, OfferEventType> = {
   offer_expired: 'OfferExpired',
 }
 
-const OFFER_STATUS_MAP: Record<OfferEventType, OfferStatus> = {
-  OfferSent: 'sent',
-  OfferAccepted: 'accepted',
-  OfferRejected: 'rejected',
-  OfferExpired: 'expired',
-}
-
 export interface OfferTimelineMessage {
   id: string
   author_account_id: string | null
@@ -55,31 +51,68 @@ export interface OfferTimelineMessage {
 interface OfferTimelineEntryProps {
   message: OfferTimelineMessage
   currentAccountId: string
+  conversationId?: string
   counterpartDisplayName: string
+  onUploadDraft?: (deliverableId: string) => void
 }
 
 export function OfferTimelineEntry({
   message,
   currentAccountId,
+  conversationId = '',
   counterpartDisplayName,
+  onUploadDraft,
 }: OfferTimelineEntryProps) {
   const meQuery = useMe()
   const actorKind =
     meQuery.data?.status === 200 ? meQuery.data.data.kind : undefined
+  const { accept, reject, isActing } = useOfferActions({ conversationId })
+  const offersListing = useConversationOffersPaginated(conversationId)
+  const deliverablesQuery = useGetConversationDeliverablesQuery(conversationId)
 
   const offerEvent = EVENT_TYPE_MAP[message.event_type ?? '']
   if (!offerEvent) return null
 
-  // OfferSent siempre lo emite el brand, pero author_account_id puede ser
-  // un actor de sistema. Derivar viewerSide del kind del viewer para ese caso.
+  // El snapshot del mensaje es inmutable; para reflejar el estado actual
+  // (ej: oferta aceptada despues), buscamos el offer real en current + archive.
+  const offerIdFromSnapshot = (() => {
+    const payload = message.payload
+    if (!payload) return null
+    const snapshot = payload['snapshot'] as Record<string, unknown> | undefined
+    if (snapshot && typeof snapshot['offer_id'] === 'string') {
+      return snapshot['offer_id']
+    }
+    if (typeof payload['offer_id'] === 'string') {
+      return payload['offer_id']
+    }
+    return null
+  })()
+
+  const liveOffer = offerIdFromSnapshot
+    ? offersListing.current?.id === offerIdFromSnapshot
+      ? offersListing.current
+      : (offersListing.archiveItems.find(
+          (item) => item.offer.id === offerIdFromSnapshot,
+        )?.offer ?? null)
+    : null
+  const liveStatus = liveOffer?.status as OfferStatus | undefined
+  const firstDeliverableId = deliverablesQuery.data?.deliverables[0]?.id ?? null
+
+  // OfferSent lo emite el brand y OfferAccepted lo emite el creator. El
+  // author_account_id puede apuntar a un actor de sistema, asi que derivamos
+  // viewerSide del kind del viewer para esos eventos.
   const viewerSide: ViewerSide =
     offerEvent === 'OfferSent'
       ? actorKind === 'brand'
         ? 'actor'
         : 'recipient'
-      : message.author_account_id === currentAccountId
-        ? 'actor'
-        : 'recipient'
+      : offerEvent === 'OfferAccepted'
+        ? actorKind === 'creator'
+          ? 'actor'
+          : 'recipient'
+        : message.author_account_id === currentAccountId
+          ? 'actor'
+          : 'recipient'
 
   const rawPayload = message.payload ?? {}
   const snapshot =
@@ -89,13 +122,16 @@ export function OfferTimelineEntry({
 
   switch (offerEvent) {
     case 'OfferSent': {
+      // status real (current/archive) o fallback al snapshot
+      const effectiveStatus: OfferStatus = liveStatus ?? 'sent'
+
       const bundleParsed = offerSnapshotBundleSchema.safeParse(snapshot)
       if (bundleParsed.success) {
         const snap: OfferSnapshotBundle = bundleParsed.data
         return (
           <OfferCardBundle
             snapshot={snap}
-            status={OFFER_STATUS_MAP[offerEvent]}
+            status={effectiveStatus}
             side={side}
           />
         )
@@ -107,7 +143,7 @@ export function OfferTimelineEntry({
         return (
           <OfferCardMultiStage
             snapshot={snap}
-            status={OFFER_STATUS_MAP[offerEvent]}
+            status={effectiveStatus}
             side={side}
           />
         )
@@ -117,9 +153,30 @@ export function OfferTimelineEntry({
       if (!parsed.success) return null
       const snap: OfferSnapshot = parsed.data
       if (viewerSide === 'actor') {
-        return <OfferCardSent snapshot={snap} status="sent" />
+        return <OfferCardSent snapshot={snap} status={effectiveStatus} />
       }
-      return <OfferCardReceived snapshot={snap} status="sent" />
+      return (
+        <OfferCardReceived
+          snapshot={snap}
+          status={effectiveStatus}
+          onAccept={() =>
+            accept.mutate({
+              offerId: snap.offer_id,
+              sentAt: snap.sent_at,
+              offerType: snap.type,
+            })
+          }
+          onReject={() =>
+            reject.mutate({
+              offerId: snap.offer_id,
+              sentAt: snap.sent_at,
+              offerType: snap.type,
+            })
+          }
+          isAccepting={accept.isPending}
+          isRejecting={reject.isPending || isActing}
+        />
+      )
     }
 
     case 'OfferAccepted': {
@@ -127,12 +184,23 @@ export function OfferTimelineEntry({
       if (bundleParsed.success) {
         const snap = bundleParsed.data
         if (viewerSide === 'actor') {
-          return <OfferAcceptedCardIn snapshot={snap} />
+          return (
+            <OfferAcceptedCardIn
+              snapshot={snap}
+              side={side}
+              onUploadDraft={
+                firstDeliverableId && onUploadDraft
+                  ? () => onUploadDraft(firstDeliverableId)
+                  : undefined
+              }
+            />
+          )
         }
         return (
           <OfferAcceptedCardOut
             snapshot={snap}
             creatorName={counterpartDisplayName}
+            side={side}
           />
         )
       }
@@ -142,12 +210,23 @@ export function OfferTimelineEntry({
       if (multiStageParsed.success) {
         const snap = multiStageParsed.data
         if (viewerSide === 'actor') {
-          return <OfferAcceptedCardIn snapshot={snap} />
+          return (
+            <OfferAcceptedCardIn
+              snapshot={snap}
+              side={side}
+              onUploadDraft={
+                firstDeliverableId && onUploadDraft
+                  ? () => onUploadDraft(firstDeliverableId)
+                  : undefined
+              }
+            />
+          )
         }
         return (
           <OfferAcceptedCardOut
             snapshot={snap}
             creatorName={counterpartDisplayName}
+            side={side}
           />
         )
       }
@@ -156,12 +235,23 @@ export function OfferTimelineEntry({
       if (!parsed.success) return null
       const snap: OfferAcceptedSnap = parsed.data
       if (viewerSide === 'actor') {
-        return <OfferAcceptedCardIn snapshot={snap} />
+        return (
+          <OfferAcceptedCardIn
+            snapshot={snap}
+            side={side}
+            onUploadDraft={
+              firstDeliverableId && onUploadDraft
+                ? () => onUploadDraft(firstDeliverableId)
+                : undefined
+            }
+          />
+        )
       }
       return (
         <OfferAcceptedCardOut
           snapshot={snap}
           creatorName={counterpartDisplayName}
+          side={side}
         />
       )
     }

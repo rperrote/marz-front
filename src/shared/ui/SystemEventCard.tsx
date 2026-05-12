@@ -48,22 +48,32 @@ interface SystemEventCardProps {
   kicker: string
   icon: LucideIcon
   headerVariant?: EventCardHeaderVariant
+  /** Lado del mensaje: 'out' (vos lo enviaste) alinea derecha, 'in' alinea izquierda. */
+  side?: 'in' | 'out'
   children: ReactNode
   className?: string
 }
 
 export const SystemEventCard = forwardRef<HTMLDivElement, SystemEventCardProps>(
   function SystemEventCardRoot(
-    { tone, kicker, icon: Icon, headerVariant = 'tint', children, className },
+    {
+      tone,
+      kicker,
+      icon: Icon,
+      headerVariant = 'tint',
+      side,
+      children,
+      className,
+    },
     ref,
   ) {
     const header =
       headerVariant === 'solid' ? toneHeaderSolid[tone] : toneHeaderTint[tone]
-    return (
+    const card = (
       <div
         ref={ref}
         className={cn(
-          'overflow-hidden rounded-2xl border-2 bg-card',
+          'w-full max-w-[460px] overflow-hidden rounded-2xl border-2 bg-card',
           toneBorder[tone],
           className,
         )}
@@ -75,6 +85,14 @@ export const SystemEventCard = forwardRef<HTMLDivElement, SystemEventCardProps>(
           </span>
         </div>
         <div className="p-4">{children}</div>
+      </div>
+    )
+    if (!side) return card
+    return (
+      <div
+        className={cn('flex', side === 'out' ? 'justify-end' : 'justify-start')}
+      >
+        {card}
       </div>
     )
   },

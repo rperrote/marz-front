@@ -45,10 +45,9 @@ export interface DeliverableDTO {
   status: DeliverableStatus
   deadline: string | null
   current_version: number | null
-  current_draft: unknown | null
+  current_draft: DraftDTO | null
   drafts_count: number
   change_requests_count: number
-  drafts: DraftDTO[]
   latest_change_request: ChangeRequestDTO | null
   change_requests: ChangeRequestDTO[]
   created_at: string

@@ -15,6 +15,7 @@ import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
 import { OfferDeliverablesList } from './OfferDeliverablesList'
 import { formatBonusWindowsLabel } from '../utils/bonusTerms'
+import { useOfferActions } from '#/features/offers/hooks/useOfferActions'
 
 const statusConfig: Record<
   OfferStatus,
@@ -23,10 +24,10 @@ const statusConfig: Record<
     variant: 'default' | 'secondary' | 'destructive' | 'outline'
   }
 > = {
-  sent: { label: t`Sent`, variant: 'secondary' },
-  accepted: { label: t`Accepted`, variant: 'default' },
-  rejected: { label: t`Rejected`, variant: 'destructive' },
-  expired: { label: t`Expired`, variant: 'outline' },
+  sent: { label: t`Enviada`, variant: 'secondary' },
+  accepted: { label: t`Aceptada`, variant: 'default' },
+  rejected: { label: t`Rechazada`, variant: 'destructive' },
+  expired: { label: t`Expirada`, variant: 'outline' },
 }
 
 function getPaymentProgress(deliverables: DeliverableDTO[]) {
@@ -39,12 +40,12 @@ function getPaymentProgress(deliverables: DeliverableDTO[]) {
 function getOfferBadge(offer: OfferDTO, deliverables: DeliverableDTO[]) {
   const progress = getPaymentProgress(deliverables)
   if (progress.total > 0 && progress.paidCount === progress.total) {
-    return { label: t`Fully paid`, variant: 'default' as const }
+    return { label: t`Pagada en total`, variant: 'default' as const }
   }
 
   if (progress.paidCount > 0 && progress.paidCount < progress.total) {
     return {
-      label: t`Partially paid (${progress.paidCount}/${progress.total})`,
+      label: t`Pago parcial (${progress.paidCount}/${progress.total})`,
       variant: 'secondary' as const,
     }
   }
@@ -55,6 +56,7 @@ function getOfferBadge(offer: OfferDTO, deliverables: DeliverableDTO[]) {
 interface CurrentOfferBlockProps {
   offer: OfferDTO | null
   actorKind: ActorKind
+  conversationId?: string
   deliverables: DeliverableDTO[]
   stages: StageDTO[]
   sessionKind: 'brand' | 'creator'
@@ -78,7 +80,7 @@ function EmptyState({ canSendOffer, onSendOffer }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-4">
       <p className="text-center text-sm text-muted-foreground">
-        {t`No active offer`}
+        {t`Sin oferta activa`}
       </p>
       {visible && onSendOffer ? (
         <Button
@@ -88,7 +90,7 @@ function EmptyState({ canSendOffer, onSendOffer }: EmptyStateProps) {
           className="rounded-full"
         >
           <Send />
-          {t`Send Offer`}
+          {t`Enviar oferta`}
         </Button>
       ) : null}
     </div>
@@ -98,6 +100,7 @@ function EmptyState({ canSendOffer, onSendOffer }: EmptyStateProps) {
 export function CurrentOfferBlock({
   offer,
   actorKind,
+  conversationId = '',
   deliverables,
   stages,
   sessionKind,
@@ -109,6 +112,7 @@ export function CurrentOfferBlock({
   onSendOffer,
 }: CurrentOfferBlockProps) {
   const trackedRef = useRef(false)
+  const { accept, reject } = useOfferActions({ conversationId })
 
   useEffect(() => {
     if (offer && !trackedRef.current) {
@@ -134,7 +138,7 @@ export function CurrentOfferBlock({
       <header className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <span className="text-xs font-semibold text-foreground">
-            {t`Current Offer`}
+            {t`Oferta actual`}
           </span>
           <span className="truncate font-mono text-[11px] text-muted-foreground">
             #{offer.id.slice(0, 8)}
@@ -150,7 +154,7 @@ export function CurrentOfferBlock({
 
       <dl className="mt-3 space-y-1.5">
         <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-xs text-muted-foreground">{t`Budget`}</dt>
+          <dt className="text-xs text-muted-foreground">{t`Presupuesto`}</dt>
           <dd className="font-mono text-xs font-semibold text-foreground">
             {formatOfferAmount(offer.amount, currency)}
           </dd>
@@ -165,7 +169,7 @@ export function CurrentOfferBlock({
         ) : null}
         {bonusLabel ? (
           <div className="flex items-baseline justify-between gap-4">
-            <dt className="text-xs text-muted-foreground">{t`Speed bonus`}</dt>
+            <dt className="text-xs text-muted-foreground">{t`Bonus por rapidez`}</dt>
             <dd className="font-mono text-xs font-medium text-success">
               {bonusLabel}
             </dd>
@@ -184,6 +188,40 @@ export function CurrentOfferBlock({
         onMarkAsPaid={onMarkAsPaid}
         onSubmitLink={onSubmitLink}
       />
+
+      {sessionKind === 'creator' && offer.status === 'sent' ? (
+        <div className="mt-3 flex gap-2">
+          <Button
+            size="sm"
+            className="flex-1"
+            disabled={accept.isPending || reject.isPending}
+            onClick={() =>
+              accept.mutate({
+                offerId: offer.id,
+                sentAt: offer.sent_at ?? offer.created_at,
+                offerType: offer.type,
+              })
+            }
+          >
+            {accept.isPending ? t`Aceptando…` : t`Aceptar oferta`}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1"
+            disabled={accept.isPending || reject.isPending}
+            onClick={() =>
+              reject.mutate({
+                offerId: offer.id,
+                sentAt: offer.sent_at ?? offer.created_at,
+                offerType: offer.type,
+              })
+            }
+          >
+            {reject.isPending ? t`Rechazando…` : t`Rechazar`}
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }

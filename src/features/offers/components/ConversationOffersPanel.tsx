@@ -8,6 +8,7 @@ import { useMe } from '#/shared/api/generated/accounts/accounts'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 import { CurrentOfferBlock } from './CurrentOfferBlock'
+import { NextStep } from './NextStep'
 import { OffersArchiveBlock } from './OffersArchiveBlock'
 
 interface ConversationOffersPanelProps {
@@ -53,11 +54,13 @@ export function ConversationOffersPanel({
   return (
     <ContextPanel
       headerSlot={headerSlot}
+      nextStepSlot={<NextStep offer={current} sessionKind={sessionKind} />}
       offerSlot={
         actorKind ? (
           <CurrentOfferBlock
             offer={current}
             actorKind={actorKind}
+            conversationId={conversationId}
             deliverables={deliverables}
             stages={stages}
             sessionKind={sessionKind}
@@ -84,7 +87,7 @@ export function ConversationOffersPanel({
       errorSlot={
         deliverablesQuery.isError ? (
           <p className="px-1 text-xs text-muted-foreground">
-            {t`Error loading deliverables`}
+            {t`Error al cargar entregables`}
           </p>
         ) : null
       }

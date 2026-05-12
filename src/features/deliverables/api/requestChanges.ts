@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { customFetch } from '#/shared/api/mutator'
 
-// RAFITA:BLOCKER: Backend dev (localhost:8080) does not yet expose deliverable/
-// request-changes endpoints in the OpenAPI spec. These hooks are manual stubs;
-// replace with Orval generated hooks once `pnpm api:sync` pulls the extended contract.
+// RAFITA:BLOCKER: el backend todavía no expone POST /v1/deliverables/{id}/request-changes
+// (sin draft_id en path — el backend resuelve el current draft internamente).
+// Cuando esté en el spec, migrar a Orval con pnpm api:sync.
 
 export type ChangeCategory =
   | 'product_placement'
@@ -25,10 +25,7 @@ interface RequestChangesResponse {
   status: number
 }
 
-export function useRequestChangesMutation(
-  deliverableId: string,
-  draftId: string,
-) {
+export function useRequestChangesMutation(deliverableId: string) {
   return useMutation<
     RequestChangesResponse,
     Error,
@@ -36,7 +33,7 @@ export function useRequestChangesMutation(
   >({
     mutationFn: ({ body, idempotencyKey }) =>
       customFetch<RequestChangesResponse>(
-        `/v1/deliverables/${encodeURIComponent(deliverableId)}/drafts/${encodeURIComponent(draftId)}/request-changes`,
+        `/v1/deliverables/${encodeURIComponent(deliverableId)}/request-changes`,
         {
           method: 'POST',
           headers: {
