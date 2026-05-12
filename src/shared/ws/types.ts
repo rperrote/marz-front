@@ -211,37 +211,37 @@ export interface StageOpenedWSPayload {
 
 export type DomainWsEvent =
   | (DomainEventEnvelope<MessageCreatedPayload> & {
-      event_type: 'message.created'
+      event_type: 'chat.message.created'
     })
   | (DomainEventEnvelope<MessageReadBatchPayload> & {
-      event_type: 'message.read.batch'
+      event_type: 'chat.message.read.batch'
     })
   | (DomainEventEnvelope<TypingStartedPayload> & {
-      event_type: 'typing.started'
+      event_type: 'chat.typing.started'
     })
   | (DomainEventEnvelope<TypingStoppedPayload> & {
-      event_type: 'typing.stopped'
+      event_type: 'chat.typing.stopped'
     })
   | (DomainEventEnvelope<PresenceUpdatedPayload> & {
-      event_type: 'presence.updated'
+      event_type: 'identity.presence.updated'
     })
   | (DomainEventEnvelope<ConversationActivityUpdatedPayload> & {
-      event_type: 'conversation.activity_updated'
+      event_type: 'chat.conversation.activity_updated'
     })
   | (DomainEventEnvelope<DraftSubmittedWSPayload> & {
-      event_type: 'draft.submitted'
+      event_type: 'deliverables.draft.submitted'
     })
   | (DomainEventEnvelope<DraftApprovedWSPayload> & {
-      event_type: 'draft.approved'
+      event_type: 'deliverables.draft.approved'
     })
   | (DomainEventEnvelope<ChangesRequestedWSPayload> & {
       event_type: 'changes.requested'
     })
   | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
-      event_type: 'deliverable.changed'
+      event_type: 'deliverables.item.changed'
     })
   | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
-      event_type: 'deliverable.updated'
+      event_type: 'deliverables.item.updated'
     })
   | (DomainEventEnvelope<StageApprovedWSPayload> & {
       event_type: 'stage.approved'
@@ -250,8 +250,8 @@ export type DomainWsEvent =
       event_type: 'stage.opened'
     })
   | (DomainEventEnvelope<CampaignConfigurationUpdatedPayload> & {
-      event_type: 'campaign.configuration.updated'
+      event_type: 'campaigns.configuration.updated'
     })
   | (DomainEventEnvelope<CampaignConfigurationActivatedPayload> & {
-      event_type: 'campaign.configuration.activated'
+      event_type: 'campaigns.configuration.activated'
     })

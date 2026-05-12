@@ -97,7 +97,7 @@ describe('createWsHandlers', () => {
     mockTrackDeliverableTotalRounds.mockClear()
   })
 
-  describe('draft.submitted', () => {
+  describe('deliverables.draft.submitted', () => {
     it('invalidates conversation deliverables and messages', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
       const payload: DraftSubmittedWSPayload = {
@@ -125,9 +125,9 @@ describe('createWsHandlers', () => {
           submitted_by_account_id: 'acc-1',
         },
       }
-      const envelope = makeEnvelope('draft.submitted', payload)
+      const envelope = makeEnvelope('deliverables.draft.submitted', payload)
 
-      handlers['draft.submitted']!(envelope)
+      handlers['deliverables.draft.submitted']!(envelope)
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversation-deliverables', 'conv-1'],
@@ -185,7 +185,9 @@ describe('createWsHandlers', () => {
         },
       }
 
-      handlers['draft.submitted']!(makeEnvelope('draft.submitted', payload))
+      handlers['deliverables.draft.submitted']!(
+        makeEnvelope('deliverables.draft.submitted', payload),
+      )
 
       expect(mockTrackTimeToResolveRound).toHaveBeenCalledWith({
         deliverable_index: 1,
@@ -196,7 +198,7 @@ describe('createWsHandlers', () => {
     })
   })
 
-  describe('draft.approved', () => {
+  describe('deliverables.draft.approved', () => {
     it('invalidates conversation deliverables and messages', () => {
       const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
       const payload: DraftApprovedWSPayload = {
@@ -217,9 +219,9 @@ describe('createWsHandlers', () => {
           approved_by_account_id: 'acc-1',
         },
       }
-      const envelope = makeEnvelope('draft.approved', payload)
+      const envelope = makeEnvelope('deliverables.draft.approved', payload)
 
-      handlers['draft.approved']!(envelope)
+      handlers['deliverables.draft.approved']!(envelope)
 
       expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: ['conversation-deliverables', 'conv-1'],
@@ -269,7 +271,9 @@ describe('createWsHandlers', () => {
         },
       }
 
-      handlers['draft.approved']!(makeEnvelope('draft.approved', payload))
+      handlers['deliverables.draft.approved']!(
+        makeEnvelope('deliverables.draft.approved', payload),
+      )
 
       expect(mockTrackTimeToResolveRound).toHaveBeenCalledWith({
         deliverable_index: 0,
@@ -285,7 +289,7 @@ describe('createWsHandlers', () => {
     })
   })
 
-  describe('deliverable.changed', () => {
+  describe('deliverables.item.changed', () => {
     it('merges updated deliverable into cached array', () => {
       const deliverable = makeDeliverable({
         status: 'draft_submitted',
@@ -303,9 +307,9 @@ describe('createWsHandlers', () => {
         conversation_id: 'conv-1',
         deliverable,
       }
-      const envelope = makeEnvelope('deliverable.changed', payload)
+      const envelope = makeEnvelope('deliverables.item.changed', payload)
 
-      handlers['deliverable.changed']!(envelope)
+      handlers['deliverables.item.changed']!(envelope)
 
       const result = queryClient.getQueryData<ConversationDeliverablesResponse>(
         ['conversation-deliverables', 'conv-1'],
@@ -323,8 +327,8 @@ describe('createWsHandlers', () => {
         deliverable,
       }
 
-      handlers['deliverable.updated']!(
-        makeEnvelope('deliverable.updated', payload),
+      handlers['deliverables.item.updated']!(
+        makeEnvelope('deliverables.item.updated', payload),
       )
 
       expect(
@@ -354,8 +358,8 @@ describe('createWsHandlers', () => {
         }),
       }
 
-      handlers['deliverable.updated']!(
-        makeEnvelope('deliverable.updated', payload),
+      handlers['deliverables.item.updated']!(
+        makeEnvelope('deliverables.item.updated', payload),
       )
 
       expect(onChange).not.toHaveBeenCalled()
@@ -388,8 +392,8 @@ describe('createWsHandlers', () => {
         }),
       }
 
-      handlers['deliverable.updated']!(
-        makeEnvelope('deliverable.updated', payload),
+      handlers['deliverables.item.updated']!(
+        makeEnvelope('deliverables.item.updated', payload),
       )
 
       const result = queryClient.getQueryData<{
@@ -415,8 +419,8 @@ describe('createWsHandlers', () => {
         current_link: makeLink({ id: 'link-2' }),
       }
 
-      handlers['deliverable.updated']!(
-        makeEnvelope('deliverable.updated', payload),
+      handlers['deliverables.item.updated']!(
+        makeEnvelope('deliverables.item.updated', payload),
       )
 
       const result = queryClient.getQueryData<{
@@ -432,9 +436,11 @@ describe('createWsHandlers', () => {
         conversation_id: 'conv-1',
         deliverable: makeDeliverable(),
       }
-      const envelope = makeEnvelope('deliverable.changed', payload)
+      const envelope = makeEnvelope('deliverables.item.changed', payload)
 
-      expect(() => handlers['deliverable.changed']!(envelope)).not.toThrow()
+      expect(() =>
+        handlers['deliverables.item.changed']!(envelope),
+      ).not.toThrow()
       const result = queryClient.getQueryData([
         'conversation-deliverables',
         'conv-1',
@@ -754,12 +760,12 @@ describe('createWsHandlers', () => {
         updated_at: '2024-01-01T00:01:00Z',
       })
       const envelope = makeEnvelope<DeliverableChangedWSPayload>(
-        'deliverable.changed',
+        'deliverables.item.changed',
         { conversation_id: 'conv-1', deliverable },
       )
 
-      h1['deliverable.changed']!(envelope)
-      h2['deliverable.changed']!(envelope)
+      h1['deliverables.item.changed']!(envelope)
+      h2['deliverables.item.changed']!(envelope)
 
       expect(
         qc1.getQueryData<ConversationDeliverablesResponse>([

@@ -10,15 +10,13 @@ import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
 import type { OfferStatus } from '#/features/offers/types'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
-import type {
-  ConversationOfferDTO,
-  OfferStageDTO,
-} from '../hooks/useConversationOffers'
+import type { OfferDTO } from '../hooks/useConversationOffers'
+import type { OfferStageDTO } from '#/shared/api/generated/model'
 import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
 
 interface OfferDeliverablesListProps {
-  offer: ConversationOfferDTO
+  offer: OfferDTO
   deliverables: DeliverableDTO[]
   stages: StageDTO[]
   sessionKind: 'brand' | 'creator'
@@ -87,17 +85,17 @@ function MultistageList({
   // Asume que ambos endpoints devuelven stages ordenados por `position` y con
   // la misma cardinalidad. Cuando marz-api agregue `id` a OfferStageDTO, este
   // join se vuelve un Map<id, StageDTO> de 2 líneas.
-  const stagesByIndex: (StageDTO | undefined)[] = (
-    offer.type === 'multistage' ? offer.stages : []
-  ).map((_, i) => stages[i])
+  // RAFITA:BLOCKER currency no expuesto en OfferDTO — asumir USD hasta que backend lo agregue
+  const currency = 'USD'
+  const offerStages = offer.type === 'multistage' ? offer.stages : []
+  const stagesByIndex: (StageDTO | undefined)[] = offerStages.map(
+    (_, i) => stages[i],
+  )
 
   const deliverableById = new Map(deliverables.map((d) => [d.id, d]))
 
   const [openMap, setOpenMap] = useState<boolean[]>(() =>
-    getDefaultExpanded(
-      offer.type === 'multistage' ? offer.stages : [],
-      offer.status,
-    ),
+    getDefaultExpanded(offerStages, offer.status as OfferStatus),
   )
 
   if (offer.type !== 'multistage') return null
@@ -137,7 +135,7 @@ function MultistageList({
             <StageGroup
               key={i}
               stage={stage}
-              currency={offer.currency}
+              currency={currency}
               isOpen={isOpen}
               onToggle={() => handleToggle(i)}
               deliverables={stageDeliverables}
@@ -167,10 +165,9 @@ interface StageGroupProps {
   onSubmitLink?: (deliverableId: string, isResubmission: boolean) => void
 }
 
-const stageBadge: Record<
-  OfferStageDTO['status'],
-  { label: string; className: string }
-> = {
+type StageStatus = NonNullable<OfferStageDTO['status']>
+
+const stageBadge: Record<StageStatus, { label: string; className: string }> = {
   locked: { label: t`Upcoming`, className: 'bg-muted text-foreground' },
   open: { label: t`Open`, className: 'bg-info text-info-foreground' },
   approved: {
@@ -191,8 +188,9 @@ function StageGroup({
   onMarkAsPaid,
   onSubmitLink,
 }: StageGroupProps) {
-  const badge = stageBadge[stage.status]
-  const isLocked = stage.status === 'locked'
+  const stageStatus: StageStatus = stage.status ?? 'locked'
+  const badge = stageBadge[stageStatus]
+  const isLocked = stageStatus === 'locked'
 
   return (
     <div
@@ -242,13 +240,7 @@ function StageGroup({
                 <DeliverableListItem
                   key={d.id}
                   deliverable={d}
-                  stageStatus={
-                    stage.status === 'approved'
-                      ? 'approved'
-                      : stage.status === 'locked'
-                        ? 'locked'
-                        : 'open'
-                  }
+                  stageStatus={stageStatus}
                   sessionKind={sessionKind}
                   viewerRole={viewerRole}
                   onUploadDraft={onUploadDraft}
@@ -270,7 +262,7 @@ function getDefaultExpanded(
 ): boolean[] {
   const expanded = stages.map(() => false)
   if (offerStatus === 'sent') {
-    const i = stages.findIndex((s) => s.status !== 'approved')
+    const i = stages.findIndex((s) => (s.status ?? 'locked') !== 'approved')
     if (i !== -1) expanded[i] = true
   } else if (offerStatus === 'accepted') {
     const i = stages.findIndex((s) => s.status === 'open')

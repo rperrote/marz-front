@@ -23,7 +23,6 @@ import { MessageTimeline } from './MessageTimeline'
 import { MessageComposer } from './MessageComposer'
 import { NewMessagesPill } from './NewMessagesPill'
 import { TypingIndicator } from './TypingIndicator'
-import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 
 interface ConversationViewProps {
@@ -31,8 +30,6 @@ interface ConversationViewProps {
   currentAccountId: string
   sessionKind: 'brand' | 'creator' | undefined
   viewerRole?: MarkAsPaidViewerRole
-  canSendOffer?: CanSendOfferMeta
-  onSendOffer?: () => void
   onMarkAsPaid?: (deliverableId: string) => void
   highlightPaymentId?: string
 }
@@ -42,8 +39,6 @@ export function ConversationView({
   currentAccountId,
   sessionKind,
   viewerRole,
-  canSendOffer,
-  onSendOffer,
   onMarkAsPaid,
   highlightPaymentId,
 }: ConversationViewProps) {
@@ -173,11 +168,7 @@ export function ConversationView({
 
   return (
     <div className="flex h-full flex-col">
-      <ConversationHeader
-        conversation={conversation}
-        canSendOffer={canSendOffer}
-        onSendOffer={onSendOffer}
-      />
+      <ConversationHeader conversation={conversation} />
 
       <div className="relative flex flex-1 flex-col overflow-hidden">
         <MessageTimeline

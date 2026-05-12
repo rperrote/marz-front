@@ -21,6 +21,7 @@ import {
   multiStageEditorBaseSchema,
   multiStageEditorSubmitSchema,
 } from '../schemas/multiStageEditor'
+import { deadlineToRFC3339 } from '../utils/formatOffer'
 
 export const defaultValues = {
   campaign_id: '',
@@ -77,7 +78,7 @@ export function MultiStageEditor({
           position: index + 1,
           name: s.name,
           description: s.description,
-          deadline: s.deadline,
+          deadline: deadlineToRFC3339(s.deadline),
           amount: s.amount,
         })),
       }

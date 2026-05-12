@@ -41,7 +41,6 @@ import {
 import { ThemeToggle } from '#/components/ThemeToggle'
 import { CampaignMiniCard } from '#/features/campaigns/components/CampaignMiniCard'
 import { CampaignWorkspaceTabs } from '#/features/campaigns/components/CampaignWorkspaceTabs'
-import { ChatHeaderActions } from '#/features/chat/components/ChatHeaderActions'
 import { ChatRailItem } from '#/features/chat/components/ChatRailItem'
 import { EventBubble } from '#/features/chat/components/EventBubble'
 import {
@@ -642,14 +641,6 @@ function ReusableSection() {
             online
           />
         </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup title="Chat · header actions" context="features/chat">
-        <ChatHeaderActions
-          conversationId="ds-conv-1"
-          canSendOffer={{ visible: true, disabled: false }}
-          onSendOffer={() => {}}
-        />
       </ShowcaseGroup>
 
       <ShowcaseGroup title="Shell · sidebar" context="features/identity">

@@ -117,9 +117,9 @@ describe('useCampaignTopicSubscription', () => {
     })
 
     act(() => {
-      mockWsHandlers['campaign.discovery.updated']?.({
+      mockWsHandlers['campaigns.discovery.updated']?.({
         event_id: 'event-1',
-        event_type: 'campaign.discovery.updated',
+        event_type: 'campaigns.discovery.updated',
         schema_version: 'v1',
         aggregate_id: 'campaign-1',
         aggregate_type: 'campaign',
@@ -174,7 +174,7 @@ describe('useCampaignTopicSubscription', () => {
 
     const event = {
       event_id: 'event-1',
-      event_type: 'campaign.discovery.updated',
+      event_type: 'campaigns.discovery.updated',
       schema_version: 'v1',
       aggregate_id: 'campaign-1',
       aggregate_type: 'campaign',
@@ -186,8 +186,8 @@ describe('useCampaignTopicSubscription', () => {
     }
 
     act(() => {
-      mockWsHandlers['campaign.discovery.updated']?.(event)
-      mockWsHandlers['campaign.discovery.updated']?.({
+      mockWsHandlers['campaigns.discovery.updated']?.(event)
+      mockWsHandlers['campaigns.discovery.updated']?.({
         ...event,
         payload: {
           campaign_id: 'campaign-1',
@@ -245,9 +245,9 @@ describe('useCampaignTopicSubscription', () => {
     })
 
     act(() => {
-      mockWsHandlers['campaign.activity.created']?.({
+      mockWsHandlers['campaigns.activity.created']?.({
         event_id: 'event-1',
-        event_type: 'campaign.activity.created',
+        event_type: 'campaigns.activity.created',
         schema_version: 'v1',
         aggregate_id: 'campaign-1',
         aggregate_type: 'campaign',

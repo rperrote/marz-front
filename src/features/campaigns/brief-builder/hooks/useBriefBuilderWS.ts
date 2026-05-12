@@ -145,9 +145,9 @@ export function useBriefBuilderWS(
   const ws = useWebSocket({
     enabled: processingToken != null,
     handlers: {
-      'brief.processing.step_completed': handleStepCompleted,
-      'brief.processing.completed': handleCompleted,
-      'brief.processing.failed': handleFailed,
+      'campaigns.brief.processing.step_completed': handleStepCompleted,
+      'campaigns.brief.processing.completed': handleCompleted,
+      'campaigns.brief.processing.failed': handleFailed,
     },
   })
 

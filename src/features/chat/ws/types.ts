@@ -8,11 +8,11 @@ import type {
 } from '#/shared/ws/types'
 
 export type ChatEventType =
-  | 'message.created'
-  | 'message.read.batch'
-  | 'typing.started'
-  | 'typing.stopped'
-  | 'presence.updated'
+  | 'chat.message.created'
+  | 'chat.message.read.batch'
+  | 'chat.typing.started'
+  | 'chat.typing.stopped'
+  | 'identity.presence.updated'
 
 export interface ChatWsHandlers {
   onMessageCreated?: (

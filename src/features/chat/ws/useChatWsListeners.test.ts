@@ -101,8 +101,8 @@ describe('useChatWsListeners', () => {
     }
 
     act(() => {
-      mockWsHandlers['message.created']!(
-        makeEnvelope('message.created', payload),
+      mockWsHandlers['chat.message.created']!(
+        makeEnvelope('chat.message.created', payload),
       )
     })
 
@@ -130,8 +130,8 @@ describe('useChatWsListeners', () => {
     }
 
     act(() => {
-      mockWsHandlers['message.read.batch']!(
-        makeEnvelope('message.read.batch', payload),
+      mockWsHandlers['chat.message.read.batch']!(
+        makeEnvelope('chat.message.read.batch', payload),
       )
     })
 
@@ -159,7 +159,9 @@ describe('useChatWsListeners', () => {
     }
 
     act(() => {
-      mockWsHandlers['typing.started']!(makeEnvelope('typing.started', payload))
+      mockWsHandlers['chat.typing.started']!(
+        makeEnvelope('chat.typing.started', payload),
+      )
     })
 
     expect(onTypingStarted).toHaveBeenCalledTimes(1)
@@ -185,7 +187,9 @@ describe('useChatWsListeners', () => {
     }
 
     act(() => {
-      mockWsHandlers['typing.stopped']!(makeEnvelope('typing.stopped', payload))
+      mockWsHandlers['chat.typing.stopped']!(
+        makeEnvelope('chat.typing.stopped', payload),
+      )
     })
 
     expect(onTypingStopped).toHaveBeenCalledTimes(1)
@@ -213,8 +217,8 @@ describe('useChatWsListeners', () => {
     }
 
     act(() => {
-      mockWsHandlers['presence.updated']!(
-        makeEnvelope('presence.updated', payload),
+      mockWsHandlers['identity.presence.updated']!(
+        makeEnvelope('identity.presence.updated', payload),
       )
     })
 
@@ -246,8 +250,8 @@ describe('useChatWsListeners', () => {
     }
 
     act(() => {
-      mockWsHandlers['message.created']!(
-        makeEnvelope('message.created', payload),
+      mockWsHandlers['chat.message.created']!(
+        makeEnvelope('chat.message.created', payload),
       )
     })
 

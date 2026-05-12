@@ -50,10 +50,10 @@ export interface CampaignConfigurationActivatedPayload {
 
 export type CampaignConfigurationUpdatedEvent =
   DomainEventEnvelope<CampaignConfigurationUpdatedPayload> & {
-    event_type: 'campaign.configuration.updated'
+    event_type: 'campaigns.configuration.updated'
   }
 
 export type CampaignConfigurationActivatedEvent =
   DomainEventEnvelope<CampaignConfigurationActivatedPayload> & {
-    event_type: 'campaign.configuration.activated'
+    event_type: 'campaigns.configuration.activated'
   }

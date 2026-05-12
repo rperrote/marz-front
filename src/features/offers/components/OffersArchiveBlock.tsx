@@ -3,13 +3,13 @@ import { Archive } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
-import type { ArchiveOfferItem } from '#/features/offers/hooks/useConversationOffers'
+import type { ArchivedOfferItem } from '#/features/offers/hooks/useConversationOffers'
 import { OfferArchiveItem } from './OfferArchiveItem'
 import { trackOfferEvent, toArchiveSizeBucket } from '../analytics'
 import type { ActorKind } from '../analytics'
 
 interface OffersArchiveBlockProps {
-  items: ArchiveOfferItem[]
+  items: ArchivedOfferItem[]
   nextCursor: string | null
   onLoadMore?: () => void
   isLoadingMore?: boolean
@@ -73,7 +73,7 @@ export function OffersArchiveBlock({
         <div className="mt-2">
           <ul className="space-y-1" role="list">
             {items.map((item) => (
-              <OfferArchiveItem key={item.id} item={item} />
+              <OfferArchiveItem key={item.offer.id} item={item} />
             ))}
           </ul>
           {nextCursor ? (

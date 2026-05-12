@@ -60,7 +60,7 @@ export function createWsHandlers(
   }
 
   return {
-    'draft.submitted': (envelope) => {
+    'deliverables.draft.submitted': (envelope) => {
       const payload = (envelope as DomainEventEnvelope<DraftSubmittedWSPayload>)
         .payload
       const deliverableAnalytics = getCachedDeliverableAnalytics(
@@ -88,7 +88,7 @@ export function createWsHandlers(
       })
     },
 
-    'draft.approved': (envelope) => {
+    'deliverables.draft.approved': (envelope) => {
       const payload = (envelope as DomainEventEnvelope<DraftApprovedWSPayload>)
         .payload
       const deliverableAnalytics = getCachedDeliverableAnalytics(
@@ -151,9 +151,9 @@ export function createWsHandlers(
       })
     },
 
-    'deliverable.changed': handleDeliverableUpdated,
+    'deliverables.item.changed': handleDeliverableUpdated,
 
-    'deliverable.updated': handleDeliverableUpdated,
+    'deliverables.item.updated': handleDeliverableUpdated,
 
     'stage.approved': (envelope) => {
       const payload = (envelope as DomainEventEnvelope<StageApprovedWSPayload>)

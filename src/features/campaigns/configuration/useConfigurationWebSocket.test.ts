@@ -139,8 +139,8 @@ describe('createCampaignConfigurationWsHandlers', () => {
       navigateToCampaign,
     })
 
-    handlers['campaign.configuration.updated']!(
-      makeEnvelope('campaign.configuration.updated', makeUpdatedPayload()),
+    handlers['campaigns.configuration.updated']!(
+      makeEnvelope('campaigns.configuration.updated', makeUpdatedPayload()),
     )
 
     const nextConfig = queryClient.getQueryData<CampaignConfiguration>(queryKey)
@@ -167,9 +167,9 @@ describe('createCampaignConfigurationWsHandlers', () => {
       navigateToCampaign,
     })
 
-    handlers['campaign.configuration.updated']!(
+    handlers['campaigns.configuration.updated']!(
       makeEnvelope(
-        'campaign.configuration.updated',
+        'campaigns.configuration.updated',
         makeUpdatedPayload({ configuration_version: 3 }),
       ),
     )
@@ -199,8 +199,8 @@ describe('createCampaignConfigurationWsHandlers', () => {
       plan_allows_automatic_matching: true,
     }
 
-    handlers['campaign.configuration.activated']!(
-      makeEnvelope('campaign.configuration.activated', payload),
+    handlers['campaigns.configuration.activated']!(
+      makeEnvelope('campaigns.configuration.activated', payload),
     )
 
     expect(invalidateSpy).toHaveBeenCalledWith({

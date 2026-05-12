@@ -1,5 +1,9 @@
 import { t } from '@lingui/core/macro'
 
+export function deadlineToRFC3339(deadline: string): string {
+  return `${deadline}T00:00:00Z`
+}
+
 export function formatOfferDeadline(deadline: string): string {
   const date = new Date(deadline + 'T00:00:00')
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })

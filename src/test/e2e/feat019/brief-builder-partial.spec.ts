@@ -22,7 +22,7 @@ test('P2 advances to P3 when backend emits partial with empty brief', async ({
           event_type?: string
           payload?: { status?: string; fields_filled_count?: number }
         }
-        if (parsed.event_type === 'brief.processing.completed') {
+        if (parsed.event_type === 'campaigns.brief.processing.completed') {
           completedFrames.push({
             status: parsed.payload?.status,
             fields_filled_count: parsed.payload?.fields_filled_count,

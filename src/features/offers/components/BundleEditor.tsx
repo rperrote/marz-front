@@ -12,6 +12,7 @@ import { ApiError } from '#/shared/api/mutator'
 import { useSendOfferSheetStore } from '../store/sendOfferSheetStore'
 import { useCreateBundleOffer } from '../hooks/useCreateBundleOffer'
 import { todayString } from '../utils/dateUtils'
+import { deadlineToRFC3339 } from '../utils/formatOffer'
 import { BonusTermsFields, BonusWindowRow } from './BonusTermsFields'
 import { DeliverableSummaryRow } from './DeliverableSummaryRow'
 import { BundlePlatformRow } from './BundlePlatformRow'
@@ -104,7 +105,7 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
         campaign_id: value.campaign_id,
         conversation_id: conversationId,
         amount: value.total_amount,
-        deadline: value.deadline,
+        deadline: deadlineToRFC3339(value.deadline),
         bonus_terms:
           value.bonus_terms.speed_bonus_windows.length > 0
             ? sortBonusTerms(value.bonus_terms)

@@ -26,7 +26,7 @@ export function useWorkspaceRailSubscription({
 
   const { status, send } = useWebSocket({
     handlers: {
-      'conversation.activity_updated': ((envelope) => {
+      'chat.conversation.activity_updated': ((envelope) => {
         const typed =
           envelope as DomainEventEnvelope<ConversationActivityPayload>
         if (typeof typed.payload.conversation_id !== 'string') return

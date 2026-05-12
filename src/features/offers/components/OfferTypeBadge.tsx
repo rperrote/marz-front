@@ -1,9 +1,9 @@
 import { t } from '@lingui/core/macro'
 
 import { Badge } from '#/components/ui/badge'
-import type { ArchiveOfferItem } from '#/features/offers/hooks/useConversationOffers'
+import type { ArchivedOfferItem } from '#/features/offers/hooks/useConversationOffers'
 
-type OfferArchiveType = ArchiveOfferItem['type']
+type OfferArchiveType = ArchivedOfferItem['type']
 
 const offerTypeLabels: Record<OfferArchiveType, string> = {
   single: t`Single`,

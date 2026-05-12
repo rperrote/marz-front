@@ -6,6 +6,7 @@ import { useConversationOffersPaginated } from '#/features/offers/hooks/useConve
 import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
 import { useMe } from '#/shared/api/generated/accounts/accounts'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
+import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 import { CurrentOfferBlock } from './CurrentOfferBlock'
 import { OffersArchiveBlock } from './OffersArchiveBlock'
 
@@ -17,6 +18,8 @@ interface ConversationOffersPanelProps {
   onMarkAsPaid?: (deliverableId: string) => void
   onSubmitLink?: (deliverableId: string, isResubmission: boolean) => void
   headerSlot?: ReactNode
+  canSendOffer?: CanSendOfferMeta
+  onSendOffer?: () => void
 }
 
 export function ConversationOffersPanel({
@@ -27,6 +30,8 @@ export function ConversationOffersPanel({
   onMarkAsPaid,
   onSubmitLink,
   headerSlot = null,
+  canSendOffer,
+  onSendOffer,
 }: ConversationOffersPanelProps) {
   const {
     current,
@@ -60,6 +65,8 @@ export function ConversationOffersPanel({
             onUploadDraft={onUploadDraft}
             onMarkAsPaid={onMarkAsPaid}
             onSubmitLink={onSubmitLink}
+            canSendOffer={canSendOffer}
+            onSendOffer={onSendOffer}
           />
         ) : null
       }

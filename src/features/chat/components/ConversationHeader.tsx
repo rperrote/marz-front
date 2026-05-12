@@ -4,21 +4,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { TooltipProvider } from '#/components/ui/tooltip'
 import type { ConversationDetail } from '#/features/chat/types'
 
-import { ChatHeaderActions } from './ChatHeaderActions'
 import { PresenceBadge } from './PresenceBadge'
-import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 
 interface ConversationHeaderProps {
   conversation: ConversationDetail
-  canSendOffer?: CanSendOfferMeta
-  onSendOffer?: () => void
 }
 
-export function ConversationHeader({
-  conversation,
-  canSendOffer,
-  onSendOffer,
-}: ConversationHeaderProps) {
+export function ConversationHeader({ conversation }: ConversationHeaderProps) {
   const { counterpart } = conversation
   const fallback = counterpart.display_name.charAt(0).toUpperCase()
 
@@ -51,12 +43,6 @@ export function ConversationHeader({
           </div>
           <PresenceBadge accountId={counterpart.id} />
         </div>
-
-        <ChatHeaderActions
-          conversationId={conversation.id}
-          canSendOffer={canSendOffer}
-          onSendOffer={onSendOffer}
-        />
       </header>
     </TooltipProvider>
   )

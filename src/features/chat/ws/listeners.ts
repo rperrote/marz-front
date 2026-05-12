@@ -37,23 +37,23 @@ export function buildChatHandlers(
   handlers: ChatWsHandlers,
 ): Partial<Record<ChatEventTypes, EventHandler>> {
   return {
-    'message.created': makeConversationGuard<MessageCreatedPayload>(
+    'chat.message.created': makeConversationGuard<MessageCreatedPayload>(
       conversationId,
       handlers.onMessageCreated,
     ),
-    'message.read.batch': makeConversationGuard<MessageReadBatchPayload>(
+    'chat.message.read.batch': makeConversationGuard<MessageReadBatchPayload>(
       conversationId,
       handlers.onMessageReadBatch,
     ),
-    'typing.started': makeConversationGuard<TypingStartedPayload>(
+    'chat.typing.started': makeConversationGuard<TypingStartedPayload>(
       conversationId,
       handlers.onTypingStarted,
     ),
-    'typing.stopped': makeConversationGuard<TypingStoppedPayload>(
+    'chat.typing.stopped': makeConversationGuard<TypingStoppedPayload>(
       conversationId,
       handlers.onTypingStopped,
     ),
-    'presence.updated': makeConversationGuard<PresenceUpdatedPayload>(
+    'identity.presence.updated': makeConversationGuard<PresenceUpdatedPayload>(
       conversationId,
       handlers.onPresenceUpdated,
     ),

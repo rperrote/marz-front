@@ -16,10 +16,10 @@ import { campaignOverviewQueryKey } from './useCampaignOverviewQuery'
 
 const MAX_SEEN_EVENTS = 200
 const CAMPAIGN_EVENT_TYPES = {
-  discoveryUpdated: 'campaign.discovery.updated',
-  participantsUpdated: 'campaign.participants.updated',
-  videosUpdated: 'campaign.videos.updated',
-  activityCreated: 'campaign.activity.created',
+  discoveryUpdated: 'campaigns.discovery.updated',
+  participantsUpdated: 'campaigns.participants.updated',
+  videosUpdated: 'campaigns.videos.updated',
+  activityCreated: 'campaigns.activity.created',
 } as const
 
 function getCampaignDiscoveryQueryKey(

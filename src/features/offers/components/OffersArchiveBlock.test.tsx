@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 
 import { OffersArchiveBlock } from './OffersArchiveBlock'
-import type { ArchiveOfferItem } from '#/features/offers/hooks/useConversationOffers'
+import type { ArchivedOfferItem } from '#/features/offers/hooks/useConversationOffers'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -14,27 +14,40 @@ vi.mock('@lingui/core/macro', () => ({
   ),
 }))
 
-const sentArchiveItem: ArchiveOfferItem = {
-  id: 'offer-1',
-  type: 'bundle',
-  status: 'sent',
-  total_amount: '2800.00',
-  currency: 'USD',
-  sent_at: '2024-09-14T12:00:00Z',
-  campaign_name: 'Q3 Campaign',
+function makeItem(
+  id: string,
+  type: ArchivedOfferItem['type'],
+  status: 'sent' | 'accepted' | 'rejected' | 'expired',
+  amount = '2800.00',
+): ArchivedOfferItem {
+  return {
+    type,
+    offer: {
+      id,
+      campaign_id: 'campaign-1',
+      brand_workspace_id: 'ws-1',
+      creator_account_id: 'creator-1',
+      created_by_account_id: 'creator-1',
+      type,
+      status,
+      amount,
+      bonus_terms: null,
+      deadline: null,
+      expires_at: '2024-09-21T12:00:00Z',
+      description: '',
+      deliverable: { platform: 'youtube', format: 'yt_long' },
+      created_at: '2024-09-14T12:00:00Z',
+      updated_at: '2024-09-14T12:00:00Z',
+      sent_at: '2024-09-14T12:00:00Z',
+      deliverables: [],
+      stages: [],
+    },
+  }
 }
 
-const archiveItems: ArchiveOfferItem[] = [
-  sentArchiveItem,
-  {
-    id: 'offer-2',
-    type: 'multistage',
-    status: 'accepted',
-    total_amount: '3200.00',
-    currency: 'USD',
-    sent_at: '2024-07-02T12:00:00Z',
-    campaign_name: 'Q2 Campaign',
-  },
+const archiveItems: ArchivedOfferItem[] = [
+  makeItem('offer-1-aaaaaaaa', 'bundle', 'sent'),
+  makeItem('offer-2-bbbbbbbb', 'multistage', 'accepted', '3200.00'),
 ]
 
 describe('OffersArchiveBlock', () => {
@@ -54,7 +67,7 @@ describe('OffersArchiveBlock', () => {
       />,
     )
     expect(screen.getByText('2')).toBeInTheDocument()
-    expect(screen.queryByText('#offer-1')).not.toBeInTheDocument()
+    expect(screen.queryByText('#offer-1-')).not.toBeInTheDocument()
   })
 
   it('expands on click and shows items', async () => {
@@ -67,8 +80,8 @@ describe('OffersArchiveBlock', () => {
       />,
     )
     await user.click(screen.getByRole('button', { expanded: false }))
-    expect(screen.getByText('#offer-1')).toBeInTheDocument()
-    expect(screen.getByText('#offer-2')).toBeInTheDocument()
+    expect(screen.getByText('#offer-1-')).toBeInTheDocument()
+    expect(screen.getByText('#offer-2-')).toBeInTheDocument()
   })
 
   it('shows pending badge for past sent offers', async () => {
@@ -104,8 +117,8 @@ describe('OffersArchiveBlock', () => {
     render(
       <OffersArchiveBlock
         items={[
-          { ...sentArchiveItem, id: 'offer-bundle', type: 'bundle' },
-          { ...sentArchiveItem, id: 'offer-single', type: 'single' },
+          makeItem('offer-bundle-aaaaaaaa', 'bundle', 'sent'),
+          makeItem('offer-single-bbbbbbbb', 'single', 'sent'),
         ]}
         nextCursor={null}
         actorKind="brand"

@@ -116,9 +116,9 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.step_completed']!(
+      capturedOptions.handlers['campaigns.brief.processing.step_completed']!(
         envelope<BriefProcessingStepCompleted>(
-          'brief.processing.step_completed',
+          'campaigns.brief.processing.step_completed',
           {
             processing_token: TOKEN,
             step: 1,
@@ -141,9 +141,9 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.step_completed']!(
+      capturedOptions.handlers['campaigns.brief.processing.step_completed']!(
         envelope<BriefProcessingStepCompleted>(
-          'brief.processing.step_completed',
+          'campaigns.brief.processing.step_completed',
           {
             processing_token: TOKEN,
             step: 2,
@@ -167,9 +167,9 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.step_completed']!(
+      capturedOptions.handlers['campaigns.brief.processing.step_completed']!(
         envelope<BriefProcessingStepCompleted>(
-          'brief.processing.step_completed',
+          'campaigns.brief.processing.step_completed',
           {
             processing_token: OTHER_TOKEN,
             step: 1,
@@ -191,15 +191,18 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.completed']!(
-        envelope<BriefProcessingCompleted>('brief.processing.completed', {
-          processing_token: TOKEN,
-          status: 'completed',
-          brief_draft: MOCK_DRAFT,
-          fields_filled_count: 6,
-          fields_empty_count: 0,
-          processing_sec: 12.5,
-        }) as DomainEventEnvelope,
+      capturedOptions.handlers['campaigns.brief.processing.completed']!(
+        envelope<BriefProcessingCompleted>(
+          'campaigns.brief.processing.completed',
+          {
+            processing_token: TOKEN,
+            status: 'completed',
+            brief_draft: MOCK_DRAFT,
+            fields_filled_count: 6,
+            fields_empty_count: 0,
+            processing_sec: 12.5,
+          },
+        ) as DomainEventEnvelope,
       )
     })
 
@@ -211,15 +214,18 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.completed']!(
-        envelope<BriefProcessingCompleted>('brief.processing.completed', {
-          processing_token: OTHER_TOKEN,
-          status: 'completed',
-          brief_draft: MOCK_DRAFT,
-          fields_filled_count: 6,
-          fields_empty_count: 0,
-          processing_sec: 12.5,
-        }) as DomainEventEnvelope,
+      capturedOptions.handlers['campaigns.brief.processing.completed']!(
+        envelope<BriefProcessingCompleted>(
+          'campaigns.brief.processing.completed',
+          {
+            processing_token: OTHER_TOKEN,
+            status: 'completed',
+            brief_draft: MOCK_DRAFT,
+            fields_filled_count: 6,
+            fields_empty_count: 0,
+            processing_sec: 12.5,
+          },
+        ) as DomainEventEnvelope,
       )
     })
 
@@ -231,8 +237,8 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.failed']!(
-        envelope<BriefProcessingFailed>('brief.processing.failed', {
+      capturedOptions.handlers['campaigns.brief.processing.failed']!(
+        envelope<BriefProcessingFailed>('campaigns.brief.processing.failed', {
           processing_token: TOKEN,
           error_code: 'ai_timeout',
           error_message: 'AI service timed out',
@@ -251,8 +257,8 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.failed']!(
-        envelope<BriefProcessingFailed>('brief.processing.failed', {
+      capturedOptions.handlers['campaigns.brief.processing.failed']!(
+        envelope<BriefProcessingFailed>('campaigns.brief.processing.failed', {
           processing_token: OTHER_TOKEN,
           error_code: 'unknown',
           error_message: 'Something broke',
@@ -269,9 +275,9 @@ describe('useBriefBuilderWS', () => {
     const { result } = renderHook(() => useBriefBuilderWS(TOKEN))
 
     act(() => {
-      capturedOptions.handlers['brief.processing.step_completed']!(
+      capturedOptions.handlers['campaigns.brief.processing.step_completed']!(
         envelope<BriefProcessingStepCompleted>(
-          'brief.processing.step_completed',
+          'campaigns.brief.processing.step_completed',
           {
             processing_token: TOKEN,
             step: 1,
@@ -287,15 +293,18 @@ describe('useBriefBuilderWS', () => {
     })
 
     act(() => {
-      capturedOptions.handlers['brief.processing.completed']!(
-        envelope<BriefProcessingCompleted>('brief.processing.completed', {
-          processing_token: TOKEN,
-          status: 'completed',
-          brief_draft: MOCK_DRAFT,
-          fields_filled_count: 6,
-          fields_empty_count: 0,
-          processing_sec: 12.5,
-        }) as DomainEventEnvelope,
+      capturedOptions.handlers['campaigns.brief.processing.completed']!(
+        envelope<BriefProcessingCompleted>(
+          'campaigns.brief.processing.completed',
+          {
+            processing_token: TOKEN,
+            status: 'completed',
+            brief_draft: MOCK_DRAFT,
+            fields_filled_count: 6,
+            fields_empty_count: 0,
+            processing_sec: 12.5,
+          },
+        ) as DomainEventEnvelope,
       )
     })
 

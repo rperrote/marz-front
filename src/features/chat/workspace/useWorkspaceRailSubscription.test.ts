@@ -111,7 +111,7 @@ describe('useWorkspaceRailSubscription', () => {
       wrapper: createWrapper(queryClient),
     })
 
-    const handler = mockWsHandlers['conversation.activity_updated']
+    const handler = mockWsHandlers['chat.conversation.activity_updated']
     expect(handler).toBeDefined()
 
     const payload: ConversationActivityPayload = {
@@ -129,7 +129,7 @@ describe('useWorkspaceRailSubscription', () => {
     act(() => {
       handler!({
         event_id: 'evt-1',
-        event_type: 'conversation.activity_updated',
+        event_type: 'chat.conversation.activity_updated',
         schema_version: 'v1',
         aggregate_id: 'conv-1',
         aggregate_type: 'conversation',

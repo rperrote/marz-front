@@ -31,7 +31,7 @@ export function createCampaignConfigurationWsHandlers({
   navigateToCampaign,
 }: CampaignConfigurationWsHandlersOptions): Record<string, EventHandler> {
   return {
-    'campaign.configuration.updated': ((envelope) => {
+    'campaigns.configuration.updated': ((envelope) => {
       const typed = envelope as CampaignConfigurationUpdatedEvent
       const payload = typed.payload
       if (payload.campaign_id !== campaignId) return
@@ -59,7 +59,7 @@ export function createCampaignConfigurationWsHandlers({
       toast.info(t`La configuración cambió en otra sesión. Recargando.`)
     }) satisfies EventHandler,
 
-    'campaign.configuration.activated': ((envelope) => {
+    'campaigns.configuration.activated': ((envelope) => {
       const typed = envelope as CampaignConfigurationActivatedEvent
       const payload = typed.payload
       if (payload.campaign_id !== campaignId) return

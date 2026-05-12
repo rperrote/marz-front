@@ -45,7 +45,7 @@ function makeEnvelope(
 ): DomainEventEnvelope<MessageCreatedPayload> {
   return {
     event_id: 'evt-1',
-    event_type: 'message.created',
+    event_type: 'chat.message.created',
     schema_version: '1.0',
     aggregate_id: CONVERSATION_ID,
     aggregate_type: 'conversation',
@@ -62,7 +62,7 @@ function makeSystemEventEnvelope(overrides: {
 }): DomainEventEnvelope<MessageCreatedPayload> {
   return {
     event_id: 'evt-sys-1',
-    event_type: 'message.created',
+    event_type: 'chat.message.created',
     schema_version: '1.0',
     aggregate_id: CONVERSATION_ID,
     aggregate_type: 'conversation',

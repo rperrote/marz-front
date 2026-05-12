@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { t } from '@lingui/core/macro'
 import { z } from 'zod'
 
+import { ConversationContextHeader } from '#/features/chat/components/ConversationContextHeader'
 import { ConversationView } from '#/features/chat/components/ConversationView'
 import { useConversationDetailQuery } from '#/features/chat/queries'
 import { ConversationOffersPanel } from '#/features/offers/components/ConversationOffersPanel'
@@ -108,8 +109,6 @@ function ConversationRoute() {
           currentAccountId={accountId}
           sessionKind={sessionKind}
           viewerRole={viewerRole}
-          canSendOffer={isBrand ? canSendOffer : undefined}
-          onSendOffer={isBrand ? () => openSheet(conversationId) : undefined}
           onMarkAsPaid={setPaymentDeliverableId}
           highlightPaymentId={highlightPaymentId}
         />
@@ -121,6 +120,16 @@ function ConversationRoute() {
         onUploadDraft={setUploadDeliverableId}
         onMarkAsPaid={setPaymentDeliverableId}
         onSubmitLink={handleSubmitLink}
+        canSendOffer={isBrand ? canSendOffer : undefined}
+        onSendOffer={isBrand ? () => openSheet(conversationId) : undefined}
+        headerSlot={
+          conversationDetail.data ? (
+            <ConversationContextHeader
+              counterpart={conversationDetail.data.counterpart}
+              sessionKind={sessionKind}
+            />
+          ) : null
+        }
       />
       <MarkAsPaidSidesheet
         open={paymentDeliverableId !== null}
