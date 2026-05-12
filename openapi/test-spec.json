@@ -589,6 +589,26 @@
           },
           "seed_messages": {
             "$ref": "#/components/schemas/SeedMessagesInput"
+          },
+          "seed_offer_ready": {
+            "$ref": "#/components/schemas/SeedOfferReadyInput"
+          }
+        }
+      },
+      "SeedOfferReadyInput": {
+        "type": "object",
+        "required": ["campaign_name", "currency"],
+        "description": "When present, the endpoint also creates an active campaign in the\nbrand workspace plus an accepted application from the creator,\nleaving the (campaign_id, conversation_id) pair ready for an\nimmediate POST /v1/offers call.\n",
+        "properties": {
+          "campaign_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO-4217 3-letter currency code, uppercased."
           }
         }
       },
@@ -616,6 +636,11 @@
           "brand_workspace_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "campaign_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Only present when the request included seed_offer_ready."
           }
         }
       },

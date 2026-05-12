@@ -79,3 +79,33 @@ export function groupByDay(
 
   return items
 }
+
+export interface GroupedTimeline {
+  groups: { label: string; date: string }[]
+  groupCounts: number[]
+  messages: MessageItem[]
+}
+
+export function groupByDayGrouped(
+  messages: MessageItem[],
+  now?: Date,
+): GroupedTimeline {
+  const today = now ?? new Date()
+  const groups: { label: string; date: string }[] = []
+  const groupCounts: number[] = []
+  let currentDateStr = ''
+
+  for (const message of messages) {
+    const messageDate = new Date(message.created_at)
+    const dateStr = toLocalDateString(messageDate)
+
+    if (dateStr !== currentDateStr) {
+      currentDateStr = dateStr
+      groups.push({ label: formatDayLabel(messageDate, today), date: dateStr })
+      groupCounts.push(0)
+    }
+    groupCounts[groupCounts.length - 1]! += 1
+  }
+
+  return { groups, groupCounts, messages }
+}

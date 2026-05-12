@@ -15,6 +15,7 @@ import type {
   MeResponse,
   OnboardingStatus,
   SeedMessagesInput,
+  SeedOfferReadyInput,
 } from '#/shared/api/test-generated/model'
 
 const CLERK_SECRET = process.env.CLERK_SECRET_KEY
@@ -182,6 +183,7 @@ interface ChatPair {
   conversationId: string
   brandWorkspaceId: string
   deliverableId?: string
+  campaignId?: string
   brand: TestUser
   creator: TestUser
   brandPage: Page
@@ -252,7 +254,10 @@ async function createChatPair(
   browser: Browser,
   workerIndex: number,
   seedMessages?: SeedMessagesInput,
-  options?: { requireCompletedDeliverable?: boolean },
+  options?: {
+    requireCompletedDeliverable?: boolean
+    seedOfferReady?: SeedOfferReadyInput
+  },
 ): Promise<{ pair: ChatPair; cleanup: () => Promise<void> }> {
   const brand = new TestUser(
     `e2e_brand_${workerIndex}`,
@@ -284,6 +289,9 @@ async function createChatPair(
       brand_clerk_user_id: brand.clerkUserId,
       creator_clerk_user_id: creator.clerkUserId,
       ...(seedMessages ? { seed_messages: seedMessages } : {}),
+      ...(options?.seedOfferReady
+        ? { seed_offer_ready: options.seedOfferReady }
+        : {}),
     })
     conversation = (res as { data: CreateTestConversationResponse }).data
   } catch (err) {
@@ -328,6 +336,7 @@ async function createChatPair(
     conversationId: conversation.conversation_id,
     brandWorkspaceId: conversation.brand_workspace_id,
     deliverableId,
+    campaignId: conversation.campaign_id,
     brand,
     creator,
     brandPage,
@@ -380,6 +389,7 @@ export const test = base.extend<{
   chatPairWithHistory: ChatPair
   chatPairWithCompletedDeliverable: ChatPair
   chatPairWithCompletedDeliverableScrollable: ChatPair
+  chatPairOfferReady: ChatPair
 }>({
   // eslint-disable-next-line no-empty-pattern
   testUser: async ({}, use, testInfo) => {
@@ -462,6 +472,22 @@ export const test = base.extend<{
       testInfo.workerIndex,
       buildCompletedDeliverableSeedMessages(60),
       { requireCompletedDeliverable: true },
+    )
+    await use(pair)
+    await cleanup()
+  },
+
+  chatPairOfferReady: async ({ browser }, use, testInfo) => {
+    const { pair, cleanup } = await createChatPair(
+      browser,
+      testInfo.workerIndex,
+      undefined,
+      {
+        seedOfferReady: {
+          campaign_name: 'E2E OfferSent Campaign',
+          currency: 'USD',
+        },
+      },
     )
     await use(pair)
     await cleanup()

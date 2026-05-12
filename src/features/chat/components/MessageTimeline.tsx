@@ -4,10 +4,11 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   useImperativeHandle,
 } from 'react'
 import type { VirtuosoHandle } from 'react-virtuoso'
-import { Virtuoso } from 'react-virtuoso'
+import { GroupedVirtuoso } from 'react-virtuoso'
 
 import {
   useConversationDetailQuery,
@@ -16,9 +17,7 @@ import {
 import type { MessageItem } from '#/features/chat/types'
 import { trackChatEvent } from '#/features/chat/analytics/track'
 
-import { DEFAULT_TOLERANCE_PX } from '#/features/chat/hooks/useViewportAtBottom'
-import type { TimelineItem } from '../utils/groupByDay'
-import { groupByDay } from '../utils/groupByDay'
+import { groupByDayGrouped } from '../utils/groupByDay'
 
 import { OFFER_EVENT_TYPES } from '#/shared/offers/constants'
 import { OfferTimelineEntry } from '#/features/offers/components/OfferTimelineEntry'
@@ -37,6 +36,7 @@ import { DaySeparator } from './DaySeparator'
 import { EventBubble } from './EventBubble'
 import type { EventSeverity } from './EventBubble'
 import { MessageBubble } from './MessageBubble'
+import { getEventBubbleMeta } from '../utils/eventBubbleMeta'
 import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 
 // react-virtuoso chosen over @tanstack/react-virtual: built-in reverse list mode,
@@ -96,29 +96,91 @@ export function MessageTimeline({
     return reversed
   }, [data?.pages])
 
-  const timelineItems = useMemo(() => groupByDay(allMessages), [allMessages])
+  const grouped = useMemo(() => groupByDayGrouped(allMessages), [allMessages])
 
   const firstItemIndex = useMemo(
-    () => START_INDEX - timelineItems.length,
-    [timelineItems.length],
+    () => START_INDEX - grouped.messages.length,
+    [grouped.messages.length],
   )
 
   const hasReachedBeginning = !hasNextPage && (data?.pages.length ?? 0) > 0
   const highlightedTimelineIndex = useMemo(() => {
     if (!highlightPaymentId) return -1
-    return timelineItems.findIndex(
-      (item) =>
-        item.kind === 'message' &&
-        item.message.type === 'system_event' &&
-        item.message.event_type === 'PaymentMarked' &&
-        getPaymentMarkedDeclaredPaymentId(item.message.payload) ===
-          highlightPaymentId,
+    return grouped.messages.findIndex(
+      (m) =>
+        m.type === 'system_event' &&
+        m.event_type === 'PaymentMarked' &&
+        getPaymentMarkedDeclaredPaymentId(m.payload) === highlightPaymentId,
     )
-  }, [highlightPaymentId, timelineItems])
+  }, [highlightPaymentId, grouped.messages])
   const shouldShowHighlightFallback =
     Boolean(highlightPaymentId) &&
     (data?.pages.length ?? 0) > 0 &&
     highlightedTimelineIndex === -1
+
+  const lastEventBubble = useMemo(() => {
+    for (let i = grouped.messages.length - 1; i >= 0; i--) {
+      const m = grouped.messages[i]!
+      if (m.type !== 'system_event') continue
+      const meta = getEventBubbleMeta(m.event_type)
+      if (meta) return { index: i, meta, messageId: m.id }
+    }
+    return null
+  }, [grouped.messages])
+
+  const timelineContainerRef = useRef<HTMLDivElement>(null)
+  const [isLastEventVisible, setIsLastEventVisible] = useState(true)
+
+  useEffect(() => {
+    if (!lastEventBubble) {
+      setIsLastEventVisible(true)
+      return
+    }
+    const root = timelineContainerRef.current
+    if (!root) return
+
+    let observed: HTMLElement | null = null
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          setIsLastEventVisible(entry.isIntersecting)
+        }
+      },
+      { root, threshold: 0 },
+    )
+
+    const findAndObserve = () => {
+      const next = root.querySelector<HTMLElement>(
+        `[data-message-id="${lastEventBubble.messageId}"]`,
+      )
+      if (next === observed) return
+      if (observed) io.unobserve(observed)
+      observed = next
+      if (observed) {
+        io.observe(observed)
+      } else {
+        setIsLastEventVisible(false)
+      }
+    }
+    findAndObserve()
+
+    const mo = new MutationObserver(findAndObserve)
+    mo.observe(root, { childList: true, subtree: true })
+
+    return () => {
+      io.disconnect()
+      mo.disconnect()
+    }
+  }, [lastEventBubble])
+
+  const handlePinnedClick = useCallback(() => {
+    if (!lastEventBubble) return
+    virtuosoRef.current?.scrollToIndex({
+      index: firstItemIndex + lastEventBubble.index,
+      align: 'center',
+      behavior: 'smooth',
+    })
+  }, [firstItemIndex, lastEventBubble])
 
   const trackedPageCountRef = useRef(0)
 
@@ -168,14 +230,8 @@ export function MessageTimeline({
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const renderItem = useCallback(
-    (_index: number, item: TimelineItem) => {
-      if (item.kind === 'day-separator') {
-        return <DaySeparator label={item.label} />
-      }
-
-      const message = item.message
-
+  const renderMessageContent = useCallback(
+    (message: MessageItem) => {
       if (message.type === 'system_event') {
         const deliverableEventType = parseDeliverableSystemEventType(
           message.event_type,
@@ -339,7 +395,37 @@ export function MessageTimeline({
     ],
   )
 
-  if (timelineItems.length === 0) {
+  const renderItem = useCallback(
+    (_index: number, _groupIndex: number, message: MessageItem) => {
+      const content = renderMessageContent(message)
+      if (content === null) return null
+
+      const bubbleMeta =
+        message.type === 'system_event'
+          ? getEventBubbleMeta(message.event_type)
+          : null
+
+      if (!bubbleMeta) return content
+
+      return (
+        <div data-message-id={message.id}>
+          {content}
+          <div className="flex justify-center py-2">
+            <EventBubble
+              severity={bubbleMeta.severity}
+              direction="in"
+              icon={bubbleMeta.icon}
+            >
+              {bubbleMeta.label}
+            </EventBubble>
+          </div>
+        </div>
+      )
+    },
+    [renderMessageContent],
+  )
+
+  if (grouped.messages.length === 0) {
     return (
       <div
         className="flex flex-1 items-center justify-center"
@@ -354,22 +440,43 @@ export function MessageTimeline({
 
   return (
     <div
-      className="flex flex-1 flex-col overflow-hidden"
+      ref={timelineContainerRef}
+      className="relative flex flex-1 flex-col overflow-hidden"
       style={{ minHeight: 0 }}
       data-testid="message-timeline"
     >
       {shouldShowHighlightFallback ? <PaymentHighlightFallback /> : null}
-      <Virtuoso
+      {lastEventBubble && !isLastEventVisible ? (
+        <button
+          type="button"
+          onClick={handlePinnedClick}
+          className="absolute left-1/2 top-2 z-10 -translate-x-1/2"
+          aria-label={t`Go to latest status`}
+        >
+          <EventBubble
+            severity={lastEventBubble.meta.severity}
+            direction="in"
+            icon={lastEventBubble.meta.icon}
+          >
+            {lastEventBubble.meta.label}
+          </EventBubble>
+        </button>
+      ) : null}
+      <GroupedVirtuoso
         ref={virtuosoRef}
         key={conversationId}
         style={{ flex: 1, minHeight: 0 }}
-        data={timelineItems}
+        data={grouped.messages}
+        groupCounts={grouped.groupCounts}
+        groupContent={(index) => (
+          <DaySeparator label={grouped.groups[index]?.label ?? ''} />
+        )}
         firstItemIndex={firstItemIndex}
-        initialTopMostItemIndex={Math.max(0, timelineItems.length - 1)}
+        initialTopMostItemIndex={Math.max(0, grouped.messages.length - 1)}
         startReached={handleStartReached}
-        followOutput="smooth"
+        followOutput={(isAtBottom) => (isAtBottom ? 'smooth' : false)}
         atBottomStateChange={onAtBottomStateChange}
-        atBottomThreshold={DEFAULT_TOLERANCE_PX}
+        atBottomThreshold={0}
         itemContent={renderItem}
         components={{
           Header: () =>

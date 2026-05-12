@@ -1,12 +1,14 @@
 import { z } from 'zod'
 
 const offerBonusTermsSchema = z.object({
-  speed_bonus_windows: z.array(
-    z.object({
-      window_hours: z.number(),
-      bonus_pct: z.string(),
-    }),
-  ),
+  speed_bonus_windows: z
+    .array(
+      z.object({
+        window_hours: z.number(),
+        bonus_pct: z.string(),
+      }),
+    )
+    .nullable(),
 })
 
 export const offerSnapshotSchema = z.object({

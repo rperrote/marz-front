@@ -16,4 +16,6 @@ export interface CreateTestConversationResponse {
   brand_account_id: string
   creator_account_id: string
   brand_workspace_id: string
+  /** Only present when the request included seed_offer_ready. */
+  campaign_id?: string
 }

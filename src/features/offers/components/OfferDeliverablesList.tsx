@@ -5,6 +5,7 @@ import { t } from '@lingui/core/macro'
 import { Badge } from '#/components/ui/badge'
 import { cn } from '#/lib/utils'
 import { DeliverableListItem } from '#/features/deliverables/components/DeliverableListItem'
+import { ExpectedDeliverableSlot } from '#/features/deliverables/components/ExpectedDeliverableSlot'
 import type { DeliverableDTO, StageDTO } from '#/features/deliverables/types'
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
@@ -38,6 +39,7 @@ export function OfferDeliverablesList(props: OfferDeliverablesListProps) {
 }
 
 function FlatList({
+  offer,
   deliverables,
   sessionKind,
   viewerRole,
@@ -45,25 +47,36 @@ function FlatList({
   onMarkAsPaid,
   onSubmitLink,
 }: OfferDeliverablesListProps) {
-  if (deliverables.length === 0) return null
+  const showExpectedSingle =
+    deliverables.length === 0 && offer.type === 'single'
+
+  if (deliverables.length === 0 && !showExpectedSingle) return null
 
   return (
     <div className="mt-3 space-y-2">
-      <div className="font-mono text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+      <div className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {t`Deliverables`}
       </div>
       <div className="space-y-2">
-        {deliverables.map((deliverable) => (
-          <DeliverableListItem
-            key={deliverable.id}
-            deliverable={deliverable}
+        {showExpectedSingle ? (
+          <ExpectedDeliverableSlot
+            platform={offer.deliverable.platform}
+            format={offer.deliverable.format}
             sessionKind={sessionKind}
-            viewerRole={viewerRole}
-            onUploadDraft={onUploadDraft}
-            onMarkAsPaid={onMarkAsPaid}
-            onSubmitLink={onSubmitLink}
           />
-        ))}
+        ) : (
+          deliverables.map((deliverable) => (
+            <DeliverableListItem
+              key={deliverable.id}
+              deliverable={deliverable}
+              sessionKind={sessionKind}
+              viewerRole={viewerRole}
+              onUploadDraft={onUploadDraft}
+              onMarkAsPaid={onMarkAsPaid}
+              onSubmitLink={onSubmitLink}
+            />
+          ))
+        )}
       </div>
     </div>
   )
@@ -119,7 +132,7 @@ function MultistageList({
 
   return (
     <div className="mt-3 space-y-2">
-      <div className="font-mono text-[11px] font-normal uppercase tracking-wider text-muted-foreground">
+      <div className="font-mono text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {t`Stages`}
       </div>
       <div className="space-y-2">

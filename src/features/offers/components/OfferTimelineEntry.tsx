@@ -70,8 +70,16 @@ export function OfferTimelineEntry({
   const offerEvent = EVENT_TYPE_MAP[message.event_type ?? '']
   if (!offerEvent) return null
 
+  // OfferSent siempre lo emite el brand, pero author_account_id puede ser
+  // un actor de sistema. Derivar viewerSide del kind del viewer para ese caso.
   const viewerSide: ViewerSide =
-    message.author_account_id === currentAccountId ? 'actor' : 'recipient'
+    offerEvent === 'OfferSent'
+      ? actorKind === 'brand'
+        ? 'actor'
+        : 'recipient'
+      : message.author_account_id === currentAccountId
+        ? 'actor'
+        : 'recipient'
 
   const rawPayload = message.payload ?? {}
   const snapshot =

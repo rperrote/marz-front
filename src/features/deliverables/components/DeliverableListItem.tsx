@@ -124,58 +124,52 @@ export function DeliverableListItem({
     onSubmitLink?.(deliverable.id, isLinkResubmission)
   }
 
+  const metaParts: string[] = []
+  if (deliverable.deadline) metaParts.push(deliverable.deadline)
+  if (deliverable.current_version)
+    metaParts.push(`v${deliverable.current_version}`)
+  const metaLine = metaParts.join(' · ')
+
   return (
     <div
       className={cn(
-        'rounded-xl border border-border bg-card p-3 transition-colors',
+        'flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3 transition-colors',
         isLocked && 'opacity-60',
       )}
     >
-      <div className="flex items-start gap-2.5">
-        <PlatformIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium text-foreground">
-              {deliverable.format}
+      <div className="flex items-center gap-2">
+        <PlatformIcon className="size-3.5 shrink-0 text-muted-foreground" />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="truncate text-sm font-semibold text-foreground">
+            {deliverable.format}
+          </span>
+          {metaLine ? (
+            <span className="truncate text-xs text-muted-foreground">
+              {metaLine}
             </span>
-            <DeliverableStatusBadge
-              status={deliverable.status}
-              className="text-[10px]"
-            />
-            {deliverable.change_requests_count > 0 && (
-              <Badge variant="secondary" className="rounded-full text-[10px]">
-                {deliverable.change_requests_count} {t`rounds`}
-              </Badge>
-            )}
-          </div>
-          <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-            {deliverable.deadline ? <span>{deliverable.deadline}</span> : null}
-            {deliverable.current_version ? (
-              <span>v{deliverable.current_version}</span>
-            ) : null}
-          </div>
+          ) : null}
         </div>
+        <DeliverableStatusBadge
+          status={deliverable.status}
+          className="shrink-0 px-2 py-0.5 text-xs"
+        />
       </div>
 
       {deliverable.drafts.length > 0 && (
-        <div className="mt-2.5">
-          <DraftVersionList
-            drafts={deliverable.drafts}
-            changeRequests={deliverable.change_requests}
-            deliverableId={deliverable.id}
-          />
-        </div>
+        <DraftVersionList
+          drafts={deliverable.drafts}
+          changeRequests={deliverable.change_requests}
+          deliverableId={deliverable.id}
+        />
       )}
 
       {shouldShowCurrentLink && (
-        <div className="mt-2.5">
-          <CurrentLinkSummary
-            deliverableStatus={deliverable.status}
-            currentLinkId={linksQuery.data?.current_link_id ?? null}
-            links={linksQuery.data?.links ?? []}
-            isLoading={linksQuery.isLoading}
-          />
-        </div>
+        <CurrentLinkSummary
+          deliverableStatus={deliverable.status}
+          currentLinkId={linksQuery.data?.current_link_id ?? null}
+          links={linksQuery.data?.links ?? []}
+          isLoading={linksQuery.isLoading}
+        />
       )}
 
       {canUpload || isUploadDisabled ? (
@@ -184,7 +178,7 @@ export function DeliverableListItem({
           disabled={isUploadDisabled}
           onClick={handleUploadClick}
           className={cn(
-            'mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium transition-colors',
+            'flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium transition-colors',
             isUploadDisabled
               ? 'cursor-not-allowed text-muted-foreground opacity-60'
               : 'text-foreground hover:bg-muted',
@@ -194,7 +188,7 @@ export function DeliverableListItem({
           {uploadButtonLabel}
         </button>
       ) : sessionKind === 'creator' && isLocked ? (
-        <div className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium text-muted-foreground opacity-60">
+        <div className="flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-muted-foreground opacity-60">
           <Lock className="size-3.5" />
           {t`Upload draft`}
         </div>
@@ -202,7 +196,7 @@ export function DeliverableListItem({
         <button
           type="button"
           onClick={handleSubmitLinkClick}
-          className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          className="flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
           <LinkIcon className="size-3.5" />
           {submitLinkLabel}
@@ -211,7 +205,7 @@ export function DeliverableListItem({
         <button
           type="button"
           onClick={handleMarkAsPaidClick}
-          className="mt-2.5 flex w-full items-center justify-center rounded-full border border-border bg-background py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
+          className="flex w-full items-center justify-center rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
           {t`Mark as paid`}
         </button>

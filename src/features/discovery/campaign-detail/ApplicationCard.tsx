@@ -58,9 +58,6 @@ export function ApplicationCard({
         {application.message}
       </p>
       <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
-        {application.proposed_rate ? (
-          <span>{t`Rate ${application.proposed_rate.amount}`}</span>
-        ) : null}
         <span>{formatDate(application.created_at)}</span>
       </div>
       <div className="mt-4 flex flex-wrap justify-end gap-2">

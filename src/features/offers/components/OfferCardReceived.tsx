@@ -3,7 +3,6 @@ import { Sparkles } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
-import { SystemEventCard, StatTile } from '#/shared/ui/SystemEventCard'
 import { useNow } from '#/shared/hooks/useNow'
 import { useViewedOnce } from '#/shared/hooks/useViewedOnce'
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
@@ -56,18 +55,22 @@ export function OfferCardReceived({
   })
 
   return (
-    <div
-      ref={cardRef}
-      role="article"
-      aria-label={t`Campaign offer received, total ${amount}, deadline ${deadline}`}
-    >
-      <SystemEventCard
-        tone="success"
-        kicker={t`New campaign offer`}
-        icon={Sparkles}
+    <div className="flex justify-start">
+      <div
+        ref={cardRef}
+        role="article"
+        aria-label={t`Campaign offer received, total ${amount}, deadline ${deadline}`}
+        className="w-full max-w-[460px] overflow-hidden rounded-xl border-2 border-primary bg-card"
       >
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground">
+        <div className="flex items-center gap-2 border-b border-primary/40 bg-accent px-4 py-2.5">
+          <Sparkles className="size-3 text-primary" />
+          <span className="font-mono text-xs font-semibold uppercase tracking-wider text-primary">
+            {t`New campaign offer`}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-4 p-5">
+          <h3 className="text-xl font-semibold tracking-tight text-foreground">
             {snapshot.campaign_name}
           </h3>
 
@@ -76,15 +79,12 @@ export function OfferCardReceived({
             <StatTile label={t`Deadline`} value={deadline} />
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-sm text-foreground">
-              <Sparkles className="size-4" />
-              {platform}
-            </span>
+          <div className="flex flex-wrap gap-1.5">
+            <PlatformPill label={platform} />
           </div>
 
           {actionsEnabled ? (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2 pt-2">
               <div className="flex gap-2">
                 <Button
                   className="flex-1"
@@ -107,7 +107,7 @@ export function OfferCardReceived({
               </p>
             </div>
           ) : (
-            <div className="flex items-center justify-center gap-2 rounded-full bg-muted px-4 py-3 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center rounded-md bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground">
               {status === 'accepted' && t`Offer accepted`}
               {status === 'rejected' && t`Offer rejected`}
               {(status === 'expired' || (status === 'sent' && expired)) &&
@@ -115,7 +115,27 @@ export function OfferCardReceived({
             </div>
           )}
         </div>
-      </SystemEventCard>
+      </div>
     </div>
+  )
+}
+
+function StatTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-1 flex-col gap-1 rounded-lg bg-muted px-3.5 py-3">
+      <span className="font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+      <span className="text-base font-semibold text-foreground">{value}</span>
+    </div>
+  )
+}
+
+function PlatformPill({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+      <Sparkles className="size-3" />
+      {label}
+    </span>
   )
 }

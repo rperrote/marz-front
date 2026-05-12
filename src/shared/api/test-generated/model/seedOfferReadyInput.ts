@@ -10,14 +10,21 @@ the production client stays free of test-only types.
 
  * OpenAPI spec version: 0.1.0
  */
-import type { SeedMessagesInput } from './seedMessagesInput'
-import type { SeedOfferReadyInput } from './seedOfferReadyInput'
 
-export interface CreateTestConversationRequest {
+/**
+ * When present, the endpoint also creates an active campaign in the
+brand workspace plus an accepted application from the creator,
+leaving the (campaign_id, conversation_id) pair ready for an
+immediate POST /v1/offers call.
+
+ */
+export interface SeedOfferReadyInput {
   /** @minLength 1 */
-  brand_clerk_user_id: string
-  /** @minLength 1 */
-  creator_clerk_user_id: string
-  seed_messages?: SeedMessagesInput
-  seed_offer_ready?: SeedOfferReadyInput
+  campaign_name: string
+  /**
+   * ISO-4217 3-letter currency code, uppercased.
+   * @minLength 3
+   * @maxLength 3
+   */
+  currency: string
 }
