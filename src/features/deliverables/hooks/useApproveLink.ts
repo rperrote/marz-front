@@ -1,11 +1,11 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 
-import { ApiError, customFetch } from '#/shared/api/mutator'
-
-type ApiResponse<T> = { data: T; status: number }
+import { ApiError } from '#/shared/api/mutator'
+import { useApproveLink as useApproveLinkOrval } from '#/shared/api/generated/deliverables/deliverables'
+import { getDeliverableLinksQueryKey } from './useDeliverableLinks'
 
 interface ApproveLinkMutationVariables {
   deliverableId: string
@@ -13,60 +13,47 @@ interface ApproveLinkMutationVariables {
   idempotencyKey: string
 }
 
-interface OptimisticContext {
-  previousDeliverable: unknown
-}
-
-// El endpoint vive en /v1/links/{linkId}/approve. Cuando esté en el spec,
-// migrar a Orval con pnpm api:sync.
 export function useApproveLinkMutation() {
   const queryClient = useQueryClient()
+  const mutation = useApproveLinkOrval()
 
-  return useMutation<
-    ApiResponse<void>,
-    Error,
-    ApproveLinkMutationVariables,
-    OptimisticContext
-  >({
-    mutationFn: ({ linkId, idempotencyKey }) =>
-      customFetch<ApiResponse<void>>(
-        `/v1/links/${encodeURIComponent(linkId)}/approve`,
-        {
-          method: 'POST',
-          headers: {
-            'Idempotency-Key': idempotencyKey,
-          },
-        },
-      ),
-    onMutate: async ({ deliverableId }) => {
-      const queryKey = ['deliverable', deliverableId] as const
-      await queryClient.cancelQueries({ queryKey })
-      const previousDeliverable = queryClient.getQueryData(queryKey)
-
-      queryClient.setQueryData(queryKey, (old: unknown) => {
+  const mutate = async (variables: ApproveLinkMutationVariables) => {
+    const previous = queryClient.getQueryData([
+      'deliverable',
+      variables.deliverableId,
+    ])
+    queryClient.setQueryData(
+      ['deliverable', variables.deliverableId],
+      (old: unknown) => {
         if (old === null || typeof old !== 'object') return old
         return { ...old, status: 'completed' }
-      })
+      },
+    )
 
-      return { previousDeliverable }
-    },
-    onError: (_error, { deliverableId }, context) => {
-      queryClient.setQueryData(
-        ['deliverable', deliverableId],
-        context?.previousDeliverable,
-      )
-    },
-    onSettled: async (_data, _error, { deliverableId }) => {
+    try {
+      const response = await mutation.mutateAsync({
+        linkId: variables.linkId,
+        data: { deliverable_id: variables.deliverableId },
+      })
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: ['deliverable', deliverableId],
+          queryKey: ['deliverable', variables.deliverableId],
         }),
         queryClient.invalidateQueries({
-          queryKey: ['deliverable', deliverableId, 'links'],
+          queryKey: getDeliverableLinksQueryKey(variables.deliverableId),
         }),
       ])
-    },
-  })
+      return response
+    } catch (err) {
+      queryClient.setQueryData(
+        ['deliverable', variables.deliverableId],
+        previous,
+      )
+      throw err
+    }
+  }
+
+  return { ...mutation, mutateAsync: mutate, mutate }
 }
 
 export function useApproveLink(deliverableId: string, linkId: string) {
@@ -77,22 +64,19 @@ export function useApproveLink(deliverableId: string, linkId: string) {
       onSuccess?: () => void
       onError?: (error: Error) => void
     }) => {
-      mutation.mutate(
-        {
+      mutation
+        .mutateAsync({
           deliverableId,
           linkId,
           idempotencyKey: crypto.randomUUID(),
-        },
-        {
-          onSuccess: () => {
-            options?.onSuccess?.()
-          },
-          onError: (error) => {
-            toast.error(getApproveLinkErrorMessage(error))
-            options?.onError?.(error)
-          },
-        },
-      )
+        })
+        .then(() => {
+          options?.onSuccess?.()
+        })
+        .catch((error: Error) => {
+          toast.error(getApproveLinkErrorMessage(error))
+          options?.onError?.(error)
+        })
     },
     [deliverableId, linkId, mutation],
   )

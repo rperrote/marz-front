@@ -65,17 +65,15 @@ export function SubmitLinkSidesheet({
           idempotencyKey,
         })
         const preview = response.data.link.preview
-        if (preview?.outcome) {
-          trackLinkPreviewResolved({
-            deliverable_id: deliverableId,
-            link_id: response.data.link.id,
-            platform,
-            outcome: preview.outcome,
-            ...(isResubmission === undefined
-              ? {}
-              : { is_resubmission: isResubmission }),
-          })
-        }
+        trackLinkPreviewResolved({
+          deliverable_id: deliverableId,
+          link_id: response.data.link.id,
+          platform,
+          outcome: preview.outcome,
+          ...(isResubmission === undefined
+            ? {}
+            : { is_resubmission: isResubmission }),
+        })
         onSubmitted?.()
         handleOpenChange(false)
       } catch (error) {

@@ -1,9 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
-import { customFetch } from '#/shared/api/mutator'
-
-// RAFITA:BLOCKER: el backend todavía no expone POST /v1/deliverables/{id}/request-changes
-// (sin draft_id en path — el backend resuelve el current draft internamente).
-// Cuando esté en el spec, migrar a Orval con pnpm api:sync.
+import { useRequestDraftChanges } from '#/shared/api/generated/deliverables/deliverables'
 
 export type ChangeCategory =
   | 'product_placement'
@@ -17,30 +12,20 @@ export interface RequestChangesBody {
   notes: string
 }
 
-interface RequestChangesResponse {
-  data: {
-    change_request_id: string
-    status: string
-  }
-  status: number
-}
-
 export function useRequestChangesMutation(deliverableId: string) {
-  return useMutation<
-    RequestChangesResponse,
-    Error,
-    { body: RequestChangesBody; idempotencyKey: string }
-  >({
-    mutationFn: ({ body, idempotencyKey }) =>
-      customFetch<RequestChangesResponse>(
-        `/v1/deliverables/${encodeURIComponent(deliverableId)}/request-changes`,
-        {
-          method: 'POST',
-          headers: {
-            'Idempotency-Key': idempotencyKey,
-          },
-          body: JSON.stringify(body),
-        },
-      ),
-  })
+  const mutation = useRequestDraftChanges()
+
+  const mutateAsync = (variables: {
+    body: RequestChangesBody
+    idempotencyKey: string
+  }) =>
+    mutation.mutateAsync({
+      id: deliverableId,
+      data: {
+        categories: variables.body.categories,
+        notes: variables.body.notes,
+      },
+    })
+
+  return { ...mutation, mutateAsync }
 }

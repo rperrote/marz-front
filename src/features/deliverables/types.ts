@@ -78,9 +78,10 @@ export interface DraftTimelineMessage {
   created_at: string
 }
 
-// RAFITA:BLOCKER: src/shared/api/generated no expone PublishedLink* en este worktree.
-// pnpm api:sync no puede regenerar acá: tsx falla con listen EPERM y el bypass
-// con node --experimental-strip-types no puede fetch localhost:8080/openapi.yaml.
+// El backend ahora expone PublishedLinkDTO y PublishedLinkPreviewDTO en el
+// spec, pero el shape del preview cambió (objeto con campos nullable en vez
+// de discriminated union). Mantenemos los tipos locales como vista de UI y
+// hacemos el mapping en los hooks que consumen Orval.
 export type PublishedLinkStatus =
   | 'submitted'
   | 'changes_requested'

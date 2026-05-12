@@ -1,15 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 
-import { ApiError, customFetch } from '#/shared/api/mutator'
+import { ApiError } from '#/shared/api/mutator'
+import { useRequestLinkChanges as useRequestLinkChangesOrval } from '#/shared/api/generated/deliverables/deliverables'
 import type { ChangeCategory, RequestChangesBody } from '../api/requestChanges'
 import type {
   RequestChangesFlowActions,
   RequestChangesFlowError,
   RequestChangesFlowState,
 } from './useRequestChangesFlow'
+import { getDeliverableLinksQueryKey } from './useDeliverableLinks'
 
 const NOTES_MAX_LENGTH = 4000
 
@@ -20,46 +22,31 @@ interface RequestLinkChangesMutationVariables {
   idempotencyKey: string
 }
 
-interface RequestLinkChangesResponse {
-  data: {
-    change_request_id: string
-    status: string
-  }
-  status: number
-}
-
-// El endpoint vive en POST /v1/links/{linkId}/request-changes. Cuando esté en
-// el spec, migrar a Orval con pnpm api:sync.
 export function useRequestLinkChangesMutation() {
   const queryClient = useQueryClient()
+  const mutation = useRequestLinkChangesOrval()
 
-  return useMutation<
-    RequestLinkChangesResponse,
-    Error,
-    RequestLinkChangesMutationVariables
-  >({
-    mutationFn: ({ linkId, body, idempotencyKey }) =>
-      customFetch<RequestLinkChangesResponse>(
-        `/v1/links/${encodeURIComponent(linkId)}/request-changes`,
-        {
-          method: 'POST',
-          headers: {
-            'Idempotency-Key': idempotencyKey,
-          },
-          body: JSON.stringify(body),
-        },
-      ),
-    onSuccess: async (_response, { deliverableId }) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['deliverable', deliverableId],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['deliverable', deliverableId, 'links'],
-        }),
-      ])
-    },
-  })
+  const mutate = async (variables: RequestLinkChangesMutationVariables) => {
+    const response = await mutation.mutateAsync({
+      linkId: variables.linkId,
+      data: {
+        deliverable_id: variables.deliverableId,
+        categories: variables.body.categories,
+        notes: variables.body.notes,
+      },
+    })
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['deliverable', variables.deliverableId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: getDeliverableLinksQueryKey(variables.deliverableId),
+      }),
+    ])
+    return response
+  }
+
+  return { ...mutation, mutateAsync: mutate, mutate }
 }
 
 export function useRequestLinkChanges(
@@ -120,8 +107,8 @@ export function useRequestLinkChanges(
     setSubmitStatus('submitting')
     setError(null)
 
-    mutation.mutate(
-      {
+    mutation
+      .mutateAsync({
         deliverableId,
         linkId,
         body: {
@@ -129,56 +116,53 @@ export function useRequestLinkChanges(
           notes: notes.trim(),
         },
         idempotencyKey: idempotencyKeyRef.current,
-      },
-      {
-        onSuccess: () => {
-          setSubmitStatus('success')
-          options?.onSuccess?.()
-        },
-        onError: (err) => {
-          setSubmitStatus('idle')
+      })
+      .then(() => {
+        setSubmitStatus('success')
+        options?.onSuccess?.()
+      })
+      .catch((err: unknown) => {
+        setSubmitStatus('idle')
 
-          if (err instanceof ApiError) {
-            if (
-              err.status === 409 &&
-              err.code === 'CHANGE_REQUEST_ALREADY_EXISTS'
-            ) {
-              toast.error(t`Changes already requested on this link.`)
-              options?.onConflict?.()
-              return
-            }
-
-            if (err.status === 422 && err.code === 'validation_error') {
-              const fieldKeys = err.details?.field_errors
-                ? Object.keys(err.details.field_errors)
-                : []
-              const field = fieldKeys[0] ?? 'notes'
-              const message =
-                err.details?.field_errors?.[field]?.[0] ?? err.message
-              setError({ kind: 'field', field, message })
-              return
-            }
-
-            if (err.status === 403) {
-              setError({
-                kind: 'fatal',
-                message:
-                  err.message || t`Only brand owner can request link changes.`,
-              })
-              return
-            }
+        if (err instanceof ApiError) {
+          if (
+            err.status === 409 &&
+            err.code === 'CHANGE_REQUEST_ALREADY_EXISTS'
+          ) {
+            toast.error(t`Changes already requested on this link.`)
+            options?.onConflict?.()
+            return
           }
 
-          setError({
-            kind: 'fatal',
-            message:
-              err instanceof Error
-                ? err.message
-                : t`Something went wrong. Try again.`,
-          })
-        },
-      },
-    )
+          if (err.status === 422 && err.code === 'validation_error') {
+            const fieldKeys = err.details?.field_errors
+              ? Object.keys(err.details.field_errors)
+              : []
+            const field = fieldKeys[0] ?? 'notes'
+            const message =
+              err.details?.field_errors?.[field]?.[0] ?? err.message
+            setError({ kind: 'field', field, message })
+            return
+          }
+
+          if (err.status === 403) {
+            setError({
+              kind: 'fatal',
+              message:
+                err.message || t`Only brand owner can request link changes.`,
+            })
+            return
+          }
+        }
+
+        setError({
+          kind: 'fatal',
+          message:
+            err instanceof Error
+              ? err.message
+              : t`Something went wrong. Try again.`,
+        })
+      })
   }, [canSubmit, categories, deliverableId, linkId, mutation, notes, options])
 
   return useMemo(

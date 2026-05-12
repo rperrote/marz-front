@@ -1,20 +1,21 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { t } from '@lingui/core/macro'
 
-import { ApiError, customFetch } from '#/shared/api/mutator'
-import type { PublishedLink } from '#/features/deliverables/types'
-
-// El endpoint vive en /v1/links con deliverable_id en el body. Cuando esté en
-// el spec, migrar a Orval con pnpm api:sync.
+import { ApiError } from '#/shared/api/mutator'
+import { useSubmitLink } from '#/shared/api/generated/deliverables/deliverables'
+import type {
+  PublishedLink,
+  PublishedLinkPreview,
+  PublishedLinkStatus,
+} from '#/features/deliverables/types'
+import { getDeliverableLinksQueryKey } from './useDeliverableLinks'
 
 export interface SubmitLinkBody {
   url: string
 }
 
 export interface SubmitLinkResponse {
-  link: Omit<PublishedLink, 'preview'> & {
-    preview?: PublishedLink['preview']
-  }
+  link: PublishedLink
 }
 
 interface SubmitLinkMutationParams {
@@ -30,31 +31,65 @@ interface SubmitLinkMutationResponse {
 
 export function useSubmitLinkMutation() {
   const queryClient = useQueryClient()
+  const mutation = useSubmitLink()
 
-  return useMutation<
-    SubmitLinkMutationResponse,
-    Error,
-    SubmitLinkMutationParams
-  >({
-    mutationFn: ({ deliverableId, body, idempotencyKey }) =>
-      customFetch<SubmitLinkMutationResponse>(`/v1/links`, {
-        method: 'POST',
-        headers: {
-          'Idempotency-Key': idempotencyKey,
-        },
-        body: JSON.stringify({ ...body, deliverable_id: deliverableId }),
+  const mutateAsync = async (
+    params: SubmitLinkMutationParams,
+  ): Promise<SubmitLinkMutationResponse> => {
+    const response = await mutation.mutateAsync({
+      data: {
+        deliverable_id: params.deliverableId,
+        url: params.body.url,
+      },
+    })
+
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['deliverable', params.deliverableId],
       }),
-    onSuccess: async (_response, variables) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['deliverable', variables.deliverableId],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ['deliverable', variables.deliverableId, 'links'],
-        }),
-      ])
-    },
-  })
+      queryClient.invalidateQueries({
+        queryKey: getDeliverableLinksQueryKey(params.deliverableId),
+      }),
+    ])
+
+    if (response.status !== 201) {
+      throw new Error('Unexpected response')
+    }
+
+    const dto = response.data.link
+    const previewDto = dto.preview
+    const preview: PublishedLinkPreview = previewDto.error
+      ? { outcome: 'failed' }
+      : previewDto.title && previewDto.image_url
+        ? {
+            outcome: 'title_and_thumbnail',
+            title: previewDto.title,
+            thumbnail_url: previewDto.image_url,
+          }
+        : { outcome: 'url_only' }
+
+    return {
+      status: response.status,
+      data: {
+        link: {
+          id: dto.id,
+          deliverable_id: dto.deliverable_id,
+          url: dto.url,
+          status: dto.status as PublishedLinkStatus,
+          preview,
+          submitted_at: dto.submitted_at,
+          submitted_by_account_id: dto.submitted_by_account_id,
+          approved_at: dto.approved_at,
+          approved_by_account_id: dto.approved_by_account_id,
+        },
+      },
+    }
+  }
+
+  return {
+    ...mutation,
+    mutateAsync,
+  }
 }
 
 export function getSubmitLinkErrorMessage(error: unknown): string {

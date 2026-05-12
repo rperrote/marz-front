@@ -98,75 +98,72 @@ export function useRequestChangesFlow(
     setSubmitStatus('submitting')
     setError(null)
 
-    mutation.mutate(
-      {
+    mutation
+      .mutateAsync({
         body: {
           categories: sortedCategories,
           notes: notes.trim(),
         },
         idempotencyKey: idempotencyKeyRef.current,
-      },
-      {
-        onSuccess: () => {
-          if (options?.analytics) {
-            trackChangeRequestSubmitted({
-              actor_kind: 'brand',
-              offer_type: options.analytics.offerType,
-              deliverable_index: options.analytics.deliverableIndex,
-              draft_version: options.analytics.draftVersion,
-              categories: sortedCategories,
-              categories_count: sortedCategories.length,
-              has_notes: notes.trim().length > 0,
-              round_index: options.analytics.roundIndex,
-            })
-          }
-          setSubmitStatus('success')
-          options?.onSuccess?.()
-        },
-        onError: (err) => {
-          setSubmitStatus('idle')
-
-          if (err instanceof ApiError) {
-            if (
-              err.status === 409 &&
-              err.code === 'change_request_already_exists'
-            ) {
-              toast.error(t`Ya se solicitó un cambio para este borrador.`)
-              options?.onConflict?.()
-              return
-            }
-
-            if (err.status === 422 && err.code === 'validation_error') {
-              const fieldKeys = err.details?.field_errors
-                ? Object.keys(err.details.field_errors)
-                : []
-              const field = fieldKeys[0] ?? 'notes'
-              const message =
-                err.details?.field_errors?.[field]?.[0] ?? err.message
-              setError({ kind: 'field', field, message })
-              return
-            }
-
-            if (err.status === 403 && err.code === 'forbidden_role') {
-              setError({
-                kind: 'fatal',
-                message:
-                  err.message || t`No tenés permiso para realizar esta acción.`,
-              })
-              return
-            }
-          }
-
-          setError({
-            kind: 'fatal',
-            message:
-              err instanceof Error
-                ? err.message
-                : t`Algo salió mal. Intentá de nuevo.`,
+      })
+      .then(() => {
+        if (options?.analytics) {
+          trackChangeRequestSubmitted({
+            actor_kind: 'brand',
+            offer_type: options.analytics.offerType,
+            deliverable_index: options.analytics.deliverableIndex,
+            draft_version: options.analytics.draftVersion,
+            categories: sortedCategories,
+            categories_count: sortedCategories.length,
+            has_notes: notes.trim().length > 0,
+            round_index: options.analytics.roundIndex,
           })
-        },
-      },
-    )
+        }
+        setSubmitStatus('success')
+        options?.onSuccess?.()
+      })
+      .catch((err: unknown) => {
+        setSubmitStatus('idle')
+
+        if (err instanceof ApiError) {
+          if (
+            err.status === 409 &&
+            err.code === 'change_request_already_exists'
+          ) {
+            toast.error(t`Ya se solicitó un cambio para este borrador.`)
+            options?.onConflict?.()
+            return
+          }
+
+          if (err.status === 422 && err.code === 'validation_error') {
+            const fieldKeys = err.details?.field_errors
+              ? Object.keys(err.details.field_errors)
+              : []
+            const field = fieldKeys[0] ?? 'notes'
+            const message =
+              err.details?.field_errors?.[field]?.[0] ?? err.message
+            setError({ kind: 'field', field, message })
+            return
+          }
+
+          if (err.status === 403 && err.code === 'forbidden_role') {
+            setError({
+              kind: 'fatal',
+              message:
+                err.message || t`No tenés permiso para realizar esta acción.`,
+            })
+            return
+          }
+        }
+
+        setError({
+          kind: 'fatal',
+          message:
+            err instanceof Error
+              ? err.message
+              : t`Algo salió mal. Intentá de nuevo.`,
+        })
+      })
   }, [canSubmit, categories, notes, mutation, options])
 
   return useMemo(
