@@ -79,13 +79,11 @@ describe('useApproveLinkMutation', () => {
     })
 
     await act(async () => {
-      await result.current
-        .mutate({
-          deliverableId: 'del-1',
-          linkId: 'link-1',
-          idempotencyKey: 'attempt-key',
-        })
-        .catch(() => undefined)
+      result.current.mutate({
+        deliverableId: 'del-1',
+        linkId: 'link-1',
+        idempotencyKey: 'attempt-key',
+      })
     })
 
     await waitFor(() => {

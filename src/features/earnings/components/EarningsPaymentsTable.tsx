@@ -181,7 +181,6 @@ function DesktopPaymentsTable({ payments, onRowClick }: PaymentsListProps) {
             <tr
               key={payment.id}
               tabIndex={0}
-              role="row"
               aria-label={paymentRowLabel(payment)}
               onClick={() => onRowClick(payment)}
               onKeyDown={(event) => handleRowKeyDown(event, payment)}

@@ -140,10 +140,11 @@ function MultistageList({
         {offer.stages.map((stage, i) => {
           const isOpen = openMap[i] ?? false
           const stageInfo = stagesByIndex[i]
-          const stageDeliverables =
-            stageInfo?.deliverable_ids
-              .map((id) => deliverableById.get(id))
-              .filter((d): d is DeliverableDTO => d !== undefined) ?? []
+          const stageDeliverables: DeliverableDTO[] = []
+          for (const id of stageInfo?.deliverable_ids ?? []) {
+            const d = deliverableById.get(id)
+            if (d) stageDeliverables.push(d)
+          }
 
           return (
             <StageGroup
@@ -218,7 +219,7 @@ function StageGroup({
         onClick={onToggle}
         aria-expanded={isOpen}
         aria-label={t`Alternar etapa ${stage.name}`}
-        className="flex w-full items-center justify-between gap-2 px-3 py-3 text-left"
+        className="flex w-full items-center justify-between gap-2 p-3 text-left"
       >
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="truncate text-sm font-semibold text-foreground">
@@ -240,7 +241,7 @@ function StageGroup({
       </button>
 
       {isOpen && (
-        <div className="space-y-2 border-t border-border px-3 py-3">
+        <div className="space-y-2 border-t border-border p-3">
           {stage.description.length > 0 && (
             <p className="text-xs text-foreground">{stage.description}</p>
           )}

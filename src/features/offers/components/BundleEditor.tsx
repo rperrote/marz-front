@@ -51,28 +51,30 @@ function getFormatOptionsByPlatform(): Record<
   }
 }
 
-const defaultValues = {
-  campaign_id: '',
-  total_amount: '',
-  deadline: '',
-  bonus_terms: {
-    speed_bonus_windows: [],
-  } as {
-    speed_bonus_windows: Array<{
-      id: string
-      window_hours: number
-      bonus_pct: string
-    }>
-  },
-  deliverables: [
-    {
-      id: crypto.randomUUID() as string,
-      platform: '',
-      format: '',
-      quantity: 1,
-      amount: '',
+function createDefaultValues() {
+  return {
+    campaign_id: '',
+    total_amount: '',
+    deadline: '',
+    bonus_terms: {
+      speed_bonus_windows: [],
+    } as {
+      speed_bonus_windows: Array<{
+        id: string
+        window_hours: number
+        bonus_pct: string
+      }>
     },
-  ],
+    deliverables: [
+      {
+        id: crypto.randomUUID() as string,
+        platform: '',
+        format: '',
+        quantity: 1,
+        amount: '',
+      },
+    ],
+  }
 }
 
 interface BundleEditorProps {
@@ -92,8 +94,10 @@ export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
   const platformOptions = getPlatformOptions()
   const formatOptionsByPlatform = getFormatOptionsByPlatform()
 
+  const [initialValues] = useState(createDefaultValues)
+
   const form = useAppForm({
-    defaultValues,
+    defaultValues: initialValues,
     validators: {
       onChange: bundleEditorBaseSchema,
       onSubmit: bundleEditorSubmitSchema,
@@ -235,6 +239,7 @@ export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
             {(field) => {
               const handleAddDeliverable = () => {
                 field.pushValue({
+                  // react-doctor-disable-next-line react-doctor/rendering-hydration-mismatch-time
                   id: crypto.randomUUID(),
                   platform: '',
                   format: '',
@@ -350,6 +355,7 @@ export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
           {(field) => {
             const handleAddBonusWindow = () => {
               field.pushValue({
+                // react-doctor-disable-next-line react-doctor/rendering-hydration-mismatch-time
                 id: crypto.randomUUID(),
                 window_hours: 24,
                 bonus_pct: '',

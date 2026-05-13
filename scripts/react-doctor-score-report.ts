@@ -87,10 +87,10 @@ function parseJsonScore(output: string): number | null {
 }
 
 function extractIssueSummary(output: string): string | null {
-  const lines = output
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
+  const lines = output.split(/\r?\n/).flatMap((line) => {
+    const trimmed = line.trim()
+    return trimmed ? [trimmed] : []
+  })
 
   const summaryLine = lines.find((line) =>
     /\b(?:issues?|errors?|warnings?)\b/i.test(line),

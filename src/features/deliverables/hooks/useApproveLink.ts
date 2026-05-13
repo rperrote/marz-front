@@ -19,49 +19,44 @@ interface ApproveLinkMutationVariables {
 
 export function useApproveLinkMutation() {
   const queryClient = useQueryClient()
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: (variables: ApproveLinkMutationVariables) =>
       approveLink(
         variables.linkId,
         { deliverable_id: variables.deliverableId },
         withIdempotencyKey(variables.idempotencyKey),
       ),
-  })
-
-  const mutate = async (variables: ApproveLinkMutationVariables) => {
-    const previous = queryClient.getQueryData([
-      'deliverable',
-      variables.deliverableId,
-    ])
-    queryClient.setQueryData(
-      ['deliverable', variables.deliverableId],
-      (old: unknown) => {
-        if (old === null || typeof old !== 'object') return old
-        return { ...old, status: 'completed' }
-      },
-    )
-
-    try {
-      const response = await mutation.mutateAsync(variables)
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ['deliverable', variables.deliverableId],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: getDeliverableLinksQueryKey(variables.deliverableId),
-        }),
+    onMutate: async (variables) => {
+      const previous = queryClient.getQueryData([
+        'deliverable',
+        variables.deliverableId,
       ])
-      return response
-    } catch (err) {
       queryClient.setQueryData(
         ['deliverable', variables.deliverableId],
-        previous,
+        (old: unknown) => {
+          if (old === null || typeof old !== 'object') return old
+          return { ...old, status: 'completed' }
+        },
       )
-      throw err
-    }
-  }
-
-  return { ...mutation, mutateAsync: mutate, mutate }
+      return { previous }
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: ['deliverable', variables.deliverableId],
+      })
+      void queryClient.invalidateQueries({
+        queryKey: getDeliverableLinksQueryKey(variables.deliverableId),
+      })
+    },
+    onError: (_err, variables, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(
+          ['deliverable', variables.deliverableId],
+          context.previous,
+        )
+      }
+    },
+  })
 }
 
 export function useApproveLink(deliverableId: string, linkId: string) {

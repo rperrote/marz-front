@@ -44,7 +44,7 @@ export function InboxSection({
       </header>
 
       {items.length > 0 ? (
-        <ul className="flex flex-col gap-2" role="list">
+        <ul className="flex flex-col gap-2">
           {items.map((item) => (
             <InboxItemRow key={item.id} accountKind={accountKind} item={item} />
           ))}

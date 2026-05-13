@@ -28,7 +28,7 @@ interface RequestLinkChangesMutationVariables {
 
 export function useRequestLinkChangesMutation() {
   const queryClient = useQueryClient()
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: (variables: RequestLinkChangesMutationVariables) =>
       requestLinkChanges(
         variables.linkId,
@@ -39,22 +39,15 @@ export function useRequestLinkChangesMutation() {
         },
         withIdempotencyKey(variables.idempotencyKey),
       ),
-  })
-
-  const mutate = async (variables: RequestLinkChangesMutationVariables) => {
-    const response = await mutation.mutateAsync(variables)
-    await Promise.all([
-      queryClient.invalidateQueries({
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
         queryKey: ['deliverable', variables.deliverableId],
-      }),
-      queryClient.invalidateQueries({
+      })
+      void queryClient.invalidateQueries({
         queryKey: getDeliverableLinksQueryKey(variables.deliverableId),
-      }),
-    ])
-    return response
-  }
-
-  return { ...mutation, mutateAsync: mutate, mutate }
+      })
+    },
+  })
 }
 
 export function useRequestLinkChanges(
@@ -72,7 +65,7 @@ export function useRequestLinkChanges(
     useState<RequestChangesFlowState['submitStatus']>('idle')
   const [error, setError] = useState<RequestChangesFlowError | null>(null)
 
-  const mutation = useRequestLinkChangesMutation()
+  const { mutateAsync } = useRequestLinkChangesMutation()
 
   const canSubmit = useMemo(() => {
     if (categories.size === 0) return false
@@ -115,16 +108,15 @@ export function useRequestLinkChanges(
     setSubmitStatus('submitting')
     setError(null)
 
-    mutation
-      .mutateAsync({
-        deliverableId,
-        linkId,
-        body: {
-          categories: sortedCategories,
-          notes: notes.trim(),
-        },
-        idempotencyKey: idempotencyKeyRef.current,
-      })
+    mutateAsync({
+      deliverableId,
+      linkId,
+      body: {
+        categories: sortedCategories,
+        notes: notes.trim(),
+      },
+      idempotencyKey: idempotencyKeyRef.current,
+    })
       .then(() => {
         setSubmitStatus('success')
         options?.onSuccess?.()
@@ -171,7 +163,15 @@ export function useRequestLinkChanges(
               : t`Something went wrong. Try again.`,
         })
       })
-  }, [canSubmit, categories, deliverableId, linkId, mutation, notes, options])
+  }, [
+    canSubmit,
+    categories,
+    deliverableId,
+    linkId,
+    mutateAsync,
+    notes,
+    options,
+  ])
 
   return useMemo(
     () => ({

@@ -157,14 +157,21 @@ describe('route topbar integration', () => {
 
   it.skip('resets contextual topbar state when moving through Campaigns, Chats, and Offers', async () => {
     setupRouterMock()
-    const { AppTopbar } =
-      await import('#/features/identity/app-shell/AppTopbar')
-    const { TopbarProvider } =
-      await import('#/features/identity/app-shell/TopbarContext')
-    const Campaigns = getRouteComponent(
-      await import('./_brand/campaigns.index'),
-    )
-    const Offers = getRouteComponent(await import('./_creator/offers'))
+    const [
+      appTopbarModule,
+      topbarContextModule,
+      campaignsModule,
+      offersModule,
+    ] = await Promise.all([
+      import('#/features/identity/app-shell/AppTopbar'),
+      import('#/features/identity/app-shell/TopbarContext'),
+      import('./_brand/campaigns.index'),
+      import('./_creator/offers'),
+    ])
+    const { AppTopbar } = appTopbarModule
+    const { TopbarProvider } = topbarContextModule
+    const Campaigns = getRouteComponent(campaignsModule)
+    const Offers = getRouteComponent(offersModule)
 
     const queryClient = new QueryClient({
       defaultOptions: {

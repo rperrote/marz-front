@@ -280,6 +280,7 @@ export function SingleEditor({ onClose, dirtyRef }: SingleEditorProps) {
           {(field) => {
             const handleAddBonusWindow = () => {
               field.pushValue({
+                // react-doctor-disable-next-line react-doctor/rendering-hydration-mismatch-time
                 id: crypto.randomUUID(),
                 window_hours: 24,
                 bonus_pct: '',

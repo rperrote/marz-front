@@ -25,17 +25,19 @@ import {
 } from '../schemas/multiStageEditor'
 import { deadlineToRFC3339 } from '../utils/formatOffer'
 
-const defaultValues = {
-  campaign_id: '',
-  stages: [
-    {
-      id: crypto.randomUUID() as string,
-      name: '',
-      description: '',
-      deadline: '',
-      amount: '',
-    },
-  ],
+function createDefaultValues() {
+  return {
+    campaign_id: '',
+    stages: [
+      {
+        id: crypto.randomUUID() as string,
+        name: '',
+        description: '',
+        deadline: '',
+        amount: '',
+      },
+    ],
+  }
 }
 
 interface MultiStageEditorProps {
@@ -51,8 +53,10 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
 
   const campaigns: ActiveCampaign[] = campaignsQuery.data ?? []
 
+  const [initialValues] = useState(createDefaultValues)
+
   const form = useAppForm({
-    defaultValues,
+    defaultValues: initialValues,
     validators: {
       onChange: multiStageEditorBaseSchema,
       onSubmit: multiStageEditorSubmitSchema,

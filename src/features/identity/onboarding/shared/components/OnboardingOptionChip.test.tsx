@@ -62,16 +62,17 @@ describe('OnboardingOptionChip', () => {
     expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'true')
   })
 
-  it('supports radio role', () => {
+  it('supports radio role with aria-checked', () => {
     render(
       <OnboardingOptionChip
         label="Moda"
         selected={false}
         onToggle={() => {}}
         role="radio"
+        aria-checked={false}
       />,
     )
-    expect(screen.getByRole('radio')).toBeInTheDocument()
+    expect(screen.getByRole('radio')).toHaveAttribute('aria-checked', 'false')
   })
 
   it('is axe-clean', async () => {
