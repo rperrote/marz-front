@@ -7,8 +7,7 @@ TBD
 - [ ] TBD
 
 ## Done summary
-TBD
-
+CLAUDE.md consistente con package.json, versión pineada, guard en workflow, script y tests correctos.
 ## Evidence
 - Commits:
 - Tests:

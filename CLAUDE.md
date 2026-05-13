@@ -67,6 +67,32 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
+## 5. Coding Rules From React Doctor
+
+These rules encode the cleanup work that took the React Doctor score from 64
+toward the 95+ target. Keep new code aligned so the score does not regress.
+
+- Mutations that change server data must invalidate affected TanStack Query
+  keys on success, or use `setQueryData` with rollback on error.
+- Do not call `new Date()` or `Date.now()` directly in JSX/rendered output.
+  Use the shared client-time hook pattern for hydration-safe timestamps.
+- Redirects belong in TanStack Router `beforeLoad`/`loader` with
+  `throw redirect(...)`, not in component render.
+- Headings use `font-semibold` unless a design token explicitly requires a
+  different weight.
+- Prefer Tailwind shorthands like `size-N` and `p-N` when both axes share the
+  same value.
+- Never use array indexes as React keys. Use a stable item id, or create one
+  when the list is built rather than during render.
+- Hoist static `Intl.NumberFormat` and `Intl.DateTimeFormat` instances to
+  module scope.
+
+React Doctor CI is informational: PRs receive a score comment, and local
+verification for this cleanup epic targets `pnpm react-doctor`
+reporting at least 95/100.
+
+---
+
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
 ---

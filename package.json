@@ -22,6 +22,8 @@
     "test:e2e:headed": "playwright test --headed",
     "lint": "eslint .",
     "knip": "knip --config knip.jsonc",
+    "react-doctor": "npx -y react-doctor@0.1.6 .",
+    "react-doctor:report": "node --import tsx scripts/react-doctor-score-report.ts",
     "format": "prettier --write . && eslint --fix",
     "check": "prettier --check .",
     "api:sync": "tsx scripts/sync-api.ts",
