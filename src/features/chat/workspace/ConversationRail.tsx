@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { t } from '@lingui/core/macro'
+import { PanelLeftOpen } from 'lucide-react'
 
 import { CampaignFilterSelect } from './CampaignFilterSelect'
 import { ConversationFilterTabs } from './ConversationFilterTabs'
@@ -7,6 +8,7 @@ import { ConversationRailEmpty } from './ConversationRailEmpty'
 import { ConversationRailItem } from './ConversationRailItem'
 import { ConversationSearchInput } from './ConversationSearchInput'
 import { useConversationsQuery } from './useConversationsQuery'
+import { useConversationRailStore } from './conversationRailStore'
 import type {
   BrandWorkspaceSearch,
   CreatorWorkspaceSearch,
@@ -16,6 +18,7 @@ interface ConversationRailProps {
   search: BrandWorkspaceSearch | CreatorWorkspaceSearch
   sessionKind?: 'brand' | 'creator'
   activeConversationId?: string
+  variant?: 'full' | 'compact'
   onSelectConversation?: (conversationId: string) => void
 }
 
@@ -23,6 +26,7 @@ export function ConversationRail({
   search,
   sessionKind,
   activeConversationId,
+  variant = 'full',
   onSelectConversation,
 }: ConversationRailProps) {
   const {
@@ -63,10 +67,25 @@ export function ConversationRail({
     return () => observer.disconnect()
   }, [handleIntersect])
 
+  const openRail = useConversationRailStore((s) => s.open)
+  const compact = variant === 'compact'
   const conversations = data?.pages.flatMap((page) => page.data.items) ?? []
   const hasResults = conversations.length > 0
 
-  const railHeader = (
+  const expandButton = compact ? (
+    <div className="flex w-14 shrink-0 justify-center py-2">
+      <button
+        type="button"
+        onClick={openRail}
+        aria-label={t`Expandir conversaciones`}
+        className="inline-flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+      >
+        <PanelLeftOpen className="size-4" />
+      </button>
+    </div>
+  ) : null
+
+  const railHeader = compact ? null : (
     <div className="flex flex-col gap-2 border-b border-border p-3">
       <ConversationSearchInput
         key={search.search ?? ''}
@@ -83,6 +102,7 @@ export function ConversationRail({
   if (isLoading) {
     return (
       <>
+        {expandButton}
         {railHeader}
         <ConversationRailSkeleton />
       </>
@@ -92,6 +112,7 @@ export function ConversationRail({
   if (isError) {
     return (
       <>
+        {expandButton}
         {railHeader}
         <div className="flex flex-col items-center gap-2 px-4 py-8">
           <p className="text-sm text-muted-foreground">
@@ -129,6 +150,7 @@ export function ConversationRail({
 
     return (
       <>
+        {expandButton}
         {railHeader}
         <ConversationRailEmpty
           variant={emptyVariant}
@@ -140,13 +162,22 @@ export function ConversationRail({
 
   return (
     <>
+      {expandButton}
       {railHeader}
-      <div className="flex flex-col overflow-y-auto" role="list">
+      <div
+        className={
+          compact
+            ? 'flex flex-col items-center gap-1.5 overflow-y-auto py-2'
+            : 'flex flex-col overflow-y-auto'
+        }
+        role="list"
+      >
         {conversations.map((conversation) => (
           <ConversationRailItem
             key={conversation.id}
             conversation={conversation}
             active={conversation.id === activeConversationId}
+            variant={variant}
             onClick={onSelectConversation}
           />
         ))}

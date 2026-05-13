@@ -33,12 +33,7 @@ export function MessageBubble({
   const isOut = direction === 'out'
 
   return (
-    <div
-      className={cn(
-        'flex px-4 py-0.5',
-        isOut ? 'justify-end' : 'justify-start',
-      )}
-    >
+    <div className={cn('flex py-0.5', isOut ? 'justify-end' : 'justify-start')}>
       <div
         className={cn(
           'max-w-[75%] px-3.5 py-2',

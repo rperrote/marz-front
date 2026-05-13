@@ -18,8 +18,6 @@ import { trackChatEvent } from '#/features/chat/analytics/track'
 import { groupByDayGrouped } from '../utils/groupByDay'
 
 import { DaySeparator } from './DaySeparator'
-import { EventBubble } from './EventBubble'
-import { getEventBubbleMeta } from '../utils/eventBubbleMeta'
 import type { MarkAsPaidViewerRole } from '#/shared/payments/markAsPaidPermissions'
 import {
   getPaymentMarkedDeclaredPaymentId,
@@ -29,7 +27,6 @@ import {
   ConversationBeginningPill,
   EmptyMessageTimeline,
   PaymentHighlightFallback,
-  resolveEventDirection,
 } from './messageTimelineChrome'
 
 export interface MessageTimelineHandle {
@@ -154,7 +151,11 @@ export function MessageTimeline({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const renderItem = useCallback(
-    (_index: number, _groupIndex: number, message: MessageItem) => {
+    (index: number, _groupIndex: number, message: MessageItem) => {
+      const localIndex = index - firstItemIndex
+      const prev = localIndex > 0 ? grouped.messages[localIndex - 1] : undefined
+      const spacingClass = getTimelineSpacingClass(prev, message)
+
       const content = renderTimelineMessageContent({
         message,
         currentAccountId,
@@ -169,32 +170,9 @@ export function MessageTimeline({
       })
       if (content === null) return null
 
-      const bubbleMeta =
-        message.type === 'system_event'
-          ? getEventBubbleMeta(message.event_type)
-          : null
-
-      if (!bubbleMeta) return content
-
-      const direction: 'in' | 'out' = resolveEventDirection({
-        eventType: message.event_type,
-        authorAccountId: message.author_account_id,
-        currentAccountId,
-        sessionKind,
-      })
-
       return (
-        <div data-message-id={message.id}>
+        <div data-message-id={message.id} className={`${spacingClass} px-4`}>
           {content}
-          <div className="flex justify-center py-2">
-            <EventBubble
-              severity={bubbleMeta.severity}
-              direction={direction}
-              icon={bubbleMeta.icon}
-            >
-              {bubbleMeta.label}
-            </EventBubble>
-          </div>
         </div>
       )
     },
@@ -202,6 +180,8 @@ export function MessageTimeline({
       conversationDetail?.counterpart.display_name,
       conversationId,
       currentAccountId,
+      firstItemIndex,
+      grouped.messages,
       highlightPaymentId,
       onMarkAsPaid,
       onUploadDraft,
@@ -240,8 +220,36 @@ export function MessageTimeline({
         components={{
           Header: () =>
             hasReachedBeginning ? <ConversationBeginningPill /> : null,
+          Group: ({ children, ...props }) => (
+            <div {...props} style={{ ...props.style, overflow: 'visible' }}>
+              {children}
+            </div>
+          ),
         }}
       />
     </div>
   )
+}
+
+const SAME_BURST_MS = 30_000
+const SAME_BLOCK_MS = 5 * 60_000
+
+function getTimelineSpacingClass(
+  prev: MessageItem | undefined,
+  current: MessageItem,
+): string {
+  if (!prev) return ''
+
+  const prevTime = new Date(prev.created_at).getTime()
+  const currTime = new Date(current.created_at).getTime()
+  if (Number.isNaN(prevTime) || Number.isNaN(currTime)) return 'mt-4'
+
+  const delta = currTime - prevTime
+  const sameAuthor =
+    prev.author_account_id !== null &&
+    prev.author_account_id === current.author_account_id
+
+  if (delta <= SAME_BURST_MS && sameAuthor) return 'mt-0.5'
+  if (delta <= SAME_BLOCK_MS) return 'mt-2'
+  return 'mt-6'
 }

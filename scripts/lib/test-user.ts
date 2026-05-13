@@ -167,7 +167,10 @@ export async function openSignedInBrowser(
   user: EnsuredUser,
   startPath = '/',
 ): Promise<Page> {
-  const context = await browser.newContext({ baseURL: appUrl })
+  const context = await browser.newContext({
+    baseURL: appUrl,
+    viewport: null,
+  })
   const page = await context.newPage()
   await page.goto(startPath)
   await clerk.signIn({ page, emailAddress: user.email })

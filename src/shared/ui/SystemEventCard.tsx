@@ -70,7 +70,7 @@ export function SystemEventCard({
     <div
       ref={ref}
       className={cn(
-        'w-full max-w-[460px] overflow-hidden rounded-2xl border-2 bg-card',
+        '@container w-[min(70%,380px)] overflow-hidden rounded-2xl border-2 bg-card',
         toneBorder[tone],
         className,
       )}

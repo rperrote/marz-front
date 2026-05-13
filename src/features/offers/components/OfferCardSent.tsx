@@ -49,21 +49,21 @@ export function OfferCardSent({ snapshot, status }: OfferCardSentProps) {
       <div
         role="article"
         aria-label={t`Oferta enviada, total ${amount}, deadline ${deadline}`}
-        className="w-full max-w-[460px] overflow-hidden rounded-xl border-2 border-primary bg-card"
+        className="@container w-[min(55%,380px)] overflow-hidden rounded-xl border-2 border-primary bg-card"
       >
-        <div className="flex items-center gap-2 border-b border-primary/40 bg-accent px-4 py-2.5">
+        <div className="flex items-center gap-fluid-2 border-b border-primary/40 bg-accent px-fluid-4 py-fluid-2">
           <Timer className="size-3 text-primary" />
-          <span className="font-mono text-xs font-semibold uppercase tracking-wider text-primary">
+          <span className="font-mono text-fluid-2xs font-semibold uppercase tracking-wider text-primary">
             {t`Oferta enviada`}
           </span>
         </div>
 
-        <div className="flex flex-col gap-4 p-5">
-          <h3 className="text-xl font-semibold tracking-tight text-foreground">
+        <div className="flex flex-col gap-fluid-4 p-fluid-5">
+          <h3 className="text-fluid-lg font-semibold leading-tight tracking-tight text-foreground">
             {snapshot.campaign_name}
           </h3>
 
-          <div className="flex gap-3">
+          <div className="flex gap-fluid-3">
             <StatTile label={t`Presupuesto`} value={amount} />
             <StatTile label={t`Deadline`} value={deadline} />
           </div>
@@ -72,8 +72,8 @@ export function OfferCardSent({ snapshot, status }: OfferCardSentProps) {
             <PlatformPill label={platform} />
           </div>
 
-          <div className="flex items-center justify-center gap-2 rounded-md bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground">
-            <StatusIcon className="size-4" />
+          <div className="flex items-center justify-center gap-fluid-2 rounded-md bg-muted px-fluid-4 py-fluid-2 text-fluid-xs font-medium text-muted-foreground">
+            <StatusIcon className="size-3.5" />
             <span>{statusLabel}</span>
           </div>
         </div>
@@ -84,11 +84,13 @@ export function OfferCardSent({ snapshot, status }: OfferCardSentProps) {
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-1 flex-col gap-1 rounded-lg bg-muted px-3.5 py-3">
-      <span className="font-mono text-xs font-medium uppercase tracking-wider text-muted-foreground">
+    <div className="flex min-w-0 flex-1 flex-col gap-fluid-1 rounded-lg border border-border bg-muted px-fluid-3 py-fluid-2">
+      <span className="truncate font-mono text-fluid-2xs font-medium uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
-      <span className="text-base font-semibold text-foreground">{value}</span>
+      <span className="truncate text-fluid-sm font-semibold text-foreground">
+        {value}
+      </span>
     </div>
   )
 }

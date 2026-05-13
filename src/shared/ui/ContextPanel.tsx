@@ -14,7 +14,7 @@ export function ContextPanel({
   errorSlot?: ReactNode
 }) {
   return (
-    <aside className="flex h-full w-[360px] shrink-0 flex-col gap-3 overflow-y-auto bg-muted p-4">
+    <aside className="flex h-full w-[320px] shrink-0 flex-col gap-3 overflow-y-auto bg-muted p-4 xl:w-[360px]">
       {headerSlot}
       {nextStepSlot}
       {offerSlot}

@@ -9,6 +9,7 @@ interface ChatRailItemProps {
   online?: boolean
   active?: boolean
   unread?: boolean
+  variant?: 'full' | 'compact'
   onClick?: () => void
 }
 
@@ -20,14 +21,20 @@ export function ChatRailItem({
   online = false,
   active = false,
   unread = false,
+  variant = 'full',
   onClick,
 }: ChatRailItemProps) {
+  const compact = variant === 'compact'
   return (
     <button
       type="button"
       onClick={onClick}
+      title={compact ? name : undefined}
       className={cn(
-        'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
+        'flex items-center gap-3 text-left transition-colors',
+        compact
+          ? 'mx-auto size-11 justify-center rounded-full'
+          : 'w-full justify-start rounded-lg px-3 py-2.5',
         active ? 'bg-surface-active' : 'hover:bg-surface-hover',
       )}
     >
@@ -42,26 +49,34 @@ export function ChatRailItem({
             className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-card bg-success"
           />
         ) : null}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
+        {compact && unread ? (
           <span
-            className={cn(
-              'truncate text-sm',
-              unread ? 'font-semibold' : 'font-medium',
-            )}
-          >
-            {name}
-          </span>
-          {unread ? (
-            <span
-              aria-hidden
-              className="size-2 shrink-0 rounded-full bg-primary"
-            />
-          ) : null}
-        </div>
-        <p className="truncate text-xs text-muted-foreground">{preview}</p>
+            aria-hidden
+            className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full border-2 border-card bg-primary"
+          />
+        ) : null}
       </div>
+      {compact ? null : (
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                'truncate text-sm',
+                unread ? 'font-semibold' : 'font-medium',
+              )}
+            >
+              {name}
+            </span>
+            {unread ? (
+              <span
+                aria-hidden
+                className="size-2 shrink-0 rounded-full bg-primary"
+              />
+            ) : null}
+          </div>
+          <p className="truncate text-xs text-muted-foreground">{preview}</p>
+        </div>
+      )}
     </button>
   )
 }

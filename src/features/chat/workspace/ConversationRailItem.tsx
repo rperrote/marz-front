@@ -9,12 +9,14 @@ import type { ConversationListItem } from '#/shared/api/generated/model'
 interface ConversationRailItemProps {
   conversation: ConversationListItem
   active?: boolean
+  variant?: 'full' | 'compact'
   onClick?: (conversationId: string) => void
 }
 
 export function ConversationRailItem({
   conversation,
   active = false,
+  variant = 'full',
   onClick,
 }: ConversationRailItemProps) {
   const { counterpart, last_message_preview, unread_count, last_activity_at } =
@@ -40,6 +42,7 @@ export function ConversationRailItem({
         online={online}
         active={active}
         unread={unread_count > 0}
+        variant={variant}
         onClick={() => onClick?.(conversation.id)}
       />
     </div>

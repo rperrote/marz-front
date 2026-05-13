@@ -16,6 +16,10 @@ import {
   estimateLatencyMs,
 } from '#/features/chat/analytics/track'
 
+import { PanelLeft } from 'lucide-react'
+import { t } from '@lingui/core/macro'
+
+import { useConversationRailStore } from '#/features/chat/workspace/conversationRailStore'
 import { ConversationHeader } from './ConversationHeader'
 import { EmptyConversationFallback } from './EmptyConversationFallback'
 import type { MessageTimelineHandle } from './MessageTimeline'
@@ -171,7 +175,10 @@ export function ConversationView({
 
   return (
     <div className="flex h-full flex-col">
-      <ConversationHeader conversation={conversation} />
+      <ConversationHeader
+        conversation={conversation}
+        leadingSlot={<RailToggleButton />}
+      />
 
       <div className="relative flex flex-1 flex-col overflow-hidden">
         <MessageTimeline
@@ -199,6 +206,23 @@ export function ConversationView({
         wsSend={wsSend}
       />
     </div>
+  )
+}
+
+function RailToggleButton() {
+  const toggle = useConversationRailStore((s) => s.toggle)
+  const isOpen = useConversationRailStore((s) => s.isOpen)
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={t`Conversaciones`}
+      aria-expanded={isOpen}
+      className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
+      title={t`Conversaciones`}
+    >
+      <PanelLeft className="size-4" />
+    </button>
   )
 }
 

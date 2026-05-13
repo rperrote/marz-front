@@ -16,6 +16,7 @@ import { getServerMe } from '#/shared/auth/getServerMe'
 import type { ServerMeBody } from '#/shared/auth/getServerMe'
 import { ConversationRail } from '#/features/chat/workspace/ConversationRail'
 import { WorkspaceLayout } from '#/features/chat/workspace/WorkspaceLayout'
+import { useConversationRailStore } from '#/features/chat/workspace/conversationRailStore'
 import { workspaceSearchSchema } from '#/features/chat/workspace/workspaceSearchSchema'
 
 const STALE_TIME = 30_000
@@ -97,6 +98,7 @@ function WorkspaceRoute() {
     }),
   })
 
+  const closeRail = useConversationRailStore((s) => s.close)
   const handleSelectConversation = useCallback(
     (conversationId: string) => {
       void navigate({
@@ -104,8 +106,9 @@ function WorkspaceRoute() {
         params: { conversationId },
         search,
       })
+      closeRail()
     },
-    [navigate, search],
+    [navigate, search, closeRail],
   )
 
   return (
@@ -116,11 +119,21 @@ function WorkspaceRoute() {
     >
       <WorkspaceLayout
         sessionKind={sessionKind}
-        rail={
+        railCompact={
           <ConversationRail
             search={search}
             sessionKind={sessionKind}
             activeConversationId={activeConversationId}
+            variant="compact"
+            onSelectConversation={handleSelectConversation}
+          />
+        }
+        railFull={
+          <ConversationRail
+            search={search}
+            sessionKind={sessionKind}
+            activeConversationId={activeConversationId}
+            variant="full"
             onSelectConversation={handleSelectConversation}
           />
         }
