@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/tanstack-react-start'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef } from 'react'
 import type { DomainEventEnvelope, EventHandler } from './events'
 
 type Status = 'idle' | 'connecting' | 'open' | 'closed'
@@ -41,7 +41,10 @@ export function useWebSocket({
   enabled = false,
 }: UseWebSocketOptions = {}) {
   const { getToken } = useAuth()
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, dispatchStatus] = useReducer(
+    (_current: Status, next: Status) => next,
+    'idle',
+  )
   const socketRef = useRef<WebSocket | null>(null)
   const pendingSubscribesRef = useRef<Map<string, PendingSubscribe>>(new Map())
   const handlersRef = useRef(handlers)
@@ -65,8 +68,8 @@ export function useWebSocket({
 
     let ws: WebSocket | null = null
     let cancelled = false
-    const handleOpen = () => setStatus('open')
-    const handleClose = () => setStatus('closed')
+    const handleOpen = () => dispatchStatus('open')
+    const handleClose = () => dispatchStatus('closed')
     const handleMessage = (event: MessageEvent<string>) => {
       try {
         const raw = JSON.parse(event.data) as Record<string, unknown>
@@ -118,7 +121,7 @@ export function useWebSocket({
       }
     }
 
-    setStatus('connecting')
+    dispatchStatus('connecting')
     void (async () => {
       const token = await getTokenRef.current()
       // cancelled is mutated by the effect cleanup; the linter's flow

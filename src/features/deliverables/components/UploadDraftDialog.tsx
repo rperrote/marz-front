@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import { Upload } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 import { useQueryClient } from '@tanstack/react-query'
@@ -43,22 +43,17 @@ export function UploadDraftDialog({
   analytics,
 }: UploadDraftDialogProps) {
   const queryClient = useQueryClient()
-  const { status, progress, error, draft, start, cancel, reset } =
-    useDraftUploadFlow(deliverableId, analytics)
+  const { status, progress, error, start, cancel, reset } = useDraftUploadFlow(
+    deliverableId,
+    analytics,
+  )
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (open) {
-      reset()
-      setSelectedFile(null)
-    }
-  }, [open, reset])
-
-  useEffect(() => {
-    if (status === 'done' && draft) {
+  const handleUploadComplete = useCallback(
+    (completedDraft: Draft) => {
       if (conversationId) {
         void queryClient.invalidateQueries({
           queryKey: getConversationDeliverablesQueryKey(conversationId),
@@ -67,9 +62,10 @@ export function UploadDraftDialog({
           queryKey: getMessagesQueryKey(conversationId),
         })
       }
-      onSuccess(draft)
-    }
-  }, [status, draft, onSuccess, queryClient, conversationId])
+      onSuccess(completedDraft)
+    },
+    [conversationId, onSuccess, queryClient],
+  )
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -95,9 +91,9 @@ export function UploadDraftDialog({
   const handleFile = useCallback(
     (file: File) => {
       setSelectedFile(file)
-      start(file)
+      void start(file, handleUploadComplete)
     },
-    [start],
+    [handleUploadComplete, start],
   )
 
   const handleInputChange = useCallback(

@@ -33,7 +33,6 @@ interface UploadState {
   progress: number
   error: UploadError | null
   intentId: string | null
-  draft: Draft | null
 }
 
 interface DraftV2UploadAnalytics {
@@ -56,7 +55,6 @@ export function useDraftUploadFlow(
     progress: 0,
     error: null,
     intentId: null,
-    draft: null,
   })
 
   const xhrRef = useRef<XMLHttpRequest | null>(null)
@@ -79,7 +77,6 @@ export function useDraftUploadFlow(
       progress: 0,
       error: null,
       intentId: null,
-      draft: null,
     })
   }, [])
 
@@ -105,7 +102,7 @@ export function useDraftUploadFlow(
   }, [cancelMutation, deliverableId])
 
   const start = useCallback(
-    async (file: File) => {
+    async (file: File, onComplete?: (draft: Draft) => void) => {
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
         setState({
           status: 'error',
@@ -115,7 +112,6 @@ export function useDraftUploadFlow(
             message: "This file format isn't supported. Use MP4, MOV, or WebM.",
           },
           intentId: null,
-          draft: null,
         })
         trackUploadFailed({ deliverable_id: deliverableId, reason: 'format' })
         return
@@ -130,7 +126,6 @@ export function useDraftUploadFlow(
             message: 'File too large (max 2 GB).',
           },
           intentId: null,
-          draft: null,
         })
         trackUploadFailed({ deliverable_id: deliverableId, reason: 'size' })
         return
@@ -164,7 +159,6 @@ export function useDraftUploadFlow(
         progress: 0,
         error: null,
         intentId: null,
-        draft: null,
       })
 
       let intent: {
@@ -194,7 +188,6 @@ export function useDraftUploadFlow(
           progress: 0,
           error,
           intentId: null,
-          draft: null,
         })
         trackUploadFailed({ deliverable_id: deliverableId, reason: error.kind })
         return
@@ -239,7 +232,6 @@ export function useDraftUploadFlow(
               message: 'Upload failed. Check your connection and try again.',
             },
             intentId: intent.intent_id,
-            draft: null,
           })
           trackUploadFailed({
             deliverable_id: deliverableId,
@@ -269,8 +261,8 @@ export function useDraftUploadFlow(
             progress: 100,
             error: null,
             intentId: intent.intent_id,
-            draft: completeRes.data,
           })
+          onComplete?.(completeRes.data)
         } catch (err) {
           const error = apiErrorToUploadError(err)
           setState({
@@ -278,7 +270,6 @@ export function useDraftUploadFlow(
             progress: 0,
             error,
             intentId: intent.intent_id,
-            draft: null,
           })
           trackUploadFailed({
             deliverable_id: deliverableId,
@@ -297,7 +288,6 @@ export function useDraftUploadFlow(
             message: 'Upload failed. Check your connection and try again.',
           },
           intentId: intent.intent_id,
-          draft: null,
         })
         trackUploadFailed({
           deliverable_id: deliverableId,
@@ -315,7 +305,6 @@ export function useDraftUploadFlow(
                 progress: 0,
                 error: null,
                 intentId: intent.intent_id,
-                draft: null,
               },
         )
         trackUploadFailed({
@@ -337,7 +326,6 @@ export function useDraftUploadFlow(
     status: state.status,
     progress: state.progress,
     error: state.error,
-    draft: state.draft,
     start,
     cancel,
     reset,

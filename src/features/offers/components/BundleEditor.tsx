@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
+import type { MutableRefObject } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
 import { toast } from 'sonner'
@@ -77,10 +78,10 @@ export type BundleEditorFormValues = typeof defaultValues
 
 interface BundleEditorProps {
   onClose: () => void
-  onDirtyChange?: (dirty: boolean) => void
+  dirtyRef?: MutableRefObject<boolean>
 }
 
-export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
+export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
   const { conversationId } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
   const mutation = useCreateBundleOffer()
@@ -138,10 +139,9 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
   })
 
   const isDirty = useStore(form.store, (s) => s.isDirty)
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty)
-  }, [isDirty, onDirtyChange])
+  if (dirtyRef) {
+    dirtyRef.current = isDirty
+  }
 
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
   const totalAmountValue = useStore(form.store, (s) => s.values.total_amount)

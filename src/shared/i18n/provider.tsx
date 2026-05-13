@@ -40,7 +40,9 @@ export function AppI18nProvider({
     activateCatalog(initialLocale, initialMessages)
   }
 
-  const [locale, setLocaleState] = useState<Locale>(initialLocale)
+  const [locale, setLocaleState] = useState<Locale>(() =>
+    isLocale(i18n.locale) ? i18n.locale : initialLocale,
+  )
 
   useEffect(() => {
     if (i18n.locale !== locale) void loadCatalog(locale)

@@ -1,12 +1,13 @@
 import { t } from '@lingui/core/macro'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { Button } from '#/components/ui/button'
 import type { CampaignPlanCapabilities } from '#/shared/api/generated/model'
 
 import { CampaignCreatorsTable } from '../CampaignCreatorsTable'
+import { InviteCreatorDialog } from './InviteCreatorDialog'
 import { CreatorsFilters, hasActiveFilters } from './CreatorsFilters'
 import type { CreatorsFilterParams } from './CreatorsFilters'
 import type { CampaignParticipantsParams } from './useCampaignParticipantsQuery'
@@ -26,7 +27,7 @@ export function CreatorsTab({
 }: CreatorsTabProps) {
   const navigate = useNavigate({ from: '/campaigns/$campaignId' })
   const [cursor, setCursor] = useState<string | undefined>(undefined)
-  const openInviteCreatorRef = useRef<(() => void) | null>(null)
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
 
   const filters = useMemo(
     () => ({
@@ -94,12 +95,7 @@ export function CreatorsTab({
     })
   }, [navigate])
 
-  const handleInviteCreatorReady = useCallback(
-    (openInviteCreator: (() => void) | null) => {
-      openInviteCreatorRef.current = openInviteCreator
-    },
-    [],
-  )
+  const openInviteCreator = useCallback(() => setInviteDialogOpen(true), [])
 
   const activeFilters = hasActiveFilters(filters)
 
@@ -117,7 +113,7 @@ export function CreatorsTab({
         <Button
           type="button"
           className="w-fit rounded-xl"
-          onClick={() => openInviteCreatorRef.current?.()}
+          onClick={openInviteCreator}
         >
           <Plus className="size-4" aria-hidden />
           {t`Invite creator`}
@@ -137,7 +133,13 @@ export function CreatorsTab({
         hasActiveFilters={activeFilters}
         onClearFilters={clearFilters}
         onFindCreators={findCreators}
-        onInviteCreatorReady={handleInviteCreatorReady}
+        onInviteCreator={openInviteCreator}
+      />
+      <InviteCreatorDialog
+        campaignId={campaignId}
+        open={inviteDialogOpen}
+        onOpenChange={setInviteDialogOpen}
+        allowsInPlatformInvites={planCapabilities.allows_in_platform_invites}
       />
     </section>
   )

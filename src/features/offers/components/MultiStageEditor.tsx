@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
+import type { MutableRefObject } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
 import { toast } from 'sonner'
@@ -41,13 +42,10 @@ export type MultiStageEditorFormValues = typeof defaultValues
 
 interface MultiStageEditorProps {
   onClose: () => void
-  onDirtyChange?: (dirty: boolean) => void
+  dirtyRef?: MutableRefObject<boolean>
 }
 
-export function MultiStageEditor({
-  onClose,
-  onDirtyChange,
-}: MultiStageEditorProps) {
+export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
   const { conversationId } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
   const mutation = useCreateMultistageOffer()
@@ -101,10 +99,9 @@ export function MultiStageEditor({
   })
 
   const isDirty = useStore(form.store, (s) => s.isDirty)
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty)
-  }, [isDirty, onDirtyChange])
+  if (dirtyRef) {
+    dirtyRef.current = isDirty
+  }
 
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
   const stages = useStore(form.store, (s) => s.values.stages)

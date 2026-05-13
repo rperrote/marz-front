@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
 import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { Checkbox, Popover } from 'radix-ui'
@@ -10,7 +10,6 @@ import { Switch } from '#/components/ui/switch'
 import { cn } from '#/lib/utils'
 import type { CreatorCampaignBoardAvailableFilters } from '#/shared/api/generated/model'
 
-import { useDebounce } from './hooks/useDebounce'
 import type { CampaignBoardSearch } from './search-schema'
 
 const SEARCH_DEBOUNCE_MS = 300
@@ -36,7 +35,7 @@ export function CampaignBoardFilters({
   const [query, setQuery] = useState(search.q ?? '')
   const [feeMin, setFeeMin] = useState(search.fee_min_amount ?? '')
   const [feeMax, setFeeMax] = useState(search.fee_max_amount ?? '')
-  const debouncedQuery = useDebounce(query, SEARCH_DEBOUNCE_MS)
+  const queryTimerRef = useRef<number | null>(null)
   const feeRangeError = getFeeRangeError(feeMin, feeMax)
 
   useEffect(() => {
@@ -52,11 +51,33 @@ export function CampaignBoardFilters({
   }, [search.fee_max_amount])
 
   useEffect(() => {
-    const trimmedQuery = debouncedQuery.trim()
-    const nextQuery = trimmedQuery === '' ? undefined : trimmedQuery
-    if (nextQuery === search.q) return
-    onSearchChange({ q: nextQuery })
-  }, [debouncedQuery, onSearchChange, search.q])
+    return () => {
+      if (queryTimerRef.current !== null) {
+        window.clearTimeout(queryTimerRef.current)
+      }
+    }
+  }, [])
+
+  function scheduleQueryChange(nextValue: string) {
+    if (queryTimerRef.current !== null) {
+      window.clearTimeout(queryTimerRef.current)
+    }
+
+    queryTimerRef.current = window.setTimeout(() => {
+      const trimmedQuery = nextValue.trim()
+      const nextQuery = trimmedQuery === '' ? undefined : trimmedQuery
+      if (nextQuery !== search.q) {
+        onSearchChange({ q: nextQuery })
+      }
+      queryTimerRef.current = null
+    }, SEARCH_DEBOUNCE_MS)
+  }
+
+  function handleQueryChange(nextValue: string) {
+    const limitedValue = nextValue.slice(0, 80)
+    setQuery(limitedValue)
+    scheduleQueryChange(limitedValue)
+  }
 
   function handleFeeChange(nextMin: string, nextMax: string) {
     setFeeMin(nextMin)
@@ -82,14 +103,14 @@ export function CampaignBoardFilters({
           placeholder={t`Buscar por marca, campaña o nicho`}
           value={query}
           maxLength={80}
-          onChange={(event) => setQuery(event.target.value.slice(0, 80))}
+          onChange={(event) => handleQueryChange(event.target.value)}
           className="rounded-full bg-card pl-9 pr-9"
         />
         {query.length > 0 ? (
           <button
             type="button"
             aria-label={t`Limpiar búsqueda`}
-            onClick={() => setQuery('')}
+            onClick={() => handleQueryChange('')}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
           >
             <X className="size-3.5" />

@@ -38,10 +38,6 @@ export function EarningsSearchExportBar({
   const didMount = useRef(false)
 
   useEffect(() => {
-    setLocalSearch(q ?? '')
-  }, [q])
-
-  useEffect(() => {
     if (!didMount.current) {
       didMount.current = true
       return

@@ -69,6 +69,10 @@ export function EarningsPage({
           <MonthlyEarningsChart buckets={earningsQuery.data.monthly_earnings} />
         </div>
         <PendingBonusPanel
+          key={getPendingBonusPanelKey(
+            period,
+            earningsQuery.data.pending_bonuses,
+          )}
           period={period}
           pendingBonuses={earningsQuery.data.pending_bonuses}
         />
@@ -80,6 +84,22 @@ export function EarningsPage({
       />
     </EarningsPageShell>
   )
+}
+
+function getPendingBonusPanelKey(
+  period: CreatorEarningsPeriod,
+  pendingBonuses: {
+    next_cursor?: string | null
+    has_more: boolean
+    items: Array<{ id: string }>
+  },
+) {
+  return [
+    period,
+    pendingBonuses.next_cursor ?? '',
+    String(pendingBonuses.has_more),
+    pendingBonuses.items.map((item) => item.id).join('|'),
+  ].join(':')
 }
 
 interface EarningsPageShellProps {

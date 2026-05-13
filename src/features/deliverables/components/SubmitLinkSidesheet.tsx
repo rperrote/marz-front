@@ -48,10 +48,32 @@ export function SubmitLinkSidesheet({
   isResubmission,
   onSubmitted,
 }: SubmitLinkSidesheetProps) {
+  if (!open) {
+    return null
+  }
+
+  return (
+    <SubmitLinkSidesheetContent
+      key={deliverableId}
+      onOpenChange={onOpenChange}
+      deliverableId={deliverableId}
+      platform={platform}
+      isResubmission={isResubmission}
+      onSubmitted={onSubmitted}
+    />
+  )
+}
+
+function SubmitLinkSidesheetContent({
+  onOpenChange,
+  deliverableId,
+  platform,
+  isResubmission,
+  onSubmitted,
+}: Omit<SubmitLinkSidesheetProps, 'open'>) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey)
   const mutation = useSubmitLinkMutation()
-  const { reset } = mutation
 
   const form = useAppForm({
     defaultValues: { url: '' },
@@ -88,14 +110,8 @@ export function SubmitLinkSidesheet({
 
   const isValidUrl = useStore(form.store, (state) => state.canSubmit)
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
-  const urlValue = useStore(form.store, (state) => state.values.url)
 
   useEffect(() => {
-    setErrorMessage(null)
-  }, [urlValue])
-
-  useEffect(() => {
-    if (!open) return
     trackLinkSubmitOpened({
       deliverable_id: deliverableId,
       platform,
@@ -103,23 +119,14 @@ export function SubmitLinkSidesheet({
         ? {}
         : { is_resubmission: isResubmission }),
     })
-    form.reset()
-    setErrorMessage(null)
-    setIdempotencyKey(generateIdempotencyKey())
-    reset()
-  }, [deliverableId, form, isResubmission, open, platform, reset])
+  }, [deliverableId, isResubmission, platform])
 
   function handleOpenChange(nextOpen: boolean) {
-    if (!nextOpen) {
-      form.reset()
-      setErrorMessage(null)
-      reset()
-    }
     onOpenChange(nextOpen)
   }
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet open onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
         showCloseButton={false}
@@ -158,7 +165,12 @@ export function SubmitLinkSidesheet({
           className="flex min-h-0 flex-1 flex-col"
         >
           <div className="flex-1 space-y-6 overflow-y-auto p-5">
-            <form.AppField name="url">
+            <form.AppField
+              name="url"
+              listeners={{
+                onChange: () => setErrorMessage(null),
+              }}
+            >
               {(field) => (
                 <field.TextField
                   type="url"

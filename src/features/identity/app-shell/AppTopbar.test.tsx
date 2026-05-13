@@ -1,28 +1,16 @@
-import { useEffect } from 'react'
 import { render, screen } from '@testing-library/react'
 import { axe } from 'vitest-axe'
 import { describe, expect, it } from 'vitest'
 import { Megaphone, MessageSquare } from 'lucide-react'
 
 import { AppTopbar } from './AppTopbar'
-import { TopbarProvider, useTopbar } from './TopbarContext'
+import { TopbarProvider } from './TopbarContext'
 import type { TopbarConfig } from './TopbarContext'
-
-function TopbarSetter({ config }: { config: TopbarConfig }) {
-  const { setTopbar } = useTopbar()
-
-  useEffect(() => {
-    setTopbar(config)
-  }, [config, setTopbar])
-
-  return null
-}
 
 function renderTopbar(config?: TopbarConfig) {
   return render(
-    <TopbarProvider>
+    <TopbarProvider initialConfig={config ?? null}>
       <AppTopbar />
-      {config ? <TopbarSetter config={config} /> : null}
     </TopbarProvider>,
   )
 }

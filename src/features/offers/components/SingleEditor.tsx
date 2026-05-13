@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
+import type { MutableRefObject } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
 import { z } from 'zod'
@@ -91,10 +92,10 @@ export type SendOfferFormValues = typeof defaultValues
 
 interface SingleEditorProps {
   onClose: () => void
-  onDirtyChange?: (dirty: boolean) => void
+  dirtyRef?: MutableRefObject<boolean>
 }
 
-export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
+export function SingleEditor({ onClose, dirtyRef }: SingleEditorProps) {
   const { conversationId } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
   const mutation = useCreateSingleOffer()
@@ -152,10 +153,9 @@ export function SingleEditor({ onClose, onDirtyChange }: SingleEditorProps) {
   })
 
   const isDirty = useStore(form.store, (s) => s.isDirty)
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty)
-  }, [isDirty, onDirtyChange])
+  if (dirtyRef) {
+    dirtyRef.current = isDirty
+  }
 
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
   const selectedPlatform = useStore(form.store, (s) => s.values.platform)

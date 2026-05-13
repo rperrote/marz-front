@@ -24,10 +24,6 @@ export function ConversationSearchInput({
   const isFirstRender = useRef(true)
 
   useEffect(() => {
-    setLocalValue(value ?? '')
-  }, [value])
-
-  useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return

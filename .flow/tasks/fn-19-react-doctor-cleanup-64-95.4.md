@@ -43,9 +43,8 @@ Eliminar antipatterns de state & effects: `no-prop-callback-in-effect` ×6, `no-
 - [ ] Tasks de configuration wizard fn-18 explícitamente NO tocadas — los 2 issues en `ContentTypeStep.tsx` y `PricingModelStep.tsx` quedan diferidos.
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+draft eliminado del estado interno y API pública de useDraftUploadFlow; tests actualizados correctamente
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

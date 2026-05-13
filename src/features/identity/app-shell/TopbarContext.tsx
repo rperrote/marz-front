@@ -14,8 +14,15 @@ type TopbarContextValue = {
 
 const TopbarContext = createContext<TopbarContextValue | null>(null)
 
-export function TopbarProvider({ children }: { children: ReactNode }) {
+export function TopbarProvider({
+  children,
+  initialConfig = null,
+}: {
+  children: ReactNode
+  initialConfig?: TopbarConfig | null
+}) {
   const [config, setConfig] = useState<TopbarConfig | null>(null)
+  const activeConfig = initialConfig ?? config
 
   const setTopbar = useCallback((nextConfig: TopbarConfig) => {
     setConfig(nextConfig)
@@ -27,11 +34,11 @@ export function TopbarProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
-      config,
+      config: activeConfig,
       resetTopbar,
       setTopbar,
     }),
-    [config, resetTopbar, setTopbar],
+    [activeConfig, resetTopbar, setTopbar],
   )
 
   return <TopbarContext value={value}>{children}</TopbarContext>

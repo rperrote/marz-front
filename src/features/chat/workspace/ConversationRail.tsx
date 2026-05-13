@@ -68,7 +68,11 @@ export function ConversationRail({
 
   const railHeader = (
     <div className="flex flex-col gap-2 border-b border-border p-3">
-      <ConversationSearchInput value={search.search} hasResults={hasResults} />
+      <ConversationSearchInput
+        key={search.search ?? ''}
+        value={search.search}
+        hasResults={hasResults}
+      />
       <ConversationFilterTabs value={search.filter} />
       {sessionKind === 'brand' && 'campaign_id' in search ? (
         <CampaignFilterSelect value={search.campaign_id} />

@@ -163,9 +163,10 @@ describe('useDraftUploadFlow', () => {
       wrapper: createWrapper(),
     })
 
+    const onComplete = vi.fn()
     const file = makeFile()
     act(() => {
-      void result.current.start(file)
+      void result.current.start(file, onComplete)
     })
 
     await waitFor(() => expect(result.current.status).toBe('uploading'))
@@ -188,7 +189,7 @@ describe('useDraftUploadFlow', () => {
 
     await waitFor(() => expect(result.current.status).toBe('done'))
     expect(result.current.progress).toBe(100)
-    expect(result.current.draft).toEqual(MOCK_DRAFT)
+    expect(onComplete).toHaveBeenCalledWith(MOCK_DRAFT)
     expect(mocks.completeMutateAsync).toHaveBeenCalledWith({
       deliverableId: 'del-1',
       intentId: 'intent-1',
@@ -315,6 +316,7 @@ describe('useDraftUploadFlow', () => {
       wrapper: createWrapper(),
     })
 
+    const onComplete = vi.fn()
     const file = makeFile()
     await act(() => result.current.start(file))
     expect(result.current.status).toBe('error')
@@ -323,7 +325,7 @@ describe('useDraftUploadFlow', () => {
     expect(result.current.status).toBe('idle')
 
     act(() => {
-      void result.current.start(file)
+      void result.current.start(file, onComplete)
     })
 
     await waitFor(() => expect(result.current.status).toBe('uploading'))
@@ -335,6 +337,6 @@ describe('useDraftUploadFlow', () => {
     })
 
     await waitFor(() => expect(result.current.status).toBe('done'))
-    expect(result.current.draft).toEqual(MOCK_DRAFT)
+    expect(onComplete).toHaveBeenCalledWith(MOCK_DRAFT)
   })
 })

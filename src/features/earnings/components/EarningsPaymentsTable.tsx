@@ -69,6 +69,7 @@ export function EarningsPaymentsTable({
         </div>
 
         <EarningsSearchExportBar
+          key={q ?? ''}
           period={period}
           q={q}
           rowCount={payments.total_visible}
