@@ -301,10 +301,7 @@ export function BonusStep({ campaignId, config }: BonusStepProps) {
   return (
     <form
       className="mx-auto flex w-full max-w-[920px] flex-col gap-4"
-      onSubmit={(event) => {
-        event.preventDefault()
-        handleContinue()
-      }}
+      action={handleContinue}
     >
       <section className="flex items-center gap-4 rounded-3xl border border-primary/40 bg-primary/10 p-5">
         <div className="min-w-0 flex-1">

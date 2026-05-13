@@ -147,7 +147,7 @@ export function OfferCardMultiStage({
           <div className="space-y-2">
             {snapshot.stages.map((stage, i) => (
               <StageCard
-                key={i}
+                key={`${stage.name}:${stage.deadline}:${stage.amount}`}
                 stage={stage}
                 currency={snapshot.currency}
                 stageIndex={i}

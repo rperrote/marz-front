@@ -1,63 +1,15 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
 
-import { Button } from '#/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from '#/components/ui/dialog'
-import { Label } from '#/components/ui/label'
-import { Textarea } from '#/components/ui/textarea'
-import { IconButton } from '#/shared/ui/IconButton'
-import { X, Play } from 'lucide-react'
-import { cn } from '#/lib/utils'
-import { InlineVideoPlayer } from './InlineVideoPlayer'
-import { ChangeCategoryChip } from './ChangeCategoryChip'
 import { useRequestChangesFlow } from '#/features/deliverables/hooks/useRequestChangesFlow'
 import { useRequestLinkChanges } from '#/features/deliverables/hooks/useRequestLinkChanges'
-import {
-  trackRequestChangesModalDismissed,
-  trackRequestChangesModalOpened,
-} from '#/features/deliverables/analytics'
 import type { ChangeCategory } from '#/features/deliverables/api/requestChanges'
-import type { OfferType } from '#/features/deliverables/types'
-
-const CHANGE_CATEGORIES: { value: ChangeCategory; label: () => string }[] = [
-  { value: 'product_placement', label: () => t`Ubicación del producto` },
-  { value: 'pacing', label: () => t`Ritmo` },
-  { value: 'audio', label: () => t`Audio` },
-  { value: 'discount_code', label: () => t`Código de descuento` },
-  { value: 'other', label: () => t`Otro` },
-]
+import { useRequestChangesModalAnalytics } from './RequestChangesModalAnalytics'
+import { RequestChangesModalBody } from './RequestChangesModalBody'
+import { RequestChangesModalFrame } from './RequestChangesModalFrame'
+import type { RequestChangesModalProps } from './RequestChangesModalTypes'
 
 const NOTES_MAX_LENGTH = 4000
-
-interface RequestChangesModalProps {
-  title: string
-  triggerLabel?: string
-  target?: 'draft' | 'link'
-  /** Required for real usage; optional for design-system showcase. */
-  deliverableId?: string
-  draftId?: string
-  linkId?: string
-  playbackUrl?: string
-  thumbnailUrl?: string
-  durationSec?: number
-  aspect?: 'landscape' | 'portrait'
-  inline?: boolean
-  onClose?: () => void
-  onSubmitted?: () => void
-  trigger?: React.ReactNode
-  analytics?: {
-    offerType: OfferType
-    deliverableIndex: number
-    draftVersion: number
-    roundIndex: number
-  }
-}
 
 export function RequestChangesModal({
   title,
@@ -79,44 +31,39 @@ export function RequestChangesModal({
   const isReal =
     deliverableId != null &&
     (target === 'draft' ? draftId != null : linkId != null)
-  const openedAtRef = useRef<number | null>(null)
   const submittedRef = useRef(false)
   const actionLabel =
     target === 'link'
       ? t`Solicitar cambios en el link`
       : t`Solicitar cambios en el draft`
   const resolvedTriggerLabel = triggerLabel ?? t`Solicitar cambios`
+  const [localCategories, setLocalCategories] = useState<Set<ChangeCategory>>(
+    new Set(),
+  )
+  const [localNotes, setLocalNotes] = useState('')
+  const [open, setOpen] = useState(false)
+
+  const completeSubmission = useCallback(() => {
+    submittedRef.current = true
+    setOpen(false)
+    onSubmitted?.()
+    onClose?.()
+  }, [onClose, onSubmitted])
 
   const draftFlow = useRequestChangesFlow(deliverableId ?? '', draftId ?? '', {
-    onSuccess: () => {
-      submittedRef.current = true
-      setOpen(false)
-      onSubmitted?.()
-      onClose?.()
-    },
+    onSuccess: completeSubmission,
     onConflict: () => {
       onClose?.()
     },
     analytics,
   })
   const linkFlow = useRequestLinkChanges(deliverableId ?? '', linkId ?? '', {
-    onSuccess: () => {
-      submittedRef.current = true
-      setOpen(false)
-      onSubmitted?.()
-      onClose?.()
-    },
+    onSuccess: completeSubmission,
     onConflict: () => {
       onClose?.()
     },
   })
   const flow = target === 'draft' ? draftFlow : linkFlow
-
-  const [localCategories, setLocalCategories] = useState<Set<ChangeCategory>>(
-    new Set(),
-  )
-  const [localNotes, setLocalNotes] = useState('')
-  const [open, setOpen] = useState(false)
 
   const categories = isReal ? flow.categories : localCategories
   const notes = isReal ? flow.notes : localNotes
@@ -129,29 +76,7 @@ export function RequestChangesModal({
   const error = isReal ? flow.error : null
   const activeAnalytics = isReal && (inline || open) ? analytics : undefined
 
-  useEffect(() => {
-    if (!activeAnalytics) return
-
-    openedAtRef.current = Date.now()
-    submittedRef.current = false
-    trackRequestChangesModalOpened({
-      actor_kind: 'brand',
-      offer_type: activeAnalytics.offerType,
-      deliverable_index: activeAnalytics.deliverableIndex,
-      draft_version: activeAnalytics.draftVersion,
-    })
-
-    return () => {
-      const openedAt = openedAtRef.current
-      openedAtRef.current = null
-      if (openedAt == null || submittedRef.current) return
-
-      trackRequestChangesModalDismissed({
-        actor_kind: 'brand',
-        time_in_modal_seconds: Math.max(0, (Date.now() - openedAt) / 1000),
-      })
-    }
-  }, [activeAnalytics])
+  useRequestChangesModalAnalytics(activeAnalytics, submittedRef)
 
   const handleToggle = useCallback(
     (category: ChangeCategory) => {
@@ -223,161 +148,53 @@ export function RequestChangesModal({
     error?.kind === 'field' && error.field === 'notes'
       ? notesErrorId
       : notesHintId
-  const showMedia = target === 'draft'
 
   const body = (
-    <div className="space-y-5">
-      <header className="flex items-start justify-between gap-4 border-b border-border pb-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-destructive">
-            {actionLabel}
-          </p>
-          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-        </div>
-        {!inline ? (
-          <IconButton
-            aria-label={t`Cerrar`}
-            shape="circle"
-            onClick={handleCancel}
-          >
-            <X />
-          </IconButton>
-        ) : null}
-      </header>
-
-      {showMedia ? (
-        playbackUrl ? (
-          <InlineVideoPlayer
-            playbackUrl={playbackUrl}
-            thumbnailUrl={thumbnailUrl}
-            durationSec={durationSec}
-            aspect={aspect}
-            deliverableId={deliverableId}
-            draftId={draftId}
-          />
-        ) : (
-          <div className="aspect-video w-full rounded-lg bg-muted">
-            <div className="flex h-full items-center justify-center">
-              <div className="flex size-16 items-center justify-center rounded-full bg-foreground/70 text-background">
-                <Play className="size-7" />
-              </div>
-            </div>
-          </div>
-        )
-      ) : null}
-
-      <div className="space-y-3">
-        <Label className="text-sm font-semibold text-foreground">
-          {t`¿Qué hay que cambiar?`}
-        </Label>
-        <div className="flex flex-wrap gap-2">
-          {CHANGE_CATEGORIES.map((cat) => (
-            <ChangeCategoryChip
-              key={cat.value}
-              label={cat.label()}
-              selected={categories.has(cat.value)}
-              onToggle={() => handleToggle(cat.value)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label
-            htmlFor={notesId}
-            className="text-sm font-semibold text-foreground"
-          >
-            {t`Notas adicionales`}
-          </Label>
-          <span
-            id={notesHintId}
-            className={cn(
-              'text-xs tabular-nums',
-              notes.length > NOTES_MAX_LENGTH
-                ? 'text-destructive'
-                : 'text-muted-foreground',
-            )}
-          >
-            {notes.length}/{NOTES_MAX_LENGTH}
-          </span>
-        </div>
-        <Textarea
-          id={notesId}
-          value={notes}
-          onChange={(e) => handleNotesChange(e.target.value)}
-          placeholder={t`Sé específico — mencioná timestamps si es posible (ej: 'en 0:42 el logo del producto está cortado')`}
-          rows={4}
-          aria-describedby={notesDescribedBy}
-          aria-invalid={
-            error?.kind === 'field' && error.field === 'notes'
-              ? 'true'
-              : undefined
-          }
-        />
-        {error?.kind === 'field' && error.field === 'notes' ? (
-          <p
-            id={notesErrorId}
-            className="text-sm text-destructive"
-            role="alert"
-          >
-            {error.message}
-          </p>
-        ) : null}
-      </div>
-
-      {error?.kind === 'fatal' ? (
-        <div
-          className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-          role="alert"
-        >
-          {error.message}
-        </div>
-      ) : null}
-
-      <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
-        <Button
-          variant="outline"
-          className="flex-1"
-          onClick={handleCancel}
-          disabled={isSubmitting}
-        >
-          {t`Cancelar`}
-        </Button>
-        <Button
-          className="flex-1"
-          disabled={!canSubmit || isSubmitting}
-          onClick={handleSubmit}
-        >
-          {isSubmitting ? t`Enviando…` : actionLabel}
-        </Button>
-      </div>
-    </div>
+    <RequestChangesModalBody
+      actionLabel={actionLabel}
+      title={title}
+      inline={inline}
+      showMedia={target === 'draft'}
+      playbackUrl={playbackUrl}
+      thumbnailUrl={thumbnailUrl}
+      durationSec={durationSec}
+      aspect={aspect}
+      deliverableId={deliverableId}
+      draftId={draftId}
+      categories={categories}
+      notes={notes}
+      notesId={notesId}
+      notesHintId={notesHintId}
+      notesErrorId={notesErrorId}
+      notesDescribedBy={notesDescribedBy}
+      error={error}
+      canSubmit={canSubmit}
+      isSubmitting={isSubmitting}
+      onCancel={handleCancel}
+      onSubmit={handleSubmit}
+      onToggleCategory={handleToggle}
+      onNotesChange={handleNotesChange}
+    />
   )
 
   if (inline) {
     return (
-      <div className="w-full max-w-xl rounded-2xl border border-border bg-card p-6">
-        <h2 className="sr-only">{title}</h2>
+      <RequestChangesModalFrame inline title={title}>
         {body}
-      </div>
+      </RequestChangesModalFrame>
     )
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger ?? <Button variant="outline">{resolvedTriggerLabel}</Button>}
-      </DialogTrigger>
-      <DialogContent className="max-w-xl">
-        <DialogTitle className="sr-only">{actionLabel}</DialogTitle>
-        <DialogDescription className="sr-only">
-          {target === 'link'
-            ? t`Solicitar cambios para este link`
-            : t`Solicitar cambios para este draft`}
-        </DialogDescription>
-        {body}
-      </DialogContent>
-    </Dialog>
+    <RequestChangesModalFrame
+      open={open}
+      onOpenChange={handleOpenChange}
+      trigger={trigger}
+      triggerLabel={resolvedTriggerLabel}
+      actionLabel={actionLabel}
+      target={target}
+    >
+      {body}
+    </RequestChangesModalFrame>
   )
 }

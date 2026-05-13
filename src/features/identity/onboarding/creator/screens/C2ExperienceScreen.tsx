@@ -30,7 +30,7 @@ export function C2ExperienceScreen() {
   return (
     <div className="flex w-full flex-col items-center gap-9">
       <div className="flex w-full max-w-[560px] flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {firstName
             ? t`${firstName}, ¿cuánto hiciste con marcas?`
             : t`¿Cuánto hiciste con marcas?`}

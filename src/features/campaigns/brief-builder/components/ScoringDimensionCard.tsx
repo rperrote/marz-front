@@ -76,7 +76,6 @@ function SignalList({
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              e.preventDefault()
               addSignal()
             }
           }}

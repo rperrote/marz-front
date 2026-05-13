@@ -200,7 +200,6 @@ function TagInput({
         placeholder={placeholder}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            e.preventDefault()
             addTag(e.currentTarget.value)
             e.currentTarget.value = ''
           }

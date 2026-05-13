@@ -10,7 +10,7 @@ export function C7ChannelsScreen() {
   const store = useCreatorOnboardingStore()
   const channels = store.channels ?? []
 
-  const handleChange = useCallback(
+  const updateChannels = useCallback(
     (next: CreatorChannel[]) => {
       store.setField('channels', next)
     },
@@ -25,14 +25,14 @@ export function C7ChannelsScreen() {
   return (
     <div className="flex w-full flex-col items-center gap-6">
       <div className="flex w-full max-w-[720px] flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {t`Conectá tus cuentas y qué publicás`}
         </h1>
         <p className="text-center text-sm leading-[1.5] text-muted-foreground">
           {t`Verificamos followers y engagement. Cargá tu tarifa por formato — las marcas ven rango, no tu precio directo.`}
         </p>
       </div>
-      <ChannelEditor channels={channels} onChange={handleChange} />
+      <ChannelEditor channels={channels} onChange={updateChannels} />
       {errors.length > 0 && (
         <p
           className="text-[length:var(--font-size-sm)] text-destructive"

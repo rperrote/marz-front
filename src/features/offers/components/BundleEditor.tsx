@@ -176,10 +176,7 @@ export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
+      action={() => void form.handleSubmit()}
       className="flex flex-1 flex-col overflow-hidden"
     >
       <div className="flex-1 space-y-5 overflow-y-auto p-5">
@@ -281,7 +278,7 @@ export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
                           </form.AppField>
 
                           <form.AppField
-                            key={`deliverables.${index}.format.${itemPlatform}`}
+                            key={`deliverables.${item.id}.format.${itemPlatform}`}
                             name={`deliverables[${index}].format`}
                           >
                             {(f) => (

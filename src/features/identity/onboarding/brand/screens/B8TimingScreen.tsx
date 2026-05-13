@@ -22,7 +22,7 @@ export function B8TimingScreen() {
   return (
     <div className="flex w-full flex-col items-center gap-10">
       <div className="flex w-full max-w-[640px] flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {t`¿Cuándo querés empezar?`}
         </h1>
         <p className="text-center text-sm text-muted-foreground">

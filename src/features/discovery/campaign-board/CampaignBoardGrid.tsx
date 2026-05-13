@@ -4,6 +4,15 @@ import type { CreatorCampaignBoardCard } from '#/shared/api/generated/model'
 
 import { CampaignBoardCard } from './CampaignBoardCard'
 
+const CAMPAIGN_BOARD_SKELETON_CARDS = [
+  'recommended',
+  'new',
+  'closing-soon',
+  'high-fit',
+  'brand-match',
+  'backup',
+] as const
+
 interface CampaignBoardGridProps {
   cards: CreatorCampaignBoardCard[]
   onViewBrief: (campaignId: string) => void
@@ -35,9 +44,9 @@ export function CampaignBoardGridSkeleton() {
       className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
       aria-label={t`Cargando campañas`}
     >
-      {Array.from({ length: 6 }, (_, index) => (
+      {CAMPAIGN_BOARD_SKELETON_CARDS.map((card) => (
         <div
-          key={index}
+          key={card}
           className="min-h-[292px] animate-pulse rounded-2xl border border-border bg-card"
         >
           <div className="flex items-center gap-3 border-b border-border p-4">

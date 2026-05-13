@@ -12,12 +12,7 @@ function Harness() {
     onSubmit: () => {},
   })
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
-    >
+    <form action={() => void form.handleSubmit()}>
       <form.AppForm>
         <form.FormError />
         <form.SubmitButton label="ok" />

@@ -46,14 +46,16 @@ function DsOnboardingPage() {
     <div className="min-h-screen bg-background">
       {/* Standalone components */}
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">OnboardingTopbar</h2>
+        <h2 className="text-xl font-semibold text-foreground">
+          OnboardingTopbar
+        </h2>
         <div className="overflow-hidden rounded-xl border border-border">
           <WizardTopbar stepLabel="Paso 1 de 17" onExit={() => {}} />
         </div>
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingProgress
         </h2>
         <div className="space-y-4">
@@ -66,7 +68,9 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">OnboardingFooter</h2>
+        <h2 className="text-xl font-semibold text-foreground">
+          OnboardingFooter
+        </h2>
         <div className="overflow-hidden rounded-xl border border-border">
           <WizardFooter
             onBack={() => {}}
@@ -83,7 +87,7 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingSectionTitle
         </h2>
         <div className="flex justify-center">
@@ -95,7 +99,7 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">FieldRow</h2>
+        <h2 className="text-xl font-semibold text-foreground">FieldRow</h2>
         <div className="flex flex-col items-center gap-4">
           <FieldRow label="Nombre de marca" className="max-w-[440px]">
             {(aria) => (
@@ -120,7 +124,7 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingOptionChip
         </h2>
         <div className="flex flex-wrap gap-3">
@@ -138,7 +142,7 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingVerticalCard
         </h2>
         <div className="flex flex-wrap gap-4">
@@ -161,7 +165,7 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingContentTypeChip
         </h2>
         <div className="flex flex-wrap gap-3">
@@ -186,7 +190,7 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 border-b border-border p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingTierCard
         </h2>
         <div className="flex flex-wrap gap-4">
@@ -218,7 +222,7 @@ function DsOnboardingPage() {
 
       {/* Full Shell demo */}
       <section className="space-y-8 p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingShell (full)
         </h2>
         <div className="h-[600px] overflow-hidden rounded-xl border border-border">
@@ -255,7 +259,7 @@ function DsOnboardingPage() {
       </section>
 
       <section className="space-y-8 p-8">
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-xl font-semibold text-foreground">
           OnboardingShell (loading, no back)
         </h2>
         <div className="h-[400px] overflow-hidden rounded-xl border border-border">

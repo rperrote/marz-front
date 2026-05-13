@@ -99,7 +99,7 @@ export function MagicSentScreen({ email }: { email: string }) {
       </div>
 
       <div className="flex w-full flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-tight text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-tight text-foreground">
           Revisá tu email
         </h1>
         <p className="text-center text-sm leading-relaxed text-muted-foreground">

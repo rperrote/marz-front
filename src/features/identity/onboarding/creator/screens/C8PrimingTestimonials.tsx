@@ -43,7 +43,7 @@ export function C8PrimingTestimonials() {
       />
 
       <div className="relative flex w-full max-w-[720px] flex-col items-center gap-3">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {t`Creadores reales hablando de Marz`}
         </h1>
         <p className="text-center text-sm text-muted-foreground">

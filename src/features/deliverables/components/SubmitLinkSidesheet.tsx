@@ -157,10 +157,7 @@ function SubmitLinkSidesheetContent({
         </header>
 
         <form
-          onSubmit={(event) => {
-            event.preventDefault()
-            void form.handleSubmit()
-          }}
+          action={() => void form.handleSubmit()}
           noValidate
           className="flex min-h-0 flex-1 flex-col"
         >

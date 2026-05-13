@@ -36,6 +36,7 @@ const platformIcon: Record<string, LucideIcon> = {
 }
 
 export interface DraftEntry {
+  id?: string
   filename: string
   duration: string
   /** Status for this specific draft version. */
@@ -80,8 +81,11 @@ export function DeliverableCard({
 
       {hasDrafts ? (
         <ul className="space-y-2">
-          {drafts.map((draft, i) => (
-            <DraftRow key={`${draft.filename}-${i}`} draft={draft} />
+          {drafts.map((draft) => (
+            <DraftRow
+              key={draft.id ?? `${draft.filename}-${draft.duration}`}
+              draft={draft}
+            />
           ))}
         </ul>
       ) : null}

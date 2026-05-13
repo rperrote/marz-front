@@ -21,7 +21,7 @@ export function C9PrimingBenchmark2() {
       </div>
 
       <div className="relative flex w-full max-w-[720px] flex-col items-center gap-3">
-        <h1 className="text-center text-[44px] font-bold leading-[1.2] tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[44px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground">
           {t`Creadores de tu tier facturan 3x más con Marz.`}
         </h1>
         <p className="text-center text-[15px] leading-[1.5] text-muted-foreground">

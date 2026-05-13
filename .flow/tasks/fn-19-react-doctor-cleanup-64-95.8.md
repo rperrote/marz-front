@@ -58,9 +58,8 @@ Tres categorías de finishing touches:
 - [ ] Regresión visual: pantallas con muchas headings (ds.tsx, onboarding, dashboards) renderizan visualmente correctas tras el cambio de bold → semibold.
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+Todos los issues del round anterior resueltos: count tipado como 1|2|3|4, RequestChangesModal dividido en 5 archivos con main ≤200l, MessageTimeline dividido en renderers+chrome, ds.tsx documentado como fast-follow con justificación en el task spec
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

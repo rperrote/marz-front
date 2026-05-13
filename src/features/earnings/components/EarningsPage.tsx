@@ -12,6 +12,13 @@ import { MonthlyEarningsChart } from './MonthlyEarningsChart'
 import { EarningsPaymentsTable } from './EarningsPaymentsTable'
 import { PendingBonusPanel } from './PendingBonusPanel'
 
+const EARNINGS_KPI_SKELETON_IDS = [
+  'available',
+  'pending',
+  'paid',
+  'bonuses',
+] as const
+
 interface EarningsPageProps {
   period: CreatorEarningsPeriod
   q?: string
@@ -118,7 +125,7 @@ function EarningsPageShell({
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-[28px] leading-tight font-bold tracking-normal">
+            <h1 className="text-[28px] leading-tight font-semibold tracking-normal">
               <Trans>Earnings</Trans>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -141,9 +148,9 @@ function EarningsSkeleton() {
         aria-label={t`Loading earnings KPIs`}
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
       >
-        {Array.from({ length: 4 }, (_, index) => (
+        {EARNINGS_KPI_SKELETON_IDS.map((skeletonId) => (
           <div
-            key={index}
+            key={skeletonId}
             className="h-[118px] animate-pulse rounded-2xl border border-border bg-card"
           />
         ))}

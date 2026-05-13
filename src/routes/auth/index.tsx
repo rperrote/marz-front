@@ -34,7 +34,7 @@ function AuthPage() {
           </div>
 
           <div className="flex w-full flex-col items-center gap-2">
-            <h1 className="text-center text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="text-center text-3xl font-semibold tracking-tight text-foreground">
               Entrá a Marz
             </h1>
             <p className="text-center text-sm leading-relaxed text-muted-foreground">

@@ -98,7 +98,7 @@ export function KindSelector() {
   return (
     <div className="flex w-full flex-col items-center gap-12">
       <div className="flex flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-tight text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-tight text-foreground">
           ¿Qué te trae por acá?
         </h1>
         <p className="text-center text-sm text-muted-foreground">

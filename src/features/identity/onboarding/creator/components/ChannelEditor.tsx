@@ -215,7 +215,7 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
 
         return (
           <div
-            key={ci}
+            key={channel.platform}
             className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
           >
             <div className="flex items-center justify-between gap-3">
@@ -337,7 +337,7 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
                           formats.find((f) => f.value === rc.format)?.label ??
                           rc.format
                         return (
-                          <div key={ri} className="flex items-end gap-2">
+                          <div key={rc.format} className="flex items-end gap-2">
                             <div className="flex flex-1 flex-col gap-1">
                               <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
                                 {formatLabel}

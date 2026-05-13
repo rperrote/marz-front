@@ -157,15 +157,24 @@ export function ConversationRail({
   )
 }
 
-function ConversationRailSkeleton({ count = 4 }: { count?: number }) {
+const CONVERSATION_RAIL_SKELETON_ROWS = [
+  'first',
+  'second',
+  'third',
+  'fourth',
+] as const
+
+function ConversationRailSkeleton({ count = 4 }: { count?: 1 | 2 | 3 | 4 }) {
+  const rows = CONVERSATION_RAIL_SKELETON_ROWS.slice(0, count)
+
   return (
     <div
       className="flex flex-col gap-1 p-2"
       role="status"
       aria-label={t`Cargando conversaciones`}
     >
-      {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+      {rows.map((row) => (
+        <div key={row} className="flex items-center gap-3 px-3 py-2.5">
           <div className="size-10 animate-pulse rounded-full bg-muted" />
           <div className="flex flex-1 flex-col gap-1.5">
             <div className="h-4 w-28 animate-pulse rounded bg-muted" />

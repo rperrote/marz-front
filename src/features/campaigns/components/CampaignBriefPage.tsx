@@ -4,11 +4,17 @@ import { ApiError } from '#/shared/api/mutator'
 import { BriefSummaryView } from '../brief-builder/components/BriefSummaryView'
 import { useCampaignBrief } from '../hooks/useCampaignBrief'
 
+const BRIEF_PAGE_SKELETON_SECTIONS = [
+  'basics',
+  'audience',
+  'commercial',
+] as const
+
 function BriefPageSkeleton() {
   return (
     <div className="flex flex-col gap-6">
-      {Array.from({ length: 3 }, (_, i) => (
-        <div key={i} className="flex flex-col gap-3">
+      {BRIEF_PAGE_SKELETON_SECTIONS.map((section) => (
+        <div key={section} className="flex flex-col gap-3">
           <div className="h-4 w-32 animate-pulse rounded bg-muted" />
           <div className="flex flex-col gap-2">
             <div className="h-3 w-20 animate-pulse rounded bg-muted" />

@@ -66,7 +66,7 @@ export function C6ContentTypesScreen() {
   return (
     <div className="flex w-full flex-col items-center gap-9">
       <div className="flex w-full max-w-[600px] flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {t`¿Qué tipo de contenido hacés?`}
         </h1>
         <p className="text-center text-sm text-muted-foreground">

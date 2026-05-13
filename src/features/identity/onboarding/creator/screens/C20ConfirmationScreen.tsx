@@ -232,12 +232,12 @@ export function C20ConfirmationScreen() {
                   </div>
                   {c.rate_cards.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pl-6">
-                      {c.rate_cards.map((rc, i) => {
+                      {c.rate_cards.map((rc) => {
                         const amount = Number(rc.rate_amount)
                         const valid = Number.isFinite(amount) && amount > 0
                         return (
                           <span
-                            key={i}
+                            key={rc.format}
                             className="rounded-md border border-border bg-background px-2 py-1 text-[11px] text-foreground"
                           >
                             <span className="text-muted-foreground">

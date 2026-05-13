@@ -163,10 +163,7 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
+      action={() => void form.handleSubmit()}
       className="flex flex-1 flex-col overflow-hidden"
     >
       <div className="flex-1 space-y-5 overflow-y-auto p-5">

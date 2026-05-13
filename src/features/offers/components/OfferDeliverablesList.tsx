@@ -147,7 +147,7 @@ function MultistageList({
 
           return (
             <StageGroup
-              key={i}
+              key={stageInfo?.id ?? `${stage.name}:${stage.deadline}`}
               stage={stage}
               currency={currency}
               isOpen={isOpen}

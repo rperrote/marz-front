@@ -93,9 +93,9 @@ export function OfferCardBundle({
 
           {expanded && (
             <div className="space-y-2">
-              {snapshot.deliverables.map((d, i) => (
+              {snapshot.deliverables.map((d) => (
                 <DeliverableSummaryRow
-                  key={i}
+                  key={`${d.platform}:${d.format}:${d.quantity}:${d.amount}`}
                   label={`${formatOfferPlatform(d.platform, d.format)} × ${d.quantity}`}
                   amount={d.amount}
                   currency={snapshot.currency}
