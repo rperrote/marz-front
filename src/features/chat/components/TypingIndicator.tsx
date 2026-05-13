@@ -3,6 +3,8 @@ import { t } from '@lingui/core/macro'
 import { cn } from '#/lib/utils'
 import { useTypingActors } from '#/features/chat/stores/typingStore'
 
+const TYPING_DOT_DELAYS = [0, 150, 300] as const
+
 interface TypingIndicatorProps {
   conversationId: string
   currentAccountId: string
@@ -27,14 +29,14 @@ export function TypingIndicator({
       aria-label={t`Escribiendo...`}
     >
       <div className="flex gap-0.5">
-        {[0, 1, 2].map((i) => (
+        {TYPING_DOT_DELAYS.map((delay) => (
           <span
-            key={i}
+            key={delay}
             className={cn(
               'size-1.5 rounded-full bg-muted-foreground',
               'animate-bounce',
             )}
-            style={{ animationDelay: `${i * 150}ms` }}
+            style={{ animationDelay: `${delay}ms` }}
             aria-hidden="true"
           />
         ))}

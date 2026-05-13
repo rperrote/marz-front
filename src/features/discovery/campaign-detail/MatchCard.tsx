@@ -15,6 +15,11 @@ import { formatPlatform, initials } from '#/shared/utils/format'
 
 import { useContactMatch } from './mutations'
 
+const followersFormatter = new Intl.NumberFormat('en-US', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+})
+
 interface MatchCardProps {
   campaignId: string
   match: CampaignMatchCard
@@ -181,8 +186,5 @@ function getPrimaryPlatform(
 
 function formatFollowers(value: number | null) {
   if (value === null) return t`Sin dato`
-  return new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(value)
+  return followersFormatter.format(value)
 }

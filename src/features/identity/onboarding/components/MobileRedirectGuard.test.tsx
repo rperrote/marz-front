@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import { MobileRedirectGuard } from './MobileRedirectGuard'
 
+const RETURN_TO_KEY = 'marz:desktop-only:returnTo'
 const mockNavigate = vi.fn()
 let mockIsMobile = false
 let mockPathname = '/'
@@ -36,7 +37,7 @@ describe('MobileRedirectGuard', () => {
     mockPathname = '/auth'
     renderHook(() => MobileRedirectGuard())
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/desktop-only' })
-    expect(sessionStorage.getItem('marz:desktop-only:returnTo')).toBe('/auth')
+    expect(sessionStorage.getItem(RETURN_TO_KEY)).toBe('/auth')
   })
 
   it('redirects to /desktop-only on mobile at /auth/kind', () => {
@@ -44,9 +45,7 @@ describe('MobileRedirectGuard', () => {
     mockPathname = '/auth/kind'
     renderHook(() => MobileRedirectGuard())
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/desktop-only' })
-    expect(sessionStorage.getItem('marz:desktop-only:returnTo')).toBe(
-      '/auth/kind',
-    )
+    expect(sessionStorage.getItem(RETURN_TO_KEY)).toBe('/auth/kind')
   })
 
   it('redirects to /desktop-only on mobile at /onboarding/brand', () => {
@@ -81,8 +80,6 @@ describe('MobileRedirectGuard', () => {
     mockIsMobile = true
     mockPathname = '/onboarding/creator'
     renderHook(() => MobileRedirectGuard())
-    expect(sessionStorage.getItem('marz:desktop-only:returnTo')).toBe(
-      '/onboarding/creator',
-    )
+    expect(sessionStorage.getItem(RETURN_TO_KEY)).toBe('/onboarding/creator')
   })
 })

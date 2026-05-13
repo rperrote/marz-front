@@ -42,5 +42,3 @@ export function renderWithProviders(
     options,
   )
 }
-
-export { createTestQueryClient }

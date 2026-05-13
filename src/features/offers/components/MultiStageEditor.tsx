@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
+import type { MutableRefObject } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
 import { toast } from 'sonner'
@@ -6,6 +7,7 @@ import { Plus } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
 import { useActiveCampaigns } from '#/shared/api/activeCampaigns'
+import type { ActiveCampaign } from '#/shared/api/activeCampaigns'
 import {
   useAppForm,
   applyBackendFieldErrors,
@@ -23,39 +25,38 @@ import {
 } from '../schemas/multiStageEditor'
 import { deadlineToRFC3339 } from '../utils/formatOffer'
 
-export const defaultValues = {
-  campaign_id: '',
-  stages: [
-    {
-      id: crypto.randomUUID() as string,
-      name: '',
-      description: '',
-      deadline: '',
-      amount: '',
-    },
-  ],
+function createDefaultValues() {
+  return {
+    campaign_id: '',
+    stages: [
+      {
+        id: crypto.randomUUID() as string,
+        name: '',
+        description: '',
+        deadline: '',
+        amount: '',
+      },
+    ],
+  }
 }
-
-export type MultiStageEditorFormValues = typeof defaultValues
 
 interface MultiStageEditorProps {
   onClose: () => void
-  onDirtyChange?: (dirty: boolean) => void
+  dirtyRef?: MutableRefObject<boolean>
 }
 
-export function MultiStageEditor({
-  onClose,
-  onDirtyChange,
-}: MultiStageEditorProps) {
+export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
   const { conversationId } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
   const mutation = useCreateMultistageOffer()
   const [backendBanner, setBackendBanner] = useState<string | null>(null)
 
-  const campaigns = campaignsQuery.data ?? []
+  const campaigns: ActiveCampaign[] = campaignsQuery.data ?? []
+
+  const [initialValues] = useState(createDefaultValues)
 
   const form = useAppForm({
-    defaultValues,
+    defaultValues: initialValues,
     validators: {
       onChange: multiStageEditorBaseSchema,
       onSubmit: multiStageEditorSubmitSchema,
@@ -100,10 +101,9 @@ export function MultiStageEditor({
   })
 
   const isDirty = useStore(form.store, (s) => s.isDirty)
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty)
-  }, [isDirty, onDirtyChange])
+  if (dirtyRef) {
+    dirtyRef.current = isDirty
+  }
 
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
   const stages = useStore(form.store, (s) => s.values.stages)
@@ -143,20 +143,29 @@ export function MultiStageEditor({
         const match = key.match(/^stages\[(\d+)\]\.deadline$/)
         if (match) {
           const index = parseInt(match[1]!, 10)
-          const msg = firstErrorMessage(issues as ReadonlyArray<unknown>)
+          const msg = firstErrorMessage(issues)
           if (msg) map.set(index, msg)
         }
       })
     })
     return map
   })
+  const handleAddStage = () => {
+    form.setFieldValue('stages', [
+      ...stages,
+      {
+        id: crypto.randomUUID(),
+        name: '',
+        description: '',
+        deadline: '',
+        amount: '',
+      },
+    ])
+  }
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
+      action={() => void form.handleSubmit()}
       className="flex flex-1 flex-col overflow-hidden"
     >
       <div className="flex-1 space-y-5 overflow-y-auto p-5">
@@ -222,18 +231,7 @@ export function MultiStageEditor({
             type="button"
             variant="outline"
             className="w-full"
-            onClick={() =>
-              form.setFieldValue('stages', [
-                ...stages,
-                {
-                  id: crypto.randomUUID() as string,
-                  name: '',
-                  description: '',
-                  deadline: '',
-                  amount: '',
-                },
-              ])
-            }
+            onClick={handleAddStage}
           >
             <Plus className="mr-2 size-4" />
             {t`Add stage`}

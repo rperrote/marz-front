@@ -32,66 +32,57 @@ interface SubmitLinkMutationResponse {
 
 export function useSubmitLinkMutation() {
   const queryClient = useQueryClient()
-  const mutation = useMutation({
-    mutationFn: (params: SubmitLinkMutationParams) =>
-      submitLink(
+  return useMutation({
+    mutationFn: async (
+      params: SubmitLinkMutationParams,
+    ): Promise<SubmitLinkMutationResponse> => {
+      const response = await submitLink(
         { deliverable_id: params.deliverableId, url: params.body.url },
         withIdempotencyKey(params.idempotencyKey),
-      ),
-  })
+      )
 
-  const mutateAsync = async (
-    params: SubmitLinkMutationParams,
-  ): Promise<SubmitLinkMutationResponse> => {
-    const response = await mutation.mutateAsync(params)
+      if (response.status !== 201) {
+        throw new Error('Unexpected response')
+      }
 
-    await Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: ['deliverable', params.deliverableId],
-      }),
-      queryClient.invalidateQueries({
-        queryKey: getDeliverableLinksQueryKey(params.deliverableId),
-      }),
-    ])
+      const dto = response.data.link
+      const previewDto = dto.preview
+      const preview: PublishedLinkPreview = previewDto.error
+        ? { outcome: 'failed' }
+        : previewDto.title && previewDto.image_url
+          ? {
+              outcome: 'title_and_thumbnail',
+              title: previewDto.title,
+              thumbnail_url: previewDto.image_url,
+            }
+          : { outcome: 'url_only' }
 
-    if (response.status !== 201) {
-      throw new Error('Unexpected response')
-    }
-
-    const dto = response.data.link
-    const previewDto = dto.preview
-    const preview: PublishedLinkPreview = previewDto.error
-      ? { outcome: 'failed' }
-      : previewDto.title && previewDto.image_url
-        ? {
-            outcome: 'title_and_thumbnail',
-            title: previewDto.title,
-            thumbnail_url: previewDto.image_url,
-          }
-        : { outcome: 'url_only' }
-
-    return {
-      status: response.status,
-      data: {
-        link: {
-          id: dto.id,
-          deliverable_id: dto.deliverable_id,
-          url: dto.url,
-          status: dto.status as PublishedLinkStatus,
-          preview,
-          submitted_at: dto.submitted_at,
-          submitted_by_account_id: dto.submitted_by_account_id,
-          approved_at: dto.approved_at,
-          approved_by_account_id: dto.approved_by_account_id,
+      return {
+        status: response.status,
+        data: {
+          link: {
+            id: dto.id,
+            deliverable_id: dto.deliverable_id,
+            url: dto.url,
+            status: dto.status as PublishedLinkStatus,
+            preview,
+            submitted_at: dto.submitted_at,
+            submitted_by_account_id: dto.submitted_by_account_id,
+            approved_at: dto.approved_at,
+            approved_by_account_id: dto.approved_by_account_id,
+          },
         },
-      },
-    }
-  }
-
-  return {
-    ...mutation,
-    mutateAsync,
-  }
+      }
+    },
+    onSuccess: (_data, params) => {
+      void queryClient.invalidateQueries({
+        queryKey: ['deliverable', params.deliverableId],
+      })
+      void queryClient.invalidateQueries({
+        queryKey: getDeliverableLinksQueryKey(params.deliverableId),
+      })
+    },
+  })
 }
 
 export function getSubmitLinkErrorMessage(error: unknown): string {

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 
 import { brandPaymentsSearchSchema } from '#/features/payments/api/brandPaymentsSchemas'
 import type { BrandPaymentsSearch } from '#/features/payments/api/brandPaymentsSchemas'
@@ -19,10 +19,10 @@ export const Route = createFileRoute('/_brand/payments')({
 
 function BrandPaymentsRoute() {
   const filters = Route.useSearch()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const handleFiltersChange = (nextFilters: BrandPaymentsSearch) => {
-    void navigate({
+    void router.navigate({
       to: '/payments',
       search: {
         period: nextFilters.period,
@@ -42,7 +42,7 @@ function BrandPaymentsRoute() {
           declared_payment_id: row.highlight.id,
           conversation_id: row.conversation_id,
         })
-        void navigate({
+        void router.navigate({
           to: '/workspace/conversations/$conversationId',
           params: { conversationId: row.conversation_id },
           search: {

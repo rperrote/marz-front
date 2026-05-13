@@ -1,6 +1,8 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { CreateBundleOfferRequest as GeneratedCreateBundleOfferRequest } from '#/shared/api/generated/model'
 import { createSingleOffer } from '#/shared/api/generated/offers/offers'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
+import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 
 import {
   trackOfferEvent,
@@ -12,9 +14,20 @@ import {
 export type CreateBundleOfferRequest = GeneratedCreateBundleOfferRequest
 
 export function useCreateBundleOffer() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (data: CreateBundleOfferRequest) => createSingleOffer(data),
-    onSuccess: (_data, variables) => {
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: getConversationOffersQueryKey(variables.conversation_id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: getMessagesQueryKey(variables.conversation_id),
+        }),
+      ])
+
       const amount = parseFloat(variables.amount)
       const hasBonusTerms =
         (variables.bonus_terms?.speed_bonus_windows.length ?? 0) > 0

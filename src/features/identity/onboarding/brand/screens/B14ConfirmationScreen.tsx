@@ -72,7 +72,7 @@ export function B14ConfirmationScreen() {
       </div>
 
       <div className="relative flex w-full max-w-[640px] flex-col items-center gap-3">
-        <h1 className="text-center text-[44px] font-bold leading-[1.2] tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[44px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground">
           {firstName ? t`Listo, ${firstName}.` : t`Listo.`}
         </h1>
         <p className="text-center text-[15px] leading-[1.5] text-muted-foreground">

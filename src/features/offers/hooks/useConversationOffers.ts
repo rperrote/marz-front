@@ -8,7 +8,6 @@ import type {
   OfferDTO,
 } from '#/shared/api/generated/model'
 
-export { getConversationOffersQueryKey }
 export type { ArchivedOfferItem, OfferDTO }
 
 async function fetchConversationOffers(

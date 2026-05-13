@@ -253,8 +253,10 @@ describe('KindSelector', () => {
     }
 
     it('handles 409 kind_already_set: refetch + navigate without loop', async () => {
-      const { ApiError } = await import('#/shared/api/mutator')
-      const onError = await submitCreatorAndGetOnError()
+      const [{ ApiError }, onError] = await Promise.all([
+        import('#/shared/api/mutator'),
+        submitCreatorAndGetOnError(),
+      ])
 
       await onError(new ApiError(409, 'kind_already_set', 'Kind already set'))
 
@@ -267,8 +269,10 @@ describe('KindSelector', () => {
     })
 
     it('does not fire kind_selected analytics on 409', async () => {
-      const { ApiError } = await import('#/shared/api/mutator')
-      const onError = await submitCreatorAndGetOnError()
+      const [{ ApiError }, onError] = await Promise.all([
+        import('#/shared/api/mutator'),
+        submitCreatorAndGetOnError(),
+      ])
 
       await onError(new ApiError(409, 'kind_already_set', 'Kind already set'))
 
@@ -277,8 +281,10 @@ describe('KindSelector', () => {
     })
 
     it('shows inline error on 422 invalid_kind', async () => {
-      const { ApiError } = await import('#/shared/api/mutator')
-      const onError = await submitCreatorAndGetOnError()
+      const [{ ApiError }, onError] = await Promise.all([
+        import('#/shared/api/mutator'),
+        submitCreatorAndGetOnError(),
+      ])
 
       await onError(
         new ApiError(422, 'invalid_kind', 'El tipo de cuenta no es válido'),

@@ -118,15 +118,19 @@ if (TEST_SECRET) {
   }
 }
 
+const results = await Promise.allSettled(
+  targets.map((u) => clerk(`/users/${u.id}`, { method: 'DELETE' })),
+)
 let clerkDeleted = 0
 let failed = 0
-for (const u of targets) {
-  try {
-    await clerk(`/users/${u.id}`, { method: 'DELETE' })
+for (const [i, result] of results.entries()) {
+  if (result.status === 'fulfilled') {
     clerkDeleted++
-  } catch (err) {
+  } else {
     failed++
-    console.error(`clerk DELETE ${u.id}: ${(err as Error).message}`)
+    console.error(
+      `clerk DELETE ${targets[i]!.id}: ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`,
+    )
   }
 }
 console.log(

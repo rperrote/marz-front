@@ -36,8 +36,8 @@ const sourceIcons: Record<string, LucideIcon> = {
 }
 
 export function RecentActivity({ campaignId, activity }: RecentActivityProps) {
-  const sortedActivity = [...activity]
-    .sort(
+  const sortedActivity = activity
+    .toSorted(
       (a, b) =>
         new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime(),
     )
@@ -142,8 +142,4 @@ function formatRelativeTime(iso: string, now = new Date()) {
 
   const days = Math.round(absMs / day)
   return diffMs >= 0 ? t`Hace ${days} d` : t`En ${days} d`
-}
-
-export const recentActivityFormatters = {
-  formatRelativeTime,
 }

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+
+  // App boot files and TanStack Router route modules are runtime roots.
+  "entry": [
+    "src/start.ts",
+    "src/router.tsx",
+    "src/routes/**/*.tsx",
+    "src/styles.css",
+
+    // Vitest and Playwright files are independent roots in local tooling.
+    "src/**/*.test.{ts,tsx}",
+    "src/test/e2e/**/*.ts",
+
+    // Operational scripts and tool configs are invoked outside app imports.
+    "scripts/**/*.ts",
+  ],
+
+  // Keep the analysis scoped to authored source and repository tooling.
+  "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.ts"],
+
+  // Generated code and shadcn primitives expose stable surfaces intentionally.
+  "ignoreIssues": {
+    "src/routeTree.gen.ts": ["files", "exports", "types"],
+    "src/shared/api/generated/**": ["files", "exports", "types", "duplicates"],
+    "src/shared/api/test-generated/**": [
+      "files",
+      "exports",
+      "types",
+      "duplicates",
+    ],
+    "src/components/ui/**": ["exports", "types"],
+  },
+
+  // Tool/plugin dependencies can be referenced from config strings or framework internals.
+  "ignoreDependencies": [
+    "@lingui/detect-locale",
+    "@lingui/swc-plugin",
+    "@tanstack/router-plugin",
+    "@vitejs/plugin-react",
+  ],
+
+  // Generated Zod schemas use exported helper types with z.infer in the same file.
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true,
+  },
+
+  // These plugins are auto-detected from dependencies; true keeps the contract explicit.
+  "vite": true,
+  "vitest": true,
+  "playwright": true,
+  "tailwind": true,
+  "tanstack-router": true,
+}

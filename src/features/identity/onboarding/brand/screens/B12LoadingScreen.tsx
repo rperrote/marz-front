@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { t } from '@lingui/core/macro'
 import { Check } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
@@ -46,7 +46,11 @@ const STEP_INTERVAL = 700
 export function B12LoadingScreen() {
   const navigate = useNavigate()
   const store = useBrandOnboardingStore()
-  const [completedCount, setCompletedCount] = useState(0)
+  const [completedCount, dispatchCompletedCount] = useReducer(
+    (current: number, action: { type: 'advance'; max: number }) =>
+      Math.min(action.max, current + 1),
+    0,
+  )
 
   const vertical = store.vertical ?? Vertical.other
   const budget = store.monthly_budget_range ?? MonthlyBudgetRange.under_10k
@@ -60,23 +64,24 @@ export function B12LoadingScreen() {
   ]
 
   useEffect(() => {
-    if (completedCount >= steps.length) {
+    if (completedCount < steps.length) {
       const timer = setTimeout(() => {
-        const currentIndex = STEPS.findIndex((s) => s.id === 'loading')
-        if (currentIndex >= 0 && currentIndex < STEPS.length - 1) {
-          const nextIndex = currentIndex + 1
-          store.goTo(nextIndex)
-          void navigate({
-            to: '/onboarding/brand/$step',
-            params: { step: getStepId(nextIndex) },
-          })
-        }
-      }, 500)
+        dispatchCompletedCount({ type: 'advance', max: steps.length })
+      }, STEP_INTERVAL)
       return () => clearTimeout(timer)
     }
+
     const timer = setTimeout(() => {
-      setCompletedCount((c) => c + 1)
-    }, STEP_INTERVAL)
+      const currentIndex = STEPS.findIndex((s) => s.id === 'loading')
+      if (currentIndex >= 0 && currentIndex < STEPS.length - 1) {
+        const nextIndex = currentIndex + 1
+        store.goTo(nextIndex)
+        void navigate({
+          to: '/onboarding/brand/$step',
+          params: { step: getStepId(nextIndex) },
+        })
+      }
+    }, 500)
     return () => clearTimeout(timer)
   }, [completedCount, navigate, store, steps.length])
 
@@ -106,7 +111,7 @@ export function B12LoadingScreen() {
       </div>
 
       <div className="relative flex w-full max-w-[640px] flex-col items-center gap-3.5">
-        <h1 className="text-center text-[44px] font-bold leading-[1.2] tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[44px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground">
           {t`Armando tu shortlist…`}
         </h1>
         <p className="text-center text-[15px] leading-[1.5] text-muted-foreground">

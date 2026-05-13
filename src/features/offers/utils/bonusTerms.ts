@@ -2,8 +2,8 @@ import type { OfferBonusTerms } from '#/shared/api/generated/model'
 
 export function sortBonusTerms(bonusTerms: OfferBonusTerms): OfferBonusTerms {
   return {
-    speed_bonus_windows: [...bonusTerms.speed_bonus_windows]
-      .sort((a, b) => a.window_hours - b.window_hours)
+    speed_bonus_windows: bonusTerms.speed_bonus_windows
+      .toSorted((a, b) => a.window_hours - b.window_hours)
       .map(({ window_hours, bonus_pct }) => ({ window_hours, bonus_pct })),
   }
 }

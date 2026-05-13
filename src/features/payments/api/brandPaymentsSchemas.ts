@@ -19,13 +19,6 @@ export const exportBrandPaymentsCsvInputSchema =
   })
 
 export type BrandPaymentsSearch = z.infer<typeof brandPaymentsSearchSchema>
-export type BrandPaymentsSpendingInput = z.infer<
-  typeof brandPaymentsSpendingInputSchema
->
-export type ExportBrandPaymentsCsvInput = z.infer<
-  typeof exportBrandPaymentsCsvInputSchema
->
-
 export interface BrandPaymentsPeriod {
   value: BrandPaymentsSearch['period']
   start_at: string | null

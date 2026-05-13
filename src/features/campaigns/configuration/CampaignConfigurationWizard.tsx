@@ -140,11 +140,11 @@ export function CampaignConfigurationWizard({
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-8 py-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 p-8">
           <section className="flex flex-col gap-6">
             <div className="flex items-start gap-6">
               <div className="min-w-0 flex-1">
-                <h1 className="text-2xl font-bold text-foreground">
+                <h1 className="text-2xl font-semibold text-foreground">
                   {activeCopy.title}
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">

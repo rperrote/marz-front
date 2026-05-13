@@ -58,7 +58,7 @@ function KindPage() {
     <main className="relative flex min-h-screen flex-col bg-background">
       <div className="flex h-16 items-center justify-between px-8">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-foreground">
+          <div className="flex size-7 items-center justify-center rounded-[7px] bg-foreground">
             <svg width={16} height={16} viewBox="0 0 40 40" fill="none">
               <circle cx={8} cy={10} r={2.5} fill="var(--background)" />
               <circle cx={17.5} cy={10} r={2.5} fill="var(--background)" />

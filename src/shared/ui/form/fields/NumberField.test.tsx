@@ -16,12 +16,7 @@ function Harness() {
     onSubmit: () => {},
   })
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
-    >
+    <form action={() => void form.handleSubmit()}>
       <form.AppField name="age">
         {(field) => <field.NumberField label="Edad" />}
       </form.AppField>

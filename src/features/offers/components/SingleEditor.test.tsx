@@ -88,7 +88,7 @@ async function selectOption(
   const nativeSelect = wrapper?.querySelector('select[aria-hidden="true"]')
   if (!nativeSelect) throw new Error('Native select not found')
   const option = Array.from(nativeSelect.querySelectorAll('option')).find(
-    (opt) => opt.textContent.trim() === optionName,
+    (opt) => (opt.textContent ?? '').trim() === optionName,
   )
   if (!option) throw new Error(`Option "${optionName}" not found`)
   await user.selectOptions(nativeSelect, option.value)

@@ -10,7 +10,7 @@ import { getContext } from './integrations/tanstack-query/root-provider'
 function DefaultNotFound() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-6 text-center">
-      <h1 className="text-3xl font-bold text-foreground">404</h1>
+      <h1 className="text-3xl font-semibold text-foreground">404</h1>
       <p className="text-sm text-muted-foreground">
         La página que buscás no existe.
       </p>
@@ -36,7 +36,13 @@ export function getRouter() {
     defaultNotFoundComponent: DefaultNotFound,
   })
 
-  setupRouterSsrQueryIntegration({ router, queryClient: context.queryClient })
+  setupRouterSsrQueryIntegration({
+    router,
+    // RAFITA:ANY: setupRouterSsrQueryIntegration expects the queryClient type from its own @tanstack/react-query dependency; context.queryClient is the app QueryClient instance, but pnpm can resolve these through different package instances.
+    queryClient: context.queryClient as unknown as Parameters<
+      typeof setupRouterSsrQueryIntegration
+    >[0]['queryClient'],
+  })
 
   return router
 }

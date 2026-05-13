@@ -107,21 +107,23 @@ function renderSidesheet(props?: {
 }
 
 function getRequestBodies(eventName: string) {
-  return mockedCustomFetch.mock.calls
-    .filter(([url]) => String(url).includes('/analytics/events'))
-    .map(([, options]) => JSON.parse(String(options?.body)) as unknown)
-    .filter(
-      (
-        body,
-      ): body is {
-        name: string
-        properties: Record<string, unknown>
-      } =>
-        typeof body === 'object' &&
-        body !== null &&
-        'name' in body &&
-        (body as { name: unknown }).name === eventName,
-    )
+  const bodies: Array<{
+    name: string
+    properties: Record<string, unknown>
+  }> = []
+  for (const [url, options] of mockedCustomFetch.mock.calls) {
+    if (!String(url).includes('/analytics/events')) continue
+    const body = JSON.parse(String(options?.body)) as unknown
+    if (
+      typeof body === 'object' &&
+      body !== null &&
+      'name' in body &&
+      body.name === eventName
+    ) {
+      bodies.push(body as { name: string; properties: Record<string, unknown> })
+    }
+  }
+  return bodies
 }
 
 beforeEach(() => {

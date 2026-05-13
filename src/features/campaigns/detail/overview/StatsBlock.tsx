@@ -16,6 +16,23 @@ interface StatCardProps {
   tone?: 'default' | 'success' | 'neutral'
 }
 
+const compactNumberFormatter = new Intl.NumberFormat('en-US', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+})
+
+const wholeUsdFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+})
+
+const fractionalUsdFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 2,
+})
+
 export function StatsBlock({ overview }: StatsBlockProps) {
   return (
     <section aria-label={t`Estadísticas de campaña`}>
@@ -97,21 +114,16 @@ function StatCard({
 }
 
 function formatCompactNumber(value: number) {
-  return new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(value)
+  return compactNumberFormatter.format(value)
 }
 
 function formatUsd(amount: string) {
   const number = Number.parseFloat(amount)
   if (Number.isNaN(number)) return `USD ${amount}`
 
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: number % 1 === 0 ? 0 : 2,
-  }).format(number)
+  const formatter =
+    number % 1 === 0 ? wholeUsdFormatter : fractionalUsdFormatter
+  return formatter.format(number)
 }
 
 export const campaignOverviewFormatters = {

@@ -63,6 +63,9 @@ export function useContactMatch(
         campaignId,
         mode: variables.data.invite?.mode,
       })
+      await queryClient.invalidateQueries({
+        queryKey: ['campaign', campaignId, 'discovery'],
+      })
       await invalidateDiscovery(queryClient, campaignId)
     },
     onError: (error) => {
@@ -105,6 +108,9 @@ export function useAcceptApplication(
       trackDiscoveryApplicationDecided({
         campaignId,
         decision: 'accept',
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['campaign', campaignId, 'discovery'],
       })
       await invalidateDiscovery(queryClient, campaignId, { participants: true })
       if (data.conversation?.id) {
@@ -149,6 +155,9 @@ export function useRejectApplication(campaignId: string) {
         campaignId,
         decision: 'reject',
       })
+      await queryClient.invalidateQueries({
+        queryKey: ['campaign', campaignId, 'discovery'],
+      })
       await invalidateDiscovery(queryClient, campaignId)
     },
     onError: handleDiscoveryMutationError,
@@ -185,6 +194,9 @@ export function useCreateCampaignInvite(campaignId: string) {
         mode: variables.mode,
       })
       toast.success(t`Invitación enviada`)
+      await queryClient.invalidateQueries({
+        queryKey: ['campaign', campaignId, 'discovery'],
+      })
       await invalidateDiscovery(queryClient, campaignId)
     },
     onError: handleDiscoveryMutationError,
@@ -208,9 +220,6 @@ async function invalidateDiscovery(
   await Promise.all([
     queryClient.invalidateQueries({
       queryKey: getCampaignDiscoveryQueryKey(campaignId, 'summary'),
-    }),
-    queryClient.invalidateQueries({
-      queryKey: ['campaign', campaignId, 'discovery'],
     }),
     options.participants
       ? queryClient.invalidateQueries({

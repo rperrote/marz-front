@@ -22,18 +22,13 @@ function Harness({
     onSubmit: ({ value }) => onSubmit?.(value.email),
   })
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
-    >
+    <form action={() => void form.handleSubmit()}>
       <form.AppField name="email">
         {(field) => (
           <field.TextField label="Email" placeholder="tu@empresa.com" />
         )}
       </form.AppField>
-      <button type="submit">submit</button>
+      <button type="submit">Guardar email</button>
     </form>
   )
 }

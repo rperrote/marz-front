@@ -36,7 +36,7 @@ export function PDFUploadField({
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const setFileFromInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0]
     if (!selected) return
 
@@ -53,7 +53,7 @@ export function PDFUploadField({
     event.target.value = ''
   }
 
-  const handleRemove = () => {
+  const removeSelectedFile = () => {
     setError(null)
     onFileChange(null)
     if (inputRef.current) inputRef.current.value = ''
@@ -73,7 +73,7 @@ export function PDFUploadField({
             type="file"
             accept=".pdf,application/pdf"
             className="sr-only"
-            onChange={handleChange}
+            onChange={setFileFromInput}
             aria-describedby={aria['aria-describedby']}
             aria-invalid={aria['aria-invalid']}
           />
@@ -91,7 +91,7 @@ export function PDFUploadField({
                 variant="ghost"
                 size="icon"
                 className="size-7 shrink-0"
-                onClick={handleRemove}
+                onClick={removeSelectedFile}
                 aria-label="Eliminar archivo"
               >
                 <X className="size-4" />

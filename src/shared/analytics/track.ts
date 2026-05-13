@@ -73,7 +73,9 @@ export function track(
 
   const entry: TrackedEvent = { event, payload, timestamp: Date.now() }
   buffer.push(entry)
-  console.debug('[analytics]', event, payload)
+  if (import.meta.env.MODE !== 'test') {
+    console.debug('[analytics]', event, payload)
+  }
 }
 
 export function getTrackedEvents(): readonly TrackedEvent[] {

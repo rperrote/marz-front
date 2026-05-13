@@ -19,6 +19,7 @@ import { WorkspaceLayout } from '#/features/chat/workspace/WorkspaceLayout'
 import { workspaceSearchSchema } from '#/features/chat/workspace/workspaceSearchSchema'
 
 const STALE_TIME = 30_000
+type RouteMe = meResponse['data'] | ServerMeBody
 
 export const Route = createFileRoute('/workspace')({
   validateSearch: workspaceSearchSchema,
@@ -31,17 +32,17 @@ export const Route = createFileRoute('/workspace')({
       queryClient.getQueryState(getMeQueryKey())?.dataUpdatedAt ?? 0
     const isFresh = cachedMe && Date.now() - cacheAge < STALE_TIME
 
-    let me: ServerMeBody | null = null
+    let me: RouteMe | null = null
 
     if (isFresh) {
-      me = cachedMe as unknown as ServerMeBody
+      me = cachedMe
     } else {
       const result = await getServerMe()
       if (result.ok) {
         me = result.body
         queryClient.setQueryData(
           getMeQueryKey(),
-          { data: me, status: 200 } as unknown as meResponse,
+          { data: me, status: 200 },
           { updatedAt: Date.now() },
         )
       }
@@ -71,10 +72,11 @@ export const Route = createFileRoute('/workspace')({
     }
 
     const sessionKind: 'brand' | 'creator' = me.kind
+    const membershipRole = 'membership' in me ? me.membership?.role : undefined
     return {
       accountId: me.id,
       sessionKind,
-      viewerRole: sessionKind === 'brand' ? me.membership?.role : undefined,
+      viewerRole: sessionKind === 'brand' ? membershipRole : undefined,
     }
   },
   component: WorkspaceRoute,

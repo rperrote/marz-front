@@ -14,6 +14,15 @@ import type { CreatorCampaignBoardCard } from '#/shared/api/generated/model'
 import { CampaignBriefContent } from './CampaignBriefContent'
 import { useCampaignBoardDetailQuery } from './hooks/useCampaignBoardDetailQuery'
 
+const SHEET_SKELETON_SECTIONS = [
+  'overview',
+  'audience',
+  'requirements',
+  'deliverables',
+  'scoring',
+  'commercial',
+] as const
+
 interface CampaignBriefSheetProps {
   campaignId: string | null
   onOpenChange: (open: boolean) => void
@@ -53,8 +62,8 @@ function SheetSkeleton() {
       className="space-y-6 p-6 pt-2"
       aria-label={t`Cargando brief`}
     >
-      {Array.from({ length: 6 }, (_, index) => (
-        <div key={index} className="space-y-3">
+      {SHEET_SKELETON_SECTIONS.map((section) => (
+        <div key={section} className="space-y-3">
           <div className="h-4 w-32 animate-pulse rounded-full bg-muted" />
           <div className="space-y-2">
             <div className="h-3 w-full animate-pulse rounded-full bg-muted" />

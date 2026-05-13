@@ -8,6 +8,7 @@ import { useMe } from '#/shared/api/generated/accounts/accounts'
 import type { InboxInlineAction } from '#/shared/api/generated/model'
 import { acceptOffer } from '#/shared/api/generated/offers/offers'
 import { ApiError } from '#/shared/api/mutator'
+import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 
 import { inboxQueryKey } from './api/inbox'
 import { InboxInlineActionPopover } from './InboxInlineActionPopover'
@@ -54,19 +55,34 @@ const uuidV4Pattern =
 
 const sendMessageMutate = vi.fn()
 
+type UseMeResult = ReturnType<typeof useMe>
+type SendMessageMutationResult = ReturnType<typeof useSendMessageMutation>
+
+function useMeResult(data: UseMeResult['data']): UseMeResult {
+  return { data } as UseMeResult
+}
+
+function sendMessageMutationResult(
+  result: Pick<SendMessageMutationResult, 'isPending' | 'mutate'>,
+): SendMessageMutationResult {
+  return result as SendMessageMutationResult
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   resetTrackedEvents()
-  vi.mocked(useMe).mockReturnValue({
-    data: {
+  vi.mocked(useMe).mockReturnValue(
+    useMeResult({
       data: { id: 'account-1' },
       status: 200,
-    },
-  } as unknown as ReturnType<typeof useMe>)
-  vi.mocked(useSendMessageMutation).mockReturnValue({
-    isPending: false,
-    mutate: sendMessageMutate,
-  } as unknown as ReturnType<typeof useSendMessageMutation>)
+    }),
+  )
+  vi.mocked(useSendMessageMutation).mockReturnValue(
+    sendMessageMutationResult({
+      isPending: false,
+      mutate: sendMessageMutate,
+    }),
+  )
 })
 
 describe('InboxInlineActionPopover', () => {
@@ -120,7 +136,7 @@ describe('InboxInlineActionPopover', () => {
     })
     await waitFor(() => {
       expect(invalidateQueries).toHaveBeenCalledWith({
-        queryKey: inboxQueryKey,
+        queryKey: getConversationOffersQueryKey('conv-1'),
       })
     })
 
@@ -128,6 +144,33 @@ describe('InboxInlineActionPopover', () => {
       'inbox_inline_started',
       'inbox_inline_completed',
     ])
+  })
+
+  it('omits offer query invalidation when conversation id is unavailable', async () => {
+    const user = userEvent.setup()
+    vi.mocked(acceptOffer).mockResolvedValue({
+      data: {},
+      headers: new Headers(),
+      status: 200,
+    } as Awaited<ReturnType<typeof acceptOffer>>)
+    const { queryClient } = renderPopover([makeOfferAcceptAction()], {
+      conversationId: null,
+    })
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries')
+
+    await user.click(screen.getByRole('button', { name: /acciones/i }))
+    await user.click(screen.getByRole('button', { name: /aceptar oferta/i }))
+
+    await waitFor(() => {
+      expect(acceptOffer).toHaveBeenCalledWith('offer-1', {
+        headers: { 'Idempotency-Key': expect.stringMatching(uuidV4Pattern) },
+      })
+    })
+    expect(invalidateQueries).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: expect.arrayContaining(['conversations']),
+      }),
+    )
   })
 
   it('handles 409 as a neutral state refresh', async () => {
@@ -182,7 +225,10 @@ describe('InboxInlineActionPopover', () => {
   })
 })
 
-function renderPopover(inlineActions: InboxInlineAction[]) {
+function renderPopover(
+  inlineActions: InboxInlineAction[],
+  options?: { conversationId?: string | null },
+) {
   const queryClient = new QueryClient({
     defaultOptions: { mutations: { retry: false }, queries: { retry: false } },
   })
@@ -191,6 +237,11 @@ function renderPopover(inlineActions: InboxInlineAction[]) {
     <QueryClientProvider client={queryClient}>
       <InboxInlineActionPopover
         analyticsPayload={analyticsPayload}
+        conversationId={
+          options?.conversationId === undefined
+            ? 'conv-1'
+            : options.conversationId
+        }
         itemId="item-1"
         inlineActions={inlineActions}
       />

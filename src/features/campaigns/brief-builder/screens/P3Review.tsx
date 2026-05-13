@@ -10,7 +10,6 @@ import { useBriefBuilderStore } from '../store'
 import type {
   BriefDraft,
   ScoringDimension,
-  HardFilter,
   Gender,
   Platform,
   CampaignObjective,
@@ -200,7 +199,6 @@ function TagInput({
         placeholder={placeholder}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            e.preventDefault()
             addTag(e.currentTarget.value)
             e.currentTarget.value = ''
           }
@@ -234,6 +232,53 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
     <h2 className="text-[length:var(--font-size-lg)] font-semibold text-foreground">
       {children}
     </h2>
+  )
+}
+
+function ScoringSection({
+  dimensions,
+  weightSum,
+  onAdd,
+  onUpdate,
+  onRemove,
+}: {
+  dimensions: ScoringDimension[]
+  weightSum: number
+  onAdd: () => void
+  onUpdate: (index: number, updated: ScoringDimension) => void
+  onRemove: (index: number) => void
+}) {
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <SectionHeading>{t`Scoring Dimensions`}</SectionHeading>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onAdd}
+          disabled={dimensions.length >= 4}
+          aria-label={t`Agregar dimensión`}
+        >
+          <Plus className="size-3.5" />
+          {t`Agregar dimensión`}
+        </Button>
+      </div>
+
+      {dimensions.length === 0 && <InsufficientFieldHint />}
+
+      <WeightSumIndicator sum={weightSum} />
+
+      {dimensions.map((dim, idx) => (
+        <ScoringDimensionCard
+          key={dim.id}
+          index={idx}
+          dimension={dim}
+          onChange={(updated) => onUpdate(idx, updated)}
+          onRemove={() => onRemove(idx)}
+        />
+      ))}
+    </section>
   )
 }
 
@@ -314,13 +359,164 @@ export function P3Review() {
     form.setFieldValue('brief.icp_platforms', next)
   }
 
-  const updateHardFilters = (filters: HardFilter[]) => {
-    form.setFieldValue('brief.hard_filters', filters)
-  }
+  const campaignSection = (
+    <section className="flex flex-col gap-4">
+      <SectionHeading>{t`Campaña`}</SectionHeading>
+      <form.AppField name="campaign.name">
+        {(field) => (
+          <field.TextField
+            label={t`Nombre`}
+            placeholder={t`Ej: Lanzamiento verano 2026`}
+            maxLength={150}
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="campaign.objective">
+        {(field) => (
+          <field.SelectField
+            label={t`Objetivo`}
+            placeholder={t`Seleccioná un objetivo`}
+            options={OBJECTIVE_OPTIONS.map((o) => ({
+              value: o.value,
+              label: o.label(),
+            }))}
+          />
+        )}
+      </form.AppField>
+      <div className="grid grid-cols-2 gap-4">
+        <form.AppField name="campaign.budget_amount">
+          {(field) => (
+            <field.NumberField
+              label={t`Presupuesto (USD)`}
+              placeholder="5000"
+              min={1}
+            />
+          )}
+        </form.AppField>
+        <form.AppField name="campaign.deadline">
+          {(field) => <field.TextField label={t`Deadline`} type="date" />}
+        </form.AppField>
+      </div>
+    </section>
+  )
 
-  const updateDisqualifiers = (disqualifiers: string[]) => {
-    form.setFieldValue('brief.disqualifiers', disqualifiers)
-  }
+  const icpSection = (
+    <section className="flex flex-col gap-4">
+      <SectionHeading>{t`Perfil de creador ideal (ICP)`}</SectionHeading>
+
+      <FieldRow label={t`Descripción`}>
+        {(aria) => (
+          <>
+            {!values.brief.icp_description && <InsufficientFieldHint />}
+            <Input
+              {...aria}
+              value={values.brief.icp_description ?? ''}
+              onChange={(e) =>
+                form.setFieldValue(
+                  'brief.icp_description',
+                  e.target.value || null,
+                )
+              }
+              placeholder={t`Descripción del perfil ideal`}
+            />
+          </>
+        )}
+      </FieldRow>
+
+      <div className="grid grid-cols-2 gap-4">
+        <FieldRow label={t`Edad mínima`}>
+          {(aria) => (
+            <Input
+              {...aria}
+              type="number"
+              inputMode="numeric"
+              min={13}
+              max={99}
+              value={values.brief.icp_age_min ?? ''}
+              onChange={(e) =>
+                form.setFieldValue(
+                  'brief.icp_age_min',
+                  e.target.value === '' ? null : Number(e.target.value),
+                )
+              }
+            />
+          )}
+        </FieldRow>
+        <FieldRow label={t`Edad máxima`}>
+          {(aria) => (
+            <Input
+              {...aria}
+              type="number"
+              inputMode="numeric"
+              min={13}
+              max={99}
+              value={values.brief.icp_age_max ?? ''}
+              onChange={(e) =>
+                form.setFieldValue(
+                  'brief.icp_age_max',
+                  e.target.value === '' ? null : Number(e.target.value),
+                )
+              }
+            />
+          )}
+        </FieldRow>
+      </div>
+
+      <FieldRow label={t`Géneros`}>
+        {() => (
+          <div className="flex flex-wrap gap-2">
+            {GENDER_OPTIONS.map((opt) => (
+              <ToggleChip
+                key={opt.value}
+                label={opt.label()}
+                selected={values.brief.icp_genders.includes(opt.value)}
+                onToggle={() => toggleGender(opt.value)}
+              />
+            ))}
+          </div>
+        )}
+      </FieldRow>
+
+      <FieldRow label={t`Plataformas`}>
+        {() => (
+          <div className="flex flex-wrap gap-2">
+            {PLATFORM_OPTIONS.map((opt) => (
+              <ToggleChip
+                key={opt.value}
+                label={opt.label()}
+                selected={values.brief.icp_platforms.includes(opt.value)}
+                onToggle={() => togglePlatform(opt.value)}
+              />
+            ))}
+          </div>
+        )}
+      </FieldRow>
+
+      <FieldRow label={t`Países (código ISO 2 letras)`}>
+        {() => (
+          <TagInput
+            tags={values.brief.icp_countries}
+            onChange={(countries) =>
+              form.setFieldValue('brief.icp_countries', countries)
+            }
+            placeholder={t`Ej: AR, US, MX`}
+          />
+        )}
+      </FieldRow>
+
+      <FieldRow label={t`Intereses`}>
+        {() => (
+          <TagInput
+            tags={values.brief.icp_interests}
+            onChange={(interests) =>
+              form.setFieldValue('brief.icp_interests', interests)
+            }
+            placeholder={t`Ej: fitness, moda, gaming`}
+          />
+        )}
+      </FieldRow>
+    </section>
+  )
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
@@ -332,210 +528,35 @@ export function P3Review() {
       {draftIsEmpty && <InsufficientBanner />}
 
       <div className="flex w-full max-w-[640px] flex-col gap-10">
-        {/* Campaign Section */}
-        <section className="flex flex-col gap-4">
-          <SectionHeading>{t`Campaña`}</SectionHeading>
-          <form.AppField name="campaign.name">
-            {(field) => (
-              <field.TextField
-                label={t`Nombre`}
-                placeholder={t`Ej: Lanzamiento verano 2026`}
-                maxLength={150}
-              />
-            )}
-          </form.AppField>
-          <form.AppField name="campaign.objective">
-            {(field) => (
-              <field.SelectField
-                label={t`Objetivo`}
-                placeholder={t`Seleccioná un objetivo`}
-                options={OBJECTIVE_OPTIONS.map((o) => ({
-                  value: o.value,
-                  label: o.label(),
-                }))}
-              />
-            )}
-          </form.AppField>
-          <div className="grid grid-cols-2 gap-4">
-            <form.AppField name="campaign.budget_amount">
-              {(field) => (
-                <field.NumberField
-                  label={t`Presupuesto (USD)`}
-                  placeholder="5000"
-                  min={1}
-                />
-              )}
-            </form.AppField>
-            <form.AppField name="campaign.deadline">
-              {(field) => <field.TextField label={t`Deadline`} type="date" />}
-            </form.AppField>
-          </div>
-        </section>
+        {campaignSection}
 
-        {/* ICP Section */}
-        <section className="flex flex-col gap-4">
-          <SectionHeading>{t`Perfil de creador ideal (ICP)`}</SectionHeading>
+        {icpSection}
 
-          <FieldRow label={t`Descripción`}>
-            {(aria) => (
-              <>
-                {!values.brief.icp_description && <InsufficientFieldHint />}
-                <Input
-                  {...aria}
-                  value={values.brief.icp_description ?? ''}
-                  onChange={(e) =>
-                    form.setFieldValue(
-                      'brief.icp_description',
-                      e.target.value || null,
-                    )
-                  }
-                  placeholder={t`Descripción del perfil ideal`}
-                />
-              </>
-            )}
-          </FieldRow>
+        <ScoringSection
+          dimensions={scoringDimensions}
+          weightSum={weightSum}
+          onAdd={addDimension}
+          onUpdate={updateDimension}
+          onRemove={removeDimension}
+        />
 
-          <div className="grid grid-cols-2 gap-4">
-            <FieldRow label={t`Edad mínima`}>
-              {(aria) => (
-                <Input
-                  {...aria}
-                  type="number"
-                  inputMode="numeric"
-                  min={13}
-                  max={99}
-                  value={values.brief.icp_age_min ?? ''}
-                  onChange={(e) =>
-                    form.setFieldValue(
-                      'brief.icp_age_min',
-                      e.target.value === '' ? null : Number(e.target.value),
-                    )
-                  }
-                />
-              )}
-            </FieldRow>
-            <FieldRow label={t`Edad máxima`}>
-              {(aria) => (
-                <Input
-                  {...aria}
-                  type="number"
-                  inputMode="numeric"
-                  min={13}
-                  max={99}
-                  value={values.brief.icp_age_max ?? ''}
-                  onChange={(e) =>
-                    form.setFieldValue(
-                      'brief.icp_age_max',
-                      e.target.value === '' ? null : Number(e.target.value),
-                    )
-                  }
-                />
-              )}
-            </FieldRow>
-          </div>
-
-          <FieldRow label={t`Géneros`}>
-            {() => (
-              <div className="flex flex-wrap gap-2">
-                {GENDER_OPTIONS.map((opt) => (
-                  <ToggleChip
-                    key={opt.value}
-                    label={opt.label()}
-                    selected={values.brief.icp_genders.includes(opt.value)}
-                    onToggle={() => toggleGender(opt.value)}
-                  />
-                ))}
-              </div>
-            )}
-          </FieldRow>
-
-          <FieldRow label={t`Plataformas`}>
-            {() => (
-              <div className="flex flex-wrap gap-2">
-                {PLATFORM_OPTIONS.map((opt) => (
-                  <ToggleChip
-                    key={opt.value}
-                    label={opt.label()}
-                    selected={values.brief.icp_platforms.includes(opt.value)}
-                    onToggle={() => togglePlatform(opt.value)}
-                  />
-                ))}
-              </div>
-            )}
-          </FieldRow>
-
-          <FieldRow label={t`Países (código ISO 2 letras)`}>
-            {() => (
-              <TagInput
-                tags={values.brief.icp_countries}
-                onChange={(countries) =>
-                  form.setFieldValue('brief.icp_countries', countries)
-                }
-                placeholder={t`Ej: AR, US, MX`}
-              />
-            )}
-          </FieldRow>
-
-          <FieldRow label={t`Intereses`}>
-            {() => (
-              <TagInput
-                tags={values.brief.icp_interests}
-                onChange={(interests) =>
-                  form.setFieldValue('brief.icp_interests', interests)
-                }
-                placeholder={t`Ej: fitness, moda, gaming`}
-              />
-            )}
-          </FieldRow>
-        </section>
-
-        {/* Scoring Dimensions */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <SectionHeading>{t`Scoring Dimensions`}</SectionHeading>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addDimension}
-              disabled={scoringDimensions.length >= 4}
-              aria-label={t`Agregar dimensión`}
-            >
-              <Plus className="size-3.5" />
-              {t`Agregar dimensión`}
-            </Button>
-          </div>
-
-          {scoringDimensions.length === 0 && <InsufficientFieldHint />}
-
-          <WeightSumIndicator sum={weightSum} />
-
-          {scoringDimensions.map((dim, idx) => (
-            <ScoringDimensionCard
-              key={dim.id}
-              index={idx}
-              dimension={dim}
-              onChange={(updated) => updateDimension(idx, updated)}
-              onRemove={() => removeDimension(idx)}
-            />
-          ))}
-        </section>
-
-        {/* Hard Filters */}
         <section className="flex flex-col gap-4">
           <SectionHeading>{t`Filtros duros`}</SectionHeading>
           <HardFilterForm
             filters={values.brief.hard_filters}
-            onChange={updateHardFilters}
+            onChange={(filters) =>
+              form.setFieldValue('brief.hard_filters', filters)
+            }
           />
         </section>
 
-        {/* Disqualifiers */}
         <section className="flex flex-col gap-4">
           <SectionHeading>{t`Descalificadores`}</SectionHeading>
           <TagInput
             tags={values.brief.disqualifiers}
-            onChange={updateDisqualifiers}
+            onChange={(disqualifiers) =>
+              form.setFieldValue('brief.disqualifiers', disqualifiers)
+            }
             placeholder={t`Ej: contenido +18, tabaco, apuestas`}
           />
         </section>

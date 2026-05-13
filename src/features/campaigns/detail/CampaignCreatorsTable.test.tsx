@@ -22,11 +22,6 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
 }))
 
-vi.mock('./creators/InviteCreatorDialog', () => ({
-  InviteCreatorDialog: ({ open }: { open: boolean }) =>
-    open ? <div role="dialog">Invite dialog</div> : null,
-}))
-
 vi.mock('./creators/useCampaignParticipantsQuery', () => ({
   useCampaignParticipantsQuery: vi.fn(),
 }))
@@ -136,8 +131,9 @@ describe('CampaignCreatorsTable', () => {
     expect(onClearFilters).toHaveBeenCalled()
   })
 
-  it('opens invite dialog from row action', async () => {
+  it('requests invite dialog from row action', async () => {
     const user = userEvent.setup()
+    const onInviteCreator = vi.fn()
     useCampaignParticipantsQueryMock.mockReturnValue(
       queryResult({
         data: [
@@ -150,10 +146,10 @@ describe('CampaignCreatorsTable', () => {
       }),
     )
 
-    renderTable()
+    renderTable({ onInviteCreator })
 
     await user.click(screen.getByRole('button', { name: 'Invite creator' }))
-    expect(screen.getByRole('dialog')).toHaveTextContent('Invite dialog')
+    expect(onInviteCreator).toHaveBeenCalledTimes(1)
   })
 
   it('renders relative last activity for participants with recent activity', () => {

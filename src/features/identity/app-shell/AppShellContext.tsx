@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, use, useMemo } from 'react'
 import type { ReactNode } from 'react'
 
 export type AppShellAccountKind = 'brand' | 'creator'
@@ -24,7 +24,7 @@ export function AppShellContextProvider({
 }
 
 export function useAppShellContext(): AppShellContextValue {
-  const context = useContext(AppShellContext)
+  const context = use(AppShellContext)
 
   if (!context) {
     throw new Error(

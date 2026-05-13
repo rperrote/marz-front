@@ -16,16 +16,14 @@ import type { Locale } from './config'
 
 function parseAcceptLanguage(header: string | undefined): Locale | null {
   if (!header) return null
-  const tags = header
-    .split(',')
-    .map((part) => {
-      const [tag, qStr] = part.trim().split(';q=')
-      if (!tag) return null
-      const q = qStr ? Number.parseFloat(qStr) : 1
-      return { tag: tag.toLowerCase(), q: Number.isNaN(q) ? 1 : q }
-    })
-    .filter((entry): entry is { tag: string; q: number } => entry !== null)
-    .sort((a, b) => b.q - a.q)
+  const tags: Array<{ tag: string; q: number }> = []
+  for (const part of header.split(',')) {
+    const [tag, qStr] = part.trim().split(';q=')
+    if (!tag) continue
+    const q = qStr ? Number.parseFloat(qStr) : 1
+    tags.push({ tag: tag.toLowerCase(), q: Number.isNaN(q) ? 1 : q })
+  }
+  tags.sort((a, b) => b.q - a.q)
 
   for (const { tag } of tags) {
     const normalized = normalizeLocale(tag)

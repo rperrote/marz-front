@@ -58,9 +58,7 @@ describe('CallbackScreen', () => {
   it('renders loading spinner and text', async () => {
     mockHandleEmailLinkVerification.mockReturnValue(new Promise(() => {}))
     renderScreen()
-    expect(
-      await screen.findByText('Verificando tu link...'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('Verificando tu link…')).toBeInTheDocument()
   })
 
   it('calls handleEmailLinkVerification on mount', async () => {
@@ -174,7 +172,7 @@ describe('CallbackScreen', () => {
   it('is axe-clean', async () => {
     mockHandleEmailLinkVerification.mockReturnValue(new Promise(() => {}))
     const { container } = renderScreen()
-    await screen.findByText('Verificando tu link...')
+    await screen.findByText('Verificando tu link…')
     expect(await axe(container)).toHaveNoViolations()
   })
 })

@@ -70,9 +70,9 @@ export function BriefBuilderWizard() {
 
   if (currentIndex === -1) {
     return (
-      <WizardStepValidationContext.Provider value={validationCtx}>
+      <WizardStepValidationContext value={validationCtx}>
         <Outlet />
-      </WizardStepValidationContext.Provider>
+      </WizardStepValidationContext>
     )
   }
 
@@ -131,7 +131,7 @@ export function BriefBuilderWizard() {
   }
 
   return (
-    <WizardStepValidationContext.Provider value={validationCtx}>
+    <WizardStepValidationContext value={validationCtx}>
       <LeaveConfirmDialog
         open={blocker.status === 'blocked'}
         onConfirm={handleBlockerConfirm}
@@ -161,6 +161,6 @@ export function BriefBuilderWizard() {
       >
         <Outlet />
       </WizardShell>
-    </WizardStepValidationContext.Provider>
+    </WizardStepValidationContext>
   )
 }

@@ -50,7 +50,7 @@ function getOfferBadge(offer: OfferDTO, deliverables: DeliverableDTO[]) {
     }
   }
 
-  return statusConfig[offer.status as OfferStatus]
+  return statusConfig[offer.status]
 }
 
 interface CurrentOfferBlockProps {
@@ -119,7 +119,7 @@ export function CurrentOfferBlock({
       trackedRef.current = true
       trackOfferEvent('offer_panel_viewed', {
         actor_kind: actorKind,
-        offer_state: offer.status as OfferStatus,
+        offer_state: offer.status,
       })
     }
   }, [offer, actorKind])

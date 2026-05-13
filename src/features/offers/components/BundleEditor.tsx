@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
+import type { MutableRefObject } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
 import { toast } from 'sonner'
@@ -6,6 +7,8 @@ import { Plus } from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
 import { useActiveCampaigns } from '#/shared/api/activeCampaigns'
+import type { ActiveCampaign } from '#/shared/api/activeCampaigns'
+import { useClientNow } from '#/shared/hooks'
 import { useAppForm, applyBackendFieldErrors } from '#/shared/ui/form'
 import { ApiError } from '#/shared/api/mutator'
 
@@ -48,50 +51,348 @@ function getFormatOptionsByPlatform(): Record<
   }
 }
 
-export const defaultValues = {
-  campaign_id: '',
-  total_amount: '',
-  deadline: '',
-  bonus_terms: {
-    speed_bonus_windows: [],
-  } as {
-    speed_bonus_windows: Array<{
-      id: string
-      window_hours: number
-      bonus_pct: string
-    }>
-  },
-  deliverables: [
-    {
-      id: crypto.randomUUID() as string,
-      platform: '',
-      format: '',
-      quantity: 1,
-      amount: '',
+function createDefaultValues() {
+  return {
+    campaign_id: '',
+    total_amount: '',
+    deadline: '',
+    bonus_terms: {
+      speed_bonus_windows: [],
+    } as {
+      speed_bonus_windows: Array<{
+        id: string
+        window_hours: number
+        bonus_pct: string
+      }>
     },
-  ],
+    deliverables: [
+      {
+        id: crypto.randomUUID() as string,
+        platform: '',
+        format: '',
+        quantity: 1,
+        amount: '',
+      },
+    ],
+  }
 }
 
-export type BundleEditorFormValues = typeof defaultValues
+type DefaultValues = ReturnType<typeof createDefaultValues>
+
+// Captures the concrete form type from a single call site so sub-components
+// can reference it without duplicating the validator generics.
+declare const _formShape: ReturnType<typeof useAppForm<
+  DefaultValues,
+  undefined,
+  typeof bundleEditorBaseSchema,
+  undefined,
+  undefined,
+  undefined,
+  typeof bundleEditorSubmitSchema,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined
+>>
+type BundleForm = typeof _formShape
 
 interface BundleEditorProps {
   onClose: () => void
-  onDirtyChange?: (dirty: boolean) => void
+  dirtyRef?: MutableRefObject<boolean>
 }
 
-export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
+interface BundleBackendBannerProps {
+  message: string | null
+}
+
+function BundleBackendBanner({ message }: BundleBackendBannerProps) {
+  if (!message) return null
+  return (
+    <div
+      role="alert"
+      className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
+    >
+      {message}
+    </div>
+  )
+}
+
+interface BundleFormFieldsProps {
+  form: BundleForm
+  campaignOptions: Array<{ value: string; label: string }>
+  selectedCampaign: ActiveCampaign | undefined
+  currency: string
+  exceedsBudget: boolean
+  minimumDeadline: string | undefined
+}
+
+function BundleFormFields({
+  form,
+  campaignOptions,
+  selectedCampaign,
+  currency,
+  exceedsBudget,
+  minimumDeadline,
+}: BundleFormFieldsProps) {
+  return (
+    <>
+      <form.AppField name="campaign_id">
+        {(field) => (
+          <field.SelectField
+            label={t`Campaign`}
+            placeholder={t`Select a campaign`}
+            options={campaignOptions}
+          />
+        )}
+      </form.AppField>
+
+      {selectedCampaign ? (
+        <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+          <span>{t`Currency`}:</span>
+          <span className="font-semibold text-foreground">{currency}</span>
+        </div>
+      ) : null}
+
+      <form.AppField name="total_amount">
+        {(field) => (
+          <field.TextField
+            label={t`Total amount (${currency})`}
+            placeholder="0.00"
+            inputMode="decimal"
+          />
+        )}
+      </form.AppField>
+
+      {exceedsBudget ? (
+        <p className="text-sm text-warning" aria-live="polite">
+          {t`This amount exceeds the campaign's remaining budget (${currency} ${selectedCampaign?.budget_remaining ?? '0.00'})`}
+        </p>
+      ) : null}
+
+      <form.AppField name="deadline">
+        {(field) => (
+          <field.TextField
+            label={t`Deadline`}
+            type="date"
+            min={minimumDeadline}
+          />
+        )}
+      </form.AppField>
+    </>
+  )
+}
+
+interface BundleDeliverablesProps {
+  form: BundleForm
+  deliverables: DefaultValues['deliverables']
+  currency: string
+  platformOptions: ReturnType<typeof getPlatformOptions>
+  formatOptionsByPlatform: ReturnType<typeof getFormatOptionsByPlatform>
+}
+
+function BundleDeliverablesSection({
+  form,
+  deliverables,
+  currency,
+  platformOptions,
+  formatOptionsByPlatform,
+}: BundleDeliverablesProps) {
+  return (
+    <div className="space-y-4">
+      <form.AppField name="deliverables" mode="array">
+        {(field) => {
+          const handleAddDeliverable = () => {
+            field.pushValue({
+              // react-doctor-disable-next-line react-doctor/rendering-hydration-mismatch-time
+              id: crypto.randomUUID(),
+              platform: '',
+              format: '',
+              quantity: 1,
+              amount: '',
+            })
+          }
+
+          return (
+            <div className="space-y-4">
+              {deliverables.map((item, index) => {
+                const itemPlatform = item.platform
+                return (
+                  <BundlePlatformRow
+                    key={item.id}
+                    platform={itemPlatform}
+                    index={index}
+                    onRemove={() => field.removeValue(index)}
+                  >
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <form.AppField
+                        name={`deliverables[${index}].platform`}
+                        listeners={{
+                          onChange: () => {
+                            form.setFieldValue(
+                              `deliverables[${index}].format`,
+                              '',
+                            )
+                          },
+                        }}
+                      >
+                        {(f) => (
+                          <f.SelectField
+                            label={t`Platform`}
+                            placeholder={t`Select a platform`}
+                            options={[...platformOptions]}
+                          />
+                        )}
+                      </form.AppField>
+
+                      <form.AppField
+                        key={`deliverables.${item.id}.format.${itemPlatform}`}
+                        name={`deliverables[${index}].format`}
+                      >
+                        {(f) => (
+                          <f.SelectField
+                            label={t`Format`}
+                            placeholder={t`Select a format`}
+                            options={
+                              itemPlatform
+                                ? (formatOptionsByPlatform[itemPlatform] ?? [])
+                                : []
+                            }
+                          />
+                        )}
+                      </form.AppField>
+
+                      <form.AppField name={`deliverables[${index}].quantity`}>
+                        {(f) => (
+                          <f.NumberField
+                            label={t`Quantity`}
+                            placeholder="1"
+                            min={1}
+                          />
+                        )}
+                      </form.AppField>
+
+                      <form.AppField name={`deliverables[${index}].amount`}>
+                        {(f) => (
+                          <f.TextField
+                            label={t`Amount (${currency})`}
+                            placeholder="0.00"
+                            inputMode="decimal"
+                          />
+                        )}
+                      </form.AppField>
+                    </div>
+                  </BundlePlatformRow>
+                )
+              })}
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleAddDeliverable}
+              >
+                <Plus className="mr-2 size-4" />
+                {t`Add deliverable`}
+              </Button>
+
+              {field.state.meta.errors.length > 0 && (
+                <p aria-live="polite" className="text-sm text-destructive">
+                  {
+                    (
+                      field.state.meta.errors[0] as
+                        | { message?: string }
+                        | undefined
+                    )?.message
+                  }
+                </p>
+              )}
+            </div>
+          )
+        }}
+      </form.AppField>
+    </div>
+  )
+}
+
+interface BundleBonusSectionProps {
+  form: BundleForm
+  bonusWindows: DefaultValues['bonus_terms']['speed_bonus_windows']
+}
+
+function BundleBonusSection({ form, bonusWindows }: BundleBonusSectionProps) {
+  return (
+    <form.AppField name="bonus_terms.speed_bonus_windows" mode="array">
+      {(field) => {
+        const handleAddBonusWindow = () => {
+          field.pushValue({
+            // react-doctor-disable-next-line react-doctor/rendering-hydration-mismatch-time
+            id: crypto.randomUUID(),
+            window_hours: 24,
+            bonus_pct: '',
+          })
+        }
+
+        return (
+          <BonusTermsFields onAdd={handleAddBonusWindow}>
+            {bonusWindows.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-border bg-background px-3 py-4 text-sm text-muted-foreground">
+                {t`No speed bonus windows yet.`}
+              </p>
+            ) : null}
+            {bonusWindows.map((window, index) => (
+              <BonusWindowRow
+                key={window.id}
+                index={index}
+                onRemove={() => field.removeValue(index)}
+              >
+                <form.AppField
+                  name={`bonus_terms.speed_bonus_windows[${index}].window_hours`}
+                >
+                  {(windowField) => (
+                    <windowField.NumberField
+                      label={t`Window hours`}
+                      min={1}
+                      placeholder="24"
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField
+                  name={`bonus_terms.speed_bonus_windows[${index}].bonus_pct`}
+                >
+                  {(bonusField) => (
+                    <bonusField.TextField
+                      label={t`Bonus percentage`}
+                      placeholder="25"
+                      inputMode="decimal"
+                    />
+                  )}
+                </form.AppField>
+              </BonusWindowRow>
+            ))}
+          </BonusTermsFields>
+        )
+      }}
+    </form.AppField>
+  )
+}
+
+export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
+  const clientNow = useClientNow()
   const { conversationId } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
   const mutation = useCreateBundleOffer()
   const [backendBanner, setBackendBanner] = useState<string | null>(null)
 
-  const campaigns = campaignsQuery.data ?? []
+  const campaigns: ActiveCampaign[] = campaignsQuery.data ?? []
 
   const platformOptions = getPlatformOptions()
   const formatOptionsByPlatform = getFormatOptionsByPlatform()
 
+  const [initialValues] = useState(createDefaultValues)
+
   const form = useAppForm({
-    defaultValues,
+    defaultValues: initialValues,
     validators: {
       onChange: bundleEditorBaseSchema,
       onSubmit: bundleEditorSubmitSchema,
@@ -137,10 +438,9 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
   })
 
   const isDirty = useStore(form.store, (s) => s.isDirty)
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty)
-  }, [isDirty, onDirtyChange])
+  if (dirtyRef) {
+    dirtyRef.current = isDirty
+  }
 
   const selectedCampaignId = useStore(form.store, (s) => s.values.campaign_id)
   const totalAmountValue = useStore(form.store, (s) => s.values.total_amount)
@@ -163,6 +463,8 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
   const parsedTotal = parseFloat(totalAmountValue) || 0
   const exceedsBudget =
     isFinite(budgetRemaining) && parsedTotal > budgetRemaining
+  const minimumDeadline =
+    clientNow === null ? undefined : todayString(clientNow)
 
   const campaignOptions = campaigns.map((c) => ({
     value: c.id,
@@ -171,224 +473,30 @@ export function BundleEditor({ onClose, onDirtyChange }: BundleEditorProps) {
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
+      action={() => void form.handleSubmit()}
       className="flex flex-1 flex-col overflow-hidden"
     >
       <div className="flex-1 space-y-5 overflow-y-auto p-5">
-        {backendBanner ? (
-          <div
-            role="alert"
-            className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
-          >
-            {backendBanner}
-          </div>
-        ) : null}
+        <BundleBackendBanner message={backendBanner} />
 
-        <form.AppField name="campaign_id">
-          {(field) => (
-            <field.SelectField
-              label={t`Campaign`}
-              placeholder={t`Select a campaign`}
-              options={campaignOptions}
-            />
-          )}
-        </form.AppField>
+        <BundleFormFields
+          form={form as BundleForm}
+          campaignOptions={campaignOptions}
+          selectedCampaign={selectedCampaign}
+          currency={currency}
+          exceedsBudget={exceedsBudget}
+          minimumDeadline={minimumDeadline}
+        />
 
-        {selectedCampaign ? (
-          <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-            <span>{t`Currency`}:</span>
-            <span className="font-semibold text-foreground">{currency}</span>
-          </div>
-        ) : null}
+        <BundleDeliverablesSection
+          form={form as BundleForm}
+          deliverables={deliverables}
+          currency={currency}
+          platformOptions={platformOptions}
+          formatOptionsByPlatform={formatOptionsByPlatform}
+        />
 
-        <form.AppField name="total_amount">
-          {(field) => (
-            <field.TextField
-              label={t`Total amount (${currency})`}
-              placeholder="0.00"
-              inputMode="decimal"
-            />
-          )}
-        </form.AppField>
-
-        {exceedsBudget ? (
-          <p className="text-sm text-warning" aria-live="polite">
-            {t`This amount exceeds the campaign's remaining budget (${currency} ${selectedCampaign?.budget_remaining ?? '0.00'})`}
-          </p>
-        ) : null}
-
-        <form.AppField name="deadline">
-          {(field) => (
-            <field.TextField
-              label={t`Deadline`}
-              type="date"
-              min={todayString()}
-            />
-          )}
-        </form.AppField>
-
-        <div className="space-y-4">
-          <form.AppField name="deliverables" mode="array">
-            {(field) => (
-              <div className="space-y-4">
-                {deliverables.map((item, index) => {
-                  const itemPlatform = item.platform
-                  return (
-                    <BundlePlatformRow
-                      key={item.id}
-                      platform={itemPlatform}
-                      index={index}
-                      onRemove={() => field.removeValue(index)}
-                    >
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <form.AppField
-                          name={`deliverables[${index}].platform`}
-                          listeners={{
-                            onChange: () => {
-                              form.setFieldValue(
-                                `deliverables[${index}].format`,
-                                '',
-                              )
-                            },
-                          }}
-                        >
-                          {(f) => (
-                            <f.SelectField
-                              label={t`Platform`}
-                              placeholder={t`Select a platform`}
-                              options={[...platformOptions]}
-                            />
-                          )}
-                        </form.AppField>
-
-                        <form.AppField
-                          key={`deliverables.${index}.format.${itemPlatform}`}
-                          name={`deliverables[${index}].format`}
-                        >
-                          {(f) => (
-                            <f.SelectField
-                              label={t`Format`}
-                              placeholder={t`Select a format`}
-                              options={
-                                itemPlatform
-                                  ? (formatOptionsByPlatform[itemPlatform] ??
-                                    [])
-                                  : []
-                              }
-                            />
-                          )}
-                        </form.AppField>
-
-                        <form.AppField name={`deliverables[${index}].quantity`}>
-                          {(f) => (
-                            <f.NumberField
-                              label={t`Quantity`}
-                              placeholder="1"
-                              min={1}
-                            />
-                          )}
-                        </form.AppField>
-
-                        <form.AppField name={`deliverables[${index}].amount`}>
-                          {(f) => (
-                            <f.TextField
-                              label={t`Amount (${currency})`}
-                              placeholder="0.00"
-                              inputMode="decimal"
-                            />
-                          )}
-                        </form.AppField>
-                      </div>
-                    </BundlePlatformRow>
-                  )
-                })}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() =>
-                    field.pushValue({
-                      id: crypto.randomUUID() as string,
-                      platform: '',
-                      format: '',
-                      quantity: 1,
-                      amount: '',
-                    })
-                  }
-                >
-                  <Plus className="mr-2 size-4" />
-                  {t`Add deliverable`}
-                </Button>
-
-                {field.state.meta.errors.length > 0 && (
-                  <p aria-live="polite" className="text-sm text-destructive">
-                    {
-                      (
-                        field.state.meta.errors[0] as
-                          | { message?: string }
-                          | undefined
-                      )?.message
-                    }
-                  </p>
-                )}
-              </div>
-            )}
-          </form.AppField>
-        </div>
-
-        <form.AppField name="bonus_terms.speed_bonus_windows" mode="array">
-          {(field) => (
-            <BonusTermsFields
-              onAdd={() =>
-                field.pushValue({
-                  id: crypto.randomUUID(),
-                  window_hours: 24,
-                  bonus_pct: '',
-                })
-              }
-            >
-              {bonusWindows.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-border bg-background px-3 py-4 text-sm text-muted-foreground">
-                  {t`No speed bonus windows yet.`}
-                </p>
-              ) : null}
-              {bonusWindows.map((window, index) => (
-                <BonusWindowRow
-                  key={window.id}
-                  index={index}
-                  onRemove={() => field.removeValue(index)}
-                >
-                  <form.AppField
-                    name={`bonus_terms.speed_bonus_windows[${index}].window_hours`}
-                  >
-                    {(windowField) => (
-                      <windowField.NumberField
-                        label={t`Window hours`}
-                        min={1}
-                        placeholder="24"
-                      />
-                    )}
-                  </form.AppField>
-                  <form.AppField
-                    name={`bonus_terms.speed_bonus_windows[${index}].bonus_pct`}
-                  >
-                    {(bonusField) => (
-                      <bonusField.TextField
-                        label={t`Bonus percentage`}
-                        placeholder="25"
-                        inputMode="decimal"
-                      />
-                    )}
-                  </form.AppField>
-                </BonusWindowRow>
-              ))}
-            </BonusTermsFields>
-          )}
-        </form.AppField>
+        <BundleBonusSection form={form as BundleForm} bonusWindows={bonusWindows} />
 
         <DeliverableSummaryRow
           label={t`Total`}

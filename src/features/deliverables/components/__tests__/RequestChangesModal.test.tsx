@@ -83,6 +83,7 @@ describe('RequestChangesModal', () => {
   beforeEach(() => {
     vi.useRealTimers()
     mockMutate.mockReset()
+    mockMutate.mockResolvedValue({ data: {}, status: 200 })
     mockRequestLinkChangesSubmit.mockClear()
     mockTrackRequestChangesModalOpened.mockClear()
     mockTrackRequestChangesModalDismissed.mockClear()

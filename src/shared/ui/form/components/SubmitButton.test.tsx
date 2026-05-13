@@ -13,12 +13,7 @@ function Harness({ onSubmit }: { onSubmit: () => Promise<void> }) {
     onSubmit,
   })
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
-    >
+    <form action={() => void form.handleSubmit()}>
       <form.AppField name="email">
         {(field) => <field.TextField label="Email" />}
       </form.AppField>

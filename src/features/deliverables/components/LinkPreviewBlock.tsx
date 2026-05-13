@@ -94,7 +94,7 @@ function LinkPreviewAnchor({
   className: string
   children: ReactNode
 }) {
-  const handleClick = () => {
+  const trackPreviewClick = () => {
     if (!analytics) return
     trackLinkUrlClicked({
       deliverable_id: analytics.deliverableId,
@@ -111,7 +111,7 @@ function LinkPreviewAnchor({
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={handleClick}
+      onClick={trackPreviewClick}
       className={className}
     >
       {children}

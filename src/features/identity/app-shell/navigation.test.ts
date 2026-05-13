@@ -11,7 +11,10 @@ function itemIds(items: ShellNavigationItem[]) {
 }
 
 function enabledItemIds(items: ShellNavigationItem[]) {
-  return items.filter((item) => !item.disabled).map((item) => item.id)
+  return items.reduce<string[]>((ids, item) => {
+    if (!item.disabled) ids.push(item.id)
+    return ids
+  }, [])
 }
 
 describe('shellNavigationConfig', () => {

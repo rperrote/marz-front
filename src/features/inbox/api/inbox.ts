@@ -18,7 +18,6 @@ import type {
   InboxResponse,
   MarkInboxItemReadRequest,
   MarkInboxItemReadResponse,
-  MarkInboxReadRequest,
   MarkInboxReadResponse,
 } from '#/shared/api/generated/model'
 
@@ -32,7 +31,6 @@ export type {
   MarkInboxItemReadResponse,
 }
 
-export type MarkInboxVisibleReadRequest = MarkInboxReadRequest
 export type MarkInboxVisibleReadResponse = MarkInboxReadResponse
 type JsonValue =
   | string
@@ -89,9 +87,7 @@ export type MarkInboxVisibleReadInput = z.infer<
   typeof markInboxVisibleReadInputSchema
 >
 
-export async function fetchInbox(
-  input: GetInboxInput = {},
-): Promise<InboxResponse> {
+async function fetchInbox(input: GetInboxInput = {}): Promise<InboxResponse> {
   const response = await listInbox(input)
   return response.data as InboxResponse
 }
@@ -174,11 +170,3 @@ function serializeInboxResponse(
 export const getInbox = createServerFn({ method: 'GET' })
   .inputValidator(getInboxInputSchema)
   .handler(async ({ data }) => serializeInboxResponse(await fetchInbox(data)))
-
-export const markInboxItemReadServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(markInboxItemReadInputSchema)
-  .handler(({ data }) => markInboxItemRead(data))
-
-export const markInboxVisibleReadServerFn = createServerFn({ method: 'POST' })
-  .inputValidator(markInboxVisibleReadInputSchema)
-  .handler(({ data }) => markInboxVisibleRead(data))

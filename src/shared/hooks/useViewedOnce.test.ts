@@ -29,10 +29,7 @@ class MockIntersectionObserver {
       rootBounds: null,
       time: Date.now(),
     }))
-    this.callback(
-      entries as IntersectionObserverEntry[],
-      this as unknown as IntersectionObserver,
-    )
+    this.callback(entries, this as unknown as IntersectionObserver)
   }
 }
 

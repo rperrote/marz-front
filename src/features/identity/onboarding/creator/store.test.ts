@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useCreatorOnboardingStore } from './store'
 import { STEPS } from './steps'
 
+const LEGACY_STORAGE_KEY = 'marz-creator-onboarding'
+const STORAGE_KEY = 'marz-creator-onboarding:v1'
+
 beforeEach(() => {
   useCreatorOnboardingStore.setState({
     currentStepIndex: 0,
@@ -80,7 +83,7 @@ describe('useCreatorOnboardingStore', () => {
       useCreatorOnboardingStore.getState().setField('display_name', 'TestUser')
       useCreatorOnboardingStore.getState().goTo(3)
 
-      const stored = sessionStorage.getItem('marz-creator-onboarding')
+      const stored = sessionStorage.getItem(STORAGE_KEY)
       expect(stored).toBeTruthy()
 
       const parsed = JSON.parse(stored!) as { state: Record<string, unknown> }
@@ -88,9 +91,9 @@ describe('useCreatorOnboardingStore', () => {
       expect(parsed.state.currentStepIndex).toBe(3)
     })
 
-    it('rehydrates from sessionStorage', () => {
+    it('rehydrates from versioned sessionStorage', () => {
       sessionStorage.setItem(
-        'marz-creator-onboarding',
+        STORAGE_KEY,
         JSON.stringify({
           state: { currentStepIndex: 5, handle: 'persisted' },
           version: 0,
@@ -101,6 +104,22 @@ describe('useCreatorOnboardingStore', () => {
 
       expect(useCreatorOnboardingStore.getState().currentStepIndex).toBe(5)
       expect(useCreatorOnboardingStore.getState().handle).toBe('persisted')
+    })
+
+    it('purges and ignores legacy sessionStorage', () => {
+      sessionStorage.setItem(
+        LEGACY_STORAGE_KEY,
+        JSON.stringify({
+          state: { currentStepIndex: 5, handle: 'legacy' },
+          version: 0,
+        }),
+      )
+
+      useCreatorOnboardingStore.persist.rehydrate()
+
+      expect(sessionStorage.getItem(LEGACY_STORAGE_KEY)).toBeNull()
+      expect(useCreatorOnboardingStore.getState().currentStepIndex).toBe(0)
+      expect(useCreatorOnboardingStore.getState().handle).toBeUndefined()
     })
   })
 })

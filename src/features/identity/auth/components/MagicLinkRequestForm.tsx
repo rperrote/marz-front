@@ -91,10 +91,7 @@ export function MagicLinkRequestForm() {
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        void form.handleSubmit()
-      }}
+      action={() => void form.handleSubmit()}
       noValidate
       className="flex w-full flex-col gap-7"
     >

@@ -1,5 +1,16 @@
 import { describe, it, expect, vi } from 'vitest'
 
+vi.mock('@lingui/core/macro', () => ({
+  t: Object.assign(
+    (strings: TemplateStringsArray, ...values: unknown[]) =>
+      strings.reduce(
+        (acc, str, index) => acc + str + (values[index] ?? ''),
+        '',
+      ),
+    { __lingui: true },
+  ),
+}))
+
 vi.mock('#/shared/api/generated/accounts/accounts', () => ({
   getMeQueryKey: () => ['/v1/me'],
 }))

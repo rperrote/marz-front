@@ -38,11 +38,18 @@ export default [
     },
   },
   {
+    files: ['src/test/e2e/**', 'src/test/e2e/fixtures.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
+  {
     ignores: [
       'eslint.config.js',
       'prettier.config.js',
       'src/shared/api/generated/**',
       'src/shared/api/test-generated/**',
+      'src/routeTree.gen.ts',
       '.rafita/**',
       '.flow/**',
     ],

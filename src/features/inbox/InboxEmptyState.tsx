@@ -78,7 +78,7 @@ function InboxEmptyStateCta({
   router: ReturnType<typeof useRouter>
   variant?: 'secondary'
 }) {
-  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+  function navigateToEmptyStateTarget(event: MouseEvent<HTMLAnchorElement>) {
     if (event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey) {
       return
     }
@@ -95,7 +95,7 @@ function InboxEmptyStateCta({
 
   return (
     <Button asChild variant={variant} className="rounded-full">
-      <a href={href} onClick={handleClick}>
+      <a href={href} onClick={navigateToEmptyStateTarget}>
         <Icon className="size-4" />
         {label}
       </a>

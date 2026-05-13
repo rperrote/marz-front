@@ -77,6 +77,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        {/* Theme init script must run pre-hydration to avoid a visible theme flash. Content is a module-scope constant — no user input. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>

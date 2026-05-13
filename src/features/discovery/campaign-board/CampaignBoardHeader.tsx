@@ -16,7 +16,7 @@ export function CampaignBoardHeader({
     <header className="space-y-6">
       <div className="flex items-start justify-between gap-6">
         <div className="max-w-3xl space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-3xl font-semibold text-foreground">
             {t`Campañas abiertas`}
           </h1>
           <p className="text-sm text-muted-foreground">

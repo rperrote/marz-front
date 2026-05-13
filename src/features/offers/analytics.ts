@@ -102,10 +102,6 @@ export function markOfferSeen(
   return true
 }
 
-export function resetSeenOffers(): void {
-  seenOfferIds.clear()
-}
-
 export function trackOfferEvent<TEvent extends OfferEventName>(
   _name: TEvent,
   _payload: OfferEventMap[TEvent],
@@ -145,7 +141,7 @@ export function maxDeadlineFromNow(
   deadlines: readonly string[],
   now?: Date,
 ): number {
-  const sortedDeadlines = [...deadlines].sort(
+  const sortedDeadlines = deadlines.toSorted(
     (a, b) => new Date(b).getTime() - new Date(a).getTime(),
   )
   const latestDeadline = sortedDeadlines[0]

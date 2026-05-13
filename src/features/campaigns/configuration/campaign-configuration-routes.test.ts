@@ -181,9 +181,10 @@ describe('campaign configuration routes', () => {
   )
 
   it('redirects forbidden_role API errors to campaigns', async () => {
-    const { loadCampaignConfigurationRoute } =
-      await import('#/routes/_brand/campaigns.$campaignId.configuration')
-    const { toast } = await import('sonner')
+    const [{ loadCampaignConfigurationRoute }, { toast }] = await Promise.all([
+      import('#/routes/_brand/campaigns.$campaignId.configuration'),
+      import('sonner'),
+    ])
 
     await expect(
       loadCampaignConfigurationRoute({

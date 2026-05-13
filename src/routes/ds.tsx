@@ -87,6 +87,7 @@ import {
 import { StageEditor } from '#/features/offers/components/StageEditor'
 import { SummaryTotalRow } from '#/features/offers/components/SummaryTotalRow'
 import { DarkTooltip } from '#/shared/ui/DarkTooltip'
+import { useClientNow } from '#/shared/hooks'
 import { IconButton } from '#/shared/ui/IconButton'
 import { PaymentCard } from '#/shared/ui/PaymentCard'
 import {
@@ -241,6 +242,12 @@ const iconSizeTokens = [
 // -----------------------------------------------------------------------------
 
 function DesignSystemPage() {
+  const clientNow = useClientNow()
+  const showcaseNowIso =
+    clientNow === null
+      ? '2026-04-27T12:00:00.000Z'
+      : new Date(clientNow).toISOString()
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background text-foreground">
@@ -251,7 +258,7 @@ function DesignSystemPage() {
                 Marz · Design System
               </h1>
               <p className="text-sm text-muted-foreground">
-                Atoms · Molecules · Reusable components — synced with{' '}
+                Atoms · Molecules · Reusable components, synced with{' '}
                 <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
                   marz-design/marzv2.pen
                 </code>
@@ -277,7 +284,7 @@ function DesignSystemPage() {
         <main className="mx-auto max-w-6xl space-y-16 px-6 py-10">
           <AtomsSection />
           <MoleculesSection />
-          <ReusableSection />
+          <ReusableSection showcaseNowIso={showcaseNowIso} />
         </main>
       </div>
     </TooltipProvider>
@@ -293,7 +300,7 @@ function AtomsSection() {
     <section id="atoms" className="space-y-10">
       <SectionHeader
         title="Atoms"
-        subtitle="Design tokens pulled from the .pen. No markup — only primitive values."
+        subtitle="Design tokens pulled from the .pen. No markup, only primitive values."
       />
 
       {colorGroups.map((group) => (
@@ -311,7 +318,7 @@ function AtomsSection() {
           {radiusTokens.map(({ name, px }) => (
             <div key={name} className="flex flex-col items-center gap-2">
               <div
-                className="h-16 w-16 border border-border bg-muted"
+                className="size-16 border border-border bg-muted"
                 style={{ borderRadius: `var(--radius-${name})` }}
               />
               <div className="text-center">
@@ -342,7 +349,7 @@ function AtomsSection() {
         </div>
       </TokenGroup>
 
-      <TokenGroup title="Typography — font-size">
+      <TokenGroup title="Typography: font-size">
         <div className="space-y-3">
           {fontSizeTokens.map(({ name, px }) => (
             <div
@@ -363,7 +370,7 @@ function AtomsSection() {
         </div>
       </TokenGroup>
 
-      <TokenGroup title="Typography — font-weight">
+      <TokenGroup title="Typography: font-weight">
         <div className="space-y-2">
           {fontWeightTokens.map(({ name, value }) => (
             <div
@@ -426,7 +433,7 @@ function ColorSwatch({ token }: { token: string }) {
   return (
     <div className="flex items-center gap-3 rounded-md border border-border bg-card p-2.5">
       <div
-        className="h-10 w-10 shrink-0 rounded-md border border-border"
+        className="size-10 shrink-0 rounded-md border border-border"
         style={{ backgroundColor: `var(${varName})` }}
       />
       <div className="min-w-0">
@@ -437,7 +444,7 @@ function ColorSwatch({ token }: { token: string }) {
 }
 
 // -----------------------------------------------------------------------------
-// Molecules — shadcn primitives wired to our tokens
+// Molecules: shadcn primitives wired to our tokens
 // -----------------------------------------------------------------------------
 
 function MoleculesSection() {
@@ -480,11 +487,11 @@ function MoleculesSection() {
       <TokenGroup title="Avatars">
         <div className="flex items-end gap-3">
           {[
-            { size: 'h-6 w-6', label: 'XS' },
-            { size: 'h-8 w-8', label: 'SM' },
-            { size: 'h-10 w-10', label: 'MD' },
-            { size: 'h-12 w-12', label: 'LG' },
-            { size: 'h-16 w-16', label: 'XL' },
+            { size: 'size-6', label: 'XS' },
+            { size: 'size-8', label: 'SM' },
+            { size: 'size-10', label: 'MD' },
+            { size: 'size-12', label: 'LG' },
+            { size: 'size-16', label: 'XL' },
           ].map(({ size, label }) => (
             <div key={label} className="flex flex-col items-center gap-1.5">
               <Avatar className={size}>
@@ -514,7 +521,7 @@ function MoleculesSection() {
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="ds-textarea">Textarea</Label>
-            <Textarea id="ds-textarea" placeholder="Tell us more..." rows={3} />
+            <Textarea id="ds-textarea" placeholder="Tell us more…" rows={3} />
           </div>
         </div>
       </TokenGroup>
@@ -583,19 +590,33 @@ function MoleculesSection() {
 }
 
 // -----------------------------------------------------------------------------
-// Reusable — organisms with product domain. Rendered with mock data so the
+// Reusable: organisms with product domain. Rendered with mock data so the
 // implementation stays alive and visible. Not-yet-implemented ones appear as
 // a "pending" list at the bottom.
 // -----------------------------------------------------------------------------
 
-function ReusableSection() {
+function ReusableSection({ showcaseNowIso }: { showcaseNowIso: string }) {
   return (
     <section id="reusable" className="space-y-12">
       <SectionHeader
         title="Reusable components"
         subtitle="Organisms with product-domain knowledge. Each consumes tokens and molecules; domain data is mocked here for preview."
       />
+      <ChatShowcaseGroup />
+      <ShellShowcaseGroup />
+      <CampaignsShowcaseGroup />
+      <DeliverablesShowcaseGroup showcaseNowIso={showcaseNowIso} />
+      <PaymentsShowcaseGroup />
+      <OffersShowcaseGroup />
+      <IdentityShowcaseGroup />
+      <MobileSection />
+    </section>
+  )
+}
 
+function ChatShowcaseGroup() {
+  return (
+    <>
       <ShowcaseGroup title="Chat · event bubbles" context="features/chat">
         <div className="flex flex-wrap gap-3">
           <EventBubble severity="info" direction="out">
@@ -617,10 +638,10 @@ function ReusableSection() {
             Awaiting review
           </EventBubble>
           <EventBubble severity="destructive" direction="out">
-            Draft rejected — changes requested
+            Draft rejected, changes requested
           </EventBubble>
           <EventBubble severity="destructive" direction="in">
-            Draft rejected — changes requested
+            Draft rejected, changes requested
           </EventBubble>
         </div>
       </ShowcaseGroup>
@@ -633,7 +654,7 @@ function ReusableSection() {
             online
             unread
           />
-          <ChatRailItem name="Nova Flux" preview="Got it — rendering now" />
+          <ChatRailItem name="Nova Flux" preview="Got it, rendering now" />
           <ChatRailItem
             name="Terra Collective"
             preview="Final cut attached ⬇"
@@ -642,7 +663,13 @@ function ReusableSection() {
           />
         </div>
       </ShowcaseGroup>
+    </>
+  )
+}
 
+function ShellShowcaseGroup() {
+  return (
+    <>
       <ShowcaseGroup title="Shell · sidebar" context="features/identity">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1 rounded-lg border border-sidebar-border bg-sidebar p-2">
@@ -691,15 +718,13 @@ function ReusableSection() {
           </IconButton>
         </div>
       </ShowcaseGroup>
+    </>
+  )
+}
 
-      <ShowcaseGroup title="Link item" context="features/deliverables">
-        <div className="max-w-lg space-y-2">
-          <LinkItem url="youtube.com/watch?v=abc123" status="pending" />
-          <LinkItem url="youtube.com/watch?v=def456" status="approved" />
-          <LinkItem url="youtube.com/watch?v=ghi789" status="rejected" />
-        </div>
-      </ShowcaseGroup>
-
+function CampaignsShowcaseGroup() {
+  return (
+    <>
       <ShowcaseGroup
         title="Campaign workspace tabs"
         context="features/campaigns"
@@ -715,6 +740,38 @@ function ReusableSection() {
         />
       </ShowcaseGroup>
 
+      <ShowcaseGroup title="Campaign mini card" context="features/campaigns">
+        <div className="max-w-sm">
+          <CampaignMiniCard
+            name="Summer Glow 2026"
+            startDate="Jun 30"
+            status="active"
+            creators={6}
+            budget="$42k"
+            videos={{ done: 3, total: 8 }}
+            platforms={['YouTube', 'Instagram']}
+          />
+        </div>
+      </ShowcaseGroup>
+    </>
+  )
+}
+
+function DeliverablesShowcaseGroup({
+  showcaseNowIso,
+}: {
+  showcaseNowIso: string
+}) {
+  return (
+    <>
+      <ShowcaseGroup title="Link item" context="features/deliverables">
+        <div className="max-w-lg space-y-2">
+          <LinkItem url="youtube.com/watch?v=abc123" status="pending" />
+          <LinkItem url="youtube.com/watch?v=def456" status="approved" />
+          <LinkItem url="youtube.com/watch?v=ghi789" status="rejected" />
+        </div>
+      </ShowcaseGroup>
+
       <ShowcaseGroup
         title="Request changes modal"
         context="features/deliverables"
@@ -722,307 +779,8 @@ function ReusableSection() {
         <RequestChangesModal title="YouTube Video · Luminal Studio" inline />
       </ShowcaseGroup>
 
-      <ShowcaseGroup
-        title="Offer card · received / sent"
-        context="features/offers"
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <OfferCard
-            variant="received"
-            title="Q4 Echo Wireless Series"
-            budget="$4,500.00"
-            deadline="Oct 12"
-            platforms={[
-              { platform: 'youtube', label: '1× YouTube Video' },
-              { platform: 'instagram', label: 'IG Reels' },
-            ]}
-          />
-          <OfferCard
-            variant="sent"
-            title="Q4 Echo Wireless Series"
-            budget="$4,500.00"
-            deadline="Oct 12"
-            platforms={[
-              { platform: 'youtube', label: '1× YouTube Video' },
-              { platform: 'instagram', label: 'IG Reels' },
-            ]}
-          />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup title="Offer card · collapsed" context="features/offers">
-        <div className="max-w-md space-y-2">
-          <OfferCardCollapsed offerId="OFR-2847" status="accepted" />
-          <OfferCardCollapsed offerId="OFR-2848" status="sent" />
-          <OfferCardCollapsed offerId="OFR-2849" status="rejected" />
-          <OfferCardCollapsed offerId="OFR-2850" status="negotiating" />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup
-        title="Offer accepted · creator / brand"
-        context="features/offers"
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <OfferAcceptedCard audience="creator" deadline="Oct 12" />
-          <OfferAcceptedCard
-            audience="brand"
-            creatorName="Luminal Studio"
-            deadline="Oct 12"
-          />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup
-        title="Draft submitted · creator / brand"
-        context="features/deliverables"
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <DraftSubmittedCard
-            message={{
-              id: 'msg-1',
-              author_account_id: 'creator-1',
-              event_type: 'DraftSubmitted',
-              payload: {
-                snapshot: {
-                  event_type: 'DraftSubmitted',
-                  deliverable_id: 'del-1',
-                  deliverable_platform: 'youtube',
-                  deliverable_format: 'long_form',
-                  deliverable_offer_stage_id: null,
-                  draft_id: 'draft-1',
-                  version: 1,
-                  original_filename: 'echo_wireless_draft_v1.mp4',
-                  file_size_bytes: 148897152,
-                  duration_sec: 204,
-                  mime_type: 'video/mp4',
-                  thumbnail_url: null,
-                  playback_url: 'https://example.com/video.mp4',
-                  playback_url_expires_at: new Date().toISOString(),
-                  submitted_at: new Date().toISOString(),
-                  submitted_by_account_id: 'creator-1',
-                },
-              },
-              created_at: new Date().toISOString(),
-            }}
-            currentAccountId="creator-1"
-            counterpartDisplayName="Brand Name"
-            conversationId="conv-1"
-            sessionKind="creator"
-          />
-          <DraftSubmittedCard
-            message={{
-              id: 'msg-2',
-              author_account_id: 'creator-1',
-              event_type: 'DraftSubmitted',
-              payload: {
-                snapshot: {
-                  event_type: 'DraftSubmitted',
-                  deliverable_id: 'del-1',
-                  deliverable_platform: 'youtube',
-                  deliverable_format: 'long_form',
-                  deliverable_offer_stage_id: null,
-                  draft_id: 'draft-1',
-                  version: 1,
-                  original_filename: 'echo_wireless_draft_v1.mp4',
-                  file_size_bytes: 148897152,
-                  duration_sec: 204,
-                  mime_type: 'video/mp4',
-                  thumbnail_url: null,
-                  playback_url: 'https://example.com/video.mp4',
-                  playback_url_expires_at: new Date().toISOString(),
-                  submitted_at: new Date().toISOString(),
-                  submitted_by_account_id: 'creator-1',
-                },
-              },
-              created_at: new Date().toISOString(),
-            }}
-            currentAccountId="brand-1"
-            counterpartDisplayName="Creator Name"
-            conversationId="conv-1"
-            sessionKind="brand"
-          />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup
-        title="Draft submitted · portrait (Reel / Short)"
-        context="features/deliverables"
-      >
-        <div className="max-w-xs">
-          <DraftSubmittedCard
-            message={{
-              id: 'msg-3',
-              author_account_id: 'creator-1',
-              event_type: 'DraftSubmitted',
-              payload: {
-                snapshot: {
-                  event_type: 'DraftSubmitted',
-                  deliverable_id: 'del-2',
-                  deliverable_platform: 'instagram',
-                  deliverable_format: 'reel',
-                  deliverable_offer_stage_id: null,
-                  draft_id: 'draft-2',
-                  version: 1,
-                  original_filename: 'reel_draft.mp4',
-                  file_size_bytes: 39845888,
-                  duration_sec: 45,
-                  mime_type: 'video/mp4',
-                  thumbnail_url: null,
-                  playback_url: 'https://example.com/reel.mp4',
-                  playback_url_expires_at: new Date().toISOString(),
-                  submitted_at: new Date().toISOString(),
-                  submitted_by_account_id: 'creator-1',
-                },
-              },
-              created_at: new Date().toISOString(),
-            }}
-            currentAccountId="brand-1"
-            counterpartDisplayName="Creator Name"
-            conversationId="conv-1"
-            sessionKind="brand"
-          />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup title="Draft approved" context="features/deliverables">
-        <div className="max-w-md">
-          <DraftApprovedCard
-            message={{
-              id: 'msg-4',
-              author_account_id: 'brand-1',
-              event_type: 'DraftApproved',
-              payload: {
-                snapshot: {
-                  event_type: 'DraftApproved',
-                  deliverable_id: 'del-1',
-                  deliverable_platform: 'youtube',
-                  deliverable_format: 'long_form',
-                  deliverable_offer_stage_id: null,
-                  draft_id: 'draft-1',
-                  version: 1,
-                  approved_at: new Date().toISOString(),
-                  approved_by_account_id: 'brand-1',
-                },
-              },
-              created_at: new Date().toISOString(),
-            }}
-            currentAccountId="brand-1"
-            counterpartDisplayName="Creator Name"
-          />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup
-        title="Link submitted · creator / brand"
-        context="features/deliverables"
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <LinkSubmittedCard
-            message={{
-              id: 'msg-link-creator',
-              author_account_id: 'creator-1',
-              event_type: 'LinkSubmitted',
-              payload: {
-                snapshot: {
-                  event_type: 'LinkSubmitted',
-                  deliverable_id: 'del-link-1',
-                  deliverable_platform: 'youtube',
-                  deliverable_format: 'long_form',
-                  deliverable_offer_stage_id: null,
-                  link: {
-                    id: 'link-1',
-                    url: 'https://youtube.com/watch?v=xK93',
-                    status: 'submitted',
-                    preview: { outcome: 'url_only' },
-                    submitted_at: new Date().toISOString(),
-                    submitted_by_account_id: 'creator-1',
-                  },
-                  message: 'Just published! Sharing the link here.',
-                },
-              },
-              created_at: new Date().toISOString(),
-            }}
-            currentAccountId="creator-1"
-            brandWorkspaceId="brand-ws-1"
-            sessionKind="creator"
-          />
-          <LinkSubmittedCard
-            message={{
-              id: 'msg-link-brand',
-              author_account_id: 'creator-1',
-              event_type: 'LinkSubmitted',
-              payload: {
-                snapshot: {
-                  event_type: 'LinkSubmitted',
-                  deliverable_id: 'del-link-1',
-                  deliverable_platform: 'youtube',
-                  deliverable_format: 'long_form',
-                  deliverable_offer_stage_id: null,
-                  link: {
-                    id: 'link-1',
-                    url: 'https://youtube.com/watch?v=xK93',
-                    status: 'submitted',
-                    preview: { outcome: 'url_only' },
-                    submitted_at: new Date().toISOString(),
-                    submitted_by_account_id: 'creator-1',
-                  },
-                  message:
-                    "It's live! Here's the YouTube link. Hope you love how it turned out!",
-                  payout_amount_formatted: '$4,500.00',
-                },
-              },
-              created_at: new Date().toISOString(),
-            }}
-            currentAccountId="brand-1"
-            brandWorkspaceId="brand-ws-1"
-            sessionKind="brand"
-          />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup
-        title="Request changes card"
-        context="features/deliverables"
-      >
-        <div className="max-w-md">
-          <RequestChangesCard
-            message={{
-              id: 'msg-rc-1',
-              author_account_id: 'acc-brand',
-              event_type: 'ChangesRequested',
-              payload: {
-                event_type: 'ChangesRequested',
-                deliverable_id: 'del-1',
-                deliverable_platform: 'youtube',
-                deliverable_format: 'long_form',
-                deliverable_offer_stage_id: null,
-                draft_id: 'draft-1',
-                draft_version: 1,
-                draft_thumbnail_url: null,
-                categories: ['product_placement', 'audio'],
-                notes:
-                  'Product placement more prominent in intro. Add discount code overlay at 2:15.',
-                requested_at: '2026-04-27T12:00:00Z',
-                requested_by_account_id: 'acc-brand',
-              },
-              created_at: '2026-04-27T12:00:00Z',
-            }}
-            currentAccountId="acc-brand"
-            counterpartDisplayName="María García"
-          />
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup
-        title="Payment card · received / sent"
-        context="features/payments"
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <PaymentCard audience="received" amount="$4,575.00" />
-          <PaymentCard audience="sent" amount="$4,575.00" />
-        </div>
-      </ShowcaseGroup>
+      <DraftCardsShowcaseGroup showcaseNowIso={showcaseNowIso} />
+      <LinkSubmittedShowcaseGroup showcaseNowIso={showcaseNowIso} />
 
       <ShowcaseGroup title="Deliverable card" context="features/deliverables">
         <div className="grid gap-4 md:grid-cols-2">
@@ -1095,243 +853,334 @@ function ReusableSection() {
           />
         </div>
       </ShowcaseGroup>
+    </>
+  )
+}
 
-      <ShowcaseGroup title="Brand header card" context="features/identity">
-        <BrandHeaderCard
-          name="Marz Brand"
-          meta="Consumer electronics · 85K followers"
-        />
-      </ShowcaseGroup>
-
+function DraftCardsShowcaseGroup({ showcaseNowIso }: { showcaseNowIso: string }) {
+  return (
+    <>
       <ShowcaseGroup
-        title="Creator header card · collapsed / expanded"
-        context="features/identity"
+        title="Draft submitted · creator / brand"
+        context="features/deliverables"
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <CreatorHeaderCard
-            name="Luminal Studio"
-            handle="@luminalstudio"
-            collapsed
+          <DraftSubmittedCard
+            message={{
+              id: 'msg-1',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  original_filename: 'echo_wireless_draft_v1.mp4',
+                  file_size_bytes: 148897152,
+                  duration_sec: 204,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/video.mp4',
+                  playback_url_expires_at: showcaseNowIso,
+                  submitted_at: showcaseNowIso,
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: showcaseNowIso,
+            }}
+            currentAccountId="creator-1"
+            counterpartDisplayName="Brand Name"
+            conversationId="conv-1"
+            sessionKind="creator"
           />
-          <CreatorHeaderCard
-            name="Luminal Studio"
-            handle="@luminalstudio"
-            stats={[
-              { label: 'Followers', value: '245K' },
-              { label: 'Eng.', value: '4.8%' },
-              { label: 'Collabs', value: '32' },
-            ]}
+          <DraftSubmittedCard
+            message={{
+              id: 'msg-2',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  original_filename: 'echo_wireless_draft_v1.mp4',
+                  file_size_bytes: 148897152,
+                  duration_sec: 204,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/video.mp4',
+                  playback_url_expires_at: showcaseNowIso,
+                  submitted_at: showcaseNowIso,
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: showcaseNowIso,
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
+            conversationId="conv-1"
+            sessionKind="brand"
           />
         </div>
       </ShowcaseGroup>
 
       <ShowcaseGroup
-        title="Offer block · current offer"
+        title="Draft submitted · portrait (Reel / Short)"
+        context="features/deliverables"
+      >
+        <div className="max-w-xs">
+          <DraftSubmittedCard
+            message={{
+              id: 'msg-3',
+              author_account_id: 'creator-1',
+              event_type: 'DraftSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftSubmitted',
+                  deliverable_id: 'del-2',
+                  deliverable_platform: 'instagram',
+                  deliverable_format: 'reel',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-2',
+                  version: 1,
+                  original_filename: 'reel_draft.mp4',
+                  file_size_bytes: 39845888,
+                  duration_sec: 45,
+                  mime_type: 'video/mp4',
+                  thumbnail_url: null,
+                  playback_url: 'https://example.com/reel.mp4',
+                  playback_url_expires_at: showcaseNowIso,
+                  submitted_at: showcaseNowIso,
+                  submitted_by_account_id: 'creator-1',
+                },
+              },
+              created_at: showcaseNowIso,
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
+            conversationId="conv-1"
+            sessionKind="brand"
+          />
+        </div>
+      </ShowcaseGroup>
+
+      <ShowcaseGroup title="Draft approved" context="features/deliverables">
+        <div className="max-w-md">
+          <DraftApprovedCard
+            message={{
+              id: 'msg-4',
+              author_account_id: 'brand-1',
+              event_type: 'DraftApproved',
+              payload: {
+                snapshot: {
+                  event_type: 'DraftApproved',
+                  deliverable_id: 'del-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  draft_id: 'draft-1',
+                  version: 1,
+                  approved_at: showcaseNowIso,
+                  approved_by_account_id: 'brand-1',
+                },
+              },
+              created_at: showcaseNowIso,
+            }}
+            currentAccountId="brand-1"
+            counterpartDisplayName="Creator Name"
+          />
+        </div>
+      </ShowcaseGroup>
+    </>
+  )
+}
+
+function LinkSubmittedShowcaseGroup({
+  showcaseNowIso,
+}: {
+  showcaseNowIso: string
+}) {
+  return (
+    <>
+      <ShowcaseGroup
+        title="Link submitted · creator / brand"
+        context="features/deliverables"
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <LinkSubmittedCard
+            message={{
+              id: 'msg-link-creator',
+              author_account_id: 'creator-1',
+              event_type: 'LinkSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'LinkSubmitted',
+                  deliverable_id: 'del-link-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  link: {
+                    id: 'link-1',
+                    url: 'https://youtube.com/watch?v=xK93',
+                    status: 'submitted',
+                    preview: { outcome: 'url_only' },
+                    submitted_at: showcaseNowIso,
+                    submitted_by_account_id: 'creator-1',
+                  },
+                  message: 'Just published! Sharing the link here.',
+                },
+              },
+              created_at: showcaseNowIso,
+            }}
+            currentAccountId="creator-1"
+            brandWorkspaceId="brand-ws-1"
+            sessionKind="creator"
+          />
+          <LinkSubmittedCard
+            message={{
+              id: 'msg-link-brand',
+              author_account_id: 'creator-1',
+              event_type: 'LinkSubmitted',
+              payload: {
+                snapshot: {
+                  event_type: 'LinkSubmitted',
+                  deliverable_id: 'del-link-1',
+                  deliverable_platform: 'youtube',
+                  deliverable_format: 'long_form',
+                  deliverable_offer_stage_id: null,
+                  link: {
+                    id: 'link-1',
+                    url: 'https://youtube.com/watch?v=xK93',
+                    status: 'submitted',
+                    preview: { outcome: 'url_only' },
+                    submitted_at: showcaseNowIso,
+                    submitted_by_account_id: 'creator-1',
+                  },
+                  message:
+                    "It's live! Here's the YouTube link. Hope you love how it turned out!",
+                  payout_amount_formatted: '$4,500.00',
+                },
+              },
+              created_at: showcaseNowIso,
+            }}
+            currentAccountId="brand-1"
+            brandWorkspaceId="brand-ws-1"
+            sessionKind="brand"
+          />
+        </div>
+      </ShowcaseGroup>
+
+      <ShowcaseGroup
+        title="Request changes card"
+        context="features/deliverables"
+      >
+        <div className="max-w-md">
+          <RequestChangesCard
+            message={{
+              id: 'msg-rc-1',
+              author_account_id: 'acc-brand',
+              event_type: 'ChangesRequested',
+              payload: {
+                event_type: 'ChangesRequested',
+                deliverable_id: 'del-1',
+                deliverable_platform: 'youtube',
+                deliverable_format: 'long_form',
+                deliverable_offer_stage_id: null,
+                draft_id: 'draft-1',
+                draft_version: 1,
+                draft_thumbnail_url: null,
+                categories: ['product_placement', 'audio'],
+                notes:
+                  'Product placement more prominent in intro. Add discount code overlay at 2:15.',
+                requested_at: '2026-04-27T12:00:00Z',
+                requested_by_account_id: 'acc-brand',
+              },
+              created_at: '2026-04-27T12:00:00Z',
+            }}
+            currentAccountId="acc-brand"
+            counterpartDisplayName="María García"
+          />
+        </div>
+      </ShowcaseGroup>
+    </>
+  )
+}
+
+function PaymentsShowcaseGroup() {
+  return (
+    <ShowcaseGroup
+      title="Payment card · received / sent"
+      context="features/payments"
+    >
+      <div className="grid gap-4 md:grid-cols-2">
+        <PaymentCard audience="received" amount="$4,575.00" />
+        <PaymentCard audience="sent" amount="$4,575.00" />
+      </div>
+    </ShowcaseGroup>
+  )
+}
+
+function OffersShowcaseGroup() {
+  return (
+    <>
+      <ShowcaseGroup
+        title="Offer card · received / sent"
         context="features/offers"
       >
-        <div className="max-w-md">
-          <OfferBlock
-            title="Current Offer"
-            offerId="OFR-2847"
-            statusLabel="Accepted"
-            terms={[
-              { label: 'Budget', value: '$4,500.00' },
-              { label: 'Deadline', value: 'Oct 12, 2024' },
-              {
-                label: 'Speed bonus',
-                value: '+15% within 48h',
-                tone: 'accent',
-              },
+        <div className="grid gap-4 md:grid-cols-2">
+          <OfferCard
+            variant="received"
+            title="Q4 Echo Wireless Series"
+            budget="$4,500.00"
+            deadline="Oct 12"
+            platforms={[
+              { platform: 'youtube', label: '1× YouTube Video' },
+              { platform: 'instagram', label: 'IG Reels' },
             ]}
-            sectionLabel="Deliverables"
-          >
-            <DeliverableCard
-              platform="youtube"
-              title="YouTube Video"
-              status="draft_submitted"
-              drafts={[
-                {
-                  filename: 'draft_v1.mp4',
-                  duration: '3:24',
-                  status: 'changes_requested',
-                },
-                {
-                  filename: 'draft_v2.mp4',
-                  duration: '3:22',
-                  status: 'in_review',
-                },
-              ]}
-            />
-          </OfferBlock>
-        </div>
-      </ShowcaseGroup>
-
-      <ShowcaseGroup title="Archived offers list" context="features/offers">
-        <div className="max-w-md">
-          <ArchivedOffersList
-            offers={[
-              {
-                offerId: 'OFR-2801',
-                amount: '$2,800',
-                date: 'Sep 14, 2024',
-                status: 'paid',
-              },
-              {
-                offerId: 'OFR-2650',
-                amount: '$3,200',
-                date: 'Jul 02, 2024',
-                status: 'paid',
-              },
+          />
+          <OfferCard
+            variant="sent"
+            title="Q4 Echo Wireless Series"
+            budget="$4,500.00"
+            deadline="Oct 12"
+            platforms={[
+              { platform: 'youtube', label: '1× YouTube Video' },
+              { platform: 'instagram', label: 'IG Reels' },
             ]}
           />
         </div>
       </ShowcaseGroup>
 
       <ShowcaseGroup
-        title="Context panel · creator view (brand context)"
-        context="features/identity"
+        title="Offer card · collapsed"
+        context="features/offers"
       >
-        <ContextPanel
-          headerSlot={
-            <BrandHeaderCard
-              name="Marz Brand"
-              meta="Consumer electronics · 85K followers"
-            />
-          }
-          offerSlot={
-            <OfferBlock
-              title="Current Offer"
-              offerId="OFR-2847"
-              statusLabel="Accepted"
-              terms={[
-                { label: 'Budget', value: '$4,500.00' },
-                { label: 'Deadline', value: 'Oct 12, 2024' },
-                {
-                  label: 'Speed bonus',
-                  value: '+15% within 48h',
-                  tone: 'accent',
-                },
-              ]}
-              sectionLabel="Deliverables"
-            >
-              <DeliverableCard
-                platform="youtube"
-                title="YouTube Video"
-                status="draft_submitted"
-                drafts={[
-                  {
-                    filename: 'draft_v1.mp4',
-                    duration: '3:24',
-                    status: 'changes_requested',
-                  },
-                  {
-                    filename: 'draft_v2.mp4',
-                    duration: '3:22',
-                    status: 'in_review',
-                  },
-                ]}
-              />
-            </OfferBlock>
-          }
-          archiveSlot={
-            <ArchivedOffersList
-              offers={[
-                {
-                  offerId: 'OFR-2801',
-                  amount: '$2,800',
-                  date: 'Sep 14, 2024',
-                  status: 'paid',
-                },
-                {
-                  offerId: 'OFR-2650',
-                  amount: '$3,200',
-                  date: 'Jul 02, 2024',
-                  status: 'paid',
-                },
-              ]}
-            />
-          }
-        />
+        <div className="max-w-md space-y-2">
+          <OfferCardCollapsed offerId="OFR-2847" status="accepted" />
+          <OfferCardCollapsed offerId="OFR-2848" status="sent" />
+          <OfferCardCollapsed offerId="OFR-2849" status="rejected" />
+          <OfferCardCollapsed offerId="OFR-2850" status="negotiating" />
+        </div>
       </ShowcaseGroup>
 
       <ShowcaseGroup
-        title="Context panel · brand view (creator context, expanded)"
-        context="features/identity"
+        title="Offer accepted · creator / brand"
+        context="features/offers"
       >
-        <ContextPanel
-          headerSlot={
-            <CreatorHeaderCard
-              name="Luminal Studio"
-              handle="@luminalstudio"
-              stats={[
-                { label: 'Followers', value: '245K' },
-                { label: 'Eng.', value: '4.8%' },
-                { label: 'Collabs', value: '32' },
-              ]}
-            />
-          }
-          offerSlot={
-            <OfferBlock
-              title="Current Offer"
-              offerId="OFR-2847"
-              statusLabel="Accepted"
-              terms={[
-                { label: 'Budget', value: '$4,500.00' },
-                { label: 'Deadline', value: 'Oct 12, 2024' },
-                {
-                  label: 'Speed bonus',
-                  value: '+15% within 48h',
-                  tone: 'accent',
-                },
-              ]}
-              sectionLabel="Stages"
-            >
-              <StageCard
-                stageNumber={1}
-                name="Launch week"
-                deadline="Oct 5"
-                status="done"
-              />
-              <StageCard
-                stageNumber={2}
-                name="Follow-up week"
-                deadline="Oct 12"
-                status="active"
-              >
-                <DeliverableCard
-                  platform="youtube"
-                  title="YouTube Video"
-                  status="draft_submitted"
-                  drafts={[
-                    {
-                      filename: 'draft_v1.mp4',
-                      duration: '3:24',
-                      status: 'changes_requested',
-                    },
-                  ]}
-                />
-              </StageCard>
-              <StageCard
-                stageNumber={3}
-                name="Holiday content"
-                deadline="Dec 1"
-                status="upcoming"
-              />
-            </OfferBlock>
-          }
-        />
-      </ShowcaseGroup>
-
-      <ShowcaseGroup title="Campaign mini card" context="features/campaigns">
-        <div className="max-w-sm">
-          <CampaignMiniCard
-            name="Summer Glow 2026"
-            startDate="Jun 30"
-            status="active"
-            creators={6}
-            budget="$42k"
-            videos={{ done: 3, total: 8 }}
-            platforms={['YouTube', 'Instagram']}
+        <div className="grid gap-4 md:grid-cols-2">
+          <OfferAcceptedCard audience="creator" deadline="Oct 12" />
+          <OfferAcceptedCard
+            audience="brand"
+            creatorName="Luminal Studio"
+            deadline="Oct 12"
           />
         </div>
       </ShowcaseGroup>
@@ -1517,9 +1366,239 @@ function ReusableSection() {
           </div>
         </SendOfferSidesheet>
       </ShowcaseGroup>
+    </>
+  )
+}
 
-      <MobileSection />
-    </section>
+function IdentityShowcaseGroup() {
+  return (
+    <>
+      <ShowcaseGroup title="Brand header card" context="features/identity">
+        <BrandHeaderCard
+          name="Marz Brand"
+          meta="Consumer electronics · 85K followers"
+        />
+      </ShowcaseGroup>
+
+      <ShowcaseGroup
+        title="Creator header card · collapsed / expanded"
+        context="features/identity"
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <CreatorHeaderCard
+            name="Luminal Studio"
+            handle="@luminalstudio"
+            collapsed
+          />
+          <CreatorHeaderCard
+            name="Luminal Studio"
+            handle="@luminalstudio"
+            stats={[
+              { label: 'Followers', value: '245K' },
+              { label: 'Eng.', value: '4.8%' },
+              { label: 'Collabs', value: '32' },
+            ]}
+          />
+        </div>
+      </ShowcaseGroup>
+
+      <ShowcaseGroup title="Archived offers list" context="features/offers">
+        <div className="max-w-md">
+          <ArchivedOffersList
+            offers={[
+              {
+                offerId: 'OFR-2801',
+                amount: '$2,800',
+                date: 'Sep 14, 2024',
+                status: 'paid',
+              },
+              {
+                offerId: 'OFR-2650',
+                amount: '$3,200',
+                date: 'Jul 02, 2024',
+                status: 'paid',
+              },
+            ]}
+          />
+        </div>
+      </ShowcaseGroup>
+
+      <ShowcaseGroup
+        title="Offer block · current offer"
+        context="features/offers"
+      >
+        <div className="max-w-md">
+          <OfferBlock
+            title="Current Offer"
+            offerId="OFR-2847"
+            statusLabel="Accepted"
+            terms={[
+              { label: 'Budget', value: '$4,500.00' },
+              { label: 'Deadline', value: 'Oct 12, 2024' },
+              {
+                label: 'Speed bonus',
+                value: '+15% within 48h',
+                tone: 'accent',
+              },
+            ]}
+            sectionLabel="Deliverables"
+          >
+            <DeliverableCard
+              platform="youtube"
+              title="YouTube Video"
+              status="draft_submitted"
+              drafts={[
+                {
+                  filename: 'draft_v1.mp4',
+                  duration: '3:24',
+                  status: 'changes_requested',
+                },
+                {
+                  filename: 'draft_v2.mp4',
+                  duration: '3:22',
+                  status: 'in_review',
+                },
+              ]}
+            />
+          </OfferBlock>
+        </div>
+      </ShowcaseGroup>
+
+      <ShowcaseGroup
+        title="Context panel · creator view (brand context)"
+        context="features/identity"
+      >
+        <ContextPanel
+          headerSlot={
+            <BrandHeaderCard
+              name="Marz Brand"
+              meta="Consumer electronics · 85K followers"
+            />
+          }
+          offerSlot={
+            <OfferBlock
+              title="Current Offer"
+              offerId="OFR-2847"
+              statusLabel="Accepted"
+              terms={[
+                { label: 'Budget', value: '$4,500.00' },
+                { label: 'Deadline', value: 'Oct 12, 2024' },
+                {
+                  label: 'Speed bonus',
+                  value: '+15% within 48h',
+                  tone: 'accent',
+                },
+              ]}
+              sectionLabel="Deliverables"
+            >
+              <DeliverableCard
+                platform="youtube"
+                title="YouTube Video"
+                status="draft_submitted"
+                drafts={[
+                  {
+                    filename: 'draft_v1.mp4',
+                    duration: '3:24',
+                    status: 'changes_requested',
+                  },
+                  {
+                    filename: 'draft_v2.mp4',
+                    duration: '3:22',
+                    status: 'in_review',
+                  },
+                ]}
+              />
+            </OfferBlock>
+          }
+          archiveSlot={
+            <ArchivedOffersList
+              offers={[
+                {
+                  offerId: 'OFR-2801',
+                  amount: '$2,800',
+                  date: 'Sep 14, 2024',
+                  status: 'paid',
+                },
+                {
+                  offerId: 'OFR-2650',
+                  amount: '$3,200',
+                  date: 'Jul 02, 2024',
+                  status: 'paid',
+                },
+              ]}
+            />
+          }
+        />
+      </ShowcaseGroup>
+
+      <ShowcaseGroup
+        title="Context panel · brand view (creator context, expanded)"
+        context="features/identity"
+      >
+        <ContextPanel
+          headerSlot={
+            <CreatorHeaderCard
+              name="Luminal Studio"
+              handle="@luminalstudio"
+              stats={[
+                { label: 'Followers', value: '245K' },
+                { label: 'Eng.', value: '4.8%' },
+                { label: 'Collabs', value: '32' },
+              ]}
+            />
+          }
+          offerSlot={
+            <OfferBlock
+              title="Current Offer"
+              offerId="OFR-2847"
+              statusLabel="Accepted"
+              terms={[
+                { label: 'Budget', value: '$4,500.00' },
+                { label: 'Deadline', value: 'Oct 12, 2024' },
+                {
+                  label: 'Speed bonus',
+                  value: '+15% within 48h',
+                  tone: 'accent',
+                },
+              ]}
+              sectionLabel="Stages"
+            >
+              <StageCard
+                stageNumber={1}
+                name="Launch week"
+                deadline="Oct 5"
+                status="done"
+              />
+              <StageCard
+                stageNumber={2}
+                name="Follow-up week"
+                deadline="Oct 12"
+                status="active"
+              >
+                <DeliverableCard
+                  platform="youtube"
+                  title="YouTube Video"
+                  status="draft_submitted"
+                  drafts={[
+                    {
+                      filename: 'draft_v1.mp4',
+                      duration: '3:24',
+                      status: 'changes_requested',
+                    },
+                  ]}
+                />
+              </StageCard>
+              <StageCard
+                stageNumber={3}
+                name="Holiday content"
+                deadline="Dec 1"
+                status="upcoming"
+              />
+            </OfferBlock>
+          }
+        />
+      </ShowcaseGroup>
+    </>
   )
 }
 
@@ -1650,7 +1729,7 @@ function MobileSection() {
             version="v1"
           />
           <MobileRequestChangesCard
-            notes="Please re-shoot the opening 3 seconds — the lighting is too harsh and the product is cropped. Also lower the background music."
+            notes="Please re-shoot the opening 3 seconds; the lighting is too harsh and the product is cropped. Also lower the background music."
             signoff="Aurora Beauty · May 15"
           />
           <MobileLinkCard

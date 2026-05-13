@@ -116,17 +116,19 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   )
 }
 
+const deadlineFormatter = new Intl.DateTimeFormat('es-AR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+})
+
 function formatDeadline(deadline: string | null) {
   if (!deadline) return t`Sin deadline`
 
   const date = new Date(deadline)
   if (Number.isNaN(date.getTime())) return deadline
 
-  return new Intl.DateTimeFormat('es-AR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(date)
+  return deadlineFormatter.format(date)
 }
 
 function formatList(items: string[] | null) {

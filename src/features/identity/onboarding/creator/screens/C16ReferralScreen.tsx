@@ -7,7 +7,7 @@ import { useCreatorOnboardingStore } from '../store'
 export function C16ReferralScreen() {
   const store = useCreatorOnboardingStore()
 
-  const handleChange = useCallback(
+  const updateReferralFromInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       store.setField('referral_text', e.target.value || null)
     },
@@ -17,7 +17,7 @@ export function C16ReferralScreen() {
   return (
     <div className="flex w-full flex-col items-center gap-9">
       <div className="flex w-full max-w-[560px] flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {t`¿Quién te invitó?`}
         </h1>
         <p className="text-center text-sm text-muted-foreground">
@@ -30,7 +30,7 @@ export function C16ReferralScreen() {
             <Input
               {...aria}
               value={store.referral_text ?? ''}
-              onChange={handleChange}
+              onChange={updateReferralFromInput}
               placeholder="@valenzavacs"
               maxLength={2000}
             />

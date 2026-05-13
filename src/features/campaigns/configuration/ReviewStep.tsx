@@ -443,8 +443,10 @@ function formatHours(hours: number) {
   return t`${hours} hs`
 }
 
+const numberFormatter = new Intl.NumberFormat('es-AR')
+
 function formatNumber(value: number) {
-  return new Intl.NumberFormat('es-AR').format(value)
+  return numberFormatter.format(value)
 }
 
 function formatBonusAmount(

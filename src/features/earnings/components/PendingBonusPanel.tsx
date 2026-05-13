@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { t } from '@lingui/core/macro'
 import { Trans } from '@lingui/react/macro'
 import { Zap } from 'lucide-react'
@@ -25,32 +25,22 @@ export function PendingBonusPanel({
   period,
   pendingBonuses,
 }: PendingBonusPanelProps) {
-  const initialSpeedBonuses = useMemo(
-    () => pendingBonuses.items.filter(isSpeedBonus),
-    [pendingBonuses.items],
+  const [paginationState, dispatchPagination] = useReducer(
+    pendingBonusPaginationReducer,
+    initialPendingBonusPaginationState,
   )
-  const [bonuses, setBonuses] = useState(initialSpeedBonuses)
-  const [nextCursor, setNextCursor] = useState(pendingBonuses.next_cursor)
-  const [hasMore, setHasMore] = useState(pendingBonuses.has_more)
-  const [cursorToLoad, setCursorToLoad] = useState<string | null>(null)
-  const appendedCursorRef = useRef<string | null>(null)
 
   const paginatedQuery = useCreatorEarningsQuery({
     period,
-    cursor: cursorToLoad ?? undefined,
+    cursor: paginationState.cursorToLoad ?? undefined,
     limit: 25,
   })
 
   useEffect(() => {
-    setBonuses(initialSpeedBonuses)
-    setNextCursor(pendingBonuses.next_cursor)
-    setHasMore(pendingBonuses.has_more)
-    setCursorToLoad(null)
-    appendedCursorRef.current = null
-  }, [initialSpeedBonuses, pendingBonuses.has_more, pendingBonuses.next_cursor])
-
-  useEffect(() => {
-    if (!cursorToLoad || appendedCursorRef.current === cursorToLoad) {
+    if (
+      !paginationState.cursorToLoad ||
+      paginationState.appendedCursors.has(paginationState.cursorToLoad)
+    ) {
       return
     }
 
@@ -63,26 +53,41 @@ export function PendingBonusPanel({
     }
 
     const nextPage = paginatedQuery.data.pending_bonuses
-    setBonuses((currentBonuses) => [
-      ...currentBonuses,
-      ...nextPage.items.filter(isSpeedBonus),
-    ])
-    setNextCursor(nextPage.next_cursor)
-    setHasMore(nextPage.has_more)
-    appendedCursorRef.current = cursorToLoad
-  }, [cursorToLoad, paginatedQuery.data])
+    dispatchPagination({
+      type: 'pageLoaded',
+      cursor: paginationState.cursorToLoad,
+      page: nextPage,
+    })
+  }, [
+    paginationState.appendedCursors,
+    paginationState.cursorToLoad,
+    paginatedQuery.data,
+    paginatedQuery.isFetching,
+    paginatedQuery.isPlaceholderData,
+  ])
+
+  const loadedBonuses = paginationState.pages.flatMap((page) =>
+    page.items.filter(isSpeedBonus),
+  )
+  const bonuses = [
+    ...pendingBonuses.items.filter(isSpeedBonus),
+    ...loadedBonuses,
+  ]
+  const latestPage = paginationState.pages.at(-1)
+  const nextCursor = latestPage?.next_cursor ?? pendingBonuses.next_cursor
+  const hasMore = latestPage?.has_more ?? pendingBonuses.has_more
 
   function handleLoadMore() {
     if (!nextCursor) {
       return
     }
 
-    setCursorToLoad(nextCursor)
+    dispatchPagination({ type: 'loadCursor', cursor: nextCursor })
   }
 
   const isLoadingMore =
-    Boolean(cursorToLoad) &&
-    appendedCursorRef.current !== cursorToLoad &&
+    paginationState.cursorToLoad !== null &&
+    !paginationState.appendedCursors.has(paginationState.cursorToLoad) &&
     paginatedQuery.isFetching
 
   return (
@@ -130,6 +135,45 @@ export function PendingBonusPanel({
       ) : null}
     </aside>
   )
+}
+
+interface PendingBonusPaginationState {
+  cursorToLoad: string | null
+  pages: PendingBonusCollection[]
+  appendedCursors: Set<string>
+}
+
+type PendingBonusPaginationAction =
+  | { type: 'loadCursor'; cursor: string }
+  | {
+      type: 'pageLoaded'
+      cursor: string
+      page: PendingBonusCollection
+    }
+
+const initialPendingBonusPaginationState: PendingBonusPaginationState = {
+  cursorToLoad: null,
+  pages: [],
+  appendedCursors: new Set(),
+}
+
+function pendingBonusPaginationReducer(
+  state: PendingBonusPaginationState,
+  action: PendingBonusPaginationAction,
+): PendingBonusPaginationState {
+  switch (action.type) {
+    case 'loadCursor':
+      return { ...state, cursorToLoad: action.cursor }
+    case 'pageLoaded':
+      if (state.appendedCursors.has(action.cursor)) {
+        return state
+      }
+      return {
+        cursorToLoad: null,
+        pages: [...state.pages, action.page],
+        appendedCursors: new Set(state.appendedCursors).add(action.cursor),
+      }
+  }
 }
 
 function isSpeedBonus(bonus: PendingBonusCardBonus): boolean {

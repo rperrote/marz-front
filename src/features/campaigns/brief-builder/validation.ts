@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useCallback,
-} from 'react'
+import { createContext, use, useEffect, useRef, useCallback } from 'react'
 import type { MutableRefObject } from 'react'
 
 type ValidateFn = () => Promise<boolean>
@@ -16,8 +10,8 @@ interface WizardStepValidationContextValue {
 export const WizardStepValidationContext =
   createContext<WizardStepValidationContextValue | null>(null)
 
-export function useWizardStepValidation() {
-  const ctx = useContext(WizardStepValidationContext)
+function useWizardStepValidation() {
+  const ctx = use(WizardStepValidationContext)
   if (!ctx) {
     throw new Error(
       'useWizardStepValidation must be used within WizardStepValidationContext',

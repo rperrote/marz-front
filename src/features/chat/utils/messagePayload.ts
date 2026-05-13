@@ -6,7 +6,7 @@ export function toMessagePayload(
   return null
 }
 
-export function isMessagePayload(
+function isMessagePayload(
   payload: unknown,
 ): payload is Record<string, unknown> {
   if (

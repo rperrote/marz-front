@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check, CircleDollarSign, Eye } from 'lucide-react'
@@ -58,9 +58,9 @@ export function PricingModelStep({
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const mutation = useUpdatePricingModelMutation()
-  const [selected, setSelected] = useState<CampaignPricingModel | null>(
-    config.pricing_model,
-  )
+  const initialPricingModel = useRef(config.pricing_model).current
+  const [selected, setSelected] =
+    useState<CampaignPricingModel | null>(initialPricingModel)
 
   const handleBack = () => {
     void navigate({

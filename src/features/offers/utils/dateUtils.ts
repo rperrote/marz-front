@@ -1,3 +1,3 @@
-export function todayString(): string {
-  return new Date().toISOString().slice(0, 10)
+export function todayString(now = Date.now()): string {
+  return new Date(now).toISOString().slice(0, 10)
 }

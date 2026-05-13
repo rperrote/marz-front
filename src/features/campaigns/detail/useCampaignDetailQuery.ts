@@ -5,9 +5,9 @@ import { getCampaignDetail } from '#/shared/api/generated/campaigns/campaigns'
 import type { CampaignDetailResponse } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
 
-export const CAMPAIGN_DETAIL_STALE_TIME = 60_000
+const CAMPAIGN_DETAIL_STALE_TIME = 60_000
 
-export function campaignDetailQueryKey(campaignId: string) {
+function campaignDetailQueryKey(campaignId: string) {
   return ['campaign', campaignId, 'detail'] as const
 }
 

@@ -6,21 +6,25 @@ interface OnboardingOptionChipProps {
   selected: boolean
   onToggle: () => void
   role?: 'radio' | 'checkbox'
+  'aria-checked'?: boolean
   className?: string
 }
 
-export function OnboardingOptionChip({
-  label,
-  selected,
-  onToggle,
-  role = 'checkbox',
-  className,
-}: OnboardingOptionChipProps) {
+export function OnboardingOptionChip(props: OnboardingOptionChipProps) {
+  const {
+    label,
+    selected,
+    onToggle,
+    role = 'checkbox',
+    className,
+    'aria-checked': ariaChecked = selected,
+  } = props
+
   return (
     <button
       type="button"
       role={role}
-      aria-checked={selected}
+      aria-checked={ariaChecked}
       onClick={onToggle}
       onKeyDown={(e) => {
         if (e.key === ' ') {

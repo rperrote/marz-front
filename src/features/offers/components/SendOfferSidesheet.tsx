@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useRef } from 'react'
 import { t } from '@lingui/core/macro'
 
 import {
@@ -40,31 +40,34 @@ export function SendOfferSidesheet({ creatorName }: SendOfferSidesheetProps) {
     cancelTypeChange,
   } = useSendOfferSheetStore()
   const campaignsQuery = useActiveCampaigns()
-  const [editorDirty, setEditorDirty] = useState(false)
+  const editorDirtyRef = useRef(false)
 
   const campaigns = campaignsQuery.data ?? []
   const hasCampaigns = campaigns.length > 0
 
-  useEffect(() => {
-    if (isOpen) {
-      setEditorDirty(false)
-    }
-  }, [isOpen])
-
-  useEffect(() => {
-    setEditorDirty(false)
-  }, [offerType])
-
   function handleTypeChange(type: OfferType) {
-    const hasData = editorDirty
+    const hasData = editorDirtyRef.current
     setOfferType(type, { hasData })
+    if (!hasData) {
+      editorDirtyRef.current = false
+    }
+  }
+
+  function handleConfirmTypeChange() {
+    editorDirtyRef.current = false
+    confirmTypeChange()
+  }
+
+  function handleClose() {
+    editorDirtyRef.current = false
+    close()
   }
 
   return (
     <Sheet
       open={isOpen}
       onOpenChange={(open) => {
-        if (!open) close()
+        if (!open) handleClose()
       }}
     >
       <SheetContent
@@ -118,24 +121,24 @@ export function SendOfferSidesheet({ creatorName }: SendOfferSidesheetProps) {
             {offerType === 'single' && (
               <SingleEditor
                 key={offerType}
-                onClose={close}
-                onDirtyChange={setEditorDirty}
+                onClose={handleClose}
+                dirtyRef={editorDirtyRef}
               />
             )}
 
             {offerType === 'bundle' && (
               <BundleEditor
                 key={offerType}
-                onClose={close}
-                onDirtyChange={setEditorDirty}
+                onClose={handleClose}
+                dirtyRef={editorDirtyRef}
               />
             )}
 
             {offerType === 'multistage' && (
               <MultiStageEditor
                 key={offerType}
-                onClose={close}
-                onDirtyChange={setEditorDirty}
+                onClose={handleClose}
+                dirtyRef={editorDirtyRef}
               />
             )}
           </>
@@ -158,7 +161,7 @@ export function SendOfferSidesheet({ creatorName }: SendOfferSidesheetProps) {
               <Button variant="outline" onClick={cancelTypeChange}>
                 {t`Cancel`}
               </Button>
-              <Button onClick={confirmTypeChange}>{t`Continue`}</Button>
+              <Button onClick={handleConfirmTypeChange}>{t`Continue`}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

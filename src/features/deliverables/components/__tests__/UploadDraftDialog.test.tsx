@@ -18,7 +18,6 @@ const hookState = {
   status: 'idle' as string,
   progress: 0,
   error: null as { kind: string; message: string } | null,
-  draft: null,
   start: vi.fn(),
   cancel: vi.fn(),
   reset: vi.fn(),
@@ -59,7 +58,6 @@ describe('UploadDraftDialog', () => {
     hookState.status = 'idle'
     hookState.progress = 0
     hookState.error = null
-    hookState.draft = null
     hookState.start.mockClear()
     hookState.cancel.mockClear()
     hookState.reset.mockClear()
@@ -82,7 +80,10 @@ describe('UploadDraftDialog', () => {
     fireEvent.change(input, { target: { files: [file] } })
 
     expect(hookState.start).toHaveBeenCalledTimes(1)
-    expect(hookState.start).toHaveBeenCalledWith(expect.any(File))
+    expect(hookState.start).toHaveBeenCalledWith(
+      expect.any(File),
+      expect.any(Function),
+    )
   })
 
   it('shows format error banner when hook reports format error', () => {

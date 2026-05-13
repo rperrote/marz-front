@@ -3,7 +3,7 @@ import { getConversationDeliverables } from '#/shared/api/generated/deliverables
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import type { ConversationDeliverablesResponse } from '#/features/deliverables/types'
 
-export async function fetchConversationDeliverables(
+async function fetchConversationDeliverables(
   conversationId: string,
 ): Promise<ConversationDeliverablesResponse> {
   const response = await getConversationDeliverables(conversationId)

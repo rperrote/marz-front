@@ -114,8 +114,8 @@ export function MessageComposer({
 
   function handleAutoResize(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const el = e.target
-    el.style.height = 'auto'
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+    el.style.setProperty('height', 'auto')
+    el.style.setProperty('height', `${Math.min(el.scrollHeight, 160)}px`)
   }
 
   const showCounter = text.length > COUNTER_VISIBLE_THRESHOLD

@@ -252,7 +252,7 @@ const ISO_3166_ALPHA_2_CODES = new Set([
   'ZW',
 ])
 
-export const CampaignCreatorTierSchema = z.enum([
+const CampaignCreatorTierSchema = z.enum([
   'emergent',
   'growing',
   'consolidated',

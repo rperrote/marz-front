@@ -65,12 +65,13 @@ async function submitValidLink() {
 }
 
 function analyticsRequests() {
-  return vi
-    .mocked(fetch)
-    .mock.calls.filter((call) =>
-      String(call[0]).endsWith('/v1/analytics/events'),
-    )
-    .map((call) => JSON.parse(String(call[1]?.body)) as unknown)
+  const requests: unknown[] = []
+  for (const call of vi.mocked(fetch).mock.calls) {
+    if (String(call[0]).endsWith('/v1/analytics/events')) {
+      requests.push(JSON.parse(String(call[1]?.body)) as unknown)
+    }
+  }
+  return requests
 }
 
 describe('SubmitLinkSidesheet', () => {

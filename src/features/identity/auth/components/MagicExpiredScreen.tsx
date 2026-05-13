@@ -17,7 +17,7 @@ export function MagicExpiredScreen() {
 
   return (
     <div className="flex w-full max-w-[480px] flex-col items-center gap-7 rounded-2xl border border-border bg-card p-10">
-      <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-destructive/12">
+      <div className="flex size-[72px] items-center justify-center rounded-full bg-destructive/12">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width={32}
@@ -39,7 +39,7 @@ export function MagicExpiredScreen() {
       </div>
 
       <div className="flex w-full flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-tight text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-tight text-foreground">
           Este link ya no sirve
         </h1>
         <p className="text-center text-sm leading-relaxed text-muted-foreground">

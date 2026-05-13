@@ -93,7 +93,7 @@ export function B10PrimingProjection() {
       </div>
 
       <div className="relative flex w-full max-w-[720px] flex-col items-center gap-3">
-        <h1 className="text-center text-[44px] font-bold leading-[1.2] tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[44px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground">
           {t`Así se ve lo que podés alcanzar.`}
         </h1>
         <p className="text-center text-[15px] leading-[1.5] text-muted-foreground">

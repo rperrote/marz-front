@@ -199,11 +199,12 @@ function makeBoardResponse(
   readModelHasSubmittedApplication: boolean,
 ): CreatorCampaignBoardResponse {
   const filteredCards = makeCards(readModelHasSubmittedApplication)
-    .filter((card) => includesEvery(card.targeting.niches, search.niches))
-    .filter((card) => includesEvery(card.targeting.interests, search.interests))
-    .filter((card) => includesEvery(card.targeting.platforms, search.platforms))
-    .filter((card) =>
-      includesEvery(card.targeting.deliverables, search.deliverables),
+    .filter(
+      (card) =>
+        includesEvery(card.targeting.niches, search.niches) &&
+        includesEvery(card.targeting.interests, search.interests) &&
+        includesEvery(card.targeting.platforms, search.platforms) &&
+        includesEvery(card.targeting.deliverables, search.deliverables),
     )
     .sort((left, right) => compareCards(left, right, search.sort))
 

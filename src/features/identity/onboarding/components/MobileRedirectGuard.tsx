@@ -20,7 +20,7 @@ export function MobileRedirectGuard() {
       sessionStorage.setItem(SESSION_KEY, pathname)
       void navigate({ to: '/desktop-only' })
     }
-  }, [isMobile, location.pathname, navigate])
+  }, [isMobile, location, navigate])
 
   return null
 }

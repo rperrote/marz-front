@@ -172,7 +172,7 @@ export function CampaignBoardCard({
       className="flex min-h-[292px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
       aria-labelledby={`campaign-${card.campaign_id}`}
     >
-      <header className="flex items-center gap-3 border-b border-border px-4 py-4">
+      <header className="flex items-center gap-3 border-b border-border p-4">
         <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary text-sm font-bold text-primary-foreground">
           {logoUrl ? (
             <img

@@ -2,10 +2,9 @@ import { useEffect } from 'react'
 import {
   Outlet,
   createFileRoute,
-  useNavigate,
   useParams,
+  useRouter,
 } from '@tanstack/react-router'
-import { useAuth } from '@clerk/tanstack-react-start'
 
 import { useMe } from '#/shared/api/generated/accounts/accounts'
 import { WizardShell } from '#/shared/ui/wizard'
@@ -16,52 +15,32 @@ import {
   getStepId,
 } from '#/features/identity/onboarding/creator/steps'
 import { track } from '#/shared/analytics/track'
+import { enforceOnboardingRoute } from './-onboardingGuard'
 
 export const Route = createFileRoute('/onboarding/creator')({
+  beforeLoad: async ({ context }) => {
+    await enforceOnboardingRoute({
+      queryClient: context.queryClient,
+      kind: 'creator',
+      routePath: '/onboarding/creator',
+      fallbackPath: '/offers',
+    })
+  },
   component: CreatorOnboardingLayout,
 })
 
 function CreatorOnboardingLayout() {
-  const { isSignedIn, isLoaded } = useAuth()
-  const navigate = useNavigate()
-  const meQuery = useMe({
-    query: { enabled: isLoaded && !!isSignedIn },
-  })
+  const router = useRouter()
+  const meQuery = useMe()
 
   const me = meQuery.data
   const onboardingStatus =
     me?.status === 200 ? me.data.onboarding_status : undefined
-  const redirectTo = me?.status === 200 ? me.data.redirect_to : undefined
   const kind = me?.status === 200 ? me.data.kind : undefined
 
   useEffect(() => {
     useCreatorOnboardingStore.persist.rehydrate()
   }, [])
-
-  useEffect(() => {
-    if (!isLoaded) return
-    if (!isSignedIn) {
-      void navigate({ to: '/auth' })
-      return
-    }
-    if (!me || me.status !== 200) return
-
-    if (kind !== 'creator') {
-      void navigate({ to: '/' })
-      return
-    }
-    if (onboardingStatus !== 'onboarding_pending') {
-      const destination =
-        redirectTo && redirectTo !== '/onboarding/creator'
-          ? redirectTo
-          : '/offers'
-      track('onboarding_redirect_enforced', {
-        from: '/onboarding/creator',
-        to: destination,
-      })
-      void navigate({ to: destination })
-    }
-  }, [isLoaded, isSignedIn, me, onboardingStatus, redirectTo, kind, navigate])
 
   const params = useParams({ strict: false })
   const stepId = (params as Record<string, string | undefined>).step
@@ -86,7 +65,7 @@ function CreatorOnboardingLayout() {
         step: currentStep.id,
         index: currentIndex,
       })
-      void navigate({
+      void router.navigate({
         to: '/onboarding/creator/$step',
         params: { step: nextId },
       })
@@ -98,7 +77,7 @@ function CreatorOnboardingLayout() {
       const prevIndex = currentIndex - 1
       const prevId = getStepId(prevIndex)
       store.goTo(prevIndex)
-      void navigate({
+      void router.navigate({
         to: '/onboarding/creator/$step',
         params: { step: prevId },
       })
@@ -110,10 +89,10 @@ function CreatorOnboardingLayout() {
       step: currentStep.id,
       index: currentIndex,
     })
-    void navigate({ to: '/' })
+    void router.navigate({ to: '/' })
   }
 
-  if (!isLoaded || !isSignedIn || meQuery.isLoading) return null
+  if (meQuery.isLoading) return null
   if (!me || me.status !== 200) return null
   if (kind !== 'creator' || onboardingStatus !== 'onboarding_pending')
     return null

@@ -101,13 +101,7 @@ export function AddCreatorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          className="space-y-5"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void form.handleSubmit()
-          }}
-        >
+        <form className="space-y-5" action={() => void form.handleSubmit()}>
           <form.AppField name="mode">
             {(field) => (
               <div

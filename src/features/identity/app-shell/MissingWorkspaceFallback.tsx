@@ -41,7 +41,7 @@ export function MissingWorkspaceFallback() {
             href="mailto:soporte@marz.com"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            <Mail className="h-4 w-4" aria-hidden="true" />
+            <Mail className="size-4" aria-hidden="true" />
             <Trans>Contactar soporte</Trans>
           </a>
           <button
@@ -49,7 +49,7 @@ export function MissingWorkspaceFallback() {
             onClick={handleSignOut}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
+            <LogOut className="size-4" aria-hidden="true" />
             <Trans>Cerrar sesión</Trans>
           </button>
         </div>

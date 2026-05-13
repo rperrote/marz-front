@@ -30,7 +30,7 @@ export function ApproveDraftButton({
   const isPending = approveDraft.isPending
   const tooltipId = `approve-draft-tooltip-${deliverableId}`
 
-  const handleClick = useCallback(() => {
+  const approveCurrentDraft = useCallback(() => {
     if (isStale) return
     approveDraft.mutate({
       onSuccess: () => {
@@ -52,7 +52,7 @@ export function ApproveDraftButton({
         disabled={isStale || isPending}
         aria-disabled={isStale || isPending ? true : undefined}
         aria-describedby={isStale ? tooltipId : undefined}
-        onClick={handleClick}
+        onClick={approveCurrentDraft}
       >
         {t`Approve draft`}
       </Button>

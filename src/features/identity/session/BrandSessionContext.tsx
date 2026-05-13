@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, use, useMemo } from 'react'
 import type { ReactNode } from 'react'
 
 import { useMe } from '#/shared/api/generated/accounts/accounts'
@@ -24,15 +24,11 @@ export function BrandSessionProvider({ children }: { children: ReactNode }) {
 
   if (!value) return null
 
-  return (
-    <BrandSessionContext.Provider value={value}>
-      {children}
-    </BrandSessionContext.Provider>
-  )
+  return <BrandSessionContext value={value}>{children}</BrandSessionContext>
 }
 
 export function useBrandSession(): BrandSession {
-  const ctx = useContext(BrandSessionContext)
+  const ctx = use(BrandSessionContext)
   if (!ctx) {
     throw new Error(
       'useBrandSession must be used within a BrandSessionProvider',

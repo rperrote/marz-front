@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useStore } from '@tanstack/react-form'
+import type { FieldComponent } from '@tanstack/react-form'
 import type { ReactNode } from 'react'
 import { Check, Plus, TrendingUp, Zap } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -22,12 +23,14 @@ import {
   useUpdateCampaignBonusMutation,
 } from './hooks'
 import type { CampaignConfiguration } from './hooks'
-import { BONUS_CURRENCY, BonusAmountSchema, BonusConfigSchema } from './schemas'
+import { BonusAmountSchema, BonusConfigSchema } from './schemas'
 import type { BonusAmountValues, BonusConfigValues } from './schemas'
 
 type SpeedBonusWindow = BonusConfigValues['speed_bonus']['windows'][number]
 type PerformanceBonusMilestone =
   BonusConfigValues['performance_bonus']['milestones'][number]
+
+type BonusAppField = FieldComponent<BonusConfigValues, any, any, any, any, any, any, any, any, any, any, any, any>
 
 const EMPTY_BONUS_CONFIG: BonusConfigValues = {
   enabled: false,
@@ -60,9 +63,7 @@ function mapBonusAmount(amount: {
   }
 }
 
-export function bonusDefaults(
-  config: CampaignConfiguration,
-): BonusConfigValues {
+function bonusDefaults(config: CampaignConfiguration): BonusConfigValues {
   return {
     enabled: config.bonus_config.enabled,
     speed_bonus: {
@@ -144,9 +145,7 @@ const DEFAULT_PERCENTAGE_BONUS: BonusAmountValues = {
   percentage: 10,
 }
 
-export function nextSpeedBonusWindow(
-  windows: SpeedBonusWindow[],
-): SpeedBonusWindow {
+function nextSpeedBonusWindow(windows: SpeedBonusWindow[]): SpeedBonusWindow {
   const lastWindow = sortSpeedWindows(windows).at(-1)
   return {
     window_hours: lastWindow ? Math.min(lastWindow.window_hours + 24, 720) : 24,
@@ -154,12 +153,12 @@ export function nextSpeedBonusWindow(
   }
 }
 
-export function nextPerformanceBonusMilestone(
+function nextPerformanceBonusMilestone(
   milestones: PerformanceBonusMilestone[],
 ): PerformanceBonusMilestone {
-  const lastMilestone = [...milestones].sort(
-    (left, right) => left.views - right.views,
-  )[milestones.length - 1]
+  const lastMilestone = milestones
+    .toSorted((left, right) => left.views - right.views)
+    .at(-1)
 
   return {
     views: lastMilestone ? lastMilestone.views + 50000 : 10000,
@@ -170,17 +169,8 @@ export function nextPerformanceBonusMilestone(
   }
 }
 
-export function toggleBonusAmountMode(
-  bonus: BonusAmountValues,
-  mode: 'percentage' | 'fixed',
-): BonusAmountValues {
-  if (bonus.type === mode) return bonus
-  if (mode === 'percentage') return { type: 'percentage', percentage: 10 }
-  return { type: 'fixed', amount: '', currency: BONUS_CURRENCY }
-}
-
 function sortSpeedWindows(windows: SpeedBonusWindow[]): SpeedBonusWindow[] {
-  return [...windows].sort(
+  return windows.toSorted(
     (left, right) => left.window_hours - right.window_hours,
   )
 }
@@ -301,180 +291,38 @@ export function BonusStep({ campaignId, config }: BonusStepProps) {
   return (
     <form
       className="mx-auto flex w-full max-w-[920px] flex-col gap-4"
-      onSubmit={(event) => {
-        event.preventDefault()
-        handleContinue()
-      }}
+      action={handleContinue}
     >
-      <section className="flex items-center gap-4 rounded-3xl border border-primary/40 bg-primary/10 p-5">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold text-foreground">
-            {t`Activar bonus de pago`}
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            {t`Premiá a creators con un porcentaje extra por velocidad o performance.`}
-          </p>
-        </div>
-        <form.AppField name="enabled">
-          {(field) => (
-            <Switch
-              checked={field.state.value}
-              onCheckedChange={handleGlobalToggle}
-              onBlur={field.handleBlur}
-              aria-label={t`Activar bonus de pago`}
-            />
-          )}
-        </form.AppField>
-      </section>
+      <BonusGlobalToggle
+        AppField={form.AppField}
+        onToggle={handleGlobalToggle}
+      />
 
       {values.enabled ? (
         <>
-          <div className="grid gap-4 md:grid-cols-2">
-            <BonusTypeCard
-              title={t`Speed Bonus`}
-              description={t`Premiá a creators que postean rápido con ventanas por horas.`}
-              Icon={Zap}
-              selected={values.speed_bonus.enabled}
-              onSelect={() => handleSpeedToggle(!values.speed_bonus.enabled)}
-            />
-            <BonusTypeCard
-              title={t`Performance Bonus`}
-              description={t`Premiá milestones de views alcanzados dentro de una ventana.`}
-              Icon={TrendingUp}
-              selected={values.performance_bonus.enabled}
-              onSelect={() =>
-                handlePerformanceToggle(!values.performance_bonus.enabled)
-              }
-            />
-          </div>
+          <BonusTypeCards
+            speedSelected={values.speed_bonus.enabled}
+            performanceSelected={values.performance_bonus.enabled}
+            onSpeedSelect={() => handleSpeedToggle(!values.speed_bonus.enabled)}
+            onPerformanceSelect={() =>
+              handlePerformanceToggle(!values.performance_bonus.enabled)
+            }
+          />
 
           {values.speed_bonus.enabled ? (
-            <form.AppField name="speed_bonus.windows" mode="array">
-              {(field) => (
-                <BonusRowsSection
-                  title={t`Ventanas de Speed Bonus`}
-                  addLabel={t`Agregar ventana`}
-                  error={speedError}
-                  onAdd={() =>
-                    field.pushValue(
-                      nextSpeedBonusWindow(values.speed_bonus.windows),
-                    )
-                  }
-                >
-                  {values.speed_bonus.windows.map((window, index) => (
-                    <form.AppField
-                      key={window.window_id ?? `speed-${String(index)}`}
-                      name={`speed_bonus.windows[${index}].window_hours`}
-                    >
-                      {(windowHoursField) => (
-                        <form.AppField
-                          name={`speed_bonus.windows[${index}].bonus`}
-                          validators={{ onChange: BonusAmountSchema }}
-                        >
-                          {(bonusField) => (
-                            <SpeedBonusRow
-                              index={index}
-                              windowHours={windowHoursField.state.value}
-                              bonus={bonusField.state.value}
-                              windowHoursError={fieldError(
-                                windowHoursField.state.meta,
-                              )}
-                              bonusError={fieldError(bonusField.state.meta)}
-                              onWindowHoursChange={(value) =>
-                                windowHoursField.handleChange(value)
-                              }
-                              onBonusChange={(value) =>
-                                bonusField.handleChange(value)
-                              }
-                              onWindowHoursBlur={windowHoursField.handleBlur}
-                              onBonusBlur={bonusField.handleBlur}
-                              onRemove={() => field.removeValue(index)}
-                            />
-                          )}
-                        </form.AppField>
-                      )}
-                    </form.AppField>
-                  ))}
-                </BonusRowsSection>
-              )}
-            </form.AppField>
+            <SpeedBonusSection
+              AppField={form.AppField}
+              values={values}
+              speedError={speedError}
+            />
           ) : null}
 
           {values.performance_bonus.enabled ? (
-            <form.AppField name="performance_bonus.milestones" mode="array">
-              {(field) => (
-                <BonusRowsSection
-                  title={t`Milestones de Performance`}
-                  addLabel={t`Agregar milestone`}
-                  error={performanceError}
-                  onAdd={() =>
-                    field.pushValue(
-                      nextPerformanceBonusMilestone(
-                        values.performance_bonus.milestones,
-                      ),
-                    )
-                  }
-                >
-                  {values.performance_bonus.milestones.map(
-                    (milestone, index) => (
-                      <form.AppField
-                        key={
-                          milestone.milestone_id ??
-                          `performance-${String(index)}`
-                        }
-                        name={`performance_bonus.milestones[${index}].views`}
-                      >
-                        {(viewsField) => (
-                          <form.AppField
-                            name={`performance_bonus.milestones[${index}].window_hours`}
-                          >
-                            {(windowHoursField) => (
-                              <form.AppField
-                                name={`performance_bonus.milestones[${index}].bonus`}
-                                validators={{ onChange: BonusAmountSchema }}
-                              >
-                                {(bonusField) => (
-                                  <PerformanceBonusRow
-                                    index={index}
-                                    views={viewsField.state.value}
-                                    windowHours={windowHoursField.state.value}
-                                    bonus={bonusField.state.value}
-                                    viewsError={fieldError(
-                                      viewsField.state.meta,
-                                    )}
-                                    windowHoursError={fieldError(
-                                      windowHoursField.state.meta,
-                                    )}
-                                    bonusError={fieldError(
-                                      bonusField.state.meta,
-                                    )}
-                                    onViewsChange={(value) =>
-                                      viewsField.handleChange(value)
-                                    }
-                                    onWindowHoursChange={(value) =>
-                                      windowHoursField.handleChange(value)
-                                    }
-                                    onBonusChange={(value) =>
-                                      bonusField.handleChange(value)
-                                    }
-                                    onViewsBlur={viewsField.handleBlur}
-                                    onWindowHoursBlur={
-                                      windowHoursField.handleBlur
-                                    }
-                                    onBonusBlur={bonusField.handleBlur}
-                                    onRemove={() => field.removeValue(index)}
-                                  />
-                                )}
-                              </form.AppField>
-                            )}
-                          </form.AppField>
-                        )}
-                      </form.AppField>
-                    ),
-                  )}
-                </BonusRowsSection>
-              )}
-            </form.AppField>
+            <PerformanceBonusSection
+              AppField={form.AppField}
+              values={values}
+              performanceError={performanceError}
+            />
           ) : null}
         </>
       ) : null}
@@ -510,6 +358,201 @@ interface FieldMetaLike {
 function fieldError(meta: FieldMetaLike): string | undefined {
   if (!meta.isBlurred && !meta.isDirty) return undefined
   return firstErrorMessage(meta.errors)
+}
+
+interface BonusGlobalToggleProps {
+  AppField: BonusAppField
+  onToggle: (enabled: boolean) => void
+}
+
+function BonusGlobalToggle({ AppField, onToggle }: BonusGlobalToggleProps) {
+  return (
+    <section className="flex items-center gap-4 rounded-3xl border border-primary/40 bg-primary/10 p-5">
+      <div className="min-w-0 flex-1">
+        <h2 className="text-sm font-semibold text-foreground">
+          {t`Activar bonus de pago`}
+        </h2>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">
+          {t`Premiá a creators con un porcentaje extra por velocidad o performance.`}
+        </p>
+      </div>
+      <AppField name="enabled">
+        {(field) => (
+          <Switch
+            checked={field.state.value}
+            onCheckedChange={onToggle}
+            onBlur={field.handleBlur}
+            aria-label={t`Activar bonus de pago`}
+          />
+        )}
+      </AppField>
+    </section>
+  )
+}
+
+interface BonusTypeCardsProps {
+  speedSelected: boolean
+  performanceSelected: boolean
+  onSpeedSelect: () => void
+  onPerformanceSelect: () => void
+}
+
+function BonusTypeCards({
+  speedSelected,
+  performanceSelected,
+  onSpeedSelect,
+  onPerformanceSelect,
+}: BonusTypeCardsProps) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <BonusTypeCard
+        title={t`Speed Bonus`}
+        description={t`Premiá a creators que postean rápido con ventanas por horas.`}
+        Icon={Zap}
+        selected={speedSelected}
+        onSelect={onSpeedSelect}
+      />
+      <BonusTypeCard
+        title={t`Performance Bonus`}
+        description={t`Premiá milestones de views alcanzados dentro de una ventana.`}
+        Icon={TrendingUp}
+        selected={performanceSelected}
+        onSelect={onPerformanceSelect}
+      />
+    </div>
+  )
+}
+
+interface SpeedBonusSectionProps {
+  AppField: BonusAppField
+  values: BonusConfigValues
+  speedError: string | undefined
+}
+
+function SpeedBonusSection({ AppField, values, speedError }: SpeedBonusSectionProps) {
+  return (
+    <AppField name="speed_bonus.windows" mode="array">
+      {(field) => (
+        <BonusRowsSection
+          title={t`Ventanas de Speed Bonus`}
+          addLabel={t`Agregar ventana`}
+          error={speedError}
+          onAdd={() =>
+            field.pushValue(nextSpeedBonusWindow(values.speed_bonus.windows))
+          }
+        >
+          {values.speed_bonus.windows.map((window, index) => (
+            <AppField
+              key={window.window_id ?? `speed-${String(index)}`}
+              name={`speed_bonus.windows[${index}].window_hours`}
+            >
+              {(windowHoursField) => (
+                <AppField
+                  name={`speed_bonus.windows[${index}].bonus`}
+                  validators={{ onChange: BonusAmountSchema }}
+                >
+                  {(bonusField) => (
+                    <SpeedBonusRow
+                      index={index}
+                      windowHours={windowHoursField.state.value}
+                      bonus={bonusField.state.value}
+                      windowHoursError={fieldError(windowHoursField.state.meta)}
+                      bonusError={fieldError(bonusField.state.meta)}
+                      onWindowHoursChange={(value) =>
+                        windowHoursField.handleChange(value)
+                      }
+                      onBonusChange={(value) => bonusField.handleChange(value)}
+                      onWindowHoursBlur={windowHoursField.handleBlur}
+                      onBonusBlur={bonusField.handleBlur}
+                      onRemove={() => field.removeValue(index)}
+                    />
+                  )}
+                </AppField>
+              )}
+            </AppField>
+          ))}
+        </BonusRowsSection>
+      )}
+    </AppField>
+  )
+}
+
+interface PerformanceBonusSectionProps {
+  AppField: BonusAppField
+  values: BonusConfigValues
+  performanceError: string | undefined
+}
+
+function PerformanceBonusSection({
+  AppField,
+  values,
+  performanceError,
+}: PerformanceBonusSectionProps) {
+  return (
+    <AppField name="performance_bonus.milestones" mode="array">
+      {(field) => (
+        <BonusRowsSection
+          title={t`Milestones de Performance`}
+          addLabel={t`Agregar milestone`}
+          error={performanceError}
+          onAdd={() =>
+            field.pushValue(
+              nextPerformanceBonusMilestone(
+                values.performance_bonus.milestones,
+              ),
+            )
+          }
+        >
+          {values.performance_bonus.milestones.map((milestone, index) => (
+            <AppField
+              key={milestone.milestone_id ?? `performance-${String(index)}`}
+              name={`performance_bonus.milestones[${index}].views`}
+            >
+              {(viewsField) => (
+                <AppField
+                  name={`performance_bonus.milestones[${index}].window_hours`}
+                >
+                  {(windowHoursField) => (
+                    <AppField
+                      name={`performance_bonus.milestones[${index}].bonus`}
+                      validators={{ onChange: BonusAmountSchema }}
+                    >
+                      {(bonusField) => (
+                        <PerformanceBonusRow
+                          index={index}
+                          views={viewsField.state.value}
+                          windowHours={windowHoursField.state.value}
+                          bonus={bonusField.state.value}
+                          viewsError={fieldError(viewsField.state.meta)}
+                          windowHoursError={fieldError(
+                            windowHoursField.state.meta,
+                          )}
+                          bonusError={fieldError(bonusField.state.meta)}
+                          onViewsChange={(value) =>
+                            viewsField.handleChange(value)
+                          }
+                          onWindowHoursChange={(value) =>
+                            windowHoursField.handleChange(value)
+                          }
+                          onBonusChange={(value) =>
+                            bonusField.handleChange(value)
+                          }
+                          onViewsBlur={viewsField.handleBlur}
+                          onWindowHoursBlur={windowHoursField.handleBlur}
+                          onBonusBlur={bonusField.handleBlur}
+                          onRemove={() => field.removeValue(index)}
+                        />
+                      )}
+                    </AppField>
+                  )}
+                </AppField>
+              )}
+            </AppField>
+          ))}
+        </BonusRowsSection>
+      )}
+    </AppField>
+  )
 }
 
 function BonusTypeCard({

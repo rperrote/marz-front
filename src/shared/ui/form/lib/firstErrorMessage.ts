@@ -5,7 +5,7 @@ export function firstErrorMessage(
     if (err == null) continue
     if (typeof err === 'string') return err
     if (typeof err === 'object' && 'message' in err) {
-      const msg = (err as { message: unknown }).message
+      const msg = err.message
       if (typeof msg === 'string') return msg
     }
   }

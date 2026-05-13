@@ -290,10 +290,7 @@ export function MarkAsPaidSidesheet({
           ) : (
             <form
               className="flex flex-1 flex-col"
-              onSubmit={(event) => {
-                event.preventDefault()
-                void form.handleSubmit()
-              }}
+              action={() => void form.handleSubmit()}
             >
               <div className="flex flex-1 flex-col gap-5 p-5">
                 <form.AppField name="amount">

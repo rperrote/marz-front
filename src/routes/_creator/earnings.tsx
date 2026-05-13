@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { z } from 'zod'
 
 import { EarningsPage } from '#/features/earnings/components/EarningsPage'
@@ -17,10 +17,11 @@ export const Route = createFileRoute('/_creator/earnings')({
 
 function EarningsRoute() {
   const search = Route.useSearch()
-  const navigate = useNavigate({ from: '/earnings' })
+  const router = useRouter()
 
   function handlePeriodChange(period: CreatorEarningsPeriod) {
-    void navigate({
+    void router.navigate({
+      to: '/earnings',
       search: (previous) => ({
         ...previous,
         period,

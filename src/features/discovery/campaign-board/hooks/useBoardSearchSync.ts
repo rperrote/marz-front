@@ -10,7 +10,7 @@ type CampaignBoardSearchPatch = Partial<
   sort?: CampaignBoardSearch['sort']
 }
 
-export const defaultCampaignBoardSearch = {
+const defaultCampaignBoardSearch = {
   recommended_only: false,
   sort: 'match_score_desc',
 } satisfies CampaignBoardSearch

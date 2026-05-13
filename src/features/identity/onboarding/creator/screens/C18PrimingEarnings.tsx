@@ -10,10 +10,15 @@ const DEFAULT_AVG_PER_COLLAB = 40
 function computeAvgPerCollab(
   channels: ReturnType<typeof useCreatorOnboardingStore.getState>['channels'],
 ): number {
-  const amounts = (channels ?? [])
-    .flatMap((c) => c.rate_cards)
-    .map((rc) => Number(rc.rate_amount))
-    .filter((n) => Number.isFinite(n) && n > 0)
+  const amounts: number[] = []
+  for (const channel of channels ?? []) {
+    for (const rateCard of channel.rate_cards) {
+      const amount = Number(rateCard.rate_amount)
+      if (Number.isFinite(amount) && amount > 0) {
+        amounts.push(amount)
+      }
+    }
+  }
   if (amounts.length === 0) return DEFAULT_AVG_PER_COLLAB
   const sum = amounts.reduce((acc, n) => acc + n, 0)
   return Math.round(sum / amounts.length)

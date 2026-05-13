@@ -5,11 +5,13 @@ export function initials(name: string) {
   return `${first}${second}`.toUpperCase()
 }
 
+const campaignDateFormatter = new Intl.DateTimeFormat('es-AR', {
+  month: 'short',
+  day: 'numeric',
+})
+
 export function formatDate(value: string) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('es-AR', {
-    month: 'short',
-    day: 'numeric',
-  }).format(date)
+  return campaignDateFormatter.format(date)
 }

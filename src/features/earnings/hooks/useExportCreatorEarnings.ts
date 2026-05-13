@@ -33,5 +33,8 @@ export function useExportCreatorEarningsMutation() {
         truncated: isTruncated(response.headers),
       }
     },
+    onSuccess: () => {
+      /* CSV download — no cache to invalidate */
+    },
   })
 }

@@ -12,6 +12,12 @@ const DEFAULT_VIDEOS: BestVideo[] = [
   { url: '', kind: 'organic' },
 ]
 
+const BEST_VIDEO_SLOT_IDS = [
+  'first-video',
+  'second-video',
+  'third-video',
+] as const
+
 type Provider = 'youtube' | 'tiktok' | 'instagram'
 
 const YT_SHORT_RE = /^https?:\/\/(www\.)?youtube\.com\/shorts\/([\w-]{6,})/i
@@ -63,7 +69,7 @@ export function C10BestVideosScreen() {
   return (
     <div className="flex w-full flex-col items-center gap-9">
       <div className="flex w-full max-w-[640px] flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {t`Tus 3 mejores videos`}
         </h1>
         <p className="text-center text-sm text-muted-foreground">
@@ -75,9 +81,10 @@ export function C10BestVideosScreen() {
         {videos.map((video, i) => {
           const url = video.url.trim()
           const provider = url.length > 0 ? detectValidProvider(url) : null
+          const slotId = BEST_VIDEO_SLOT_IDS[i] ?? `video-${i + 1}`
           return (
             <div
-              key={i}
+              key={slotId}
               className={cn(
                 'flex w-full items-center gap-3 rounded-2xl border px-4 py-3 transition-colors',
                 provider

@@ -26,7 +26,7 @@ function validateCampaignBoardSearch(
     throw new Error('Invalid campaign board search')
   }
 
-  return normalizeCampaignBoardSearch(value as ListCreatorCampaignBoardParams)
+  return normalizeCampaignBoardSearch(value)
 }
 
 function unwrapCampaignBoardResponse(
@@ -43,7 +43,6 @@ const listCreatorCampaignBoardServerFn = createServerFn({ method: 'GET' })
       headers: await getCreatorAuthorizationHeaders(),
     })
 
-    // RAFITA:ANY: createServerFn no infiere el tipo de retorno del handler; cast manual necesario para exponer el tipo correcto al consumer.
     return unwrapCampaignBoardResponse(response) as unknown as SerializableJson
   })
 

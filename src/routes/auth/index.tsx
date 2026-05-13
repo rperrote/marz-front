@@ -34,7 +34,7 @@ function AuthPage() {
           </div>
 
           <div className="flex w-full flex-col items-center gap-2">
-            <h1 className="text-center text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="text-center text-3xl font-semibold tracking-tight text-foreground">
               Entrá a Marz
             </h1>
             <p className="text-center text-sm leading-relaxed text-muted-foreground">
@@ -55,7 +55,7 @@ function AuthPage() {
 
 function MarzLogo() {
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-foreground">
+    <div className="flex size-10 items-center justify-center rounded-[10px] bg-foreground">
       <svg width={24} height={24} viewBox="0 0 40 40" fill="none">
         <circle cx={8} cy={10} r={2.5} fill="var(--background)" />
         <circle cx={17.5} cy={10} r={2.5} fill="var(--background)" />

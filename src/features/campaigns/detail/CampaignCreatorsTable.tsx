@@ -17,7 +17,6 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useCallback, useEffect, useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '#/components/ui/avatar'
 import { Badge } from '#/components/ui/badge'
@@ -31,7 +30,6 @@ import type {
 import { ApiError } from '#/shared/api/mutator'
 import { formatRelativeTime, initials } from '#/shared/utils/format'
 
-import { InviteCreatorDialog } from './creators/InviteCreatorDialog'
 import { useCampaignParticipantsQuery } from './creators/useCampaignParticipantsQuery'
 import type { CampaignParticipantsParams } from './creators/useCampaignParticipantsQuery'
 
@@ -46,7 +44,7 @@ interface CampaignCreatorsTableProps {
   hasActiveFilters: boolean
   onClearFilters: () => void
   onFindCreators: () => void
-  onInviteCreatorReady?: (openInviteCreator: (() => void) | null) => void
+  onInviteCreator?: () => void
 }
 
 function getStatusLabel(status: ListCampaignParticipantsStatus) {
@@ -86,7 +84,7 @@ export function CampaignCreatorsTable({
   hasActiveFilters,
   onClearFilters,
   onFindCreators,
-  onInviteCreatorReady,
+  onInviteCreator,
 }: CampaignCreatorsTableProps) {
   if (scope.type === 'global') {
     return (
@@ -109,7 +107,7 @@ export function CampaignCreatorsTable({
       hasActiveFilters={hasActiveFilters}
       onClearFilters={onClearFilters}
       onFindCreators={onFindCreators}
-      onInviteCreatorReady={onInviteCreatorReady}
+      onInviteCreator={onInviteCreator}
     />
   )
 }
@@ -121,18 +119,10 @@ function CampaignScopedCreatorsTable({
   hasActiveFilters,
   onClearFilters,
   onFindCreators,
-  onInviteCreatorReady,
+  onInviteCreator = () => {},
 }: Omit<CampaignCreatorsTableProps, 'scope'> & {
   scope: Extract<CampaignCreatorsTableScope, { type: 'campaign' }>
 }) {
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
-  const openInviteCreator = useCallback(() => setInviteDialogOpen(true), [])
-
-  useEffect(() => {
-    onInviteCreatorReady?.(openInviteCreator)
-    return () => onInviteCreatorReady?.(null)
-  }, [onInviteCreatorReady, openInviteCreator])
-
   const participantsQuery = useCampaignParticipantsQuery(
     scope.campaignId,
     params,
@@ -142,141 +132,109 @@ function CampaignScopedCreatorsTable({
 
   if (participantsQuery.isPending) {
     return (
-      <>
-        <TableFrame>
-          <TableSkeleton />
-        </TableFrame>
-        <InviteCreatorDialog
-          campaignId={scope.campaignId}
-          open={inviteDialogOpen}
-          onOpenChange={setInviteDialogOpen}
-          allowsInPlatformInvites={scope.allowsInPlatformInvites}
-        />
-      </>
+      <TableFrame>
+        <TableSkeleton />
+      </TableFrame>
     )
   }
 
   if (participantsQuery.error) {
     return (
-      <>
-        <TableFrame>
-          <ErrorState error={participantsQuery.error} />
-        </TableFrame>
-        <InviteCreatorDialog
-          campaignId={scope.campaignId}
-          open={inviteDialogOpen}
-          onOpenChange={setInviteDialogOpen}
-          allowsInPlatformInvites={scope.allowsInPlatformInvites}
-        />
-      </>
+      <TableFrame>
+        <ErrorState error={participantsQuery.error} />
+      </TableFrame>
     )
   }
 
   if (totalVisible === 0) {
     return (
-      <>
-        <TableFrame>
-          <EmptyTableState
-            icon={hasActiveFilters ? Search : UserPlus}
-            title={
-              hasActiveFilters
-                ? t`No encontramos creators con esos filtros`
-                : t`Todavía no hay creators en esta campaña`
-            }
-            description={
-              hasActiveFilters
-                ? t`Probá con otra búsqueda, estado o plataforma.`
-                : t`Cuando invites creators desde Discovery o agregues uno manualmente, aparecerán acá con su estado y entregables.`
-            }
-            action={
-              hasActiveFilters ? (
+      <TableFrame>
+        <EmptyTableState
+          icon={hasActiveFilters ? Search : UserPlus}
+          title={
+            hasActiveFilters
+              ? t`No encontramos creators con esos filtros`
+              : t`Todavía no hay creators en esta campaña`
+          }
+          description={
+            hasActiveFilters
+              ? t`Probá con otra búsqueda, estado o plataforma.`
+              : t`Cuando invites creators desde Discovery o agregues uno manualmente, aparecerán acá con su estado y entregables.`
+          }
+          action={
+            hasActiveFilters ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-xl"
+                onClick={onClearFilters}
+              >
+                {t`Clear filters`}
+              </Button>
+            ) : (
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
                   type="button"
                   variant="outline"
                   className="rounded-xl"
-                  onClick={onClearFilters}
+                  onClick={onFindCreators}
                 >
-                  {t`Clear filters`}
+                  <Compass className="size-4" aria-hidden />
+                  {t`Find creators`}
                 </Button>
-              ) : (
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-xl"
-                    onClick={onFindCreators}
-                  >
-                    <Compass className="size-4" aria-hidden />
-                    {t`Find creators`}
-                  </Button>
-                  <Button
-                    type="button"
-                    className="rounded-xl"
-                    onClick={openInviteCreator}
-                  >
-                    <Plus className="size-4" aria-hidden />
-                    {t`Invite creator`}
-                  </Button>
-                </div>
-              )
-            }
-          />
-        </TableFrame>
-        <InviteCreatorDialog
-          campaignId={scope.campaignId}
-          open={inviteDialogOpen}
-          onOpenChange={setInviteDialogOpen}
-          allowsInPlatformInvites={scope.allowsInPlatformInvites}
+                <Button
+                  type="button"
+                  className="rounded-xl"
+                  onClick={onInviteCreator}
+                >
+                  <Plus className="size-4" aria-hidden />
+                  {t`Invite creator`}
+                </Button>
+              </div>
+            )
+          }
         />
-      </>
+      </TableFrame>
     )
   }
 
   return (
-    <>
-      <TableFrame>
-        <div className="overflow-x-auto">
-          <div className="min-w-[900px]">
-            <HeaderRow />
-            <div className="divide-y divide-border">
-              {participants.map((participant) => (
-                <CreatorRow
-                  key={participant.participant_id}
-                  participant={participant}
-                  campaignId={scope.campaignId}
-                  onInviteCreator={openInviteCreator}
-                />
-              ))}
-            </div>
+    <TableFrame>
+      <div className="overflow-x-auto">
+        <div className="min-w-[900px]">
+          <HeaderRow />
+          <div className="divide-y divide-border">
+            {participants.map((participant) => (
+              <CreatorRow
+                key={participant.participant_id}
+                participant={participant}
+                campaignId={scope.campaignId}
+                onInviteCreator={onInviteCreator}
+              />
+            ))}
           </div>
         </div>
-        {participantsQuery.data.next_cursor ? (
-          <div className="flex justify-center border-t border-border px-5 py-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="rounded-xl"
-              onClick={() =>
-                onParamsChange({
-                  ...params,
-                  cursor: participantsQuery.data.next_cursor ?? undefined,
-                })
-              }
-            >
-              {t`Load more`}
-              <ChevronRight className="size-3.5" aria-hidden />
-            </Button>
-          </div>
-        ) : null}
-      </TableFrame>
-      <InviteCreatorDialog
-        campaignId={scope.campaignId}
-        open={inviteDialogOpen}
-        onOpenChange={setInviteDialogOpen}
-        allowsInPlatformInvites={scope.allowsInPlatformInvites}
-      />
-    </>
+      </div>
+      {participantsQuery.data.next_cursor ? (
+        <div className="flex justify-center border-t border-border px-5 py-4">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-xl"
+            onClick={() =>
+              onParamsChange({
+                ...params,
+                cursor: participantsQuery.data.next_cursor ?? undefined,
+              })
+            }
+          >
+            {t`Load more`}
+            <ChevronRight className="size-3.5" aria-hidden />
+          </Button>
+        </div>
+      ) : null}
+    </TableFrame>
   )
 }
 

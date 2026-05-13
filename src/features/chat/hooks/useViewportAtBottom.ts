@@ -1,7 +1,5 @@
 import { useCallback, useState } from 'react'
 
-const DEFAULT_TOLERANCE_PX = 50
-
 export function useViewportAtBottom() {
   const [isAtBottom, setIsAtBottom] = useState(true)
 
@@ -11,5 +9,3 @@ export function useViewportAtBottom() {
 
   return { isAtBottom, onAtBottomStateChange }
 }
-
-export { DEFAULT_TOLERANCE_PX }

@@ -1,8 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { redirect } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 
 let mockServerMeResult: { ok: boolean; body: Record<string, unknown> | null } =
   { ok: false, body: null }
+
+vi.mock('@lingui/core/macro', () => ({
+  t: Object.assign(
+    (strings: TemplateStringsArray, ...values: unknown[]) =>
+      strings.reduce(
+        (acc, str, index) => acc + str + (values[index] ?? ''),
+        '',
+      ),
+    { __lingui: true },
+  ),
+}))
+
+vi.mock('@lingui/react/macro', () => ({
+  Trans: ({ children }: { children?: ReactNode }) => children,
+}))
 
 vi.mock('#/shared/auth/getServerMe', () => ({
   getServerMe: () => Promise.resolve(mockServerMeResult),

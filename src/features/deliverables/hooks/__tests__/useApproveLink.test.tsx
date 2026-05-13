@@ -78,7 +78,7 @@ describe('useApproveLinkMutation', () => {
       wrapper: createWrapper(queryClient),
     })
 
-    act(() => {
+    await act(async () => {
       result.current.mutate({
         deliverableId: 'del-1',
         linkId: 'link-1',
@@ -128,12 +128,14 @@ describe('useApproveLinkMutation', () => {
       wrapper: createWrapper(queryClient),
     })
 
-    act(() => {
-      result.current.mutate({
-        deliverableId: 'del-1',
-        linkId: 'link-1',
-        idempotencyKey: 'attempt-key',
-      })
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({
+          deliverableId: 'del-1',
+          linkId: 'link-1',
+          idempotencyKey: 'attempt-key',
+        }),
+      ).rejects.toThrow(ApiError)
     })
 
     await waitFor(() => {

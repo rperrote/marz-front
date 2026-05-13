@@ -38,9 +38,8 @@ Eliminar los errores hard restantes tras whitelistar falsos positivos: `effect-n
 - [ ] Test manual: onboarding creator C12 gender screen funciona como antes (no regresión funcional).
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+Cinco fixes de spec implementados correctamente: cleanup de effect en useBriefBuilderWS retorna unsubscribe, useWebSocket refactoreado con named handlers para permitir removeEventListener, MobileRedirectGuard lee pathname dentro del body del effect, C12GenderScreen agrega aria-checked, test nuevo cubre el cleanup. Sin bugs, sin dead code, sin any sin justificar.
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

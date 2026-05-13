@@ -38,6 +38,7 @@ interface ScoringDimensionSnapshot {
 }
 
 interface DeliverableSnapshot {
+  key: string
   platform: string
   format: string
   quantity: number
@@ -166,6 +167,7 @@ function normalizeDeliverables(card: CreatorCampaignBoardCard) {
 
       return [
         {
+          key: `${platform}:${format}:${quantity}:${stringValue(deliverable, 'description') ?? ''}`,
           platform,
           format,
           quantity,
@@ -262,9 +264,9 @@ function DeliverablesList({
 
   return (
     <div className="space-y-3">
-      {deliverables.map((deliverable, index) => (
+      {deliverables.map((deliverable) => (
         <div
-          key={`${deliverable.platform}-${deliverable.format}-${deliverable.quantity}-${index}`}
+          key={deliverable.key}
           className="rounded-2xl border border-border p-4"
         >
           <p className="text-sm font-semibold text-foreground">

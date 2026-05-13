@@ -52,9 +52,8 @@ Configurar tooling base que la épica usa después: `knip.json` con entries corr
 - [ ] `knip.json` documentado con comentarios JSON5 (o README adjunto) explicando cada entry.
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+lint script revertido correctamente, RAFITA:ANY agregado en router.tsx con justificación válida, resto del diff limpio
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

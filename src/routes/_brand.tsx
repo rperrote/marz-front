@@ -14,6 +14,7 @@ import type { ServerMeBody } from '#/shared/auth/getServerMe'
 import { BrandSessionProvider } from '../features/identity/session/BrandSessionContext'
 
 const STALE_TIME = 30_000
+type RouteMe = meResponse['data'] | ServerMeBody
 
 export const Route = createFileRoute('/_brand')({
   beforeLoad: async ({ context }) => {
@@ -25,17 +26,17 @@ export const Route = createFileRoute('/_brand')({
       queryClient.getQueryState(getMeQueryKey())?.dataUpdatedAt ?? 0
     const isFresh = cachedMe && Date.now() - cacheAge < STALE_TIME
 
-    let me: ServerMeBody | null = null
+    let me: RouteMe | null = null
 
     if (isFresh) {
-      me = cachedMe as unknown as ServerMeBody
+      me = cachedMe
     } else {
       const result = await getServerMe()
       if (result.ok) {
         me = result.body
         queryClient.setQueryData(
           getMeQueryKey(),
-          { data: me, status: 200 } as unknown as meResponse,
+          { data: me, status: 200 },
           { updatedAt: Date.now() },
         )
       }
@@ -59,10 +60,11 @@ export const Route = createFileRoute('/_brand')({
     }
 
     const workspace = me.brand_workspace
+    const membershipRole = 'membership' in me ? me.membership?.role : undefined
     return {
       accountId: me.id,
       hasBrandWorkspace: Boolean(workspace),
-      brandWorkspaceRole: me.membership?.role,
+      brandWorkspaceRole: membershipRole,
       workspaceName: workspace?.name,
     }
   },

@@ -149,7 +149,7 @@ export function CampaignBoardPage() {
 
   return (
     <main className="min-h-full bg-background">
-      <div className="mx-auto flex w-full max-w-[1368px] flex-col gap-6 px-8 py-8">
+      <div className="mx-auto flex w-full max-w-[1368px] flex-col gap-6 p-8">
         <CampaignBoardHeader
           isRefreshing={boardQuery.isFetching && !boardQuery.isPending}
           onRefresh={() => void boardQuery.refetch()}

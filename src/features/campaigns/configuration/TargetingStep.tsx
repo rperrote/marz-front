@@ -185,10 +185,7 @@ export function TargetingStep({ campaignId, config }: TargetingStepProps) {
   return (
     <form
       className="mx-auto flex w-full max-w-[920px] flex-col gap-4"
-      onSubmit={(event) => {
-        event.preventDefault()
-        void form.handleSubmit()
-      }}
+      action={() => void form.handleSubmit()}
     >
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-sm text-foreground">
         <Sparkles className="size-4 shrink-0 text-primary" aria-hidden="true" />

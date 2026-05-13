@@ -12,7 +12,7 @@ import { cn } from '#/lib/utils'
 
 /**
  * Mobile system-event cards. Narrower layout, stacked actions, smaller chrome
- * than desktop. The intent of each card is identical to its desktop sibling —
+ * than desktop. The intent of each card is identical to its desktop sibling:
  * see features/offers, features/deliverables, features/payments.
  */
 
@@ -280,7 +280,7 @@ export function MobileRequestChangesCard({
     >
       <div className="space-y-2">
         <p className="text-sm leading-relaxed text-foreground">{notes}</p>
-        <p className="text-xs text-muted-foreground">— {signoff}</p>
+        <p className="text-xs text-muted-foreground">{signoff}</p>
       </div>
     </MobileCardFrame>
   )

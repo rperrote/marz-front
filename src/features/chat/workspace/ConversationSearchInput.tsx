@@ -24,10 +24,6 @@ export function ConversationSearchInput({
   const isFirstRender = useRef(true)
 
   useEffect(() => {
-    setLocalValue(value ?? '')
-  }, [value])
-
-  useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
@@ -55,12 +51,12 @@ export function ConversationSearchInput({
     })
   }, [debouncedValue, hasResults, navigate])
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function updateSearchFromInput(event: React.ChangeEvent<HTMLInputElement>) {
     const next = event.target.value.slice(0, MAX_SEARCH_LENGTH)
     setLocalValue(next)
   }
 
-  function handleClear() {
+  function clearSearch() {
     setLocalValue('')
   }
 
@@ -72,13 +68,13 @@ export function ConversationSearchInput({
         aria-label={t`Buscar conversaciones`}
         placeholder={t`Buscar conversaciones…`}
         value={localValue}
-        onChange={handleChange}
+        onChange={updateSearchFromInput}
         className="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       />
       {localValue.length > 0 ? (
         <button
           type="button"
-          onClick={handleClear}
+          onClick={clearSearch}
           aria-label={t`Limpiar búsqueda`}
           className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground hover:text-foreground"
         >

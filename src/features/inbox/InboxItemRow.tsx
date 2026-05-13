@@ -115,6 +115,7 @@ export function InboxItemRow({ accountKind, item }: InboxItemRowProps) {
 
         <InboxInlineActionPopover
           analyticsPayload={analyticsPayload}
+          conversationId={getInboxConversationId(item)}
           itemId={item.id}
           inlineActions={item.inline_actions}
         />
@@ -137,6 +138,17 @@ export function InboxItemRow({ accountKind, item }: InboxItemRowProps) {
         </Button>
       </article>
     </li>
+  )
+}
+
+function getInboxConversationId(item: InboxItem): string | null {
+  if (item.source_ref.type === 'conversation') return item.source_ref.id
+  if (item.secondary_ref?.type === 'conversation') return item.secondary_ref.id
+
+  return (
+    item.navigation_action?.href.match(
+      /^\/workspace\/conversations\/([^/?#]+)/,
+    )?.[1] ?? null
   )
 }
 

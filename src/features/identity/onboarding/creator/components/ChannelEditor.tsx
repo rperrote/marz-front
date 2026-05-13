@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { t, plural } from '@lingui/core/macro'
 import { ChevronDown, Plus, Trash2 } from 'lucide-react'
 import { Input } from '#/components/ui/input'
@@ -93,6 +94,243 @@ function buildSummary(
   return { text: t`${cards.length} tarifas`, missing: false }
 }
 
+interface ChannelHeaderProps {
+  platformLabel: string
+  isPrimary: boolean
+  isExpanded: boolean
+  showRemove: boolean
+  summary: { text: string; missing: boolean }
+  onToggle: () => void
+  onRemove: () => void
+}
+
+function ChannelHeader({
+  platformLabel,
+  isPrimary,
+  isExpanded,
+  showRemove,
+  summary,
+  onToggle,
+  onRemove,
+}: ChannelHeaderProps) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex flex-1 items-center gap-3 text-left"
+        aria-expanded={isExpanded}
+      >
+        <ChevronDown
+          className={`size-4 shrink-0 text-muted-foreground transition-transform ${
+            isExpanded ? '' : '-rotate-90'
+          }`}
+        />
+        <span className="font-medium">{platformLabel}</span>
+        {isPrimary && (
+          <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
+            {t`Principal`}
+          </span>
+        )}
+        {!isExpanded && summary.text && (
+          <span
+            className={`ml-auto truncate text-[length:var(--font-size-sm)] ${
+              summary.missing ? 'text-destructive' : 'text-muted-foreground'
+            }`}
+          >
+            {summary.text}
+          </span>
+        )}
+      </button>
+      {showRemove && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={onRemove}
+          aria-label={t`Eliminar canal`}
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      )}
+    </div>
+  )
+}
+
+interface RateCardListProps {
+  rateCards: CreatorRateCard[]
+  formats: { value: string; label: string }[]
+  onUpdate: (cardIndex: number, patch: Partial<CreatorRateCard>) => void
+  onRemove: (cardIndex: number) => void
+}
+
+function RateCardList({
+  rateCards,
+  formats,
+  onUpdate,
+  onRemove,
+}: RateCardListProps) {
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-[length:var(--font-size-sm)] font-medium text-muted-foreground">
+        {t`Tarifas`}
+      </p>
+      {rateCards.map((rc, ri) => {
+        const formatLabel =
+          formats.find((f) => f.value === rc.format)?.label ?? rc.format
+        return (
+          <div key={rc.format} className="flex items-end gap-2">
+            <div className="flex flex-1 flex-col gap-1">
+              <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                {formatLabel}
+              </span>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={rc.rate_amount}
+                onChange={(e) => onUpdate(ri, { rate_amount: e.target.value })}
+                placeholder="0.00"
+                maxLength={50}
+                aria-invalid={!hasAmount(rc) || undefined}
+              />
+            </div>
+            <Select
+              value={rc.rate_currency}
+              onValueChange={(v) => onUpdate(ri, { rate_currency: v })}
+            >
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USD">USD</SelectItem>
+                <SelectItem value="ARS">ARS</SelectItem>
+                <SelectItem value="BRL">BRL</SelectItem>
+                <SelectItem value="MXN">MXN</SelectItem>
+                <SelectItem value="COP">COP</SelectItem>
+                <SelectItem value="EUR">EUR</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => onRemove(ri)}
+              aria-label={t`Eliminar tarifa`}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+interface ChannelBodyProps {
+  channel: CreatorChannel
+  usedPlatforms: Set<string>
+  availableFormats: { value: string; label: string }[]
+  formats: { value: string; label: string }[]
+  onChangePlatform: (platform: string) => void
+  onSetPrimary: () => void
+  onUpdateHandle: (handle: string) => void
+  onUpdateRateCard: (cardIndex: number, patch: Partial<CreatorRateCard>) => void
+  onRemoveRateCard: (cardIndex: number) => void
+  onAddRateCard: (format: string) => void
+}
+
+function ChannelBody({
+  channel,
+  usedPlatforms,
+  availableFormats,
+  formats,
+  onChangePlatform,
+  onSetPrimary,
+  onUpdateHandle,
+  onUpdateRateCard,
+  onRemoveRateCard,
+  onAddRateCard,
+}: ChannelBodyProps) {
+  return (
+    <>
+      <div className="flex items-center gap-3">
+        <Select value={channel.platform} onValueChange={onChangePlatform}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PLATFORMS.reduce<ReactNode[]>((items, p) => {
+              if (p.value === channel.platform || !usedPlatforms.has(p.value)) {
+                items.push(
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>,
+                )
+              }
+              return items
+            }, [])}
+          </SelectContent>
+        </Select>
+        <label className="flex items-center gap-2 text-[length:var(--font-size-sm)] text-muted-foreground">
+          <input
+            type="radio"
+            name="primary_channel"
+            checked={channel.is_primary}
+            onChange={onSetPrimary}
+            className="accent-primary"
+          />
+          {t`Principal`}
+        </label>
+      </div>
+
+      <FieldRow label={t`Handle`}>
+        {(aria) => (
+          <div className="relative">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            >
+              @
+            </span>
+            <Input
+              {...aria}
+              value={channel.external_handle}
+              onChange={(e) => onUpdateHandle(e.target.value.replace(/@/g, ''))}
+              placeholder="tu_handle"
+              maxLength={200}
+              className="pl-7"
+              aria-invalid={channel.external_handle.trim() === '' || undefined}
+            />
+          </div>
+        )}
+      </FieldRow>
+
+      {channel.rate_cards.length > 0 && (
+        <RateCardList
+          rateCards={channel.rate_cards}
+          formats={formats}
+          onUpdate={onUpdateRateCard}
+          onRemove={onRemoveRateCard}
+        />
+      )}
+
+      {availableFormats.length > 0 && (
+        <Select value="" onValueChange={onAddRateCard}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={t`Agregar tarifa...`} />
+          </SelectTrigger>
+          <SelectContent>
+            {availableFormats.map((f) => (
+              <SelectItem key={f.value} value={f.value}>
+                {f.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    </>
+  )
+}
+
 interface ChannelEditorProps {
   channels: CreatorChannel[]
   onChange: (channels: CreatorChannel[]) => void
@@ -109,7 +347,6 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
     }
   }, [channels.length, expandedIndex])
 
-  // One channel per platform. UI prevents duplicates entirely.
   const usedPlatforms = new Set(channels.map((c) => c.platform))
   const canAddChannel = usedPlatforms.size < PLATFORMS.length
 
@@ -214,192 +451,36 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
 
         return (
           <div
-            key={ci}
+            key={channel.platform}
             className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
           >
-            <div className="flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={() => setExpandedIndex(isExpanded ? -1 : ci)}
-                className="flex flex-1 items-center gap-3 text-left"
-                aria-expanded={isExpanded}
-              >
-                <ChevronDown
-                  className={`size-4 shrink-0 text-muted-foreground transition-transform ${
-                    isExpanded ? '' : '-rotate-90'
-                  }`}
-                />
-                <span className="font-medium">{platformLabel}</span>
-                {channel.is_primary && (
-                  <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                    {t`Principal`}
-                  </span>
-                )}
-                {!isExpanded && summary.text && (
-                  <span
-                    className={`ml-auto truncate text-[length:var(--font-size-sm)] ${
-                      summary.missing
-                        ? 'text-destructive'
-                        : 'text-muted-foreground'
-                    }`}
-                  >
-                    {summary.text}
-                  </span>
-                )}
-              </button>
-              {channels.length > 1 && (
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => removeChannel(ci)}
-                  aria-label={t`Eliminar canal`}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              )}
-            </div>
+            <ChannelHeader
+              platformLabel={platformLabel}
+              isPrimary={channel.is_primary}
+              isExpanded={isExpanded}
+              showRemove={channels.length > 1}
+              summary={summary}
+              onToggle={() => setExpandedIndex(isExpanded ? -1 : ci)}
+              onRemove={() => removeChannel(ci)}
+            />
 
             {isExpanded && (
-              <>
-                <div className="flex items-center gap-3">
-                  <Select
-                    value={channel.platform}
-                    onValueChange={(v) => changePlatform(ci, v)}
-                  >
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PLATFORMS.filter(
-                        (p) =>
-                          p.value === channel.platform ||
-                          !usedPlatforms.has(p.value),
-                      ).map((p) => (
-                        <SelectItem key={p.value} value={p.value}>
-                          {p.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <label className="flex items-center gap-2 text-[length:var(--font-size-sm)] text-muted-foreground">
-                    <input
-                      type="radio"
-                      name="primary_channel"
-                      checked={channel.is_primary}
-                      onChange={() => setPrimary(ci)}
-                      className="accent-primary"
-                    />
-                    {t`Principal`}
-                  </label>
-                </div>
-
-                <FieldRow label={t`Handle`}>
-                  {(aria) => (
-                    <div className="relative">
-                      <span
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                      >
-                        @
-                      </span>
-                      <Input
-                        {...aria}
-                        value={channel.external_handle}
-                        onChange={(e) =>
-                          updateChannel(ci, {
-                            external_handle: e.target.value.replace(/@/g, ''),
-                          })
-                        }
-                        placeholder="tu_handle"
-                        maxLength={200}
-                        className="pl-7"
-                        aria-invalid={
-                          channel.external_handle.trim() === '' || undefined
-                        }
-                      />
-                    </div>
-                  )}
-                </FieldRow>
-
-                {channel.rate_cards.length > 0 && (
-                  <div className="flex flex-col gap-3">
-                    <p className="text-[length:var(--font-size-sm)] font-medium text-muted-foreground">
-                      {t`Tarifas`}
-                    </p>
-                    {channel.rate_cards.map(
-                      (rc: CreatorRateCard, ri: number) => {
-                        const formatLabel =
-                          formats.find((f) => f.value === rc.format)?.label ??
-                          rc.format
-                        return (
-                          <div key={ri} className="flex items-end gap-2">
-                            <div className="flex flex-1 flex-col gap-1">
-                              <span className="text-[length:var(--font-size-xs)] text-muted-foreground">
-                                {formatLabel}
-                              </span>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={rc.rate_amount}
-                                onChange={(e) =>
-                                  updateRateCard(ci, ri, {
-                                    rate_amount: e.target.value,
-                                  })
-                                }
-                                placeholder="0.00"
-                                maxLength={50}
-                                aria-invalid={!hasAmount(rc) || undefined}
-                              />
-                            </div>
-                            <Select
-                              value={rc.rate_currency}
-                              onValueChange={(v) =>
-                                updateRateCard(ci, ri, { rate_currency: v })
-                              }
-                            >
-                              <SelectTrigger className="w-[80px]">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="USD">USD</SelectItem>
-                                <SelectItem value="ARS">ARS</SelectItem>
-                                <SelectItem value="BRL">BRL</SelectItem>
-                                <SelectItem value="MXN">MXN</SelectItem>
-                                <SelectItem value="COP">COP</SelectItem>
-                                <SelectItem value="EUR">EUR</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => removeRateCard(ci, ri)}
-                              aria-label={t`Eliminar tarifa`}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button>
-                          </div>
-                        )
-                      },
-                    )}
-                  </div>
-                )}
-
-                {availableFormats.length > 0 && (
-                  <Select value="" onValueChange={(v) => addRateCard(ci, v)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t`Agregar tarifa...`} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableFormats.map((f) => (
-                        <SelectItem key={f.value} value={f.value}>
-                          {f.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </>
+              <ChannelBody
+                channel={channel}
+                usedPlatforms={usedPlatforms}
+                availableFormats={availableFormats}
+                formats={formats}
+                onChangePlatform={(platform) => changePlatform(ci, platform)}
+                onSetPrimary={() => setPrimary(ci)}
+                onUpdateHandle={(handle) =>
+                  updateChannel(ci, { external_handle: handle })
+                }
+                onUpdateRateCard={(cardIndex, patch) =>
+                  updateRateCard(ci, cardIndex, patch)
+                }
+                onRemoveRateCard={(cardIndex) => removeRateCard(ci, cardIndex)}
+                onAddRateCard={(format) => addRateCard(ci, format)}
+              />
             )}
           </div>
         )

@@ -22,9 +22,9 @@ vi.mock('@lingui/core/macro', () => ({
 
 // jsdom has no viewport — Virtuoso renders nothing. Mock it as a simple list.
 vi.mock('react-virtuoso', () => ({
-  // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with forwardRef in vitest
-  Virtuoso: React.forwardRef(function MockVirtuoso(props: any, ref: any) {
-    const { data, itemContent, components } = props
+  // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with ref handling in vitest
+  Virtuoso: function MockVirtuoso(props: any) {
+    const { data, itemContent, components, ref } = props
     const Header = components?.Header
     React.useImperativeHandle(ref, () => ({
       scrollToIndex: mockScrollToIndex,
@@ -33,18 +33,16 @@ vi.mock('react-virtuoso', () => ({
       'div',
       { 'data-testid': 'virtuoso-mock' },
       Header ? React.createElement(Header) : null,
-      // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with forwardRef in vitest
+      // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with ref handling in vitest
       (data ?? []).map((item: any, index: number) =>
         React.createElement('div', { key: index }, itemContent(index, item)),
       ),
     )
-  }),
-  // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with forwardRef in vitest
-  GroupedVirtuoso: React.forwardRef(function MockGroupedVirtuoso(
-    props: any,
-    ref: any,
-  ) {
-    const { data, groupCounts, groupContent, itemContent, components } = props
+  },
+  // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with ref handling in vitest
+  GroupedVirtuoso: function MockGroupedVirtuoso(props: any) {
+    const { data, groupCounts, groupContent, itemContent, components, ref } =
+      props
     const Header = components?.Header
     React.useImperativeHandle(ref, () => ({
       scrollToIndex: mockScrollToIndex,
@@ -78,7 +76,7 @@ vi.mock('react-virtuoso', () => ({
       { 'data-testid': 'virtuoso-mock' },
       children,
     )
-  }),
+  },
 }))
 
 const mockCustomFetch = vi.fn()

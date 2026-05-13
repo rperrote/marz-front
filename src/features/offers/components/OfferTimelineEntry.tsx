@@ -95,7 +95,7 @@ export function OfferTimelineEntry({
           (item) => item.offer.id === offerIdFromSnapshot,
         )?.offer ?? null)
     : null
-  const liveStatus = liveOffer?.status as OfferStatus | undefined
+  const liveStatus = liveOffer?.status
   const firstDeliverableId = deliverablesQuery.data?.deliverables[0]?.id ?? null
 
   // OfferSent lo emite el brand y OfferAccepted lo emite el creator. El

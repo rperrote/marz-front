@@ -133,18 +133,22 @@ async function cleanup(exitCode: number) {
   console.log(
     '\nLimpiando cuentas de prueba (cascade borra conversation + campaign)...',
   )
-  await deleteOne(`backend brand ${brand.clerkUserId}`, () =>
-    back(env, `/v1/test/accounts/${brand.clerkUserId}`, { method: 'DELETE' }),
-  )
-  await deleteOne(`backend creator ${creator.clerkUserId}`, () =>
-    back(env, `/v1/test/accounts/${creator.clerkUserId}`, { method: 'DELETE' }),
-  )
-  await deleteOne(`clerk brand ${brand.clerkUserId}`, () =>
-    clerkApi(env, `/users/${brand.clerkUserId}`, { method: 'DELETE' }),
-  )
-  await deleteOne(`clerk creator ${creator.clerkUserId}`, () =>
-    clerkApi(env, `/users/${creator.clerkUserId}`, { method: 'DELETE' }),
-  )
+  await Promise.all([
+    deleteOne(`backend brand ${brand.clerkUserId}`, () =>
+      back(env, `/v1/test/accounts/${brand.clerkUserId}`, { method: 'DELETE' }),
+    ),
+    deleteOne(`backend creator ${creator.clerkUserId}`, () =>
+      back(env, `/v1/test/accounts/${creator.clerkUserId}`, {
+        method: 'DELETE',
+      }),
+    ),
+    deleteOne(`clerk brand ${brand.clerkUserId}`, () =>
+      clerkApi(env, `/users/${brand.clerkUserId}`, { method: 'DELETE' }),
+    ),
+    deleteOne(`clerk creator ${creator.clerkUserId}`, () =>
+      clerkApi(env, `/users/${creator.clerkUserId}`, { method: 'DELETE' }),
+    ),
+  ])
   console.log('Cleanup completo.')
   process.exit(exitCode)
 }

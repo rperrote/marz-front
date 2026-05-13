@@ -14,6 +14,11 @@ const campaignsTopbarConfig = {
   breadcrumb: [{ icon: Megaphone, label: 'Campañas' }],
 }
 
+const campaignDateFormatter = new Intl.DateTimeFormat('es-AR', {
+  month: 'short',
+  day: 'numeric',
+})
+
 function CampaignsPage() {
   useRouteTopbar(campaignsTopbarConfig)
 
@@ -79,10 +84,7 @@ function formatCampaignDate(value: string | null) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
 
-  return new Intl.DateTimeFormat('es-AR', {
-    month: 'short',
-    day: 'numeric',
-  }).format(date)
+  return campaignDateFormatter.format(date)
 }
 
 function CampaignsEmptyState() {

@@ -1,4 +1,4 @@
-export { useAppForm, withForm } from './app-form'
+export { useAppForm } from './app-form'
 export { FieldRow } from './components/FieldRow'
 export type { FieldRowAriaProps } from './components/FieldRow'
 export { applyBackendFieldErrors } from './hooks/applyBackendFieldErrors'

@@ -6,10 +6,9 @@ import { execSync } from 'node:child_process'
 import {
   diffSpecs,
   isEmptyDiff,
-  renderChangelogEntry
-  
+  renderChangelogEntry,
 } from './lib/openapi-diff.ts'
-import type {SpecDiff} from './lib/openapi-diff.ts';
+import type { SpecDiff } from './lib/openapi-diff.ts'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const CHANGELOG_PATH = resolve(root, 'openapi/CHANGELOG.md')

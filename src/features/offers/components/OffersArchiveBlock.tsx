@@ -71,7 +71,7 @@ export function OffersArchiveBlock({
 
       {open ? (
         <div className="mt-2">
-          <ul className="space-y-1" role="list">
+          <ul className="space-y-1">
             {items.map((item) => (
               <OfferArchiveItem key={item.offer.id} item={item} />
             ))}

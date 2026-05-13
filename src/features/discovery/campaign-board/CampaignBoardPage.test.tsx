@@ -56,14 +56,43 @@ vi.mock('./CampaignBriefSheet', () => ({
           onClick={() =>
             onApply({
               campaign_id: campaignId,
+              brand: {
+                id: 'brand-1',
+                name: 'Brand',
+                logo_url: null,
+              },
               campaign: { name: 'Brief campaign' },
+              economics: {
+                pricing_model: 'fixed',
+                currency: 'USD',
+                budget: '100.00',
+              },
+              targeting: {
+                niches: [],
+                interests: [],
+                platforms: [],
+                deliverables: [],
+                fee_min: null,
+                fee_max: null,
+              },
+              match: {
+                score: 85,
+                score_raw: '85',
+                band: 'high',
+                recommended: true,
+                hard_filters_passed: true,
+                profile_complete: true,
+                positive_reasons: [],
+                mismatch_reasons: [],
+              },
               application: {
                 status: 'none',
                 application_id: null,
                 submitted_at: null,
                 can_apply: true,
               },
-            } as unknown as CreatorCampaignBoardCard)
+              published_at: '2026-05-13T00:00:00.000Z',
+            })
           }
         >
           Postularme desde brief

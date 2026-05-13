@@ -6,14 +6,13 @@
   "default_impl": null,
   "default_review": null,
   "default_sync": null,
-  "depends_on_epics": [
-  ],
+  "depends_on_epics": [],
   "id": "fn-19-react-doctor-cleanup-64-95",
   "next_task": 1,
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-19-react-doctor-cleanup-64-95.md",
-  "status": "open",
+  "status": "done",
   "title": "React Doctor cleanup: 64 \u2192 95+",
-  "updated_at": "2026-05-10T23:27:13.880824Z"
+  "updated_at": "2026-05-13T08:40:36.165577Z"
 }

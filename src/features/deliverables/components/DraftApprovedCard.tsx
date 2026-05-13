@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Check } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
+import { useClientNow } from '#/shared/hooks'
 import { SystemEventCard } from '#/shared/ui/SystemEventCard'
 import type { DraftTimelineMessage } from '../types'
 import type { DraftApprovedSnapshot } from '#/shared/ws/types'
@@ -29,6 +30,7 @@ export function DraftApprovedCard({
   counterpartDisplayName,
   sessionKind,
 }: DraftApprovedCardProps) {
+  const clientNow = useClientNow()
   const snapshot = useMemo(
     () => extractSnapshot(message.payload),
     [message.payload],
@@ -38,6 +40,10 @@ export function DraftApprovedCard({
 
   const isCurrentUser = snapshot.approved_by_account_id === currentAccountId
   const approverName = isCurrentUser ? t`Tú` : counterpartDisplayName || ''
+  const approvedDate =
+    clientNow === null
+      ? null
+      : new Date(snapshot.approved_at).toLocaleDateString()
 
   return (
     <SystemEventCard
@@ -49,7 +55,9 @@ export function DraftApprovedCard({
     >
       <div className="space-y-4">
         <p className="text-sm text-foreground">
-          {t`Aprobado por ${approverName} el ${new Date(snapshot.approved_at).toLocaleDateString()}`}
+          {approvedDate === null
+            ? t`Aprobado por ${approverName}`
+            : t`Aprobado por ${approverName} el ${approvedDate}`}
         </p>
       </div>
     </SystemEventCard>

@@ -177,10 +177,7 @@ export function ApplicationDialog({
         <form
           className="flex flex-col gap-5"
           noValidate
-          onSubmit={(event) => {
-            event.preventDefault()
-            void form.handleSubmit()
-          }}
+          action={() => void form.handleSubmit()}
         >
           <div className="space-y-2">
             <form.AppField name="message">

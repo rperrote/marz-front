@@ -3,7 +3,7 @@ import { BarChart3, Compass, LayoutGrid, Users, Video } from 'lucide-react'
 
 import { CampaignWorkspaceTabs } from '#/features/campaigns/components/CampaignWorkspaceTabs'
 
-export function getCampaignDetailTabs() {
+function getCampaignDetailTabs() {
   return [
     { id: 'overview', label: t`Overview`, icon: LayoutGrid },
     { id: 'discovery', label: t`Discovery`, icon: Compass },

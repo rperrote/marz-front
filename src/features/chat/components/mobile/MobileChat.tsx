@@ -80,7 +80,7 @@ export function MobileChatHeader({
   onInfo,
 }: MobileChatHeaderProps) {
   return (
-    <header className="flex items-center gap-3 border-b border-border px-3 py-3">
+    <header className="flex items-center gap-3 border-b border-border p-3">
       <IconButton shape="circle" aria-label="Back" onClick={onBack}>
         <ChevronLeft />
       </IconButton>

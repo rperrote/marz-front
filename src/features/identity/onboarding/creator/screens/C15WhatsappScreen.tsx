@@ -9,7 +9,7 @@ const E164_RE = /^\+[1-9]\d{1,14}$/
 export function C15WhatsappScreen() {
   const store = useCreatorOnboardingStore()
 
-  const handleChange = useCallback(
+  const updateWhatsappFromInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value.replace(/[^\d+]/g, '')
       store.setField('whatsapp_e164', val)
@@ -26,7 +26,7 @@ export function C15WhatsappScreen() {
   return (
     <div className="flex w-full flex-col items-center gap-9">
       <div className="flex w-full max-w-[560px] flex-col items-center gap-2.5">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {t`Un WhatsApp al que llegarte`}
         </h1>
         <p className="text-center text-sm text-muted-foreground">
@@ -40,7 +40,7 @@ export function C15WhatsappScreen() {
               {...aria}
               type="tel"
               value={value}
-              onChange={handleChange}
+              onChange={updateWhatsappFromInput}
               placeholder="+54 11 5555-5555"
               maxLength={16}
             />

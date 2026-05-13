@@ -55,9 +55,8 @@ Dos refactors estructurales relacionados con SSR/router de TanStack Start:
 - [ ] No regresión en mensajes de chat / timeline (que dependen de timestamps relativos).
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+Todos los bloqueos del round anterior resueltos: currentNow ahora es per-instancia via useRef, subscribe tiene referencia estable, enforceOnboardingRoute tiene tests completos con cobertura de todas las ramas, y track('onboarding_redirect_enforced') fue migrado al guard.
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

@@ -56,9 +56,8 @@ Relevantes DESIGN-DEV.md (en `marz-docs/`):
 - [ ] Ningún archivo bajo `src/features/campaigns/configuration/**` modificado en este commit.
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+Codemods React 19, Tailwind shorthand y design strings aplicados correctamente sin regresiones ni alarmas funcionales.
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

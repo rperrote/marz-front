@@ -17,7 +17,7 @@ export function AppTopbar() {
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5">
           {segments.map((segment, index) => (
             <BreadcrumbSegment
-              key={index}
+              key={segment.label}
               segment={segment}
               isLast={index === segments.length - 1}
             />

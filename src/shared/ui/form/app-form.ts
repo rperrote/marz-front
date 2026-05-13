@@ -8,7 +8,7 @@ import { SelectField } from './fields/SelectField'
 import { SubmitButton } from './components/SubmitButton'
 import { FormError } from './components/FormError'
 
-export const { useAppForm, withForm } = createFormHook({
+export const { useAppForm } = createFormHook({
   fieldContext,
   formContext,
   fieldComponents: {

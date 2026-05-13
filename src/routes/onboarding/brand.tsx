@@ -2,10 +2,9 @@ import { useEffect } from 'react'
 import {
   Outlet,
   createFileRoute,
-  useNavigate,
   useParams,
+  useRouter,
 } from '@tanstack/react-router'
-import { useAuth } from '@clerk/tanstack-react-start'
 
 import { useMe } from '#/shared/api/generated/accounts/accounts'
 import { WizardShell } from '#/shared/ui/wizard'
@@ -16,52 +15,32 @@ import {
   getStepId,
 } from '#/features/identity/onboarding/brand/steps'
 import { track } from '#/shared/analytics/track'
+import { enforceOnboardingRoute } from './-onboardingGuard'
 
 export const Route = createFileRoute('/onboarding/brand')({
+  beforeLoad: async ({ context }) => {
+    await enforceOnboardingRoute({
+      queryClient: context.queryClient,
+      kind: 'brand',
+      routePath: '/onboarding/brand',
+      fallbackPath: '/campaigns',
+    })
+  },
   component: BrandOnboardingLayout,
 })
 
 function BrandOnboardingLayout() {
-  const { isSignedIn, isLoaded } = useAuth()
-  const navigate = useNavigate()
-  const meQuery = useMe({
-    query: { enabled: isLoaded && !!isSignedIn },
-  })
+  const router = useRouter()
+  const meQuery = useMe()
 
   const me = meQuery.data
   const onboardingStatus =
     me?.status === 200 ? me.data.onboarding_status : undefined
-  const redirectTo = me?.status === 200 ? me.data.redirect_to : undefined
   const kind = me?.status === 200 ? me.data.kind : undefined
 
   useEffect(() => {
     useBrandOnboardingStore.persist.rehydrate()
   }, [])
-
-  useEffect(() => {
-    if (!isLoaded) return
-    if (!isSignedIn) {
-      void navigate({ to: '/auth' })
-      return
-    }
-    if (!me || me.status !== 200) return
-
-    if (kind !== 'brand') {
-      void navigate({ to: '/' })
-      return
-    }
-    if (onboardingStatus !== 'onboarding_pending') {
-      const destination =
-        redirectTo && redirectTo !== '/onboarding/brand'
-          ? redirectTo
-          : '/campaigns'
-      track('onboarding_redirect_enforced', {
-        from: '/onboarding/brand',
-        to: destination,
-      })
-      void navigate({ to: destination })
-    }
-  }, [isLoaded, isSignedIn, me, onboardingStatus, redirectTo, kind, navigate])
 
   const params = useParams({ strict: false })
   const stepId = (params as Record<string, string | undefined>).step
@@ -89,7 +68,7 @@ function BrandOnboardingLayout() {
         step: currentStep.id,
         index: currentIndex,
       })
-      void navigate({
+      void router.navigate({
         to: '/onboarding/brand/$step',
         params: { step: nextId },
       })
@@ -101,7 +80,7 @@ function BrandOnboardingLayout() {
       const prevIndex = currentIndex - 1
       const prevId = getStepId(prevIndex)
       store.goTo(prevIndex)
-      void navigate({
+      void router.navigate({
         to: '/onboarding/brand/$step',
         params: { step: prevId },
       })
@@ -113,10 +92,10 @@ function BrandOnboardingLayout() {
       step: currentStep.id,
       index: currentIndex,
     })
-    void navigate({ to: '/' })
+    void router.navigate({ to: '/' })
   }
 
-  if (!isLoaded || !isSignedIn || meQuery.isLoading) return null
+  if (meQuery.isLoading) return null
   if (!me || me.status !== 200) return null
   if (kind !== 'brand' || onboardingStatus !== 'onboarding_pending') return null
 

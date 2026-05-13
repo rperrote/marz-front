@@ -21,6 +21,9 @@ export function useExportBrandPaymentsCsvMutation() {
           workspaceId,
         },
       }),
+    onSuccess: () => {
+      /* CSV download — no cache to invalidate */
+    },
     retry: false,
   })
 }

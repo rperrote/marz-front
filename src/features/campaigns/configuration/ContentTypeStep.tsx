@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check, Megaphone, Video } from 'lucide-react'
@@ -46,9 +46,9 @@ export function ContentTypeStep({ campaignId, config }: ContentTypeStepProps) {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const mutation = useUpdateContentTypeMutation()
-  const [selected, setSelected] = useState<CampaignContentType | null>(
-    config.content_type,
-  )
+  const initialContentType = useRef(config.content_type).current
+  const [selected, setSelected] =
+    useState<CampaignContentType | null>(initialContentType)
 
   const handleContinue = () => {
     if (!selected) return

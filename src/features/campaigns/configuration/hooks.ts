@@ -17,10 +17,12 @@ import type {
   CampaignContentType,
   CampaignPricingModel,
   CampaignConfigurationStep,
+  UpdateCampaignTargetingRequest,
+  UpdateCampaignBonusRequest,
 } from '#/shared/api/generated/model'
 import type { BonusConfigValues, OperationalTargetingValues } from './schemas'
 
-export const CampaignConfigurationStepSchema = z.enum([
+const CampaignConfigurationStepSchema = z.enum([
   'content_type',
   'pricing_model',
   'targeting',
@@ -187,10 +189,11 @@ export function useUpdatePricingModelMutation() {
 }
 
 export function useUpdateCampaignTargetingMutation() {
-  return adaptMutation<UpdateCampaignTargetingParams, unknown>(
-    useUpdateCampaignConfigurationTargeting() as unknown as Parameters<
-      typeof adaptMutation
-    >[0],
+  return adaptMutation<
+    UpdateCampaignTargetingParams,
+    UpdateCampaignTargetingRequest
+  >(
+    useUpdateCampaignConfigurationTargeting(),
     ({ campaignId, operational_targeting, configuration_version }) => ({
       campaignId,
       data: { operational_targeting, configuration_version },
@@ -199,10 +202,8 @@ export function useUpdateCampaignTargetingMutation() {
 }
 
 export function useUpdateCampaignBonusMutation() {
-  return adaptMutation<UpdateCampaignBonusParams, unknown>(
-    useUpdateCampaignConfigurationBonus() as unknown as Parameters<
-      typeof adaptMutation
-    >[0],
+  return adaptMutation<UpdateCampaignBonusParams, UpdateCampaignBonusRequest>(
+    useUpdateCampaignConfigurationBonus(),
     ({ campaignId, bonus_config, configuration_version }) => ({
       campaignId,
       data: { bonus_config, configuration_version },

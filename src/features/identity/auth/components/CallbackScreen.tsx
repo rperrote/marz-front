@@ -14,6 +14,14 @@ export function CallbackScreen() {
   const queryClient = useQueryClient()
   const verifyingRef = useRef(false)
 
+  async function waitForToken(attempt = 0): Promise<string | null> {
+    if (attempt >= 20) return null
+    const token = await getToken()
+    if (token) return token
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    return waitForToken(attempt + 1)
+  }
+
   useEffect(() => {
     if (!isLoaded) return
     if (verifyingRef.current) return
@@ -24,12 +32,7 @@ export function CallbackScreen() {
         await clerk.handleEmailLinkVerification({})
 
         // Esperar a que Clerk propague la sesión y el token esté disponible
-        let token: string | null = null
-        for (let i = 0; i < 20; i++) {
-          token = await getToken()
-          if (token) break
-          await new Promise((r) => setTimeout(r, 100))
-        }
+        const token = await waitForToken()
         if (!token) {
           void navigate({ to: '/auth/link-invalid' })
           return
@@ -65,7 +68,7 @@ export function CallbackScreen() {
   return (
     <div className="flex w-full max-w-[480px] flex-col items-center gap-7 rounded-2xl border border-border bg-card p-10">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-foreground">
+        <div className="flex size-10 items-center justify-center rounded-[10px] bg-foreground">
           <svg width={24} height={24} viewBox="0 0 40 40" fill="none">
             <circle cx={8} cy={10} r={2.5} fill="var(--background)" />
             <circle cx={17.5} cy={10} r={2.5} fill="var(--background)" />
@@ -101,7 +104,7 @@ export function CallbackScreen() {
         </span>
       </div>
 
-      <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-primary/12">
+      <div className="flex size-[72px] items-center justify-center rounded-full bg-primary/12">
         <Loader2
           size={32}
           className="animate-spin text-primary"
@@ -113,7 +116,7 @@ export function CallbackScreen() {
         className="text-center text-sm leading-relaxed text-muted-foreground"
         aria-live="polite"
       >
-        Verificando tu link...
+        Verificando tu link…
       </p>
     </div>
   )

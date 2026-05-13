@@ -120,10 +120,7 @@ describe('AppShell', () => {
   })
 
   it('does not keep legacy sidebar markup in compatibility shells', () => {
-    const files = [
-      'src/features/identity/components/BrandShell.tsx',
-      'src/features/identity/components/CreatorShell.tsx',
-    ]
+    const files = ['src/features/identity/app-shell/AppShell.tsx']
 
     for (const file of files) {
       const source = readFileSync(resolve(process.cwd(), file), 'utf8')
@@ -139,8 +136,6 @@ describe('AppShell', () => {
     const files = [
       'src/features/identity/app-shell/AppShell.tsx',
       'src/features/identity/app-shell/AppShellContext.tsx',
-      'src/features/identity/components/BrandShell.tsx',
-      'src/features/identity/components/CreatorShell.tsx',
     ]
     const forbidden = [
       'console.',
@@ -168,8 +163,6 @@ describe('AppShell', () => {
       'src/features/identity/app-shell/TopbarContext.tsx',
       'src/features/identity/app-shell/useRouteTopbar.ts',
       'src/features/identity/app-shell/MissingWorkspaceFallback.tsx',
-      'src/features/identity/components/BrandShell.tsx',
-      'src/features/identity/components/CreatorShell.tsx',
     ]
 
     for (const file of files) {

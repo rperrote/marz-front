@@ -115,15 +115,15 @@ describe('ConversationRailItem', () => {
 
   it('calls onClick with conversation id', async () => {
     const user = userEvent.setup()
-    const handleClick = vi.fn()
+    const selectConversation = vi.fn()
     render(
       <ConversationRailItem
         conversation={makeConversation()}
-        onClick={handleClick}
+        onClick={selectConversation}
       />,
     )
 
     await user.click(screen.getByRole('button'))
-    expect(handleClick).toHaveBeenCalledWith('conv-1')
+    expect(selectConversation).toHaveBeenCalledWith('conv-1')
   })
 })

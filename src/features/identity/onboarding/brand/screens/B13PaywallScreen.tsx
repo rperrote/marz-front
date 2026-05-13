@@ -176,7 +176,7 @@ export function B13PaywallScreen() {
       />
 
       <div className="relative flex w-full max-w-[720px] flex-col items-center gap-2">
-        <h1 className="text-center text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+        <h1 className="text-center text-[28px] font-semibold leading-tight tracking-[-0.02em] text-foreground">
           {firstName ? t`Elegí tu plan, ${firstName}.` : t`Elegí tu plan.`}
         </h1>
         <p className="text-center text-sm text-muted-foreground">

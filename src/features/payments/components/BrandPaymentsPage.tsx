@@ -293,13 +293,20 @@ function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url)
 }
 
+const BRAND_PAYMENTS_SKELETON_CARDS = [
+  'total',
+  'pending',
+  'paid',
+  'overdue',
+] as const
+
 function BrandPaymentsPageSkeleton() {
   return (
     <div aria-label={t`Cargando pagos`} className="flex flex-col gap-5">
       <div className="grid grid-cols-4 gap-4">
-        {Array.from({ length: 4 }, (_, index) => (
+        {BRAND_PAYMENTS_SKELETON_CARDS.map((card) => (
           <div
-            key={index}
+            key={card}
             className="h-[132px] animate-pulse rounded-lg border border-border bg-card"
           />
         ))}

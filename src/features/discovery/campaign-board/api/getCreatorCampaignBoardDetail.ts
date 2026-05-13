@@ -28,7 +28,6 @@ const getCreatorCampaignBoardDetailServerFn = createServerFn({ method: 'GET' })
       headers: await getCreatorAuthorizationHeaders(),
     })
 
-    // RAFITA:ANY: createServerFn no infiere el tipo de retorno del handler; cast manual necesario para exponer el tipo correcto al consumer.
     return unwrapCampaignBoardDetailResponse(
       response,
     ) as unknown as SerializableJson

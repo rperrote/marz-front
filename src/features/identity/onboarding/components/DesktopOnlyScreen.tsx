@@ -20,7 +20,7 @@ export function DesktopOnlyScreen() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="flex w-full max-w-sm flex-col items-center gap-6 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+        <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
           <svg
             width={32}
             height={32}

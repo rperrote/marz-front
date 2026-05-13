@@ -35,6 +35,13 @@ export function CountryMultiSelect({
   error,
 }: CountryMultiSelectProps) {
   const selected = new Set(value)
+  const knownCodes = new Set(COUNTRY_OPTIONS.map((country) => country.code))
+  const customCodes: string[] = []
+  for (const code of value) {
+    if (!knownCodes.has(code as (typeof COUNTRY_OPTIONS)[number]['code'])) {
+      customCodes.push(code)
+    }
+  }
 
   const addCountry = (raw: string) => {
     const code = raw.trim().toUpperCase()
@@ -92,12 +99,7 @@ export function CountryMultiSelect({
                 </Button>
               )
             })}
-            {value
-              .filter(
-                (code) =>
-                  !COUNTRY_OPTIONS.some((country) => country.code === code),
-              )
-              .map((code) => (
+            {customCodes.map((code) => (
                 <Button
                   key={code}
                   type="button"
