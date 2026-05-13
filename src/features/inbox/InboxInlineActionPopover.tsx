@@ -9,12 +9,14 @@ import { Button } from '#/components/ui/button'
 import { Textarea } from '#/components/ui/textarea'
 import { useSendMessageMutation } from '#/features/chat/mutations/useSendMessageMutation'
 import { generateClientMessageId } from '#/features/chat/utils/clientMessageId'
+import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 import {
   generateIdempotencyKey,
   withIdempotencyKey,
 } from '#/shared/api/idempotency'
 import {
   acceptCampaignDiscoveryApplication,
+  getListCampaignParticipantsQueryKey,
   rejectCampaignDiscoveryApplication,
 } from '#/shared/api/generated/campaigns/campaigns'
 import type {
@@ -44,6 +46,7 @@ const MAX_REASON_LENGTH = 500
 
 interface InboxInlineActionPopoverProps {
   analyticsPayload: InboxItemAnalyticsPayload
+  conversationId: string | null
   inlineActions: InboxInlineAction[]
   itemId: string
 }
@@ -59,6 +62,7 @@ type ApplicationMutationVariables = {
 
 export function InboxInlineActionPopover({
   analyticsPayload,
+  conversationId,
   inlineActions,
   itemId,
 }: InboxInlineActionPopoverProps) {
@@ -117,6 +121,7 @@ export function InboxInlineActionPopover({
                 key={`${itemId}-${action.type}-${action.path}`}
                 action={action}
                 analyticsPayload={analyticsPayload}
+                conversationId={conversationId}
                 onError={handleActionError}
                 onSuccess={handleActionSuccess}
               />
@@ -131,11 +136,13 @@ export function InboxInlineActionPopover({
 function InlineActionControl({
   action,
   analyticsPayload,
+  conversationId,
   onError,
   onSuccess,
 }: {
   action: InboxInlineAction
   analyticsPayload: InboxItemAnalyticsPayload
+  conversationId: string | null
   onError: (error: Error) => void
   onSuccess: () => void
 }) {
@@ -155,6 +162,7 @@ function InlineActionControl({
       <OfferActionControl
         action={action}
         analyticsPayload={analyticsPayload}
+        conversationId={conversationId}
         onError={onError}
         onSuccess={onSuccess}
       />
@@ -274,14 +282,17 @@ function ReplyActionControl({
 function OfferActionControl({
   action,
   analyticsPayload,
+  conversationId,
   onError,
   onSuccess,
 }: {
   action: InboxInlineAction
   analyticsPayload: InboxItemAnalyticsPayload
+  conversationId: string | null
   onError: (error: Error) => void
   onSuccess: () => void
 }) {
+  const queryClient = useQueryClient()
   const [reasonOpen, setReasonOpen] = useState(false)
   const [reason, setReason] = useState('')
   const acceptMutation = useMutation<
@@ -298,7 +309,12 @@ function OfferActionControl({
       trackInlineFailed(analyticsPayload, variables.action, error)
       onError(error)
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: async (_data, variables) => {
+      if (conversationId !== null) {
+        await queryClient.invalidateQueries({
+          queryKey: getConversationOffersQueryKey(conversationId),
+        })
+      }
       trackInboxInlineCompleted({
         ...analyticsPayload,
         action_type: variables.action.type,
@@ -321,7 +337,12 @@ function OfferActionControl({
       trackInlineFailed(analyticsPayload, variables.action, error)
       onError(error)
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: async (_data, variables) => {
+      if (conversationId !== null) {
+        await queryClient.invalidateQueries({
+          queryKey: getConversationOffersQueryKey(conversationId),
+        })
+      }
       trackInboxInlineCompleted({
         ...analyticsPayload,
         action_type: variables.action.type,
@@ -389,6 +410,7 @@ function ApplicationActionControl({
   onError: (error: Error) => void
   onSuccess: () => void
 }) {
+  const queryClient = useQueryClient()
   const acceptMutation = useMutation<
     acceptCampaignDiscoveryApplicationResponse,
     Error,
@@ -406,7 +428,16 @@ function ApplicationActionControl({
       trackInlineFailed(analyticsPayload, variables.action, error)
       onError(error)
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: async (_data, variables) => {
+      const params = getApplicationPathParams(variables.action.path)
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['campaign', params.campaignId, 'discovery'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: getListCampaignParticipantsQueryKey(params.campaignId),
+        }),
+      ])
       trackInboxInlineCompleted({
         ...analyticsPayload,
         action_type: variables.action.type,
@@ -431,7 +462,11 @@ function ApplicationActionControl({
       trackInlineFailed(analyticsPayload, variables.action, error)
       onError(error)
     },
-    onSuccess: (_data, variables) => {
+    onSuccess: async (_data, variables) => {
+      const params = getApplicationPathParams(variables.action.path)
+      await queryClient.invalidateQueries({
+        queryKey: ['campaign', params.campaignId, 'discovery'],
+      })
       trackInboxInlineCompleted({
         ...analyticsPayload,
         action_type: variables.action.type,

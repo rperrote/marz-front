@@ -1,4 +1,6 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getActiveCampaignsQueryKey } from '#/shared/api/activeCampaigns'
+import { getCampaignsListQueryKey } from '#/features/campaigns/hooks/useCampaignsList'
 import { createCampaign } from '#/shared/api/generated/campaigns/campaigns'
 import type {
   BriefHardFilter,
@@ -53,6 +55,8 @@ function toApiBrief(draft: BriefDraft): CampaignBriefInput {
 }
 
 export function useCreateCampaign() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async (params: CreateCampaignParams) => {
       const { draft, idempotencyKey } = params
@@ -69,6 +73,14 @@ export function useCreateCampaign() {
         withIdempotencyKey(idempotencyKey),
       )) as { data: CreateCampaignResponse }
       return result.data
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: getCampaignsListQueryKey() }),
+        queryClient.invalidateQueries({
+          queryKey: getActiveCampaignsQueryKey(),
+        }),
+      ])
     },
   })
 }

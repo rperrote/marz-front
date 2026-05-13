@@ -48,9 +48,8 @@ Para cada mutation:
 - [ ] Ninguna mutation bajo `src/features/campaigns/configuration/**` tocada (fn-18).
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+invalidaciones de queries correctas en todos los archivos; test del caso null corregido con aserción real y helper preservando null
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

@@ -1,5 +1,8 @@
-import { useMutation } from '@tanstack/react-query'
-import { initBriefBuilder } from '#/shared/api/generated/campaigns/campaigns'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  getGetBriefProcessingQueryKey,
+  initBriefBuilder,
+} from '#/shared/api/generated/campaigns/campaigns'
 import type { BriefBuilderInitResponse } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
 
@@ -13,6 +16,8 @@ interface InitBriefBuilderParams {
 // `customFetch` (mutator) throws on non-2xx; the union with Error in the
 // generated response type is defensive — runtime always reaches the 201 branch.
 export function useInitBriefBuilder() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async (
       params: InitBriefBuilderParams,
@@ -24,6 +29,11 @@ export function useInitBriefBuilder() {
         pdf: params.pdfFile ?? undefined,
       })) as { data: BriefBuilderInitResponse }
       return result.data
+    },
+    onSuccess: (data) => {
+      return queryClient.invalidateQueries({
+        queryKey: getGetBriefProcessingQueryKey(data.processing_token),
+      })
     },
   })
 }
