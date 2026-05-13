@@ -22,7 +22,7 @@ import type {
 } from '#/shared/api/generated/model'
 import type { BonusConfigValues, OperationalTargetingValues } from './schemas'
 
-export const CampaignConfigurationStepSchema = z.enum([
+const CampaignConfigurationStepSchema = z.enum([
   'content_type',
   'pricing_model',
   'targeting',

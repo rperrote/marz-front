@@ -143,7 +143,3 @@ function formatRelativeTime(iso: string, now = new Date()) {
   const days = Math.round(absMs / day)
   return diffMs >= 0 ? t`Hace ${days} d` : t`En ${days} d`
 }
-
-export const recentActivityFormatters = {
-  formatRelativeTime,
-}

@@ -10,7 +10,7 @@ interface WizardStepValidationContextValue {
 export const WizardStepValidationContext =
   createContext<WizardStepValidationContextValue | null>(null)
 
-export function useWizardStepValidation() {
+function useWizardStepValidation() {
   const ctx = use(WizardStepValidationContext)
   if (!ctx) {
     throw new Error(

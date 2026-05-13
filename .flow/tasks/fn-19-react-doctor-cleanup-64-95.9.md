@@ -36,9 +36,8 @@ Limpieza final de dead code que knip reporte tras todos los fixes anteriores. Mu
 - [ ] PR diff revisado para garantizar que no se borró código en uso (especial cuidado con re-exports en `index.ts` de cada feature).
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+Dead code cleanup correcto: 19 archivos eliminados, ~96 exports/tipos unexportados — ninguno tiene consumidores externos reales. knip.jsonc migrado correctamente a ignoreIssues + ignoreDependencies. Default exports de mutator/test-mutator removidos resolviendo los duplicates reportados. Tests actualizados consistentemente con los archivos borrados.
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

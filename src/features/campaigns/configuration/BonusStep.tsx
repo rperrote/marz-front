@@ -22,7 +22,7 @@ import {
   useUpdateCampaignBonusMutation,
 } from './hooks'
 import type { CampaignConfiguration } from './hooks'
-import { BONUS_CURRENCY, BonusAmountSchema, BonusConfigSchema } from './schemas'
+import { BonusAmountSchema, BonusConfigSchema } from './schemas'
 import type { BonusAmountValues, BonusConfigValues } from './schemas'
 
 type SpeedBonusWindow = BonusConfigValues['speed_bonus']['windows'][number]
@@ -60,9 +60,7 @@ function mapBonusAmount(amount: {
   }
 }
 
-export function bonusDefaults(
-  config: CampaignConfiguration,
-): BonusConfigValues {
+function bonusDefaults(config: CampaignConfiguration): BonusConfigValues {
   return {
     enabled: config.bonus_config.enabled,
     speed_bonus: {
@@ -144,9 +142,7 @@ const DEFAULT_PERCENTAGE_BONUS: BonusAmountValues = {
   percentage: 10,
 }
 
-export function nextSpeedBonusWindow(
-  windows: SpeedBonusWindow[],
-): SpeedBonusWindow {
+function nextSpeedBonusWindow(windows: SpeedBonusWindow[]): SpeedBonusWindow {
   const lastWindow = sortSpeedWindows(windows).at(-1)
   return {
     window_hours: lastWindow ? Math.min(lastWindow.window_hours + 24, 720) : 24,
@@ -154,7 +150,7 @@ export function nextSpeedBonusWindow(
   }
 }
 
-export function nextPerformanceBonusMilestone(
+function nextPerformanceBonusMilestone(
   milestones: PerformanceBonusMilestone[],
 ): PerformanceBonusMilestone {
   const lastMilestone = [...milestones].sort(
@@ -168,15 +164,6 @@ export function nextPerformanceBonusMilestone(
       : 168,
     bonus: lastMilestone ? lastMilestone.bonus : DEFAULT_PERCENTAGE_BONUS,
   }
-}
-
-export function toggleBonusAmountMode(
-  bonus: BonusAmountValues,
-  mode: 'percentage' | 'fixed',
-): BonusAmountValues {
-  if (bonus.type === mode) return bonus
-  if (mode === 'percentage') return { type: 'percentage', percentage: 10 }
-  return { type: 'fixed', amount: '', currency: BONUS_CURRENCY }
 }
 
 function sortSpeedWindows(windows: SpeedBonusWindow[]): SpeedBonusWindow[] {

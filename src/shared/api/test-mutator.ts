@@ -16,7 +16,7 @@ export interface TestApiErrorBody {
   }
 }
 
-export class TestApiError extends Error {
+class TestApiError extends Error {
   constructor(
     public status: number,
     public code: string,
@@ -69,5 +69,3 @@ export async function testFetch<T>(
     headers: res.headers,
   } as T
 }
-
-export default testFetch

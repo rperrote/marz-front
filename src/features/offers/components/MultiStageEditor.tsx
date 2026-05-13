@@ -25,7 +25,7 @@ import {
 } from '../schemas/multiStageEditor'
 import { deadlineToRFC3339 } from '../utils/formatOffer'
 
-export const defaultValues = {
+const defaultValues = {
   campaign_id: '',
   stages: [
     {
@@ -37,8 +37,6 @@ export const defaultValues = {
     },
   ],
 }
-
-export type MultiStageEditorFormValues = typeof defaultValues
 
 interface MultiStageEditorProps {
   onClose: () => void

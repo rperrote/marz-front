@@ -3,7 +3,7 @@ import { t } from '@lingui/core/macro'
 
 const decimalStringRegex = /^\d+(\.\d{1,2})?$/
 
-export const offerSpeedBonusWindowFormSchema = z.object({
+const offerSpeedBonusWindowFormSchema = z.object({
   id: z.string(),
   window_hours: z
     .number({ error: t`Enter hours` })
@@ -21,7 +21,3 @@ export const offerSpeedBonusWindowFormSchema = z.object({
 export const offerBonusTermsFormSchema = z.object({
   speed_bonus_windows: z.array(offerSpeedBonusWindowFormSchema),
 })
-
-export type OfferSpeedBonusWindowFormValues = z.infer<
-  typeof offerSpeedBonusWindowFormSchema
->

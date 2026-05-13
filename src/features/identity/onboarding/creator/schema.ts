@@ -11,7 +11,7 @@ const FORMATS_BY_PLATFORM: Record<string, readonly string[]> = {
   youtube: ['yt_short', 'yt_long', 'yt_podcast'],
 }
 
-export const creatorChannelsRefinement = (
+const creatorChannelsRefinement = (
   channels: CreatorOnboardingPayload['channels'],
   ctx: RefinementCtx,
 ) => {

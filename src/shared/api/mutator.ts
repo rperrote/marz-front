@@ -252,5 +252,3 @@ async function parseBody(res: Response): Promise<unknown> {
   }
   return text
 }
-
-export default customFetch

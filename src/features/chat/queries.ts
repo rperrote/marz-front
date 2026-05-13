@@ -24,7 +24,7 @@ export function getConversationDetailQueryKey(conversationId: string) {
 
 // `customFetch` (mutator) throws on non-2xx; the union with Error in the
 // generated response type is defensive — runtime always reaches the 200 branch.
-export async function fetchConversationDetail(
+async function fetchConversationDetail(
   conversationId: string,
 ): Promise<ConversationDetailResponse> {
   const res = (await getConversation(conversationId)) as {
@@ -71,7 +71,7 @@ function toFlatMessage(
   }
 }
 
-export async function fetchMessages(
+async function fetchMessages(
   params: MessagesParams,
 ): Promise<{ data: MessagesResponse; status: number }> {
   const res = (await listMessages(params.conversationId, {

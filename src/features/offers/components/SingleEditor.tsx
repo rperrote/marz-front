@@ -46,7 +46,7 @@ function getFormatOptionsByPlatform(): Record<
   }
 }
 
-export function createSendOfferSchemas() {
+function createSendOfferSchemas() {
   const sendOfferBaseSchema = z.object({
     campaign_id: z.string().min(1, t`Select a campaign`),
     platform: z.enum(['youtube', 'instagram', 'tiktok'], {
@@ -72,7 +72,7 @@ export function createSendOfferSchemas() {
   return { sendOfferBaseSchema, sendOfferSubmitSchema }
 }
 
-export const defaultValues = {
+const defaultValues = {
   campaign_id: '',
   platform: '' as '' | 'youtube' | 'instagram' | 'tiktok',
   format: '',
@@ -88,8 +88,6 @@ export const defaultValues = {
     }>
   },
 }
-
-export type SendOfferFormValues = typeof defaultValues
 
 interface SingleEditorProps {
   onClose: () => void

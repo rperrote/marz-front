@@ -21,21 +21,6 @@ export interface OfferAcceptedSnap extends OfferSnapshot {
   accepted_at: string
 }
 
-export interface OfferRejectedSnap extends OfferSnapshot {
-  rejected_at: string
-  reason: string | null
-}
-
-export interface OfferExpiredSnap extends OfferSnapshot {
-  expired_at: string
-}
-
-export type OfferLifecycleSnap =
-  | OfferSnapshot
-  | OfferAcceptedSnap
-  | OfferRejectedSnap
-  | OfferExpiredSnap
-
 export type OfferEventType =
   | 'OfferSent'
   | 'OfferAccepted'

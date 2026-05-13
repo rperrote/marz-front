@@ -5,7 +5,7 @@ import { getCampaignOverview } from '#/shared/api/generated/campaigns/campaigns'
 import type { CampaignOverviewResponse } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
 
-export const CAMPAIGN_OVERVIEW_STALE_TIME = 60_000
+const CAMPAIGN_OVERVIEW_STALE_TIME = 60_000
 
 interface CampaignOverviewQueryOptions {
   activityLimit?: number
@@ -15,7 +15,7 @@ export function campaignOverviewQueryKey(campaignId: string) {
   return ['campaign', campaignId, 'overview'] as const
 }
 
-export function campaignOverviewQueryOptions(
+function campaignOverviewQueryOptions(
   campaignId: string,
   options: CampaignOverviewQueryOptions = {},
 ) {

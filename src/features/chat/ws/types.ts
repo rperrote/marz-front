@@ -7,13 +7,6 @@ import type {
   PresenceUpdatedPayload,
 } from '#/shared/ws/types'
 
-export type ChatEventType =
-  | 'chat.message.created'
-  | 'chat.message.read.batch'
-  | 'chat.typing.started'
-  | 'chat.typing.stopped'
-  | 'identity.presence.updated'
-
 export interface ChatWsHandlers {
   onMessageCreated?: (
     envelope: DomainEventEnvelope<MessageCreatedPayload>,

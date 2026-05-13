@@ -81,5 +81,3 @@ export const phase3Schema = z
   })
 
 export type Phase3Values = z.input<typeof phase3Schema>
-
-export type FormInputValues = z.infer<typeof formInputSchema>

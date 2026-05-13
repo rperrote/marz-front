@@ -8,21 +8,21 @@ import type {
 } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
 
-export const CAMPAIGN_PARTICIPANTS_STALE_TIME = 30_000
+const CAMPAIGN_PARTICIPANTS_STALE_TIME = 30_000
 
 export type CampaignParticipantsParams = Pick<
   ListCampaignParticipantsParams,
   'cursor' | 'limit' | 'search' | 'status' | 'platform'
 >
 
-export function campaignParticipantsQueryKey(
+function campaignParticipantsQueryKey(
   campaignId: string,
   params: CampaignParticipantsParams,
 ) {
   return ['campaign', campaignId, 'participants', params] as const
 }
 
-export function campaignParticipantsQueryOptions(
+function campaignParticipantsQueryOptions(
   campaignId: string,
   params: CampaignParticipantsParams,
 ) {

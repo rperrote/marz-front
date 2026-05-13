@@ -102,10 +102,6 @@ export function markOfferSeen(
   return true
 }
 
-export function resetSeenOffers(): void {
-  seenOfferIds.clear()
-}
-
 export function trackOfferEvent<TEvent extends OfferEventName>(
   _name: TEvent,
   _payload: OfferEventMap[TEvent],

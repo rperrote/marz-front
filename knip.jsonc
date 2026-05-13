@@ -3,11 +3,9 @@
 
   // App boot files and TanStack Router route modules are runtime roots.
   "entry": [
-    "src/client.tsx",
-    "src/server.ts",
+    "src/start.ts",
     "src/router.tsx",
     "src/routes/**/*.tsx",
-    "src/routeTree.gen.ts",
     "src/styles.css",
 
     // Vitest and Playwright files are independent roots in local tooling.
@@ -16,30 +14,31 @@
 
     // Operational scripts and tool configs are invoked outside app imports.
     "scripts/**/*.ts",
-    "eslint.config.js",
-    "prettier.config.js",
-    "vite.config.ts",
-    "vitest.config.ts",
-    "playwright.config.ts",
-    "orval.config.ts",
-    "lingui.config.ts",
   ],
 
   // Keep the analysis scoped to authored source and repository tooling.
-  "project": [
-    "src/**/*.{ts,tsx,css}",
-    "scripts/**/*.ts",
-    "eslint.config.js",
-    "prettier.config.js",
-    "vite.config.ts",
-    "vitest.config.ts",
-    "playwright.config.ts",
-    "orval.config.ts",
-    "lingui.config.ts",
-  ],
+  "project": ["src/**/*.{ts,tsx,css}", "scripts/**/*.ts"],
 
-  // Generated code is intentionally committed but should not create dead-code noise.
-  "ignore": ["src/shared/api/generated/**", "src/routeTree.gen.ts"],
+  // Generated code and shadcn primitives expose stable surfaces intentionally.
+  "ignoreIssues": {
+    "src/routeTree.gen.ts": ["files", "exports", "types"],
+    "src/shared/api/generated/**": ["files", "exports", "types", "duplicates"],
+    "src/shared/api/test-generated/**": [
+      "files",
+      "exports",
+      "types",
+      "duplicates",
+    ],
+    "src/components/ui/**": ["exports", "types"],
+  },
+
+  // Tool/plugin dependencies can be referenced from config strings or framework internals.
+  "ignoreDependencies": [
+    "@lingui/detect-locale",
+    "@lingui/swc-plugin",
+    "@tanstack/router-plugin",
+    "@vitejs/plugin-react",
+  ],
 
   // Generated Zod schemas use exported helper types with z.infer in the same file.
   "ignoreExportsUsedInFile": {

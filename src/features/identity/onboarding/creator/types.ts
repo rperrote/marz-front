@@ -21,7 +21,7 @@ export interface BestVideo {
   kind: BestVideoKind
 }
 
-export const CreatorOnboardingPayloadGender = {
+const CreatorOnboardingPayloadGender = {
   male: 'male',
   female: 'female',
   non_binary: 'non_binary',
@@ -32,7 +32,7 @@ export type CreatorOnboardingPayloadGender =
   | (typeof CreatorOnboardingPayloadGender)[keyof typeof CreatorOnboardingPayloadGender]
   | null
 
-export const CreatorOnboardingPayloadExperienceLevel = {
+const CreatorOnboardingPayloadExperienceLevel = {
   none: 'none',
   '1_to_5': '1_to_5',
   '6_to_20': '6_to_20',
@@ -42,7 +42,7 @@ export const CreatorOnboardingPayloadExperienceLevel = {
 export type CreatorOnboardingPayloadExperienceLevel =
   (typeof CreatorOnboardingPayloadExperienceLevel)[keyof typeof CreatorOnboardingPayloadExperienceLevel]
 
-export const CreatorOnboardingPayloadTier = {
+const CreatorOnboardingPayloadTier = {
   emergent: 'emergent',
   growing: 'growing',
   consolidated: 'consolidated',
@@ -53,11 +53,6 @@ export const CreatorOnboardingPayloadTier = {
 
 export type CreatorOnboardingPayloadTier =
   (typeof CreatorOnboardingPayloadTier)[keyof typeof CreatorOnboardingPayloadTier]
-
-export type AvatarPresignRequestContentType =
-  | 'image/jpeg'
-  | 'image/png'
-  | 'image/webp'
 
 export interface CreatorOnboardingPayload {
   handle: string

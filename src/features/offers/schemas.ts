@@ -31,7 +31,7 @@ export const offerAcceptedSnapSchema = offerSnapshotSchema.extend({
   accepted_at: z.string(),
 })
 
-export const bundleDeliverableSnapshotSchema = z.object({
+const bundleDeliverableSnapshotSchema = z.object({
   platform: z.string(),
   format: z.string(),
   quantity: z.number(),
@@ -52,7 +52,7 @@ export const offerSnapshotBundleSchema = z.object({
   deliverables: z.array(bundleDeliverableSnapshotSchema),
 })
 
-export const multiStageItemSnapshotSchema = z.object({
+const multiStageItemSnapshotSchema = z.object({
   name: z.string(),
   description: z.string(),
   deadline: z.string(),

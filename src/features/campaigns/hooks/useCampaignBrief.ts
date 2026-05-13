@@ -70,7 +70,7 @@ export interface CampaignBrief {
   draft: BriefDraft
 }
 
-export function campaignBriefQueryKey(campaignId: string) {
+function campaignBriefQueryKey(campaignId: string) {
   return getGetCampaignBriefQueryKey(campaignId)
 }
 

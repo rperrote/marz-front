@@ -51,7 +51,7 @@ function getFormatOptionsByPlatform(): Record<
   }
 }
 
-export const defaultValues = {
+const defaultValues = {
   campaign_id: '',
   total_amount: '',
   deadline: '',
@@ -74,8 +74,6 @@ export const defaultValues = {
     },
   ],
 }
-
-export type BundleEditorFormValues = typeof defaultValues
 
 interface BundleEditorProps {
   onClose: () => void

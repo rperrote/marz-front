@@ -15,7 +15,7 @@ interface UseConversationsQueryParams {
   campaignId?: string
 }
 
-export function getConversationsQueryKey(params: UseConversationsQueryParams) {
+function getConversationsQueryKey(params: UseConversationsQueryParams) {
   return ['conversations', params] as const
 }
 
