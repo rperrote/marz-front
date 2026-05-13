@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { t, plural } from '@lingui/core/macro'
 import { ChevronDown, Plus, Trash2 } from 'lucide-react'
 import { Input } from '#/components/ui/input'
@@ -270,15 +271,19 @@ export function ChannelEditor({ channels, onChange }: ChannelEditorProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {PLATFORMS.filter(
-                        (p) =>
+                      {PLATFORMS.reduce<ReactNode[]>((items, p) => {
+                        if (
                           p.value === channel.platform ||
-                          !usedPlatforms.has(p.value),
-                      ).map((p) => (
-                        <SelectItem key={p.value} value={p.value}>
-                          {p.label}
-                        </SelectItem>
-                      ))}
+                          !usedPlatforms.has(p.value)
+                        ) {
+                          items.push(
+                            <SelectItem key={p.value} value={p.value}>
+                              {p.label}
+                            </SelectItem>,
+                          )
+                        }
+                        return items
+                      }, [])}
                     </SelectContent>
                   </Select>
                   <label className="flex items-center gap-2 text-[length:var(--font-size-sm)] text-muted-foreground">

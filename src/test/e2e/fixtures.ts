@@ -273,13 +273,15 @@ async function createChatPair(
   // If anything in setup throws, clean up what was already created so the
   // next run isn't poisoned with leftover Clerk users / backend rows.
   try {
-    await brand.ensureExists()
-    await brand.onboardFull('brand')
-    await creator.ensureExists()
-    await creator.onboardFull('creator')
+    await Promise.all([
+      brand.ensureExists().then(() => brand.onboardFull('brand')),
+      creator.ensureExists().then(() => creator.onboardFull('creator')),
+    ])
   } catch (err) {
-    await brand.delete().catch(() => {})
-    await creator.delete().catch(() => {})
+    await Promise.all([
+      brand.delete().catch(() => {}),
+      creator.delete().catch(() => {}),
+    ])
     throw err
   }
 
@@ -295,23 +297,30 @@ async function createChatPair(
     })
     conversation = (res as { data: CreateTestConversationResponse }).data
   } catch (err) {
-    await brand.delete().catch(() => {})
-    await creator.delete().catch(() => {})
+    await Promise.all([
+      brand.delete().catch(() => {}),
+      creator.delete().catch(() => {}),
+    ])
     throw err
   }
 
-  const brandCtx = await browser.newContext()
-  const creatorCtx = await browser.newContext()
-  const brandPage = await brandCtx.newPage()
-  const creatorPage = await creatorCtx.newPage()
+  const [brandCtx, creatorCtx] = await Promise.all([
+    browser.newContext(),
+    browser.newContext(),
+  ])
+  const [brandPage, creatorPage] = await Promise.all([
+    brandCtx.newPage(),
+    creatorCtx.newPage(),
+  ])
   try {
-    await brand.signIn(brandPage)
-    await creator.signIn(creatorPage)
+    await Promise.all([brand.signIn(brandPage), creator.signIn(creatorPage)])
   } catch (err) {
-    await brandCtx.close()
-    await creatorCtx.close()
-    await brand.delete().catch(() => {})
-    await creator.delete().catch(() => {})
+    await Promise.all([
+      brandCtx.close(),
+      creatorCtx.close(),
+      brand.delete().catch(() => {}),
+      creator.delete().catch(() => {}),
+    ])
     throw err
   }
 
@@ -325,10 +334,12 @@ async function createChatPair(
         )
       : undefined
   } catch (err) {
-    await brandCtx.close()
-    await creatorCtx.close()
-    await brand.delete().catch(() => {})
-    await creator.delete().catch(() => {})
+    await Promise.all([
+      brandCtx.close(),
+      creatorCtx.close(),
+      brand.delete().catch(() => {}),
+      creator.delete().catch(() => {}),
+    ])
     throw err
   }
 
@@ -344,10 +355,12 @@ async function createChatPair(
   }
 
   const cleanup = async () => {
-    await brandCtx.close()
-    await creatorCtx.close()
-    await brand.delete()
-    await creator.delete()
+    await Promise.all([
+      brandCtx.close(),
+      creatorCtx.close(),
+      brand.delete(),
+      creator.delete(),
+    ])
   }
 
   return { pair, cleanup }
@@ -392,7 +405,7 @@ export const test = base.extend<{
   chatPairOfferReady: ChatPair
 }>({
   // eslint-disable-next-line no-empty-pattern
-  testUser: async ({}, use, testInfo) => {
+  testUser: async ({}, run, testInfo) => {
     const user = new TestUser(
       `e2e_worker_${testInfo.workerIndex}`,
       // The `+clerk_test` suffix makes Clerk treat this as a test email:
@@ -402,43 +415,43 @@ export const test = base.extend<{
       'E2E Test User',
     )
     await user.ensureExists()
-    await use(user)
+    await run(user)
     await user.delete()
   },
 
-  brandOnboardingUser: async ({ testUser }, use) => {
+  brandOnboardingUser: async ({ testUser }, run) => {
     await testUser.setOnboardingState('onboarding_pending', 'brand')
-    await use(testUser)
+    await run(testUser)
   },
 
-  creatorOnboardingUser: async ({ testUser }, use) => {
+  creatorOnboardingUser: async ({ testUser }, run) => {
     await testUser.setOnboardingState('onboarding_pending', 'creator')
-    await use(testUser)
+    await run(testUser)
   },
 
-  onboardedBrandUser: async ({ testUser }, use) => {
+  onboardedBrandUser: async ({ testUser }, run) => {
     // onboardFull (not setOnboardingState) so the brand_workspace exists.
     // Without it the conversations query 422s with brand_workspace_required
     // and the rail loading skeleton never resolves.
     await testUser.onboardFull('brand')
-    await use(testUser)
+    await run(testUser)
   },
 
-  onboardedCreatorUser: async ({ testUser }, use) => {
+  onboardedCreatorUser: async ({ testUser }, run) => {
     await testUser.onboardFull('creator')
-    await use(testUser)
+    await run(testUser)
   },
 
-  chatPair: async ({ browser }, use, testInfo) => {
+  chatPair: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
       testInfo.workerIndex,
     )
-    await use(pair)
+    await run(pair)
     await cleanup()
   },
 
-  chatPairWithHistory: async ({ browser }, use, testInfo) => {
+  chatPairWithHistory: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
       testInfo.workerIndex,
@@ -447,24 +460,24 @@ export const test = base.extend<{
         alternating_authors: true,
       },
     )
-    await use(pair)
+    await run(pair)
     await cleanup()
   },
 
-  chatPairWithCompletedDeliverable: async ({ browser }, use, testInfo) => {
+  chatPairWithCompletedDeliverable: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
       testInfo.workerIndex,
       buildCompletedDeliverableSeedMessages(2),
       { requireCompletedDeliverable: true },
     )
-    await use(pair)
+    await run(pair)
     await cleanup()
   },
 
   chatPairWithCompletedDeliverableScrollable: async (
     { browser },
-    use,
+    run,
     testInfo,
   ) => {
     const { pair, cleanup } = await createChatPair(
@@ -473,11 +486,11 @@ export const test = base.extend<{
       buildCompletedDeliverableSeedMessages(60),
       { requireCompletedDeliverable: true },
     )
-    await use(pair)
+    await run(pair)
     await cleanup()
   },
 
-  chatPairOfferReady: async ({ browser }, use, testInfo) => {
+  chatPairOfferReady: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
       testInfo.workerIndex,
@@ -489,7 +502,7 @@ export const test = base.extend<{
         },
       },
     )
-    await use(pair)
+    await run(pair)
     await cleanup()
   },
 })

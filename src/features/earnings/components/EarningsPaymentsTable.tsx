@@ -280,18 +280,22 @@ function paymentRowLabel(payment: CreatorEarningsPaymentRow) {
   return t`Abrir conversación de ${brand}, ${campaign}, ${payment.deliverable_label}`
 }
 
+const paymentDateFormatter = new Intl.DateTimeFormat('es-AR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+})
+
+const usdAmountFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 2,
+})
+
 function formatPaymentDate(value: string) {
-  return new Intl.DateTimeFormat('es-AR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(value))
+  return paymentDateFormatter.format(new Date(value))
 }
 
 function formatUsdAmount(value: string) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(Number(value))
+  return usdAmountFormatter.format(Number(value))
 }

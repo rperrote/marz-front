@@ -6,6 +6,20 @@ const platformLabels: Record<string, string> = {
   x: 'X',
 }
 
+const esRelativeTimeFormatter = new Intl.RelativeTimeFormat('es-AR', {
+  numeric: 'auto',
+})
+
+const enRelativeTimeFormatter = new Intl.RelativeTimeFormat('en-US', {
+  numeric: 'auto',
+})
+
+function getRelativeTimeFormatter(locale: string): Intl.RelativeTimeFormat {
+  return locale.startsWith('en')
+    ? enRelativeTimeFormatter
+    : esRelativeTimeFormatter
+}
+
 export function formatPlatform(platform: string) {
   return platformLabels[platform] ?? platform
 }
@@ -29,7 +43,7 @@ export function formatRelativeTime(
 
   const diffSeconds = Math.round((timestamp - Date.now()) / 1000)
   const absSeconds = Math.abs(diffSeconds)
-  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+  const formatter = getRelativeTimeFormatter(locale)
 
   if (absSeconds < 60) return formatter.format(diffSeconds, 'second')
   const diffMinutes = Math.round(diffSeconds / 60)

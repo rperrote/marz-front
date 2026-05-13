@@ -10,6 +10,14 @@ const compactUsdFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 })
 
+const paymentDateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+})
+
+const monthLabelFormatter = new Intl.DateTimeFormat('en-US', { month: 'short' })
+
 export function parsePaymentAmount(amount: string): number {
   const parsed = Number(amount)
   return Number.isFinite(parsed) ? parsed : 0
@@ -28,11 +36,7 @@ export function formatCompactUsd(amount: string | number): string {
 export function formatPaymentDate(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date)
+  return paymentDateFormatter.format(date)
 }
 
 export function formatMonthLabel(value: string): string {
@@ -40,5 +44,5 @@ export function formatMonthLabel(value: string): string {
   if (!year || !month) return value
   const date = new Date(Number(year), Number(month) - 1, 1)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date)
+  return monthLabelFormatter.format(date)
 }

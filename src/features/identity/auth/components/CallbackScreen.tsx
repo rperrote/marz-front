@@ -14,6 +14,14 @@ export function CallbackScreen() {
   const queryClient = useQueryClient()
   const verifyingRef = useRef(false)
 
+  async function waitForToken(attempt = 0): Promise<string | null> {
+    if (attempt >= 20) return null
+    const token = await getToken()
+    if (token) return token
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    return waitForToken(attempt + 1)
+  }
+
   useEffect(() => {
     if (!isLoaded) return
     if (verifyingRef.current) return
@@ -24,12 +32,7 @@ export function CallbackScreen() {
         await clerk.handleEmailLinkVerification({})
 
         // Esperar a que Clerk propague la sesión y el token esté disponible
-        let token: string | null = null
-        for (let i = 0; i < 20; i++) {
-          token = await getToken()
-          if (token) break
-          await new Promise((r) => setTimeout(r, 100))
-        }
+        const token = await waitForToken()
         if (!token) {
           void navigate({ to: '/auth/link-invalid' })
           return

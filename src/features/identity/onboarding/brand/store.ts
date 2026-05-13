@@ -3,11 +3,29 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import { STEPS } from './steps'
 import type { BrandOnboardingPayload } from './types'
 
-const sessionStorageSSR = createJSONStorage<BrandOnboardingState>(() =>
-  typeof window === 'undefined'
-    ? { getItem: () => null, setItem: () => {}, removeItem: () => {} }
-    : sessionStorage,
-)
+const LEGACY_STORAGE_KEY = 'marz-brand-onboarding'
+const STORAGE_KEY = 'marz-brand-onboarding:v1'
+
+const sessionStorageSSR = createJSONStorage<BrandOnboardingState>(() => {
+  if (typeof window === 'undefined') {
+    return { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+  }
+  const purgeLegacy = () => sessionStorage.removeItem(LEGACY_STORAGE_KEY)
+  return {
+    getItem: (key: string) => {
+      purgeLegacy()
+      return sessionStorage.getItem(key)
+    },
+    setItem: (key: string, value: string) => {
+      purgeLegacy()
+      sessionStorage.setItem(key, value)
+    },
+    removeItem: (key: string) => {
+      purgeLegacy()
+      sessionStorage.removeItem(key)
+    },
+  }
+})
 
 export type FieldErrors = Partial<Record<keyof BrandOnboardingPayload, string>>
 
@@ -23,8 +41,6 @@ export type BrandOnboardingState = Partial<BrandOnboardingPayload> & {
   goTo: (index: number) => void
   reset: () => void
 }
-
-const STORAGE_KEY = 'marz-brand-onboarding'
 
 export const useBrandOnboardingStore = create<BrandOnboardingState>()(
   persist(
@@ -64,6 +80,7 @@ export const useBrandOnboardingStore = create<BrandOnboardingState>()(
         })
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem(STORAGE_KEY)
+          sessionStorage.removeItem(LEGACY_STORAGE_KEY)
         }
       },
     }),

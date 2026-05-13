@@ -36,6 +36,13 @@ export function useCampaignsList() {
   })
 }
 
+const compactUsdFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  notation: 'compact',
+  maximumFractionDigits: 1,
+})
+
 function mapCampaignListItem(raw: GeneratedCampaignListItem): CampaignListItem {
   return {
     id: raw.campaign_id,
@@ -55,10 +62,10 @@ function formatBudget(amount: string, currency = 'USD'): string {
   const numericAmount = Number.parseFloat(amount)
   if (!Number.isFinite(numericAmount)) return amount
 
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(numericAmount)
+  if (currency !== 'USD')
+    return `${currency} ${numericAmount.toLocaleString('en-US', {
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    })}`
+  return compactUsdFormatter.format(numericAmount)
 }

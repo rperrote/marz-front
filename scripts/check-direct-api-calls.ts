@@ -27,6 +27,8 @@ const EXCLUDED_PATH_SUFFIXES = [
   'src/shared/api/mutator.ts',
 ]
 
+const EXCLUDED_PATH_SUFFIX_SET = new Set(EXCLUDED_PATH_SUFFIXES)
+
 const EXCLUDED_PATH_INCLUDES = [
   // Código generado por Orval.
   '/src/shared/api/generated/',
@@ -36,6 +38,8 @@ const EXCLUDED_PATH_INCLUDES = [
   '/test/',
   '/__tests__/',
 ]
+
+const EXCLUDED_PATH_INCLUDE_SET = new Set(EXCLUDED_PATH_INCLUDES)
 
 // Identificador `customFetch` como llamada (no import, no comentario).
 // La apertura del paréntesis puede estar en la misma línea o en una posterior
@@ -65,8 +69,12 @@ function walk(dir: string, files: string[] = []): string[] {
 
 function isExcluded(path: string): boolean {
   const normalized = path.replaceAll('\\', '/')
-  if (EXCLUDED_PATH_SUFFIXES.some((s) => normalized.endsWith(s))) return true
-  if (EXCLUDED_PATH_INCLUDES.some((s) => normalized.includes(s))) return true
+  for (const suffix of EXCLUDED_PATH_SUFFIX_SET) {
+    if (normalized.endsWith(suffix)) return true
+  }
+  for (const segment of EXCLUDED_PATH_INCLUDE_SET) {
+    if (normalized.includes(segment)) return true
+  }
   return false
 }
 

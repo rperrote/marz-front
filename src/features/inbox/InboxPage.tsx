@@ -176,7 +176,7 @@ function InboxErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 function sortByNewest(items: InboxItem[]) {
-  return [...items].sort(
+  return items.toSorted(
     (first, second) =>
       new Date(second.occurred_at).getTime() -
       new Date(first.occurred_at).getTime(),

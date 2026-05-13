@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useBrandOnboardingStore } from './store'
 import { STEPS } from './steps'
 
+const LEGACY_STORAGE_KEY = 'marz-brand-onboarding'
+const STORAGE_KEY = 'marz-brand-onboarding:v1'
+
 beforeEach(() => {
   useBrandOnboardingStore.setState({
     currentStepIndex: 0,
@@ -62,7 +65,7 @@ describe('useBrandOnboardingStore', () => {
       useBrandOnboardingStore.getState().setField('name', 'TestBrand')
       useBrandOnboardingStore.getState().goTo(3)
 
-      const stored = sessionStorage.getItem('marz-brand-onboarding')
+      const stored = sessionStorage.getItem(STORAGE_KEY)
       expect(stored).toBeTruthy()
 
       const parsed = JSON.parse(stored!) as { state: Record<string, unknown> }
@@ -70,9 +73,9 @@ describe('useBrandOnboardingStore', () => {
       expect(parsed.state.currentStepIndex).toBe(3)
     })
 
-    it('rehydrates from sessionStorage', () => {
+    it('rehydrates from versioned sessionStorage', () => {
       sessionStorage.setItem(
-        'marz-brand-onboarding',
+        STORAGE_KEY,
         JSON.stringify({
           state: { currentStepIndex: 5, name: 'Persisted' },
           version: 0,
@@ -83,6 +86,22 @@ describe('useBrandOnboardingStore', () => {
 
       expect(useBrandOnboardingStore.getState().currentStepIndex).toBe(5)
       expect(useBrandOnboardingStore.getState().name).toBe('Persisted')
+    })
+
+    it('purges and ignores legacy sessionStorage', () => {
+      sessionStorage.setItem(
+        LEGACY_STORAGE_KEY,
+        JSON.stringify({
+          state: { currentStepIndex: 5, name: 'Legacy' },
+          version: 0,
+        }),
+      )
+
+      useBrandOnboardingStore.persist.rehydrate()
+
+      expect(sessionStorage.getItem(LEGACY_STORAGE_KEY)).toBeNull()
+      expect(useBrandOnboardingStore.getState().currentStepIndex).toBe(0)
+      expect(useBrandOnboardingStore.getState().name).toBeUndefined()
     })
   })
 })

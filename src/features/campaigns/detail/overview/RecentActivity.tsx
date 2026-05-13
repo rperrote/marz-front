@@ -36,8 +36,8 @@ const sourceIcons: Record<string, LucideIcon> = {
 }
 
 export function RecentActivity({ campaignId, activity }: RecentActivityProps) {
-  const sortedActivity = [...activity]
-    .sort(
+  const sortedActivity = activity
+    .toSorted(
       (a, b) =>
         new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime(),
     )

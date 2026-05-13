@@ -114,10 +114,7 @@ export function MessageTimeline({
 
   const grouped = useMemo(() => groupByDayGrouped(allMessages), [allMessages])
 
-  const firstItemIndex = useMemo(
-    () => START_INDEX - grouped.messages.length,
-    [grouped.messages.length],
-  )
+  const firstItemIndex = START_INDEX - grouped.messages.length
 
   const hasReachedBeginning = !hasNextPage && (data?.pages.length ?? 0) > 0
   const highlightedTimelineIndex = useMemo(() => {

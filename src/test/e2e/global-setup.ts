@@ -6,6 +6,7 @@ import { resolve } from 'node:path'
 function loadEnvLocal() {
   try {
     const raw = readFileSync(resolve(process.cwd(), '.env.local'), 'utf8')
+    const definedEnvKeys = new Set(Object.keys(process.env))
     for (const line of raw.split('\n')) {
       const trimmed = line.trim()
       if (!trimmed || trimmed.startsWith('#')) continue
@@ -19,8 +20,9 @@ function loadEnvLocal() {
       ) {
         value = value.slice(1, -1)
       }
-      if (process.env[key] === undefined) {
+      if (!definedEnvKeys.has(key)) {
         process.env[key] = value
+        definedEnvKeys.add(key)
       }
     }
   } catch {

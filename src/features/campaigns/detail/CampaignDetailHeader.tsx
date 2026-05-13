@@ -165,17 +165,19 @@ function formatCampaignSummary(detail: CampaignDetailResponse) {
   return [detail.objective, ...platforms].join(' · ')
 }
 
+const deadlineFormatter = new Intl.DateTimeFormat('es-AR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+})
+
 function formatDeadline(deadline: string | null) {
   if (!deadline) return t`Sin deadline`
 
   const date = new Date(deadline)
   if (Number.isNaN(date.getTime())) return deadline
 
-  return t`Deadline ${new Intl.DateTimeFormat('es-AR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(date)}`
+  return t`Deadline ${deadlineFormatter.format(date)}`
 }
 
 export function CampaignDetailHeaderSkeleton() {

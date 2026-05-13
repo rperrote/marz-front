@@ -51,9 +51,8 @@ Optimizaciones de perf bundle reportadas por react-doctor: hoist Intl constructo
 - [ ] Ningún archivo bajo `src/features/campaigns/configuration/**` tocado.
 
 ## Done summary
-
-_(pendiente — completar al finalizar la task)_
-
+Todos los fixes del round anterior aplicados correctamente: handleAutoResize revertido al patrón style.height, non-USD formatting preserva separadores de miles con toLocaleString+opciones, LEGACY_STORAGE_KEY como string literal en ambos store.test.ts
 ## Evidence
-
-_(pendiente — comandos ejecutados, snapshots de react-doctor antes/después, archivos modificados)_
+- Commits:
+- Tests:
+- PRs:

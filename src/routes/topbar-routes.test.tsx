@@ -58,10 +58,16 @@ function getRouteComponent(module: unknown): ComponentType {
 async function renderRouteComponent(importRoute: () => Promise<unknown>) {
   setupRouterMock()
 
-  const { AppTopbar } = await import('#/features/identity/app-shell/AppTopbar')
-  const { TopbarProvider } =
-    await import('#/features/identity/app-shell/TopbarContext')
-  const Component = getRouteComponent(await importRoute())
+  const [appTopbarModule, topbarContextModule, routeModule] = await Promise.all(
+    [
+      import('#/features/identity/app-shell/AppTopbar'),
+      import('#/features/identity/app-shell/TopbarContext'),
+      importRoute(),
+    ],
+  )
+  const { AppTopbar } = appTopbarModule
+  const { TopbarProvider } = topbarContextModule
+  const Component = getRouteComponent(routeModule)
 
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
