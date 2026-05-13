@@ -174,7 +174,7 @@ describe('SingleEditor', () => {
       campaign_id: 'camp-1',
       conversation_id: 'conv-1',
       amount: '1000.00',
-      deadline: '2099-12-31',
+      deadline: '2099-12-31T00:00:00Z',
       deliverable: {
         platform: 'youtube',
         format: 'yt_long',

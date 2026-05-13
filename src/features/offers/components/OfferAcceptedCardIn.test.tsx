@@ -33,14 +33,14 @@ const snapshot: OfferAcceptedSnap = {
 describe('OfferAcceptedCardIn', () => {
   it('renders acceptance message and deadline', () => {
     render(<OfferAcceptedCardIn snapshot={snapshot} />)
-    expect(screen.getByText('You accepted the offer')).toBeInTheDocument()
-    expect(screen.getByText(/Deadline is Oct 12/)).toBeInTheDocument()
+    expect(screen.getByText('Aceptaste la oferta')).toBeInTheDocument()
+    expect(screen.getByText(/Deadline Oct 12/)).toBeInTheDocument()
   })
 
   it('renders upload draft button', () => {
     render(<OfferAcceptedCardIn snapshot={snapshot} />)
     expect(
-      screen.getByRole('button', { name: /upload draft/i }),
+      screen.getByRole('button', { name: /subir draft/i }),
     ).toBeInTheDocument()
   })
 
@@ -50,7 +50,7 @@ describe('OfferAcceptedCardIn', () => {
     render(
       <OfferAcceptedCardIn snapshot={snapshot} onUploadDraft={onUploadDraft} />,
     )
-    await user.click(screen.getByRole('button', { name: /upload draft/i }))
+    await user.click(screen.getByRole('button', { name: /subir draft/i }))
     expect(onUploadDraft).toHaveBeenCalledOnce()
   })
 

@@ -9,7 +9,7 @@ import { ApiError } from '#/shared/api/mutator'
 
 import { ApplicationDialog } from './ApplicationDialog'
 import { useSubmitCampaignApplicationMutation } from './hooks/useSubmitCampaignApplicationMutation'
-import { generateIdempotencyKey } from './utils/idempotencyKey'
+import { generateIdempotencyKey } from '#/shared/api/idempotency'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -33,8 +33,15 @@ vi.mock('./hooks/useSubmitCampaignApplicationMutation', () => ({
   useSubmitCampaignApplicationMutation: vi.fn(),
 }))
 
-vi.mock('./utils/idempotencyKey', () => ({
+vi.mock('#/shared/api/idempotency', () => ({
   generateIdempotencyKey: vi.fn(),
+  withIdempotencyKey: (key: string, init?: RequestInit) => ({
+    ...init,
+    headers: {
+      ...(init?.headers as Record<string, string>),
+      'Idempotency-Key': key,
+    },
+  }),
 }))
 
 const mockUseSubmitCampaignApplicationMutation = vi.mocked(

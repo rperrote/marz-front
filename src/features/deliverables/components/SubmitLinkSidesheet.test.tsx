@@ -85,9 +85,12 @@ describe('SubmitLinkSidesheet', () => {
           url: 'https://www.youtube.com/watch?v=abc123',
           status: 'submitted',
           preview: {
-            outcome: 'title_and_thumbnail',
             title: 'Preview title',
-            thumbnail_url: 'https://img.youtube.com/vi/abc123/0.jpg',
+            description: null,
+            image_url: 'https://img.youtube.com/vi/abc123/0.jpg',
+            site_name: null,
+            resolved_at: '2026-05-08T00:00:00.000Z',
+            error: null,
           },
           submitted_at: '2026-05-08T00:00:00.000Z',
           submitted_by_account_id: 'account-1',
@@ -175,11 +178,30 @@ describe('SubmitLinkSidesheet', () => {
             preview:
               outcome === 'title_and_thumbnail'
                 ? {
-                    outcome,
                     title: 'Preview title',
-                    thumbnail_url: 'https://img.youtube.com/vi/abc123/0.jpg',
+                    description: null,
+                    image_url: 'https://img.youtube.com/vi/abc123/0.jpg',
+                    site_name: null,
+                    resolved_at: '2026-05-08T00:00:00.000Z',
+                    error: null,
                   }
-                : { outcome },
+                : outcome === 'failed'
+                  ? {
+                      title: null,
+                      description: null,
+                      image_url: null,
+                      site_name: null,
+                      resolved_at: null,
+                      error: 'fetch_failed',
+                    }
+                  : {
+                      title: null,
+                      description: null,
+                      image_url: null,
+                      site_name: null,
+                      resolved_at: null,
+                      error: null,
+                    },
             submitted_at: '2026-05-08T00:00:00.000Z',
             submitted_by_account_id: 'account-1',
           },

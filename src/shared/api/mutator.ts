@@ -1,4 +1,5 @@
 import { env } from '#/env'
+import { generateIdempotencyKey } from '#/shared/api/idempotency'
 
 export interface ApiErrorBody {
   code: string
@@ -84,7 +85,7 @@ function getConfigurationMutationIdempotencyKey(
   // Configuration mutations must use retry: 0 at the TanStack Query layer.
   // The mutator can only keep this key stable for fetch-level retries, such as
   // the 401 refresh path; a new customFetch invocation is a new logical request.
-  return crypto.randomUUID()
+  return generateIdempotencyKey()
 }
 
 function hasRequestHeader(headers: HeadersInit | undefined, name: string) {

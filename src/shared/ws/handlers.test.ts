@@ -8,6 +8,7 @@ import type {
 } from '#/features/deliverables/types'
 
 import { createWsHandlers } from './handlers'
+import { getDeliverableLinksQueryKey } from '#/features/deliverables/hooks/useDeliverableLinks'
 import type { DomainEventEnvelope } from './events'
 import type {
   ChangesRequestedWSPayload,
@@ -371,7 +372,7 @@ describe('createWsHandlers', () => {
     })
 
     it('upserts current_link into the deliverable links cache', () => {
-      queryClient.setQueryData(['deliverable', 'del-1', 'links'], {
+      queryClient.setQueryData(getDeliverableLinksQueryKey('del-1'), {
         links: [
           makeLink({
             id: 'link-1',
@@ -399,14 +400,14 @@ describe('createWsHandlers', () => {
       const result = queryClient.getQueryData<{
         links: PublishedLink[]
         current_link_id: string | null
-      }>(['deliverable', 'del-1', 'links'])
+      }>(getDeliverableLinksQueryKey('del-1'))
       expect(result?.current_link_id).toBe('link-1')
       expect(result?.links).toHaveLength(1)
       expect(result?.links[0]?.url).toBe('https://www.youtube.com/watch?v=new')
     })
 
     it('pushes current_link when the link is not cached yet', () => {
-      queryClient.setQueryData(['deliverable', 'del-1', 'links'], {
+      queryClient.setQueryData(getDeliverableLinksQueryKey('del-1'), {
         links: [makeLink({ id: 'link-1' })],
         current_link_id: 'link-1',
       })
@@ -426,7 +427,7 @@ describe('createWsHandlers', () => {
       const result = queryClient.getQueryData<{
         links: PublishedLink[]
         current_link_id: string | null
-      }>(['deliverable', 'del-1', 'links'])
+      }>(getDeliverableLinksQueryKey('del-1'))
       expect(result?.current_link_id).toBe('link-2')
       expect(result?.links.map((link) => link.id)).toEqual(['link-1', 'link-2'])
     })

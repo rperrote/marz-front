@@ -13,6 +13,7 @@ import {
 } from '#/components/ui/sheet'
 import { cn } from '#/lib/utils'
 import { applyBackendFieldErrors, useAppForm } from '#/shared/ui/form'
+import { generateIdempotencyKey } from '#/shared/api/idempotency'
 import {
   getSubmitLinkErrorMessage,
   useSubmitLinkMutation,
@@ -48,7 +49,7 @@ export function SubmitLinkSidesheet({
   onSubmitted,
 }: SubmitLinkSidesheetProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [idempotencyKey, setIdempotencyKey] = useState(createUlid)
+  const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey)
   const mutation = useSubmitLinkMutation()
   const { reset } = mutation
 
@@ -80,7 +81,7 @@ export function SubmitLinkSidesheet({
         applyBackendFieldErrors(formApi, error, {
           fallback: () => setErrorMessage(getSubmitLinkErrorMessage(error)),
         })
-        setIdempotencyKey(createUlid())
+        setIdempotencyKey(generateIdempotencyKey())
       }
     },
   })
@@ -104,7 +105,7 @@ export function SubmitLinkSidesheet({
     })
     form.reset()
     setErrorMessage(null)
-    setIdempotencyKey(createUlid())
+    setIdempotencyKey(generateIdempotencyKey())
     reset()
   }, [deliverableId, form, isResubmission, open, platform, reset])
 
@@ -230,25 +231,4 @@ function PreviewPlaceholder({ isActive }: { isActive: boolean }) {
       </div>
     </div>
   )
-}
-
-function createUlid(): string {
-  const alphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
-  let timestamp = Date.now()
-  let time = ''
-  for (let i = 0; i < 10; i += 1) {
-    time = alphabet.charAt(timestamp % 32) + time
-    timestamp = Math.floor(timestamp / 32)
-  }
-
-  const bytes = new Uint8Array(16)
-  crypto.getRandomValues(bytes)
-  let random = ''
-  for (let i = 0; i < 16; i += 1) {
-    const byte = bytes[i]
-    if (byte === undefined) break
-    random += alphabet.charAt(byte % 32)
-  }
-
-  return `${time}${random}`
 }

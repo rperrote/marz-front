@@ -11,9 +11,9 @@ import {
   useAcceptApplication,
   useCreateCampaignInvite,
   useContactMatch,
-  useIdempotencyKey,
   useRejectApplication,
 } from './mutations'
+import { useIdempotencyKey } from '#/shared/api/idempotency'
 import {
   acceptCampaignDiscoveryApplication,
   contactCampaignDiscoveryMatch,

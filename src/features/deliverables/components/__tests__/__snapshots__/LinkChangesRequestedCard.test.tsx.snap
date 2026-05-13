@@ -9,7 +9,7 @@ exports[`LinkChangesRequestedCard > reuses RequestChangesCard with a link previe
     class="max-w-[75%]"
   >
     <div
-      class="overflow-hidden rounded-2xl border-2 bg-card border-warning/60"
+      class="w-full max-w-[460px] overflow-hidden rounded-2xl border-2 bg-card border-warning/60"
     >
       <div
         class="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground"
@@ -48,7 +48,7 @@ exports[`LinkChangesRequestedCard > reuses RequestChangesCard with a link previe
         <span
           class="text-xs font-semibold uppercase tracking-widest"
         >
-          Changes requested
+          Cambios solicitados
         </span>
       </div>
       <div

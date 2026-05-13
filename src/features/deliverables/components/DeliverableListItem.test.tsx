@@ -70,7 +70,9 @@ describe('DeliverableListItem', () => {
     (_label, sessionKind, viewerRole, visible) => {
       renderItem({ sessionKind, viewerRole })
 
-      const button = screen.queryByRole('button', { name: /mark as paid/i })
+      const button = screen.queryByRole('button', {
+        name: /marcar como pagado/i,
+      })
       expect(Boolean(button)).toBe(visible)
     },
   )
@@ -78,9 +80,9 @@ describe('DeliverableListItem', () => {
   it('renders Paid badge without the action when status is paid', () => {
     renderItem({ deliverable: makeDeliverable({ status: 'paid' }) })
 
-    expect(screen.getByText('Paid')).toBeInTheDocument()
+    expect(screen.getByText('Pagado')).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: /mark as paid/i }),
+      screen.queryByRole('button', { name: /marcar como pagado/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -88,7 +90,9 @@ describe('DeliverableListItem', () => {
     const user = userEvent.setup()
     const { onMarkAsPaid } = renderItem()
 
-    await user.click(screen.getByRole('button', { name: /mark as paid/i }))
+    await user.click(
+      screen.getByRole('button', { name: /marcar como pagado/i }),
+    )
 
     expect(onMarkAsPaid).toHaveBeenCalledWith('del-1')
   })

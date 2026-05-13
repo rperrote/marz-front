@@ -35,7 +35,7 @@ export const multiStageEditorSubmitSchema =
       if (curr.length > 0 && prev.length > 0 && curr <= prev) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: t`Must be after the previous stage`,
+          message: t`Debe ser posterior al stage anterior`,
           path: ['stages', i, 'deadline'],
         })
       }

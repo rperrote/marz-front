@@ -12,8 +12,8 @@ import {
 import { useDraftUploadFlow } from '#/features/deliverables/hooks/useDraftUploadFlow'
 import type { Draft } from '#/features/deliverables/api/draftUpload'
 import type { DeliverableDTO, OfferType } from '#/features/deliverables/types'
-import { getGetConversationDeliverablesQueryKey } from '#/shared/api/generated/deliverables/deliverables'
-import { getListMessagesQueryKey } from '#/shared/api/generated/chat/chat'
+import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
+import { getMessagesQueryKey } from '#/shared/queries/messages'
 import { UploadProgressOverlay } from './UploadProgressOverlay'
 import { UploadErrorBanner } from './UploadErrorBanner'
 
@@ -61,10 +61,10 @@ export function UploadDraftDialog({
     if (status === 'done' && draft) {
       if (conversationId) {
         void queryClient.invalidateQueries({
-          queryKey: getGetConversationDeliverablesQueryKey(conversationId),
+          queryKey: getConversationDeliverablesQueryKey(conversationId),
         })
         void queryClient.invalidateQueries({
-          queryKey: getListMessagesQueryKey(conversationId),
+          queryKey: getMessagesQueryKey(conversationId),
         })
       }
       onSuccess(draft)

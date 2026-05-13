@@ -6,6 +6,7 @@ import { t } from '@lingui/core/macro'
 import { sendMessage } from '#/shared/api/generated/chat/chat'
 import type { MessageResponse } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
+import { withIdempotencyKey } from '#/shared/api/idempotency'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
 import type { MessageItem, MessagesResponse } from '#/features/chat/types'
 import { trackChatEvent, toLengthBucket } from '#/features/chat/analytics/track'
@@ -112,9 +113,7 @@ export function useSendMessageMutation(conversationId: string) {
           client_message_id: clientMessageId,
           text,
         },
-        idempotencyKey
-          ? { headers: { 'Idempotency-Key': idempotencyKey } }
-          : undefined,
+        idempotencyKey ? withIdempotencyKey(idempotencyKey) : undefined,
       )) as { data: MessageResponse }
 
       return {

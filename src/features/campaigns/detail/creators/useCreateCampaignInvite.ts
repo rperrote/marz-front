@@ -1,11 +1,11 @@
 import { t } from '@lingui/core/macro'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRef } from 'react'
 import { toast } from 'sonner'
 
 import { createCampaignDiscoveryInvite } from '#/shared/api/generated/campaigns/campaigns'
 import type { CreateCampaignInviteRequest } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
+import { useIdempotencyKey, withIdempotencyKey } from '#/shared/api/idempotency'
 
 export function useCreateCampaignInvite(campaignId: string) {
   const queryClient = useQueryClient()
@@ -15,11 +15,11 @@ export function useCreateCampaignInvite(campaignId: string) {
 
   return useMutation({
     mutationFn: async (data: CreateCampaignInviteRequest) => {
-      const response = await createCampaignDiscoveryInvite(campaignId, data, {
-        headers: {
-          'Idempotency-Key': idempotency.get(data),
-        },
-      })
+      const response = await createCampaignDiscoveryInvite(
+        campaignId,
+        data,
+        withIdempotencyKey(idempotency.get(data)),
+      )
 
       if (response.status !== 201) {
         throw new ApiError(
@@ -44,31 +44,6 @@ export function useCreateCampaignInvite(campaignId: string) {
     },
     onError: handleInviteError,
   })
-}
-
-function useIdempotencyKey<TVariables>(
-  fingerprintFor: (variables: TVariables) => string,
-) {
-  const idempotencyRef = useRef<{
-    fingerprint: string
-    key: string
-  } | null>(null)
-
-  return {
-    get: (variables: TVariables) => {
-      const fingerprint = fingerprintFor(variables)
-      if (idempotencyRef.current?.fingerprint !== fingerprint) {
-        idempotencyRef.current = {
-          fingerprint,
-          key: crypto.randomUUID(),
-        }
-      }
-      return idempotencyRef.current.key
-    },
-    reset: () => {
-      idempotencyRef.current = null
-    },
-  }
 }
 
 function handleInviteError(error: unknown) {

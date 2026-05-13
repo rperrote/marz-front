@@ -43,6 +43,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 vi.mock('#/shared/api/mutator', () => ({
   ApiError: TestApiError,
+  customFetch: (...args: unknown[]) => mockCustomFetch(...args),
   default: (...args: unknown[]) => mockCustomFetch(...args),
 }))
 
@@ -169,9 +170,12 @@ describe('bonus config helpers', () => {
   it('returns the empty backend shape when global bonus is disabled', () => {
     expect(
       normalizeBonusConfig(
+        // Cast: makeBonusConfig devuelve el shape laxo del spec (CampaignBonusAmount
+        // con campos opcionales). normalizeBonusConfig acepta BonusConfigValues
+        // estricto. En este test puntual los datos son compatibles.
         makeBonusConfig({
           enabled: false,
-        }),
+        }) as unknown as Parameters<typeof normalizeBonusConfig>[0],
       ),
     ).toEqual({
       enabled: false,
@@ -239,7 +243,7 @@ describe('BonusStep', () => {
         performance_bonus: { enabled: false, milestones: [] },
       },
     })
-    mockCustomFetch.mockResolvedValue({ data: response })
+    mockCustomFetch.mockResolvedValue({ data: response, status: 200 })
     const { queryClient } = renderStep()
 
     await user.click(
@@ -254,7 +258,7 @@ describe('BonusStep', () => {
     await waitFor(() => {
       expect(mockCustomFetch).toHaveBeenCalledWith(
         `/v1/campaigns/${campaignId}/configuration/bonus`,
-        {
+        expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify({
             bonus_config: {
@@ -264,7 +268,7 @@ describe('BonusStep', () => {
             },
             configuration_version: 9,
           }),
-        },
+        }),
       )
     })
     expect(
@@ -286,7 +290,7 @@ describe('BonusStep', () => {
         performance_bonus: { enabled: false, milestones: [] },
       }),
     })
-    mockCustomFetch.mockResolvedValue({ data: response })
+    mockCustomFetch.mockResolvedValue({ data: response, status: 200 })
     renderStep()
 
     await user.click(screen.getByRole('button', { name: /performance bonus/i }))
@@ -314,7 +318,7 @@ describe('BonusStep', () => {
       current_step: 'review',
       configuration_version: 10,
     })
-    mockCustomFetch.mockResolvedValue({ data: response })
+    mockCustomFetch.mockResolvedValue({ data: response, status: 200 })
     renderStep()
 
     await user.click(screen.getByRole('button', { name: 'Agregar ventana' }))

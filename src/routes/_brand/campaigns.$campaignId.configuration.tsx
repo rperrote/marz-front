@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
 import { t } from '@lingui/core/macro'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -16,11 +17,7 @@ const configurationSearchSchema = z.object({
 })
 
 type ConfigurationSearch = z.infer<typeof configurationSearchSchema>
-type ConfigurationQueryClient = {
-  ensureQueryData: (
-    options: ReturnType<typeof campaignConfigurationQueryOptions>,
-  ) => Promise<CampaignConfiguration>
-}
+type ConfigurationQueryClient = QueryClient
 
 export function validateConfigurationSearch(
   search: unknown,

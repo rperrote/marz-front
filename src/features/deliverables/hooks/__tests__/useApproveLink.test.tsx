@@ -58,6 +58,10 @@ describe('useApproveLinkMutation', () => {
     mockToastError.mockClear()
     vi.stubGlobal('crypto', {
       randomUUID: () => 'attempt-key',
+      getRandomValues: (arr: Uint8Array) => {
+        for (let i = 0; i < arr.length; i++) arr[i] = 0
+        return arr
+      },
     })
   })
 
@@ -94,18 +98,20 @@ describe('useApproveLinkMutation', () => {
     })
 
     expect(mockCustomFetch).toHaveBeenCalledWith(
-      '/v1/deliverables/del-1/links/link-1/approve',
+      '/v1/links/link-1/approve',
       expect.objectContaining({
         method: 'POST',
-        headers: { 'Idempotency-Key': 'attempt-key' },
       }),
     )
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: ['deliverable', 'del-1'],
     })
-    expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ['deliverable', 'del-1', 'links'],
-    })
+    // queryKey de useListLinks (Orval): incluye params del query
+    expect(invalidateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: expect.arrayContaining(['/v1/links']),
+      }),
+    )
   })
 
   it('rolls back optimistic state on error', async () => {

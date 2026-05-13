@@ -26,11 +26,11 @@ import type { ChangeCategory } from '#/features/deliverables/api/requestChanges'
 import type { OfferType } from '#/features/deliverables/types'
 
 const CHANGE_CATEGORIES: { value: ChangeCategory; label: () => string }[] = [
-  { value: 'product_placement', label: () => t`Product placement` },
-  { value: 'pacing', label: () => t`Pacing` },
+  { value: 'product_placement', label: () => t`Ubicación del producto` },
+  { value: 'pacing', label: () => t`Ritmo` },
   { value: 'audio', label: () => t`Audio` },
-  { value: 'discount_code', label: () => t`Discount code` },
-  { value: 'other', label: () => t`Other` },
+  { value: 'discount_code', label: () => t`Código de descuento` },
+  { value: 'other', label: () => t`Otro` },
 ]
 
 const NOTES_MAX_LENGTH = 4000
@@ -82,8 +82,10 @@ export function RequestChangesModal({
   const openedAtRef = useRef<number | null>(null)
   const submittedRef = useRef(false)
   const actionLabel =
-    target === 'link' ? t`Request changes on link` : t`Request changes on draft`
-  const resolvedTriggerLabel = triggerLabel ?? t`Request changes`
+    target === 'link'
+      ? t`Solicitar cambios en el link`
+      : t`Solicitar cambios en el draft`
+  const resolvedTriggerLabel = triggerLabel ?? t`Solicitar cambios`
 
   const draftFlow = useRequestChangesFlow(deliverableId ?? '', draftId ?? '', {
     onSuccess: () => {
@@ -234,7 +236,7 @@ export function RequestChangesModal({
         </div>
         {!inline ? (
           <IconButton
-            aria-label={t`Close`}
+            aria-label={t`Cerrar`}
             shape="circle"
             onClick={handleCancel}
           >
@@ -266,7 +268,7 @@ export function RequestChangesModal({
 
       <div className="space-y-3">
         <Label className="text-sm font-semibold text-foreground">
-          {t`What needs to change?`}
+          {t`¿Qué hay que cambiar?`}
         </Label>
         <div className="flex flex-wrap gap-2">
           {CHANGE_CATEGORIES.map((cat) => (
@@ -286,7 +288,7 @@ export function RequestChangesModal({
             htmlFor={notesId}
             className="text-sm font-semibold text-foreground"
           >
-            {t`Additional notes`}
+            {t`Notas adicionales`}
           </Label>
           <span
             id={notesHintId}
@@ -304,7 +306,7 @@ export function RequestChangesModal({
           id={notesId}
           value={notes}
           onChange={(e) => handleNotesChange(e.target.value)}
-          placeholder={t`Be specific — mention timestamps if possible (e.g. 'at 0:42 the product logo is cropped')`}
+          placeholder={t`Sé específico — mencioná timestamps si es posible (ej: 'en 0:42 el logo del producto está cortado')`}
           rows={4}
           aria-describedby={notesDescribedBy}
           aria-invalid={
@@ -340,14 +342,14 @@ export function RequestChangesModal({
           onClick={handleCancel}
           disabled={isSubmitting}
         >
-          {t`Cancel`}
+          {t`Cancelar`}
         </Button>
         <Button
           className="flex-1"
           disabled={!canSubmit || isSubmitting}
           onClick={handleSubmit}
         >
-          {isSubmitting ? t`Sending…` : actionLabel}
+          {isSubmitting ? t`Enviando…` : actionLabel}
         </Button>
       </div>
     </div>
@@ -371,8 +373,8 @@ export function RequestChangesModal({
         <DialogTitle className="sr-only">{actionLabel}</DialogTitle>
         <DialogDescription className="sr-only">
           {target === 'link'
-            ? t`Request changes for this link`
-            : t`Request changes for this draft`}
+            ? t`Solicitar cambios para este link`
+            : t`Solicitar cambios para este draft`}
         </DialogDescription>
         {body}
       </DialogContent>

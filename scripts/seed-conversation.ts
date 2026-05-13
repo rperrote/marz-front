@@ -15,6 +15,7 @@ import { clerkSetup } from '@clerk/testing/playwright'
 import {
   arg,
   back,
+  clerkApi,
   ensureUser,
   loadEnvLocal,
   openSignedInBrowser,
@@ -53,21 +54,29 @@ const [brand, creator] = await Promise.all([
   }),
 ])
 
-console.log('2. Crear conversation...')
+console.log('2. Crear conversation + campaign + application aceptada...')
 const conv = await back<{
   conversation_id: string
   brand_workspace_id: string
+  campaign_id?: string
 }>(env, '/v1/test/conversations', {
   method: 'POST',
   body: JSON.stringify({
     brand_clerk_user_id: brand.clerkUserId,
     creator_clerk_user_id: creator.clerkUserId,
+    seed_offer_ready: {
+      campaign_name: `Seed Campaign ${new Date().toISOString()}`,
+      currency: 'USD',
+    },
     ...(seedCount > 0
       ? { seed_messages: { count: seedCount, alternating_authors: true } }
       : {}),
   }),
 })
 console.log(`   conversation_id: ${conv.conversation_id}`)
+if (conv.campaign_id) {
+  console.log(`   campaign_id:     ${conv.campaign_id}`)
+}
 
 console.log('3. clerkSetup() — fetch testing token...')
 await clerkSetup()
@@ -75,7 +84,12 @@ await clerkSetup()
 const conversationPath = `/workspace/conversations/${conv.conversation_id}`
 
 console.log('4. Lanzar browsers headed (brand + creator)...')
-const browser = await chromium.launch({ headless: false })
+const browser = await chromium.launch({
+  headless: false,
+  handleSIGINT: false,
+  handleSIGTERM: false,
+  handleSIGHUP: false,
+})
 
 // Sign-in en serie: clerk.signIn navega y hace polling, lanzar dos en paralelo
 // puede pisarse con el handshake del backend.
@@ -98,8 +112,55 @@ console.log(`\nListo. Dos browsers abiertos en la conversation:`)
 console.log(`  brand   = ${brand.email}`)
 console.log(`  creator = ${creator.email}`)
 console.log(`  ${env.appUrl}${conversationPath}`)
-console.log(`\nCerrá cualquiera de las ventanas para terminar.\n`)
+console.log(`\nApretá Ctrl+C para terminar (corre cleanup y sale).\n`)
 
-browser.on('disconnected', () => {
-  process.exit(0)
+let cleaningUp = false
+async function deleteOne(label: string, fn: () => Promise<unknown>) {
+  console.log(`  [...]  ${label}`)
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('timeout 10s')), 10_000),
+  )
+  try {
+    await Promise.race([fn(), timeout])
+    console.log(`  [ok]   ${label}`)
+  } catch (err) {
+    console.error(`  [fail] ${label}: ${(err as Error).message}`)
+  }
+}
+async function cleanup(exitCode: number) {
+  if (cleaningUp) return
+  cleaningUp = true
+  console.log(
+    '\nLimpiando cuentas de prueba (cascade borra conversation + campaign)...',
+  )
+  await deleteOne(`backend brand ${brand.clerkUserId}`, () =>
+    back(env, `/v1/test/accounts/${brand.clerkUserId}`, { method: 'DELETE' }),
+  )
+  await deleteOne(`backend creator ${creator.clerkUserId}`, () =>
+    back(env, `/v1/test/accounts/${creator.clerkUserId}`, { method: 'DELETE' }),
+  )
+  await deleteOne(`clerk brand ${brand.clerkUserId}`, () =>
+    clerkApi(env, `/users/${brand.clerkUserId}`, { method: 'DELETE' }),
+  )
+  await deleteOne(`clerk creator ${creator.clerkUserId}`, () =>
+    clerkApi(env, `/users/${creator.clerkUserId}`, { method: 'DELETE' }),
+  )
+  console.log('Cleanup completo.')
+  process.exit(exitCode)
+}
+
+// Si el usuario hace Ctrl+C dos veces seguidas, no le quitamos la posibilidad de salir.
+let sigintCount = 0
+process.on('SIGINT', () => {
+  sigintCount++
+  if (sigintCount === 1) {
+    console.log(
+      '\nSIGINT recibido — corriendo cleanup. Volvé a apretar Ctrl+C para abortar.',
+    )
+    void cleanup(130)
+  } else {
+    console.log('\nAbort forzado.')
+    process.exit(130)
+  }
 })
+process.on('SIGTERM', () => void cleanup(143))

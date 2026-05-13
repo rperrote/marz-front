@@ -22,6 +22,7 @@ const mockTrackRequestChangesModalDismissed = vi.fn()
 vi.mock('#/features/deliverables/api/requestChanges', () => ({
   useRequestChangesMutation: () => ({
     mutate: mockMutate,
+    mutateAsync: mockMutate,
     isPending: false,
   }),
 }))
@@ -90,7 +91,7 @@ describe('RequestChangesModal', () => {
   it('renders trigger button', () => {
     renderModal()
     expect(
-      screen.getByRole('button', { name: /request changes/i }),
+      screen.getByRole('button', { name: /solicitar cambios/i }),
     ).toBeInTheDocument()
   })
 
@@ -98,7 +99,7 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getAllByText('Test Video').length).toBeGreaterThanOrEqual(1)
   })
@@ -118,7 +119,7 @@ describe('RequestChangesModal', () => {
       },
     })
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     await user.click(screen.getByRole('button', { name: /cancel/i }))
 
     expect(mockTrackRequestChangesModalOpened).toHaveBeenCalledWith({
@@ -137,9 +138,7 @@ describe('RequestChangesModal', () => {
   })
 
   it('does not track dismissed after successful submit', async () => {
-    mockMutate.mockImplementation((_vars, options) => {
-      options.onSuccess()
-    })
+    mockMutate.mockResolvedValue({ data: {}, status: 200 })
     const user = userEvent.setup()
     renderModal({
       analytics: {
@@ -150,10 +149,10 @@ describe('RequestChangesModal', () => {
       },
     })
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     await user.click(screen.getByRole('button', { name: /audio/i }))
     await user.click(
-      screen.getByRole('button', { name: /request changes on draft/i }),
+      screen.getByRole('button', { name: /solicitar cambios en el draft/i }),
     )
 
     expect(mockTrackRequestChangesModalDismissed).not.toHaveBeenCalled()
@@ -163,7 +162,7 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     await user.click(screen.getByRole('button', { name: /cancel/i }))
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -173,7 +172,7 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     await user.keyboard('{Escape}')
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -183,25 +182,25 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
 
     expect(
-      screen.getByRole('button', { name: /product placement/i }),
+      screen.getByRole('button', { name: /ubicación del producto/i }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /pacing/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /ritmo/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /audio/i })).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /discount code/i }),
+      screen.getByRole('button', { name: /código de descuento/i }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /other/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /otro/i })).toBeInTheDocument()
   })
 
   it('toggles chip selection', async () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
-    const chip = screen.getByRole('button', { name: /pacing/i })
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
+    const chip = screen.getByRole('button', { name: /ritmo/i })
 
     expect(chip).toHaveAttribute('aria-pressed', 'false')
     await user.click(chip)
@@ -214,9 +213,9 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     const submitButton = screen.getByRole('button', {
-      name: /request changes on draft/i,
+      name: /solicitar cambios en el draft/i,
     })
 
     expect(submitButton).toHaveAttribute('disabled')
@@ -226,11 +225,11 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
-    await user.click(screen.getByRole('button', { name: /pacing/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
+    await user.click(screen.getByRole('button', { name: /ritmo/i }))
 
     const submitButton = screen.getByRole('button', {
-      name: /request changes on draft/i,
+      name: /solicitar cambios en el draft/i,
     })
     expect(submitButton).not.toHaveAttribute('disabled')
   })
@@ -239,11 +238,11 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
-    await user.click(screen.getByRole('button', { name: /other/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
+    await user.click(screen.getByRole('button', { name: /otro/i }))
 
     const submitButton = screen.getByRole('button', {
-      name: /request changes on draft/i,
+      name: /solicitar cambios en el draft/i,
     })
     expect(submitButton).toHaveAttribute('disabled')
   })
@@ -252,15 +251,15 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
-    await user.click(screen.getByRole('button', { name: /other/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
+    await user.click(screen.getByRole('button', { name: /otro/i }))
     await user.type(
-      screen.getByLabelText(/additional notes/i),
+      screen.getByLabelText(/notas adicionales/i),
       'Fix the intro please',
     )
 
     const submitButton = screen.getByRole('button', {
-      name: /request changes on draft/i,
+      name: /solicitar cambios en el draft/i,
     })
     expect(submitButton).not.toHaveAttribute('disabled')
   })
@@ -269,8 +268,8 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
-    await user.type(screen.getByLabelText(/additional notes/i), 'hello')
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
+    await user.type(screen.getByLabelText(/notas adicionales/i), 'hello')
 
     expect(screen.getByText('5/4000')).toBeInTheDocument()
   })
@@ -279,11 +278,11 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     await user.click(screen.getByRole('button', { name: /audio/i }))
-    await user.type(screen.getByLabelText(/additional notes/i), 'Too loud')
+    await user.type(screen.getByLabelText(/notas adicionales/i), 'Too loud')
     await user.click(
-      screen.getByRole('button', { name: /request changes on draft/i }),
+      screen.getByRole('button', { name: /solicitar cambios en el draft/i }),
     )
 
     expect(mockMutate).toHaveBeenCalledTimes(1)
@@ -303,14 +302,14 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: /request changes/i }))
+    await user.click(screen.getByRole('button', { name: /solicitar cambios/i }))
     expect(screen.getByTestId('video-player')).toBeInTheDocument()
   })
 
   it('renders placeholder when playbackUrl is missing', () => {
     renderModal({ playbackUrl: undefined, inline: true })
     expect(
-      screen.getByRole('button', { name: /request changes on draft/i }),
+      screen.getByRole('button', { name: /solicitar cambios en el draft/i }),
     ).toBeInTheDocument()
   })
 
@@ -320,21 +319,21 @@ describe('RequestChangesModal', () => {
       target: 'link',
       linkId: 'link-1',
       draftId: undefined,
-      title: 'Request changes on link',
-      triggerLabel: 'Request changes on link',
+      title: 'Solicitar cambios en el link',
+      triggerLabel: 'Solicitar cambios en el link',
     })
 
     await user.click(
-      screen.getByRole('button', { name: /request changes on link/i }),
+      screen.getByRole('button', { name: /solicitar cambios en el link/i }),
     )
 
     expect(
-      screen.getAllByText('Request changes on link').length,
+      screen.getAllByText('Solicitar cambios en el link').length,
     ).toBeGreaterThanOrEqual(1)
 
     await user.click(
       within(screen.getByRole('dialog')).getByRole('button', {
-        name: /request changes on link/i,
+        name: /solicitar cambios en el link/i,
       }),
     )
 

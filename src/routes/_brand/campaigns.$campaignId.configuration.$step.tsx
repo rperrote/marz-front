@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
 
 import { CampaignConfigurationStepSlot } from '#/features/campaigns/configuration/CampaignConfigurationWizard'
 import {
@@ -6,13 +7,8 @@ import {
   campaignDetailSearchDefaults,
   isCampaignConfigurationStep,
 } from '#/features/campaigns/configuration/hooks'
-import type { CampaignConfiguration } from '#/features/campaigns/configuration/hooks'
 
-type ConfigurationQueryClient = {
-  ensureQueryData: (
-    options: ReturnType<typeof campaignConfigurationQueryOptions>,
-  ) => Promise<CampaignConfiguration>
-}
+type ConfigurationQueryClient = QueryClient
 
 export async function loadCampaignConfigurationStepRoute({
   campaignId,

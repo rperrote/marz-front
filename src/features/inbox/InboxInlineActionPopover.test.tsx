@@ -49,6 +49,8 @@ vi.mock('#/shared/api/generated/campaigns/campaigns', () => ({
 
 const uuidV7Pattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+const uuidV4Pattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 const sendMessageMutate = vi.fn()
 
@@ -88,7 +90,7 @@ describe('InboxInlineActionPopover', () => {
       {
         clientMessageId: expect.stringMatching(uuidV7Pattern),
         currentAccountId: 'account-1',
-        idempotencyKey: expect.stringMatching(uuidV7Pattern),
+        idempotencyKey: expect.stringMatching(uuidV4Pattern),
         text: 'Hola, seguimos por acá',
       },
       expect.objectContaining({
@@ -113,7 +115,7 @@ describe('InboxInlineActionPopover', () => {
 
     await waitFor(() => {
       expect(acceptOffer).toHaveBeenCalledWith('offer-1', {
-        headers: { 'Idempotency-Key': expect.stringMatching(uuidV7Pattern) },
+        headers: { 'Idempotency-Key': expect.stringMatching(uuidV4Pattern) },
       })
     })
     await waitFor(() => {

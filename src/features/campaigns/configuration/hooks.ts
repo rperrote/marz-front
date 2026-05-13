@@ -1,8 +1,23 @@
-import { useRef } from 'react'
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
-import customFetch, { ApiError } from '#/shared/api/mutator'
+import { queryOptions } from '@tanstack/react-query'
+
+import {
+  useGetCampaignConfiguration,
+  useUpdateCampaignConfigurationContentType,
+  useUpdateCampaignConfigurationPricingModel,
+  useUpdateCampaignConfigurationTargeting,
+  useUpdateCampaignConfigurationBonus,
+  useActivateCampaignConfiguration,
+  getCampaignConfiguration,
+  getGetCampaignConfigurationQueryKey,
+} from '#/shared/api/generated/campaigns/campaigns'
+import type {
+  CampaignConfigurationResponse,
+  CampaignContentType,
+  CampaignPricingModel,
+  CampaignConfigurationStep,
+} from '#/shared/api/generated/model'
 import type { BonusConfigValues, OperationalTargetingValues } from './schemas'
 
 export const CampaignConfigurationStepSchema = z.enum([
@@ -23,131 +38,15 @@ export const campaignDetailSearchDefaults = {
   section: 'matches' as const,
 }
 
-const CampaignConfigurationBlockReasonSchema = z.enum([
-  'brief_not_confirmed',
-  'already_active',
-  'not_draft',
-  'forbidden_role',
-])
-
-const CampaignContentTypeSchema = z.enum(['influencer_posts', 'ugc_videos'])
-const CampaignPricingModelSchema = z.enum(['fixed_per_video', 'per_views'])
-
-const CampaignConfigurationResponseSchema = z.object({
-  campaign_id: z.string().uuid(),
-  brand_workspace_id: z.string().uuid(),
-  status: z.enum(['draft', 'active', 'paused', 'completed']),
-  editable: z.boolean(),
-  block_reason: CampaignConfigurationBlockReasonSchema.nullable(),
-  current_step: CampaignConfigurationStepSchema,
-  completed_steps: z.array(CampaignConfigurationStepSchema),
-  configuration_complete: z.boolean(),
-  configuration_version: z.number().int().positive(),
-  content_type: CampaignContentTypeSchema.nullable(),
-  pricing_model: CampaignPricingModelSchema.nullable(),
-  operational_targeting: z.object({
-    countries: z.array(z.string()),
-    tiers: z.array(
-      z.enum([
-        'emergent',
-        'growing',
-        'consolidated',
-        'reference',
-        'massive',
-        'celebrity',
-      ]),
-    ),
-    follower_min: z.number().int().min(0).nullable(),
-    follower_max: z.number().int().min(0).nullable(),
-    genders: z.array(z.string()),
-    age_min: z.number().int().min(18).max(120).nullable(),
-    age_max: z.number().int().min(18).max(120).nullable(),
-    interests: z.array(z.string()),
-    content_languages: z.array(z.string()),
-    source: z.enum(['brief_prefill', 'manual']),
-    adjusted_from_brief: z.boolean(),
-  }),
-  bonus_config: z.object({
-    enabled: z.boolean(),
-    speed_bonus: z.object({
-      enabled: z.boolean(),
-      windows: z.array(
-        z.object({
-          window_id: z.string().uuid(),
-          window_hours: z.number().int().positive(),
-          bonus: z.discriminatedUnion('type', [
-            z.object({
-              type: z.literal('percentage'),
-              percentage: z.number().int().min(1).max(100),
-            }),
-            z.object({
-              type: z.literal('fixed'),
-              amount: z.string(),
-              currency: z.string(),
-            }),
-          ]),
-        }),
-      ),
-    }),
-    performance_bonus: z.object({
-      enabled: z.boolean(),
-      milestones: z.array(
-        z.object({
-          milestone_id: z.string().uuid(),
-          views: z.number().int().positive(),
-          window_hours: z.number().int().positive(),
-          bonus: z.discriminatedUnion('type', [
-            z.object({
-              type: z.literal('percentage'),
-              percentage: z.number().int().min(1).max(100),
-            }),
-            z.object({
-              type: z.literal('fixed'),
-              amount: z.string(),
-              currency: z.string(),
-            }),
-          ]),
-        }),
-      ),
-    }),
-  }),
-  brief_summary: z.object({
-    confirmed_at: z.string(),
-    objective: z.enum(['brand_awareness', 'conversion', 'engagement', 'reach']),
-    icp_description: z.string().nullable(),
-    icp_age_min: z.number().int().nullable(),
-    icp_age_max: z.number().int().nullable(),
-    icp_genders: z.array(z.string()),
-    icp_countries: z.array(z.string()),
-    icp_platforms: z.array(z.string()),
-    icp_interests: z.array(z.string()),
-    scoring_dimensions_count: z.number().int().min(0),
-    hard_filters_count: z.number().int().min(0),
-    disqualifiers_count: z.number().int().min(0),
-  }),
-  plan: z.object({
-    workspace_plan: z.enum(['free', 'paid']),
-    allows_campaign_board: z.boolean(),
-    allows_automatic_matching: z.boolean(),
-  }),
-  updated_at: z.string(),
-})
-
-type ApiResponse<T> = {
-  data: T
-}
-
 export const CAMPAIGN_CONFIGURATION_STEPS =
   CampaignConfigurationStepSchema.options
 
-export type CampaignConfigurationStep =
-  (typeof CAMPAIGN_CONFIGURATION_STEPS)[number]
-
-export type CampaignConfiguration = z.infer<
-  typeof CampaignConfigurationResponseSchema
->
-export type CampaignContentType = z.infer<typeof CampaignContentTypeSchema>
-export type CampaignPricingModel = z.infer<typeof CampaignPricingModelSchema>
+export type {
+  CampaignContentType,
+  CampaignPricingModel,
+  CampaignConfigurationStep,
+}
+export type CampaignConfiguration = CampaignConfigurationResponse
 
 interface UpdateContentTypeParams {
   campaignId: string
@@ -185,141 +84,155 @@ export function isCampaignConfigurationStep(
 }
 
 export function campaignConfigurationQueryKey(campaignId: string) {
-  return ['campaign-configuration', campaignId] as const
+  return getGetCampaignConfigurationQueryKey(campaignId)
+}
+
+async function fetchCampaignConfiguration(
+  campaignId: string,
+  signal?: AbortSignal,
+): Promise<CampaignConfiguration> {
+  const response = await getCampaignConfiguration(campaignId, { signal })
+  if (response.status !== 200) {
+    throw new Error(`Unexpected status ${response.status}`)
+  }
+  return response.data
 }
 
 export function campaignConfigurationQueryOptions(campaignId: string) {
   return queryOptions({
     queryKey: campaignConfigurationQueryKey(campaignId),
-    queryFn: async ({ signal }): Promise<CampaignConfiguration> => {
-      const response = await customFetch<ApiResponse<unknown>>(
-        `/v1/campaigns/${campaignId}/configuration`,
-        { signal },
-      )
-      return CampaignConfigurationResponseSchema.parse(response.data)
-    },
-    retry: (failureCount, error) => {
-      if (error instanceof ApiError && error.status < 500) return false
-      return failureCount < 2
-    },
+    queryFn: ({ signal }) => fetchCampaignConfiguration(campaignId, signal),
   })
 }
 
 export function useCampaignConfigurationQuery(campaignId: string) {
-  return useQuery(campaignConfigurationQueryOptions(campaignId))
+  return useGetCampaignConfiguration(campaignId, {
+    query: {
+      select: (response): CampaignConfiguration => {
+        if (response.status !== 200) {
+          throw new Error(`Unexpected status ${response.status}`)
+        }
+        return response.data
+      },
+    },
+  })
+}
+
+// Adapta una mutation Orval `{campaignId, data}` a la firma plana legacy
+// del front (params planos + response plano CampaignConfiguration).
+function adaptMutation<TParams, TData>(
+  mutation: {
+    mutateAsync: (vars: {
+      campaignId: string
+      data: TData
+    }) => Promise<{ status: number; data: unknown }>
+    isPending: boolean
+    reset: () => void
+  },
+  buildData: (params: TParams) => { campaignId: string; data: TData },
+) {
+  const mutateAsync = async (
+    params: TParams,
+  ): Promise<CampaignConfiguration> => {
+    const { campaignId, data } = buildData(params)
+    const response = await mutation.mutateAsync({ campaignId, data })
+    if (response.status !== 200) {
+      throw new Error(`Unexpected status ${response.status}`)
+    }
+    return response.data as CampaignConfiguration
+  }
+  const mutate = (
+    params: TParams,
+    options?: {
+      onSuccess?: (data: CampaignConfiguration) => void
+      onError?: (error: Error) => void
+    },
+  ) => {
+    mutateAsync(params)
+      .then((data) => options?.onSuccess?.(data))
+      .catch((err: Error) => options?.onError?.(err))
+  }
+  return {
+    mutate,
+    mutateAsync,
+    isPending: mutation.isPending,
+    reset: mutation.reset,
+  }
 }
 
 export function useUpdateContentTypeMutation() {
-  return useMutation({
-    mutationFn: async ({
+  return adaptMutation<
+    UpdateContentTypeParams,
+    { content_type: CampaignContentType; configuration_version: number }
+  >(
+    useUpdateCampaignConfigurationContentType(),
+    ({ campaignId, content_type, configuration_version }) => ({
       campaignId,
-      content_type,
-      configuration_version,
-    }: UpdateContentTypeParams): Promise<CampaignConfiguration> => {
-      const response = await customFetch<ApiResponse<unknown>>(
-        `/v1/campaigns/${campaignId}/configuration/content_type`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ content_type, configuration_version }),
-        },
-      )
-      return CampaignConfigurationResponseSchema.parse(response.data)
-    },
-    retry: false,
-  })
+      data: { content_type, configuration_version },
+    }),
+  )
 }
 
 export function useUpdatePricingModelMutation() {
-  return useMutation({
-    mutationFn: async ({
+  return adaptMutation<
+    UpdatePricingModelParams,
+    { pricing_model: CampaignPricingModel; configuration_version: number }
+  >(
+    useUpdateCampaignConfigurationPricingModel(),
+    ({ campaignId, pricing_model, configuration_version }) => ({
       campaignId,
-      pricing_model,
-      configuration_version,
-    }: UpdatePricingModelParams): Promise<CampaignConfiguration> => {
-      const response = await customFetch<ApiResponse<unknown>>(
-        `/v1/campaigns/${campaignId}/configuration/pricing_model`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ pricing_model, configuration_version }),
-        },
-      )
-      return CampaignConfigurationResponseSchema.parse(response.data)
-    },
-    retry: false,
-  })
+      data: { pricing_model, configuration_version },
+    }),
+  )
 }
 
 export function useUpdateCampaignTargetingMutation() {
-  return useMutation({
-    mutationFn: async ({
+  return adaptMutation<UpdateCampaignTargetingParams, unknown>(
+    useUpdateCampaignConfigurationTargeting() as unknown as Parameters<
+      typeof adaptMutation
+    >[0],
+    ({ campaignId, operational_targeting, configuration_version }) => ({
       campaignId,
-      operational_targeting,
-      configuration_version,
-    }: UpdateCampaignTargetingParams): Promise<CampaignConfiguration> => {
-      const response = await customFetch<ApiResponse<unknown>>(
-        `/v1/campaigns/${campaignId}/configuration/targeting`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({
-            operational_targeting,
-            configuration_version,
-          }),
-        },
-      )
-      return CampaignConfigurationResponseSchema.parse(response.data)
-    },
-    retry: false,
-  })
+      data: { operational_targeting, configuration_version },
+    }),
+  )
 }
 
 export function useUpdateCampaignBonusMutation() {
-  return useMutation({
-    mutationFn: async ({
+  return adaptMutation<UpdateCampaignBonusParams, unknown>(
+    useUpdateCampaignConfigurationBonus() as unknown as Parameters<
+      typeof adaptMutation
+    >[0],
+    ({ campaignId, bonus_config, configuration_version }) => ({
       campaignId,
-      bonus_config,
-      configuration_version,
-    }: UpdateCampaignBonusParams): Promise<CampaignConfiguration> => {
-      const response = await customFetch<ApiResponse<unknown>>(
-        `/v1/campaigns/${campaignId}/configuration/bonus`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({
-            bonus_config,
-            configuration_version,
-          }),
-        },
-      )
-      return CampaignConfigurationResponseSchema.parse(response.data)
-    },
-    retry: false,
-  })
+      data: { bonus_config, configuration_version },
+    }),
+  )
 }
 
 export function useActivateCampaignConfigurationMutation() {
-  const idempotencyKeyRef = useRef<string | null>(null)
-
-  return useMutation({
-    mutationFn: async ({
+  const mutation = useActivateCampaignConfiguration()
+  const mutateAsync = async ({
+    campaignId,
+    configuration_version,
+  }: ActivateCampaignConfigurationParams): Promise<void> => {
+    await mutation.mutateAsync({
       campaignId,
-      configuration_version,
-    }: ActivateCampaignConfigurationParams): Promise<void> => {
-      idempotencyKeyRef.current ??= crypto.randomUUID()
-
-      await customFetch<ApiResponse<unknown>>(
-        `/v1/campaigns/${campaignId}/configuration/activate`,
-        {
-          method: 'POST',
-          headers: { 'Idempotency-Key': idempotencyKeyRef.current },
-          body: JSON.stringify({ configuration_version }),
-        },
-      )
-    },
-    onSettled: () => {
-      idempotencyKeyRef.current = null
-    },
-    retry: (failureCount, error) => {
-      if (error instanceof ApiError && error.status < 500) return false
-      return failureCount < 2
-    },
-  })
+      data: { configuration_version },
+    })
+  }
+  const mutate = (
+    params: ActivateCampaignConfigurationParams,
+    options?: { onSuccess?: () => void; onError?: (error: Error) => void },
+  ) => {
+    mutateAsync(params)
+      .then(() => options?.onSuccess?.())
+      .catch((err: Error) => options?.onError?.(err))
+  }
+  return {
+    mutate,
+    mutateAsync,
+    isPending: mutation.isPending,
+    reset: mutation.reset,
+  }
 }

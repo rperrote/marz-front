@@ -6,9 +6,10 @@ import { createElement } from 'react'
 import type { OfferTimelineMessage } from './OfferTimelineEntry'
 import { OfferTimelineEntry } from './OfferTimelineEntry'
 
+let mockKind: 'brand' | 'creator' = 'brand'
 vi.mock('#/shared/api/generated/accounts/accounts', () => ({
   useMe: () => ({
-    data: { status: 200, data: { kind: 'brand' } },
+    data: { status: 200, data: { kind: mockKind } },
   }),
 }))
 
@@ -149,6 +150,7 @@ describe('OfferTimelineEntry', () => {
   })
 
   it('renders OfferCardReceived for offer_sent when viewer is recipient', () => {
+    mockKind = 'creator'
     const { getByTestId } = render(
       <OfferTimelineEntry
         message={makeMessage()}
@@ -158,9 +160,11 @@ describe('OfferTimelineEntry', () => {
       { wrapper: Wrapper },
     )
     expect(getByTestId('offer-card-received')).toBeDefined()
+    mockKind = 'brand'
   })
 
   it('renders OfferAcceptedCardIn for offer_accepted when viewer is actor', () => {
+    mockKind = 'creator'
     const { getByTestId } = render(
       <OfferTimelineEntry
         message={makeMessage({
@@ -178,6 +182,7 @@ describe('OfferTimelineEntry', () => {
       { wrapper: Wrapper },
     )
     expect(getByTestId('offer-accepted-card-in')).toBeDefined()
+    mockKind = 'brand'
   })
 
   it('renders OfferAcceptedCardOut for offer_accepted when viewer is recipient', () => {
@@ -300,6 +305,7 @@ describe('OfferTimelineEntry', () => {
   })
 
   it('renders OfferAcceptedCardIn for bundle offer_accepted when viewer is actor', () => {
+    mockKind = 'creator'
     const { getByTestId } = render(
       <OfferTimelineEntry
         message={makeMessage({
@@ -317,6 +323,7 @@ describe('OfferTimelineEntry', () => {
       { wrapper: Wrapper },
     )
     expect(getByTestId('offer-accepted-card-in')).toBeDefined()
+    mockKind = 'brand'
   })
 
   it('renders OfferAcceptedCardOut for multistage offer_accepted when viewer is recipient', () => {

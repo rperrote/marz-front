@@ -138,12 +138,12 @@ const defaultProps = {
 
 describe('CurrentOfferBlock', () => {
   it('renders empty state when current is null', () => {
-    render(<CurrentOfferBlock offer={null} {...defaultProps} />)
-    expect(screen.getByText('No active offer')).toBeInTheDocument()
+    renderWithQuery(<CurrentOfferBlock offer={null} {...defaultProps} />)
+    expect(screen.getByText('Sin oferta activa')).toBeInTheDocument()
   })
 
-  it('renders Send Offer button in empty state when brand can send', () => {
-    render(
+  it('renders Enviar oferta button in empty state when brand can send', () => {
+    renderWithQuery(
       <CurrentOfferBlock
         offer={null}
         {...defaultProps}
@@ -152,12 +152,12 @@ describe('CurrentOfferBlock', () => {
       />,
     )
     expect(
-      screen.getByRole('button', { name: 'Send Offer' }),
+      screen.getByRole('button', { name: 'Enviar oferta' }),
     ).toBeInTheDocument()
   })
 
-  it('does not render Send Offer button when canSendOffer is not visible', () => {
-    render(
+  it('does not render Enviar oferta button when canSendOffer is not visible', () => {
+    renderWithQuery(
       <CurrentOfferBlock
         offer={null}
         {...defaultProps}
@@ -166,22 +166,22 @@ describe('CurrentOfferBlock', () => {
       />,
     )
     expect(
-      screen.queryByRole('button', { name: 'Send Offer' }),
+      screen.queryByRole('button', { name: 'Enviar oferta' }),
     ).not.toBeInTheDocument()
   })
 
   it('renders offer with sent badge', () => {
-    render(<CurrentOfferBlock offer={singleOffer} {...defaultProps} />)
-    expect(screen.getByText('Current Offer')).toBeInTheDocument()
-    expect(screen.getByText('Sent')).toBeInTheDocument()
+    renderWithQuery(<CurrentOfferBlock offer={singleOffer} {...defaultProps} />)
+    expect(screen.getByText('Oferta actual')).toBeInTheDocument()
+    expect(screen.getByText('Enviada')).toBeInTheDocument()
     expect(screen.getByText('$4,500.00')).toBeInTheDocument()
     expect(screen.getByText('Oct 12')).toBeInTheDocument()
   })
 
   it('renders accepted state with badge', () => {
     const accepted: OfferDTO = { ...singleOffer, status: 'accepted' }
-    render(<CurrentOfferBlock offer={accepted} {...defaultProps} />)
-    expect(screen.getByText('Accepted')).toBeInTheDocument()
+    renderWithQuery(<CurrentOfferBlock offer={accepted} {...defaultProps} />)
+    expect(screen.getByText('Aceptada')).toBeInTheDocument()
   })
 
   it('renders speed bonus windows when present', () => {
@@ -191,21 +191,23 @@ describe('CurrentOfferBlock', () => {
         speed_bonus_windows: [{ window_hours: 24, bonus_pct: '15' }],
       },
     }
-    render(<CurrentOfferBlock offer={withBonus} {...defaultProps} />)
-    expect(screen.getByText('Speed bonus')).toBeInTheDocument()
+    renderWithQuery(<CurrentOfferBlock offer={withBonus} {...defaultProps} />)
+    expect(screen.getByText('Bonus por rapidez')).toBeInTheDocument()
     expect(screen.getByText('+15% / 24h')).toBeInTheDocument()
   })
 
   it('rendersMultiStage', () => {
-    render(<CurrentOfferBlock offer={multistageOffer} {...defaultProps} />)
+    renderWithQuery(
+      <CurrentOfferBlock offer={multistageOffer} {...defaultProps} />,
+    )
     expect(screen.getByText('Concept')).toBeInTheDocument()
     expect(screen.getByText('Production')).toBeInTheDocument()
   })
 
   it.each([
-    ['single', singleOffer, ['paid'], 'Fully paid'],
-    ['bundle', bundleOffer, ['paid', 'completed'], 'Partially paid (1/2)'],
-    ['bundle', bundleOffer, ['paid', 'paid'], 'Fully paid'],
+    ['single', singleOffer, ['paid'], 'Pagada en total'],
+    ['bundle', bundleOffer, ['paid', 'completed'], 'Pago parcial (1/2)'],
+    ['bundle', bundleOffer, ['paid', 'paid'], 'Pagada en total'],
   ])(
     'renders payment progress label for %s offers',
     (_type, offer, statuses, expectedLabel) => {
@@ -221,7 +223,7 @@ describe('CurrentOfferBlock', () => {
   )
 
   it('is axe-clean', async () => {
-    const { container } = render(
+    const { container } = renderWithQuery(
       <CurrentOfferBlock offer={singleOffer} {...defaultProps} />,
     )
     expect(await axe(container)).toHaveNoViolations()

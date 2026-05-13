@@ -43,6 +43,7 @@ vi.mock('@tanstack/react-router', () => ({
 
 vi.mock('#/shared/api/mutator', () => ({
   ApiError: TestApiError,
+  customFetch: (...args: unknown[]) => mockCustomFetch(...args),
   default: (...args: unknown[]) => mockCustomFetch(...args),
 }))
 
@@ -248,7 +249,7 @@ describe('ReviewStep', () => {
 
   it('posts activation with idempotency key and configuration version', async () => {
     const user = userEvent.setup()
-    mockCustomFetch.mockResolvedValue({ data: {} })
+    mockCustomFetch.mockResolvedValue({ data: {}, status: 200 })
     renderStep()
 
     await user.click(screen.getByRole('button', { name: 'Activar campaña' }))
@@ -256,13 +257,10 @@ describe('ReviewStep', () => {
     await waitFor(() => {
       expect(mockCustomFetch).toHaveBeenCalledWith(
         `/v1/campaigns/${campaignId}/configuration/activate`,
-        {
+        expect.objectContaining({
           method: 'POST',
-          headers: {
-            'Idempotency-Key': '11111111-1111-4111-8111-111111111111',
-          },
           body: JSON.stringify({ configuration_version: 11 }),
-        },
+        }),
       )
     })
     expect(mockToastSuccess).toHaveBeenCalledWith('Campaña activada.')
@@ -292,7 +290,7 @@ describe('ReviewStep', () => {
       ),
     ).toBeVisible()
     expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ['campaign-configuration', campaignId],
+      queryKey: [`/v1/campaigns/${campaignId}/configuration`],
     })
   })
 

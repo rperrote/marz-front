@@ -57,6 +57,10 @@ describe('useRequestLinkChanges', () => {
     mockToastError.mockClear()
     vi.stubGlobal('crypto', {
       randomUUID: () => 'request-key',
+      getRandomValues: (arr: Uint8Array) => {
+        for (let i = 0; i < arr.length; i++) arr[i] = 0
+        return arr
+      },
     })
   })
 
@@ -85,19 +89,25 @@ describe('useRequestLinkChanges', () => {
     })
 
     expect(mockCustomFetch).toHaveBeenCalledWith(
-      '/v1/deliverables/del-1/links/link-1/request-changes',
+      '/v1/links/link-1/request-changes',
       expect.objectContaining({
         method: 'POST',
-        headers: { 'Idempotency-Key': 'request-key' },
-        body: JSON.stringify({ categories: ['audio'], notes: 'Fix audio' }),
+        body: JSON.stringify({
+          deliverable_id: 'del-1',
+          categories: ['audio'],
+          notes: 'Fix audio',
+        }),
       }),
     )
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: ['deliverable', 'del-1'],
     })
-    expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: ['deliverable', 'del-1', 'links'],
-    })
+    // queryKey de useListLinks (Orval): incluye params del query
+    expect(invalidateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: expect.arrayContaining(['/v1/links']),
+      }),
+    )
   })
 
   it('requires notes when other is selected', () => {

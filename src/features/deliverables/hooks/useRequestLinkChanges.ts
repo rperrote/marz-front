@@ -1,10 +1,14 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 
 import { ApiError } from '#/shared/api/mutator'
-import { useRequestLinkChanges as useRequestLinkChangesOrval } from '#/shared/api/generated/deliverables/deliverables'
+import { requestLinkChanges } from '#/shared/api/generated/deliverables/deliverables'
+import {
+  generateIdempotencyKey,
+  withIdempotencyKey,
+} from '#/shared/api/idempotency'
 import type { ChangeCategory, RequestChangesBody } from '../api/requestChanges'
 import type {
   RequestChangesFlowActions,
@@ -24,17 +28,21 @@ interface RequestLinkChangesMutationVariables {
 
 export function useRequestLinkChangesMutation() {
   const queryClient = useQueryClient()
-  const mutation = useRequestLinkChangesOrval()
+  const mutation = useMutation({
+    mutationFn: (variables: RequestLinkChangesMutationVariables) =>
+      requestLinkChanges(
+        variables.linkId,
+        {
+          deliverable_id: variables.deliverableId,
+          categories: variables.body.categories,
+          notes: variables.body.notes,
+        },
+        withIdempotencyKey(variables.idempotencyKey),
+      ),
+  })
 
   const mutate = async (variables: RequestLinkChangesMutationVariables) => {
-    const response = await mutation.mutateAsync({
-      linkId: variables.linkId,
-      data: {
-        deliverable_id: variables.deliverableId,
-        categories: variables.body.categories,
-        notes: variables.body.notes,
-      },
-    })
+    const response = await mutation.mutateAsync(variables)
     await Promise.all([
       queryClient.invalidateQueries({
         queryKey: ['deliverable', variables.deliverableId],
@@ -57,7 +65,7 @@ export function useRequestLinkChanges(
     onConflict?: () => void
   },
 ): RequestChangesFlowState & RequestChangesFlowActions {
-  const idempotencyKeyRef = useRef(crypto.randomUUID())
+  const idempotencyKeyRef = useRef(generateIdempotencyKey())
   const [categories, setCategories] = useState<Set<ChangeCategory>>(new Set())
   const [notes, setNotesState] = useState('')
   const [submitStatus, setSubmitStatus] =
@@ -92,7 +100,7 @@ export function useRequestLinkChanges(
   }, [])
 
   const reset = useCallback(() => {
-    idempotencyKeyRef.current = crypto.randomUUID()
+    idempotencyKeyRef.current = generateIdempotencyKey()
     setCategories(new Set())
     setNotesState('')
     setSubmitStatus('idle')

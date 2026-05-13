@@ -162,13 +162,13 @@ describe('ContentTypeStep', () => {
     await waitFor(() => {
       expect(mockCustomFetch).toHaveBeenCalledWith(
         `/v1/campaigns/${campaignId}/configuration/content_type`,
-        {
+        expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify({
             content_type: 'ugc_videos',
             configuration_version: 3,
           }),
-        },
+        }),
       )
     })
     expect(

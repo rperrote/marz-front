@@ -9,6 +9,7 @@ import type {
   CreateCampaignResponse,
 } from '#/shared/api/generated/model'
 import { ApiError } from '#/shared/api/mutator'
+import { withIdempotencyKey } from '#/shared/api/idempotency'
 import type { BriefDraft, HardFilter, ScoringDimension } from '../store'
 
 interface CreateCampaignParams {
@@ -63,9 +64,10 @@ export function useCreateCampaign() {
         deadline: draft.campaign.deadline || undefined,
         brief: toApiBrief(draft),
       }
-      const result = (await createCampaign(body, {
-        headers: { 'Idempotency-Key': idempotencyKey },
-      })) as { data: CreateCampaignResponse }
+      const result = (await createCampaign(
+        body,
+        withIdempotencyKey(idempotencyKey),
+      )) as { data: CreateCampaignResponse }
       return result.data
     },
   })

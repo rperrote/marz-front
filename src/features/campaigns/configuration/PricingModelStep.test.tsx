@@ -162,13 +162,13 @@ describe('PricingModelStep', () => {
     await waitFor(() => {
       expect(mockCustomFetch).toHaveBeenCalledWith(
         `/v1/campaigns/${campaignId}/configuration/pricing_model`,
-        {
+        expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify({
             pricing_model: 'per_views',
             configuration_version: 7,
           }),
-        },
+        }),
       )
     })
     expect(

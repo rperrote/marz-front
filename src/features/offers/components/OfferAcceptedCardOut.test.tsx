@@ -35,16 +35,18 @@ describe('OfferAcceptedCardOut', () => {
       <OfferAcceptedCardOut snapshot={snapshot} creatorName="María García" />,
     )
     expect(
-      screen.getByText('María García accepted the offer'),
+      screen.getByText('María García aceptó la oferta'),
     ).toBeInTheDocument()
-    expect(screen.getByText(/Deadline is Oct 12/)).toBeInTheDocument()
+    expect(screen.getByText(/Deadline Oct 12/)).toBeInTheDocument()
   })
 
   it('uses first name in description', () => {
     render(
       <OfferAcceptedCardOut snapshot={snapshot} creatorName="María García" />,
     )
-    expect(screen.getByText(/María is preparing the draft/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/María está preparando el draft/),
+    ).toBeInTheDocument()
   })
 
   it('has role="article" with descriptive aria-label', () => {

@@ -192,7 +192,7 @@ describe('useDraftUploadFlow', () => {
     expect(mocks.completeMutateAsync).toHaveBeenCalledWith({
       deliverableId: 'del-1',
       intentId: 'intent-1',
-      body: { duration_sec: null },
+      body: {},
     })
   })
 

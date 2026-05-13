@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { redirect } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
 
 import { ApiError } from '#/shared/api/mutator'
 import { campaignDetailSearchDefaults } from './hooks'
@@ -84,7 +85,7 @@ function makeConfig(
 function makeQueryClient(result: Promise<CampaignConfiguration>) {
   return {
     ensureQueryData: vi.fn(() => result),
-  }
+  } as unknown as QueryClient
 }
 
 describe('campaign configuration routes', () => {

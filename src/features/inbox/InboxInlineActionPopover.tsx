@@ -10,6 +10,10 @@ import { Textarea } from '#/components/ui/textarea'
 import { useSendMessageMutation } from '#/features/chat/mutations/useSendMessageMutation'
 import { generateClientMessageId } from '#/features/chat/utils/clientMessageId'
 import {
+  generateIdempotencyKey,
+  withIdempotencyKey,
+} from '#/shared/api/idempotency'
+import {
   acceptCampaignDiscoveryApplication,
   rejectCampaignDiscoveryApplication,
 } from '#/shared/api/generated/campaigns/campaigns'
@@ -206,7 +210,7 @@ function ReplyActionControl({
       {
         clientMessageId: generateClientMessageId(),
         currentAccountId,
-        idempotencyKey: generateClientMessageId(),
+        idempotencyKey: generateIdempotencyKey(),
         text: trimmedText,
       },
       {
@@ -286,9 +290,10 @@ function OfferActionControl({
     OfferMutationVariables
   >({
     mutationFn: ({ action: mutationAction }) =>
-      acceptOffer(getOfferId(mutationAction.path), {
-        headers: { 'Idempotency-Key': generateClientMessageId() },
-      }),
+      acceptOffer(
+        getOfferId(mutationAction.path),
+        withIdempotencyKey(generateIdempotencyKey()),
+      ),
     onError: (error, variables) => {
       trackInlineFailed(analyticsPayload, variables.action, error)
       onError(error)
@@ -310,7 +315,7 @@ function OfferActionControl({
       rejectOffer(
         getOfferId(mutationAction.path),
         mutationReason ? { reason: mutationReason } : {},
-        { headers: { 'Idempotency-Key': generateClientMessageId() } },
+        withIdempotencyKey(generateIdempotencyKey()),
       ),
     onError: (error, variables) => {
       trackInlineFailed(analyticsPayload, variables.action, error)
@@ -394,9 +399,7 @@ function ApplicationActionControl({
       return acceptCampaignDiscoveryApplication(
         params.campaignId,
         params.applicationId,
-        {
-          headers: { 'Idempotency-Key': generateClientMessageId() },
-        },
+        withIdempotencyKey(generateIdempotencyKey()),
       )
     },
     onError: (error, variables) => {
@@ -421,9 +424,7 @@ function ApplicationActionControl({
       return rejectCampaignDiscoveryApplication(
         params.campaignId,
         params.applicationId,
-        {
-          headers: { 'Idempotency-Key': generateClientMessageId() },
-        },
+        withIdempotencyKey(generateIdempotencyKey()),
       )
     },
     onError: (error, variables) => {

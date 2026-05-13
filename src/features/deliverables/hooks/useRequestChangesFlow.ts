@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 
 import { ApiError } from '#/shared/api/mutator'
+import { generateIdempotencyKey } from '#/shared/api/idempotency'
 import { useRequestChangesMutation } from '#/features/deliverables/api/requestChanges'
 import type { ChangeCategory } from '#/features/deliverables/api/requestChanges'
 import { trackChangeRequestSubmitted } from '#/features/deliverables/analytics'
@@ -45,7 +46,7 @@ export function useRequestChangesFlow(
     }
   },
 ): RequestChangesFlowState & RequestChangesFlowActions {
-  const idempotencyKeyRef = useRef(crypto.randomUUID())
+  const idempotencyKeyRef = useRef(generateIdempotencyKey())
 
   const [categories, setCategories] = useState<Set<ChangeCategory>>(new Set())
   const [notes, setNotesState] = useState('')
@@ -83,7 +84,7 @@ export function useRequestChangesFlow(
   }, [])
 
   const reset = useCallback(() => {
-    idempotencyKeyRef.current = crypto.randomUUID()
+    idempotencyKeyRef.current = generateIdempotencyKey()
     setCategories(new Set())
     setNotesState('')
     setSubmitStatus('idle')

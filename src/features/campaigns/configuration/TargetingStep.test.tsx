@@ -229,7 +229,7 @@ describe('TargetingStep', () => {
     await waitFor(() => {
       expect(mockCustomFetch).toHaveBeenCalledWith(
         `/v1/campaigns/${campaignId}/configuration/targeting`,
-        {
+        expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify({
             operational_targeting: {
@@ -238,7 +238,7 @@ describe('TargetingStep', () => {
             },
             configuration_version: 9,
           }),
-        },
+        }),
       )
     })
     expect(

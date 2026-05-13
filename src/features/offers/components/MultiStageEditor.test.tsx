@@ -203,7 +203,7 @@ describe('MultiStageEditor', () => {
     const stage2 = stages[1]
     expect(stage2).toBeDefined()
     expect(
-      await within(stage2!).findByText(/must be after the previous stage/i),
+      await within(stage2!).findByText(/debe ser posterior al stage anterior/i),
     ).toBeInTheDocument()
   })
 
@@ -352,14 +352,14 @@ describe('MultiStageEditor', () => {
       position: 1,
       name: 'Stage One',
       description: 'First stage',
-      deadline: '2099-12-15',
+      deadline: '2099-12-15T00:00:00Z',
       amount: '1200.00',
     })
     expect(payload.stages[1]).toMatchObject({
       position: 2,
       name: 'Stage Two',
       description: 'Second stage',
-      deadline: '2099-12-20',
+      deadline: '2099-12-20T00:00:00Z',
       amount: '800.00',
     })
     expect(payload.total_amount).toBeUndefined()

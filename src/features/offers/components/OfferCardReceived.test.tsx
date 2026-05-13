@@ -89,9 +89,11 @@ describe('OfferCardReceived', () => {
       />,
     )
     expect(
-      screen.getByRole('button', { name: /accept offer/i }),
+      screen.getByRole('button', { name: /aceptar oferta/i }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /reject/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /rechazar/i }),
+    ).toBeInTheDocument()
   })
 
   it('actions disabled when status is not sent', () => {
@@ -104,7 +106,7 @@ describe('OfferCardReceived', () => {
       />,
     )
     expect(
-      screen.queryByRole('button', { name: /accept offer/i }),
+      screen.queryByRole('button', { name: /aceptar oferta/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -118,7 +120,7 @@ describe('OfferCardReceived', () => {
       />,
     )
     expect(
-      screen.queryByRole('button', { name: /accept offer/i }),
+      screen.queryByRole('button', { name: /aceptar oferta/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -132,7 +134,7 @@ describe('OfferCardReceived', () => {
         onReject={onReject}
       />,
     )
-    await user.click(screen.getByRole('button', { name: /accept offer/i }))
+    await user.click(screen.getByRole('button', { name: /aceptar oferta/i }))
     expect(onAccept).toHaveBeenCalledOnce()
   })
 
@@ -146,7 +148,7 @@ describe('OfferCardReceived', () => {
         onReject={onReject}
       />,
     )
-    await user.click(screen.getByRole('button', { name: /reject/i }))
+    await user.click(screen.getByRole('button', { name: /rechazar/i }))
     expect(onReject).toHaveBeenCalledOnce()
   })
 
@@ -160,8 +162,8 @@ describe('OfferCardReceived', () => {
         isAccepting
       />,
     )
-    expect(screen.getByRole('button', { name: /accepting/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /reject/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /aceptando/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /rechazar/i })).toBeDisabled()
   })
 
   it('has role="article" with descriptive aria-label', () => {

@@ -20,6 +20,7 @@ const mockTrackChangeRequestSubmitted = vi.fn()
 vi.mock('#/features/deliverables/api/requestChanges', () => ({
   useRequestChangesMutation: () => ({
     mutate: mockMutate,
+    mutateAsync: mockMutate,
     isPending: false,
   }),
 }))
@@ -43,6 +44,7 @@ function createWrapper() {
 describe('useRequestChangesFlow', () => {
   beforeEach(() => {
     mockMutate.mockReset()
+    mockMutate.mockResolvedValue(undefined)
     mockTrackChangeRequestSubmitted.mockClear()
     let callCount = 0
     vi.stubGlobal('crypto', {
@@ -226,10 +228,8 @@ describe('useRequestChangesFlow', () => {
     expect(body.categories).toEqual(['audio', 'pacing', 'product_placement'])
   })
 
-  it('tracks successful submit without raw notes', () => {
-    mockMutate.mockImplementation((_vars, options) => {
-      options.onSuccess()
-    })
+  it('tracks successful submit without raw notes', async () => {
+    mockMutate.mockResolvedValue(undefined)
     const { result } = renderHook(
       () =>
         useRequestChangesFlow('del-1', 'draft-1', {
@@ -251,6 +251,9 @@ describe('useRequestChangesFlow', () => {
       result.current.submit()
     })
 
+    await waitFor(() => {
+      expect(mockTrackChangeRequestSubmitted).toHaveBeenCalled()
+    })
     expect(mockTrackChangeRequestSubmitted).toHaveBeenCalledWith({
       actor_kind: 'brand',
       offer_type: 'single',
@@ -267,13 +270,11 @@ describe('useRequestChangesFlow', () => {
   })
 
   it('maps 422 validation_error to field error', async () => {
-    mockMutate.mockImplementation((_vars, options) => {
-      options.onError(
-        new ApiError(422, 'validation_error', 'Invalid input', {
-          field_errors: { notes: ['Notes are too short'] },
-        }),
-      )
-    })
+    mockMutate.mockRejectedValue(
+      new ApiError(422, 'validation_error', 'Invalid input', {
+        field_errors: { notes: ['Notes are too short'] },
+      }),
+    )
 
     const { result } = renderHook(
       () => useRequestChangesFlow('del-1', 'draft-1'),
@@ -300,11 +301,9 @@ describe('useRequestChangesFlow', () => {
   })
 
   it('maps 409 change_request_already_exists to toast + onConflict', async () => {
-    mockMutate.mockImplementation((_vars, options) => {
-      options.onError(
-        new ApiError(409, 'change_request_already_exists', 'Already requested'),
-      )
-    })
+    mockMutate.mockRejectedValue(
+      new ApiError(409, 'change_request_already_exists', 'Already requested'),
+    )
 
     const onConflict = vi.fn()
     const { result } = renderHook(
@@ -326,9 +325,9 @@ describe('useRequestChangesFlow', () => {
   })
 
   it('maps 403 forbidden_role to fatal error', async () => {
-    mockMutate.mockImplementation((_vars, options) => {
-      options.onError(new ApiError(403, 'forbidden_role', 'Not allowed'))
-    })
+    mockMutate.mockRejectedValue(
+      new ApiError(403, 'forbidden_role', 'Not allowed'),
+    )
 
     const { result } = renderHook(
       () => useRequestChangesFlow('del-1', 'draft-1'),
@@ -351,9 +350,7 @@ describe('useRequestChangesFlow', () => {
   })
 
   it('maps unknown errors to fatal error', async () => {
-    mockMutate.mockImplementation((_vars, options) => {
-      options.onError(new Error('Network failure'))
-    })
+    mockMutate.mockRejectedValue(new Error('Network failure'))
 
     const { result } = renderHook(
       () => useRequestChangesFlow('del-1', 'draft-1'),

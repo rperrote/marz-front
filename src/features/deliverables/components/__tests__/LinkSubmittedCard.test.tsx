@@ -131,10 +131,10 @@ describe('LinkSubmittedCard', () => {
     )
 
     expect(
-      screen.getByRole('button', { name: 'Approve link' }),
+      screen.getByRole('button', { name: 'Aprobar link' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Request changes on link' }),
+      screen.getByRole('button', { name: 'Solicitar cambios en el link' }),
     ).toBeInTheDocument()
     expect(container.firstChild).toMatchSnapshot()
   })
@@ -153,10 +153,10 @@ describe('LinkSubmittedCard', () => {
       )
 
       expect(
-        screen.queryByRole('button', { name: 'Approve link' }),
+        screen.queryByRole('button', { name: 'Aprobar link' }),
       ).not.toBeInTheDocument()
       expect(
-        screen.queryByRole('button', { name: 'Request changes on link' }),
+        screen.queryByRole('button', { name: 'Solicitar cambios en el link' }),
       ).not.toBeInTheDocument()
       expect(container.firstChild).toMatchSnapshot()
     },
@@ -173,10 +173,10 @@ describe('LinkSubmittedCard', () => {
     )
 
     expect(
-      screen.queryByRole('button', { name: 'Approve link' }),
+      screen.queryByRole('button', { name: 'Aprobar link' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Request changes on link' }),
+      screen.queryByRole('button', { name: 'Solicitar cambios en el link' }),
     ).not.toBeInTheDocument()
     expect(container.firstChild).toMatchSnapshot()
   })
@@ -192,10 +192,10 @@ describe('LinkSubmittedCard', () => {
     )
 
     expect(
-      screen.queryByRole('button', { name: 'Approve link' }),
+      screen.queryByRole('button', { name: 'Aprobar link' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Request changes on link' }),
+      screen.queryByRole('button', { name: 'Solicitar cambios en el link' }),
     ).not.toBeInTheDocument()
   })
 
@@ -215,9 +215,9 @@ describe('LinkSubmittedCard', () => {
       />,
     )
 
-    await user.click(screen.getByRole('button', { name: 'Approve link' }))
+    await user.click(screen.getByRole('button', { name: 'Aprobar link' }))
     await user.click(
-      screen.getByRole('button', { name: 'Request changes on link' }),
+      screen.getByRole('button', { name: 'Solicitar cambios en el link' }),
     )
 
     expect(onApproveLink).toHaveBeenCalledTimes(1)
@@ -237,7 +237,7 @@ describe('LinkSubmittedCard', () => {
       />,
     )
 
-    await user.click(screen.getByRole('button', { name: 'Approve link' }))
+    await user.click(screen.getByRole('button', { name: 'Aprobar link' }))
 
     expect(mockApproveLinkMutate).toHaveBeenCalledTimes(1)
   })
@@ -267,10 +267,10 @@ describe('LinkSubmittedCard', () => {
     )
 
     expect(
-      screen.queryByRole('button', { name: 'Approve link' }),
+      screen.queryByRole('button', { name: 'Aprobar link' }),
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: 'Request changes on link' }),
+      screen.queryByRole('button', { name: 'Solicitar cambios en el link' }),
     ).not.toBeInTheDocument()
   })
 

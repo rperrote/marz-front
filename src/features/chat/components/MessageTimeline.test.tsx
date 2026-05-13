@@ -39,6 +39,46 @@ vi.mock('react-virtuoso', () => ({
       ),
     )
   }),
+  // RAFITA:ANY: jsdom mock — react-virtuoso types incompatible with forwardRef in vitest
+  GroupedVirtuoso: React.forwardRef(function MockGroupedVirtuoso(
+    props: any,
+    ref: any,
+  ) {
+    const { data, groupCounts, groupContent, itemContent, components } = props
+    const Header = components?.Header
+    React.useImperativeHandle(ref, () => ({
+      scrollToIndex: mockScrollToIndex,
+    }))
+    // Render: por cada grupo emitimos su groupContent y luego sus N items.
+    const children: any[] = []
+    if (Header) children.push(React.createElement(Header, { key: 'header' }))
+    let itemIdx = 0
+    ;(groupCounts ?? []).forEach((count: number, groupIdx: number) => {
+      children.push(
+        React.createElement(
+          'div',
+          { key: `g-${groupIdx}`, 'data-testid': 'group-mock' },
+          groupContent ? groupContent(groupIdx) : null,
+        ),
+      )
+      for (let i = 0; i < count; i++) {
+        const item = (data ?? [])[itemIdx]
+        children.push(
+          React.createElement(
+            'div',
+            { key: `i-${itemIdx}` },
+            itemContent(itemIdx, groupIdx, item),
+          ),
+        )
+        itemIdx++
+      }
+    })
+    return React.createElement(
+      'div',
+      { 'data-testid': 'virtuoso-mock' },
+      children,
+    )
+  }),
 }))
 
 const mockCustomFetch = vi.fn()
@@ -377,7 +417,7 @@ describe('MessageTimeline', () => {
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Published link')).toBeInTheDocument()
+      expect(screen.getByText('Link publicado')).toBeInTheDocument()
     })
     expect(
       screen.getByRole('link', { name: /youtube\.com\/watch/i }),

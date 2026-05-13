@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createElement } from 'react'
+import type { ReactNode } from 'react'
 
 import type { DomainEventEnvelope } from '#/shared/ws/events'
 import type {
@@ -28,6 +31,14 @@ vi.mock('#/shared/ws/useWebSocket', () => ({
 const CONVERSATION_ID = 'conv-123'
 const OTHER_CONVERSATION_ID = 'conv-other'
 
+function makeWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  return ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children)
+}
+
 function makeEnvelope<T>(
   eventType: string,
   payload: T,
@@ -53,7 +64,9 @@ describe('useChatWsListeners', () => {
   it('sends subscribe on mount when WS is open', () => {
     mockWsStatus = 'open'
 
-    renderHook(() => useChatWsListeners(CONVERSATION_ID, { enabled: true }))
+    renderHook(() => useChatWsListeners(CONVERSATION_ID, { enabled: true }), {
+      wrapper: makeWrapper(),
+    })
 
     expect(mockSend).toHaveBeenCalledWith({
       type: 'subscribe',
@@ -65,8 +78,9 @@ describe('useChatWsListeners', () => {
   it('sends unsubscribe on unmount', () => {
     mockWsStatus = 'open'
 
-    const { unmount } = renderHook(() =>
-      useChatWsListeners(CONVERSATION_ID, { enabled: true }),
+    const { unmount } = renderHook(
+      () => useChatWsListeners(CONVERSATION_ID, { enabled: true }),
+      { wrapper: makeWrapper() },
     )
 
     mockSend.mockClear()
@@ -83,11 +97,13 @@ describe('useChatWsListeners', () => {
     mockWsStatus = 'open'
     const onMessageCreated = vi.fn()
 
-    renderHook(() =>
-      useChatWsListeners(CONVERSATION_ID, {
-        enabled: true,
-        onMessageCreated,
-      }),
+    renderHook(
+      () =>
+        useChatWsListeners(CONVERSATION_ID, {
+          enabled: true,
+          onMessageCreated,
+        }),
+      { wrapper: makeWrapper() },
     )
 
     const payload: MessageCreatedPayload = {
@@ -116,11 +132,13 @@ describe('useChatWsListeners', () => {
     mockWsStatus = 'open'
     const onMessageReadBatch = vi.fn()
 
-    renderHook(() =>
-      useChatWsListeners(CONVERSATION_ID, {
-        enabled: true,
-        onMessageReadBatch,
-      }),
+    renderHook(
+      () =>
+        useChatWsListeners(CONVERSATION_ID, {
+          enabled: true,
+          onMessageReadBatch,
+        }),
+      { wrapper: makeWrapper() },
     )
 
     const payload: MessageReadBatchPayload = {
@@ -145,11 +163,13 @@ describe('useChatWsListeners', () => {
     mockWsStatus = 'open'
     const onTypingStarted = vi.fn()
 
-    renderHook(() =>
-      useChatWsListeners(CONVERSATION_ID, {
-        enabled: true,
-        onTypingStarted,
-      }),
+    renderHook(
+      () =>
+        useChatWsListeners(CONVERSATION_ID, {
+          enabled: true,
+          onTypingStarted,
+        }),
+      { wrapper: makeWrapper() },
     )
 
     const payload: TypingStartedPayload = {
@@ -174,11 +194,13 @@ describe('useChatWsListeners', () => {
     mockWsStatus = 'open'
     const onTypingStopped = vi.fn()
 
-    renderHook(() =>
-      useChatWsListeners(CONVERSATION_ID, {
-        enabled: true,
-        onTypingStopped,
-      }),
+    renderHook(
+      () =>
+        useChatWsListeners(CONVERSATION_ID, {
+          enabled: true,
+          onTypingStopped,
+        }),
+      { wrapper: makeWrapper() },
     )
 
     const payload: TypingStoppedPayload = {
@@ -202,11 +224,13 @@ describe('useChatWsListeners', () => {
     mockWsStatus = 'open'
     const onPresenceUpdated = vi.fn()
 
-    renderHook(() =>
-      useChatWsListeners(CONVERSATION_ID, {
-        enabled: true,
-        onPresenceUpdated,
-      }),
+    renderHook(
+      () =>
+        useChatWsListeners(CONVERSATION_ID, {
+          enabled: true,
+          onPresenceUpdated,
+        }),
+      { wrapper: makeWrapper() },
     )
 
     const payload: PresenceUpdatedPayload = {
@@ -232,11 +256,13 @@ describe('useChatWsListeners', () => {
     mockWsStatus = 'open'
     const onMessageCreated = vi.fn()
 
-    renderHook(() =>
-      useChatWsListeners(CONVERSATION_ID, {
-        enabled: true,
-        onMessageCreated,
-      }),
+    renderHook(
+      () =>
+        useChatWsListeners(CONVERSATION_ID, {
+          enabled: true,
+          onMessageCreated,
+        }),
+      { wrapper: makeWrapper() },
     )
 
     const payload: MessageCreatedPayload = {
@@ -261,7 +287,9 @@ describe('useChatWsListeners', () => {
   it('does not subscribe when disabled', () => {
     mockWsStatus = 'idle'
 
-    renderHook(() => useChatWsListeners(CONVERSATION_ID, { enabled: false }))
+    renderHook(() => useChatWsListeners(CONVERSATION_ID, { enabled: false }), {
+      wrapper: makeWrapper(),
+    })
 
     expect(mockSend).not.toHaveBeenCalled()
   })

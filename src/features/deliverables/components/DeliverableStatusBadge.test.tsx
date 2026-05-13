@@ -22,16 +22,16 @@ describe('DeliverableStatusBadge', () => {
       foregroundClass: string,
     ]
   >([
-    ['pending', 'Pending', 'bg-muted', 'text-foreground'],
-    ['draft_submitted', 'In review', 'bg-info', 'text-info-foreground'],
+    ['pending', 'Pendiente', 'bg-muted', 'text-foreground'],
+    ['draft_submitted', 'En revisión', 'bg-info', 'text-info-foreground'],
     [
       'changes_requested',
-      'Changes requested',
+      'Cambios solicitados',
       'bg-destructive',
       'text-destructive-foreground',
     ],
-    ['completed', 'Completed', 'bg-success', 'text-success-foreground'],
-    ['paid', 'Paid', 'bg-primary', 'text-primary-foreground'],
+    ['completed', 'Completado', 'bg-success', 'text-success-foreground'],
+    ['paid', 'Pagado', 'bg-primary', 'text-primary-foreground'],
   ])(
     'renders %s with the expected label and color classes',
     (status, label, backgroundClass, foregroundClass) => {

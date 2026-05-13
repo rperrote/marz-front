@@ -1,6 +1,5 @@
 import { t } from '@lingui/core/macro'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRef } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -21,6 +20,7 @@ import {
   trackDiscoveryMatchContacted,
 } from '#/shared/analytics/discoveryTracking'
 import { ApiError } from '#/shared/api/mutator'
+import { useIdempotencyKey, withIdempotencyKey } from '#/shared/api/idempotency'
 
 import { getCampaignDiscoveryQueryKey } from './queries'
 
@@ -45,11 +45,7 @@ export function useContactMatch(
         campaignId,
         variables.matchId,
         variables.data,
-        {
-          headers: {
-            'Idempotency-Key': idempotency.get(variables),
-          },
-        },
+        withIdempotencyKey(idempotency.get(variables)),
       )
 
       if (response.status !== 200) {
@@ -92,11 +88,7 @@ export function useAcceptApplication(
       const response = await acceptCampaignDiscoveryApplication(
         campaignId,
         variables.applicationId,
-        {
-          headers: {
-            'Idempotency-Key': idempotency.get(variables),
-          },
-        },
+        withIdempotencyKey(idempotency.get(variables)),
       )
 
       if (response.status !== 200) {
@@ -139,11 +131,7 @@ export function useRejectApplication(campaignId: string) {
       const response = await rejectCampaignDiscoveryApplication(
         campaignId,
         variables.applicationId,
-        {
-          headers: {
-            'Idempotency-Key': idempotency.get(variables),
-          },
-        },
+        withIdempotencyKey(idempotency.get(variables)),
       )
 
       if (response.status !== 200) {
@@ -175,11 +163,11 @@ export function useCreateCampaignInvite(campaignId: string) {
 
   return useMutation({
     mutationFn: async (data: CreateCampaignInviteRequest) => {
-      const response = await createCampaignDiscoveryInvite(campaignId, data, {
-        headers: {
-          'Idempotency-Key': idempotency.get(data),
-        },
-      })
+      const response = await createCampaignDiscoveryInvite(
+        campaignId,
+        data,
+        withIdempotencyKey(idempotency.get(data)),
+      )
 
       if (response.status !== 201) {
         throw new ApiError(
@@ -210,31 +198,6 @@ interface ContactMatchVariables {
 
 interface ApplicationVariables {
   applicationId: string
-}
-
-export function useIdempotencyKey<TVariables>(
-  fingerprintFor: (variables: TVariables) => string,
-) {
-  const idempotencyRef = useRef<{
-    fingerprint: string
-    key: string
-  } | null>(null)
-
-  return {
-    get: (variables: TVariables) => {
-      const fingerprint = fingerprintFor(variables)
-      if (idempotencyRef.current?.fingerprint !== fingerprint) {
-        idempotencyRef.current = {
-          fingerprint,
-          key: crypto.randomUUID(),
-        }
-      }
-      return idempotencyRef.current.key
-    },
-    reset: () => {
-      idempotencyRef.current = null
-    },
-  }
 }
 
 async function invalidateDiscovery(

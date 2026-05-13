@@ -139,10 +139,10 @@ describe('DraftSubmittedCard', () => {
     )
 
     expect(
-      screen.getByRole('button', { name: /request changes/i }),
+      screen.getByRole('button', { name: /solicitar cambios/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /request changes/i }),
+      screen.getByRole('button', { name: /solicitar cambios/i }),
     ).not.toHaveAttribute('disabled')
   })
 
@@ -160,7 +160,7 @@ describe('DraftSubmittedCard', () => {
     )
 
     expect(
-      screen.queryByRole('button', { name: /request changes/i }),
+      screen.queryByRole('button', { name: /solicitar cambios/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -180,7 +180,7 @@ describe('DraftSubmittedCard', () => {
     )
 
     expect(
-      screen.queryByRole('button', { name: /request changes/i }),
+      screen.queryByRole('button', { name: /solicitar cambios/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -198,7 +198,7 @@ describe('DraftSubmittedCard', () => {
     )
 
     expect(
-      screen.queryByRole('button', { name: /request changes/i }),
+      screen.queryByRole('button', { name: /solicitar cambios/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -215,14 +215,14 @@ describe('DraftSubmittedCard', () => {
       />,
     )
 
-    const button = screen.getByRole('button', { name: /request changes/i })
+    const button = screen.getByRole('button', { name: /solicitar cambios/i })
     expect(button).toHaveAttribute('disabled')
     expect(button).toHaveAttribute(
       'aria-describedby',
       'request-changes-tooltip-del-1',
     )
     expect(
-      screen.getByText('A newer version was submitted'),
+      screen.getByText('Se envió una versión más nueva'),
     ).toBeInTheDocument()
   })
 
@@ -244,7 +244,7 @@ describe('DraftSubmittedCard', () => {
       />,
     )
 
-    const button = screen.getByRole('button', { name: /request changes/i })
+    const button = screen.getByRole('button', { name: /solicitar cambios/i })
     expect(button).toBeInTheDocument()
     expect(button).not.toHaveAttribute('disabled')
   })

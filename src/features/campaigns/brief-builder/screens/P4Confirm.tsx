@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '#/components/ui/dialog'
+import { generateIdempotencyKey } from '#/shared/api/idempotency'
 import { useBriefBuilderStore } from '../store'
 import {
   useCreateCampaign,
@@ -31,7 +32,7 @@ export function P4Confirm() {
   const router = useRouter()
   const draft = store.briefDraft
 
-  const idempotencyKeyRef = useRef(crypto.randomUUID())
+  const idempotencyKeyRef = useRef(generateIdempotencyKey())
   const hasTriggeredRef = useRef(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
 

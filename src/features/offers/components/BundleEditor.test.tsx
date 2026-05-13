@@ -337,7 +337,7 @@ describe('BundleEditor', () => {
     expect(payload.type).toBe('bundle')
     expect(payload.campaign_id).toBe('camp-1')
     expect(payload.amount).toBe('1000.00')
-    expect(payload.deadline).toBe('2099-12-31')
+    expect(payload.deadline).toBe('2099-12-31T00:00:00Z')
     expect(payload.bonus_terms).toEqual({
       speed_bonus_windows: [
         { window_hours: 24, bonus_pct: '10' },

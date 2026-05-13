@@ -40,6 +40,26 @@ interface BonusStepProps {
   config: CampaignConfiguration
 }
 
+// El spec tipa CampaignBonusAmount con todos los campos opcionales discriminados
+// por `type` (laxo). El form local usa un discriminated union estricto. Convertimos.
+function mapBonusAmount(amount: {
+  type: string
+  percentage?: number
+  amount?: string
+  currency?: string
+}):
+  | { type: 'percentage'; percentage: number }
+  | { type: 'fixed'; amount: string; currency: string } {
+  if (amount.type === 'percentage') {
+    return { type: 'percentage', percentage: amount.percentage ?? 0 }
+  }
+  return {
+    type: 'fixed',
+    amount: amount.amount ?? '0',
+    currency: amount.currency ?? '',
+  }
+}
+
 export function bonusDefaults(
   config: CampaignConfiguration,
 ): BonusConfigValues {
@@ -47,11 +67,22 @@ export function bonusDefaults(
     enabled: config.bonus_config.enabled,
     speed_bonus: {
       enabled: config.bonus_config.speed_bonus.enabled,
-      windows: sortSpeedWindows(config.bonus_config.speed_bonus.windows),
+      windows: sortSpeedWindows(
+        config.bonus_config.speed_bonus.windows.map((w) => ({
+          window_id: w.window_id,
+          window_hours: w.window_hours,
+          bonus: mapBonusAmount(w.bonus),
+        })),
+      ),
     },
     performance_bonus: {
       enabled: config.bonus_config.performance_bonus.enabled,
-      milestones: [...config.bonus_config.performance_bonus.milestones],
+      milestones: config.bonus_config.performance_bonus.milestones.map((m) => ({
+        milestone_id: m.milestone_id,
+        views: m.views,
+        window_hours: m.window_hours,
+        bonus: mapBonusAmount(m.bonus),
+      })),
     },
   }
 }

@@ -1,4 +1,7 @@
-import { useRequestDraftChanges } from '#/shared/api/generated/deliverables/deliverables'
+import { useMutation } from '@tanstack/react-query'
+
+import { requestDraftChanges } from '#/shared/api/generated/deliverables/deliverables'
+import { withIdempotencyKey } from '#/shared/api/idempotency'
 
 export type ChangeCategory =
   | 'product_placement'
@@ -13,19 +16,18 @@ export interface RequestChangesBody {
 }
 
 export function useRequestChangesMutation(deliverableId: string) {
-  const mutation = useRequestDraftChanges()
-
-  const mutateAsync = (variables: {
-    body: RequestChangesBody
-    idempotencyKey: string
-  }) =>
-    mutation.mutateAsync({
-      id: deliverableId,
-      data: {
-        categories: variables.body.categories,
-        notes: variables.body.notes,
-      },
-    })
-
-  return { ...mutation, mutateAsync }
+  return useMutation({
+    mutationFn: (variables: {
+      body: RequestChangesBody
+      idempotencyKey: string
+    }) =>
+      requestDraftChanges(
+        deliverableId,
+        {
+          categories: variables.body.categories,
+          notes: variables.body.notes,
+        },
+        withIdempotencyKey(variables.idempotencyKey),
+      ),
+  })
 }

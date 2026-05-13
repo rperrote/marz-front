@@ -12,7 +12,7 @@ import type {
 } from '#/shared/api/generated/model'
 
 import { campaignBoardDetailQueryKey } from './useCampaignBoardDetailQuery'
-import { generateIdempotencyKey } from '../utils/idempotencyKey'
+import { generateIdempotencyKey } from '#/shared/api/idempotency'
 
 export interface SubmitCampaignApplicationVariables {
   campaignId: string

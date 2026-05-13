@@ -1,18 +1,22 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { useWebSocket } from '#/shared/ws/useWebSocket'
 import { useTypingStore } from '#/features/chat/stores/typingStore'
+import { createWsHandlers } from '#/shared/ws/handlers'
 import type { ChatWsHandlers } from './types'
 import { buildChatHandlers } from './listeners'
 
 interface UseChatWsListenersOptions extends ChatWsHandlers {
   enabled?: boolean
+  sessionKind?: 'brand' | 'creator'
 }
 
 export function useChatWsListeners(
   conversationId: string,
   {
     enabled = false,
+    sessionKind,
     onMessageCreated,
     onMessageReadBatch,
     onTypingStarted,
@@ -20,6 +24,7 @@ export function useChatWsListeners(
     onPresenceUpdated,
   }: UseChatWsListenersOptions = {},
 ) {
+  const queryClient = useQueryClient()
   const handlersRef = useRef<ChatWsHandlers>({
     onMessageCreated,
     onMessageReadBatch,
@@ -43,8 +48,11 @@ export function useChatWsListeners(
       onTypingStopped: (e) => handlersRef.current.onTypingStopped?.(e),
       onPresenceUpdated: (e) => handlersRef.current.onPresenceUpdated?.(e),
     }
-    return buildChatHandlers(conversationId, proxy)
-  }, [conversationId])
+    return {
+      ...createWsHandlers(queryClient, sessionKind),
+      ...buildChatHandlers(conversationId, proxy),
+    }
+  }, [conversationId, queryClient, sessionKind])
 
   const { status, send } = useWebSocket({
     handlers: stableHandlers,

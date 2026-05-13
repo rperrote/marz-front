@@ -1,10 +1,14 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { t } from '@lingui/core/macro'
 
 import { ApiError } from '#/shared/api/mutator'
-import { useApproveLink as useApproveLinkOrval } from '#/shared/api/generated/deliverables/deliverables'
+import { approveLink } from '#/shared/api/generated/deliverables/deliverables'
+import {
+  generateIdempotencyKey,
+  withIdempotencyKey,
+} from '#/shared/api/idempotency'
 import { getDeliverableLinksQueryKey } from './useDeliverableLinks'
 
 interface ApproveLinkMutationVariables {
@@ -15,7 +19,14 @@ interface ApproveLinkMutationVariables {
 
 export function useApproveLinkMutation() {
   const queryClient = useQueryClient()
-  const mutation = useApproveLinkOrval()
+  const mutation = useMutation({
+    mutationFn: (variables: ApproveLinkMutationVariables) =>
+      approveLink(
+        variables.linkId,
+        { deliverable_id: variables.deliverableId },
+        withIdempotencyKey(variables.idempotencyKey),
+      ),
+  })
 
   const mutate = async (variables: ApproveLinkMutationVariables) => {
     const previous = queryClient.getQueryData([
@@ -31,10 +42,7 @@ export function useApproveLinkMutation() {
     )
 
     try {
-      const response = await mutation.mutateAsync({
-        linkId: variables.linkId,
-        data: { deliverable_id: variables.deliverableId },
-      })
+      const response = await mutation.mutateAsync(variables)
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ['deliverable', variables.deliverableId],
@@ -68,7 +76,7 @@ export function useApproveLink(deliverableId: string, linkId: string) {
         .mutateAsync({
           deliverableId,
           linkId,
-          idempotencyKey: crypto.randomUUID(),
+          idempotencyKey: generateIdempotencyKey(),
         })
         .then(() => {
           options?.onSuccess?.()

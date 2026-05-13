@@ -176,7 +176,7 @@ export function LinkSubmittedCard({
               disabled={approveLink.isPending}
               onClick={handleApproveLink}
             >
-              {t`Approve link`}
+              {t`Aprobar link`}
             </Button>
             {onRequestChangesOnLink ? (
               <Button
@@ -184,17 +184,17 @@ export function LinkSubmittedCard({
                 className="flex-1"
                 onClick={() => onRequestChangesOnLink(snapshot)}
               >
-                {t`Request changes on link`}
+                {t`Solicitar cambios en el link`}
               </Button>
             ) : (
               <RequestChangesModal
-                title={t`Request changes on link`}
+                title={t`Solicitar cambios en el link`}
                 target="link"
                 deliverableId={snapshot.deliverable_id}
                 linkId={snapshot.link.id}
                 trigger={
                   <Button variant="outline" className="flex-1">
-                    {t`Request changes on link`}
+                    {t`Solicitar cambios en el link`}
                   </Button>
                 }
               />

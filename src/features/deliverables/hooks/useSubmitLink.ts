@@ -1,8 +1,9 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { t } from '@lingui/core/macro'
 
 import { ApiError } from '#/shared/api/mutator'
-import { useSubmitLink } from '#/shared/api/generated/deliverables/deliverables'
+import { submitLink } from '#/shared/api/generated/deliverables/deliverables'
+import { withIdempotencyKey } from '#/shared/api/idempotency'
 import type {
   PublishedLink,
   PublishedLinkPreview,
@@ -31,17 +32,18 @@ interface SubmitLinkMutationResponse {
 
 export function useSubmitLinkMutation() {
   const queryClient = useQueryClient()
-  const mutation = useSubmitLink()
+  const mutation = useMutation({
+    mutationFn: (params: SubmitLinkMutationParams) =>
+      submitLink(
+        { deliverable_id: params.deliverableId, url: params.body.url },
+        withIdempotencyKey(params.idempotencyKey),
+      ),
+  })
 
   const mutateAsync = async (
     params: SubmitLinkMutationParams,
   ): Promise<SubmitLinkMutationResponse> => {
-    const response = await mutation.mutateAsync({
-      data: {
-        deliverable_id: params.deliverableId,
-        url: params.body.url,
-      },
-    })
+    const response = await mutation.mutateAsync(params)
 
     await Promise.all([
       queryClient.invalidateQueries({

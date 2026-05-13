@@ -19,7 +19,7 @@ import { ApiError } from '#/shared/api/mutator'
 import { applyBackendFieldErrors, useAppForm } from '#/shared/ui/form'
 
 import { useSubmitCampaignApplicationMutation } from './hooks/useSubmitCampaignApplicationMutation'
-import { generateIdempotencyKey } from './utils/idempotencyKey'
+import { generateIdempotencyKey } from '#/shared/api/idempotency'
 
 const applicationFormSchema = z.object({
   message: z
