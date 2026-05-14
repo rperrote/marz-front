@@ -29,6 +29,8 @@
     "api:sync": "tsx scripts/sync-api.ts",
     "api:generate": "orval",
     "check:api-direct": "tsx scripts/check-direct-api-calls.ts",
+    "check:i18n-standards": "tsx scripts/check-i18n-standards.ts",
+    "check:i18n-standards:self-test": "tsx scripts/check-i18n-standards.ts --self-test",
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile",
     "prepare": "husky"

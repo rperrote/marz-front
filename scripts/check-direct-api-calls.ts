@@ -10,6 +10,7 @@
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 const ROOT = join(import.meta.dirname, '..')
 const SRC = join(ROOT, 'src')
@@ -42,11 +43,16 @@ const EXCLUDED_PATH_INCLUDE_SET = new Set([
 // (ej. cuando hay genéricos anidados multilínea).
 const CUSTOM_FETCH_RE = /\bcustomFetch\b/
 
-interface Violation {
+export interface DirectApiCallViolation {
   file: string
   line: number
   snippet: string
   endpoint: string | null
+}
+
+export interface FindDirectApiCallViolationsOptions {
+  root?: string
+  src?: string
 }
 
 function walk(dir: string, files: string[] = []): string[] {
@@ -74,7 +80,7 @@ function isExcluded(path: string): boolean {
   return false
 }
 
-function isCall(after: string): boolean {
+export function isCustomFetchCall(after: string): boolean {
   let i = 0
   while (i < after.length && /\s/.test(after[i] ?? '')) i++
   if (after[i] === '<') {
@@ -96,7 +102,10 @@ function isCall(after: string): boolean {
   return after[i] === '('
 }
 
-function extractEndpoint(snippet: string, nextLines: string): string | null {
+export function extractCustomFetchEndpoint(
+  snippet: string,
+  nextLines: string,
+): string | null {
   const haystack = `${snippet}\n${nextLines}`
   // Captura primer string literal después de `customFetch...(` (puede haber
   // genéricos anidados y saltos de línea entre el identificador y el `(`).
@@ -104,9 +113,13 @@ function extractEndpoint(snippet: string, nextLines: string): string | null {
   return m?.[1] ?? null
 }
 
-function main(): void {
-  const files = walk(SRC).filter((f) => !isExcluded(f))
-  const violations: Violation[] = []
+export function findDirectApiCallViolations(
+  options: FindDirectApiCallViolationsOptions = {},
+): DirectApiCallViolation[] {
+  const root = options.root ?? ROOT
+  const src = options.src ?? SRC
+  const files = walk(src).filter((f) => !isExcluded(f))
+  const violations: DirectApiCallViolation[] = []
 
   for (const file of files) {
     const content = readFileSync(file, 'utf8')
@@ -128,17 +141,23 @@ function main(): void {
       const after = window.slice(
         window.indexOf('customFetch') + 'customFetch'.length,
       )
-      if (!isCall(after)) continue
+      if (!isCustomFetchCall(after)) continue
 
       const nextLines = lines.slice(i + 1, i + 5).join('\n')
       violations.push({
-        file: relative(ROOT, file),
+        file: relative(root, file),
         line: i + 1,
         snippet: trimmed,
-        endpoint: extractEndpoint(line, nextLines),
+        endpoint: extractCustomFetchEndpoint(line, nextLines),
       })
     }
   }
+
+  return violations
+}
+
+function main(): void {
+  const violations = findDirectApiCallViolations()
 
   if (violations.length === 0) {
     console.log('OK: no hay llamadas directas a customFetch fuera de Orval.')
@@ -162,4 +181,6 @@ function main(): void {
   process.exit(1)
 }
 
-main()
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  main()
+}
