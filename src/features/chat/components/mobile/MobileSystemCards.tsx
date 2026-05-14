@@ -21,6 +21,7 @@ import { cn } from '#/lib/utils'
 type MobileCardTone = 'info' | 'success' | 'warning' | 'destructive'
 
 const toneHeader: Record<MobileCardTone, { solid: string; tint: string }> = {
+  /* eslint-disable lingui/no-unlocalized-strings -- Tailwind class maps are not translatable UI copy. */
   info: { solid: 'bg-info text-info-foreground', tint: 'bg-muted text-info' },
   success: {
     solid: 'bg-success text-success-foreground',
@@ -42,6 +43,7 @@ const toneBorder: Record<MobileCardTone, string> = {
   warning: 'border-warning/50',
   destructive: 'border-destructive/50',
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 function MobileCardFrame({
   tone,

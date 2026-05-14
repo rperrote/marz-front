@@ -359,6 +359,7 @@ function getTimelineSpacingClass(
   if (!prev) return ''
   const prevTime = new Date(prev.created_at).getTime()
   const currTime = new Date(current.created_at).getTime()
+  /* eslint-disable lingui/no-unlocalized-strings -- Tailwind spacing classes are not translatable UI copy. */
   if (Number.isNaN(prevTime) || Number.isNaN(currTime)) return 'mt-4'
   const delta = currTime - prevTime
   const sameAuthor =
@@ -367,6 +368,7 @@ function getTimelineSpacingClass(
   if (delta <= SAME_BURST_MS && sameAuthor) return 'mt-0.5'
   if (delta <= SAME_BLOCK_MS) return 'mt-2'
   return 'mt-6'
+  /* eslint-enable lingui/no-unlocalized-strings */
 }
 
 interface MessageRowProps {

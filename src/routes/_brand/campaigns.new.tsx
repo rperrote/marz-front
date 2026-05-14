@@ -1,6 +1,8 @@
 import { useCallback, useEffect } from 'react'
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
+import { t } from '@lingui/core/macro'
+import { Trans } from '@lingui/react/macro'
 
 import { BriefBuilderWizard } from '#/features/campaigns/brief-builder/BriefBuilderWizard'
 import { useBriefBuilderStore } from '#/features/campaigns/brief-builder/store'
@@ -26,10 +28,10 @@ function CampaignsNewLayout() {
   const params = useParams({ strict: false })
   const phaseSlug = 'phase' in params ? params.phase : undefined
   const currentIndex = phaseSlug ? getPhaseIndex(phaseSlug) : -1
+  const currentPhase = currentIndex + 1
+  const totalPhases = PHASES.length
   const stepLabel =
-    currentIndex === -1
-      ? undefined
-      : `Fase ${currentIndex + 1} de ${PHASES.length}`
+    currentIndex === -1 ? undefined : t`Fase ${currentPhase} de ${totalPhases}`
 
   const handleExit = useCallback(() => {
     useBriefBuilderStore.getState().reset()
@@ -43,9 +45,9 @@ function CampaignsNewLayout() {
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
       <WizardTopbar
-        stepLabel={stepLabel ?? 'Nueva campaña'}
+        stepLabel={stepLabel ?? t`Nueva campaña`}
         onExit={handleExit}
-        exitLabel="Cancelar"
+        exitLabel={t`Cancelar`}
       />
       <main className="flex flex-1 flex-col overflow-hidden">
         <BriefBuilderWizard />
@@ -77,19 +79,21 @@ function CampaignsNewError({ error, reset }: ErrorComponentProps) {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4 bg-background">
-      <h2 className="text-lg font-semibold text-foreground">Algo salió mal</h2>
+      <h2 className="text-lg font-semibold text-foreground">
+        <Trans>Algo salió mal</Trans>
+      </h2>
       <p className="text-sm text-muted-foreground">
-        {error instanceof Error ? error.message : 'Error inesperado'}
+        {error instanceof Error ? error.message : t`Error inesperado`}
       </p>
       <div className="flex gap-2">
         <Button variant="outline" onClick={reset}>
-          Reintentar
+          <Trans>Reintentar</Trans>
         </Button>
         <Button
           variant="ghost"
           onClick={() => void router.navigate({ to: '/campaigns' })}
         >
-          Volver a campañas
+          <Trans>Volver a campañas</Trans>
         </Button>
       </div>
     </div>

@@ -16,11 +16,13 @@ export function getMatchScoreBand(score: number): MatchScoreBand {
   return 'low'
 }
 
+/* eslint-disable lingui/no-unlocalized-strings -- Tailwind class map is not translatable UI copy. */
 const bandClassName: Record<MatchScoreBand, string> = {
   high: 'border-success/25 bg-success/10 text-success',
   medium: 'border-warning/25 bg-warning/10 text-warning',
   low: 'border-muted-foreground/25 bg-muted text-muted-foreground',
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 function getBandLabel(): Record<MatchScoreBand, string> {
   return {

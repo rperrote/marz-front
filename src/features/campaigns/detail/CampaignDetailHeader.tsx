@@ -177,7 +177,8 @@ function formatDeadline(deadline: string | null) {
   const date = new Date(deadline)
   if (Number.isNaN(date.getTime())) return deadline
 
-  return t`Deadline ${deadlineFormatter.format(date)}`
+  const formattedDeadline = deadlineFormatter.format(date)
+  return t`Deadline ${formattedDeadline}`
 }
 
 export function CampaignDetailHeaderSkeleton() {

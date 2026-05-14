@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from '@tanstack/react-router'
 
 import { useIsMobile } from '#/features/identity/onboarding/hooks/useIsMobile'
 
+/* eslint-disable-next-line lingui/no-unlocalized-strings -- Session storage key is not translatable UI copy. */
 const SESSION_KEY = 'marz:desktop-only:returnTo'
 
 function shouldBlock(pathname: string): boolean {

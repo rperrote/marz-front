@@ -1,4 +1,5 @@
 import { Calendar } from 'lucide-react'
+import { t } from '@lingui/core/macro'
 
 interface DeadlineFieldProps {
   value: string
@@ -10,7 +11,7 @@ interface DeadlineFieldProps {
 export function DeadlineField({
   value,
   onChange,
-  placeholder = 'Pick a date',
+  placeholder = t`Pick a date`,
   id,
 }: DeadlineFieldProps) {
   return (

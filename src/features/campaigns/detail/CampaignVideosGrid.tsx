@@ -60,6 +60,7 @@ function getVideoStatusLabel(status: DeliverableStatus) {
   return labels[status]()
 }
 
+/* eslint-disable lingui/no-unlocalized-strings -- Static class names and platform brand names are not translatable UI copy. */
 const statusClassNames: Record<DeliverableStatus, string> = {
   pending: 'border-border bg-background text-muted-foreground',
   draft_submitted: 'bg-warning text-warning-foreground',
@@ -81,6 +82,7 @@ const platformMeta: Record<
   x: { label: 'X', icon: X },
   twitch: { label: 'Twitch', icon: Twitch },
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 export function CampaignVideosGrid({
   scope,
@@ -233,12 +235,13 @@ function VideoCard({ video }: { video: CampaignVideoCard }) {
     video.submitted_at ?? video.updated_at,
     t`Pending`,
   )
+  const creatorName = video.creator.display_name
 
   return (
     <Link
       to={video.reviewer_url}
       className="group overflow-hidden rounded-[20px] border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-      aria-label={t`Open video reviewer for ${video.creator.display_name}`}
+      aria-label={t`Open video reviewer for ${creatorName}`}
     >
       <div className="relative aspect-video overflow-hidden bg-muted">
         {video.thumbnail_url ? (

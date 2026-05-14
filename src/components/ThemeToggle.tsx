@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { t } from '@lingui/core/macro'
 
 type ThemeMode = 'light' | 'dark' | 'auto'
 
@@ -52,8 +53,8 @@ export function ThemeToggle() {
 
   const label =
     mode === 'auto'
-      ? 'Theme: auto. Click to switch to light.'
-      : `Theme: ${mode}. Click to cycle.`
+      ? t`Theme: auto. Click to switch to light.`
+      : t`Theme: ${mode}. Click to cycle.`
 
   return (
     <button
@@ -63,7 +64,7 @@ export function ThemeToggle() {
       title={label}
       className="rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-surface-hover"
     >
-      {mode === 'auto' ? 'Auto' : mode === 'dark' ? 'Dark' : 'Light'}
+      {mode === 'auto' ? t`Auto` : mode === 'dark' ? t`Dark` : t`Light`}
     </button>
   )
 }

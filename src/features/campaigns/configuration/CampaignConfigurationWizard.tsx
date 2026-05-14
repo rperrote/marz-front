@@ -89,6 +89,9 @@ export function CampaignConfigurationWizard({
   const safeActiveStepIndex = Math.max(activeStepIndex, 0)
   const activeStep = CAMPAIGN_CONFIGURATION_STEPS[safeActiveStepIndex]!
   const activeCopy = stepCopy[activeStep]
+  const configurationVersion = activeConfig.configuration_version
+  const activeStepNumber = safeActiveStepIndex + 1
+  const totalSteps = CAMPAIGN_CONFIGURATION_STEPS.length
 
   useConfigurationWebSocket(campaignId)
 
@@ -135,7 +138,7 @@ export function CampaignConfigurationWizard({
           {t`Configurar campaña`}
         </p>
         <div className="ml-auto rounded-full bg-muted px-3 py-1 font-mono text-xs text-muted-foreground">
-          {t`Versión ${activeConfig.configuration_version}`}
+          {t`Versión ${configurationVersion}`}
         </div>
       </header>
 
@@ -152,7 +155,7 @@ export function CampaignConfigurationWizard({
                 </p>
               </div>
               <p className="shrink-0 font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                {t`Paso ${safeActiveStepIndex + 1} de ${CAMPAIGN_CONFIGURATION_STEPS.length}`}
+                {t`Paso ${activeStepNumber} de ${totalSteps}`}
               </p>
             </div>
             <ConfigurationStepper config={activeConfig} />
@@ -205,6 +208,7 @@ interface StepperItemProps {
 function StepperItem({ step, index, state }: StepperItemProps) {
   const stepCopy = getStepCopy()
   const copy = stepCopy[step]
+  const stepNumber = index + 1
   const Icon =
     state === 'completed' ? Check : state === 'current' ? CircleDot : Circle
 
@@ -234,7 +238,7 @@ function StepperItem({ step, index, state }: StepperItemProps) {
       </span>
       <span className="min-w-0">
         <span className="block font-mono text-[11px] text-muted-foreground">
-          {t`Paso ${index + 1}`}
+          {t`Paso ${stepNumber}`}
         </span>
         <span className="block truncate text-sm font-semibold">
           {copy.shortLabel}

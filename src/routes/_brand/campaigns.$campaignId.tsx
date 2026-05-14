@@ -39,11 +39,13 @@ export const campaignDetailSearchSchema = z.object({
   sort: z.string().optional().catch(undefined),
 })
 
+/* eslint-disable lingui/no-unlocalized-strings -- Router child route IDs are not translatable UI copy. */
 const CHILD_ROUTE_IDS = new Set([
   '/_brand/campaigns/$campaignId/brief',
   '/_brand/campaigns/$campaignId/configuration',
   '/_brand/campaigns/$campaignId/configuration/$step',
 ])
+/* eslint-enable lingui/no-unlocalized-strings */
 
 export const Route = createFileRoute('/_brand/campaigns/$campaignId')({
   validateSearch: (search) => campaignDetailSearchSchema.parse(search),

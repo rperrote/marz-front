@@ -103,11 +103,13 @@ export function ScoringDimensionCard({
   onChange,
   onRemove,
 }: ScoringDimensionCardProps) {
+  const dimensionNumber = String(index + 1)
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-[length:var(--font-size-sm)]">
-          {t`Dimensión ${String(index + 1)}`}
+          {t`Dimensión ${dimensionNumber}`}
         </CardTitle>
         <CardAction>
           <Button
@@ -115,7 +117,7 @@ export function ScoringDimensionCard({
             variant="ghost"
             size="icon-sm"
             onClick={onRemove}
-            aria-label={t`Eliminar dimensión ${String(index + 1)}`}
+            aria-label={t`Eliminar dimensión ${dimensionNumber}`}
           >
             <Trash2 className="size-4 text-destructive" />
           </Button>
@@ -181,7 +183,7 @@ export function ScoringDimensionCard({
               <SliderPrimitive.Range className="absolute h-full bg-primary" />
             </SliderPrimitive.Track>
             <SliderPrimitive.Thumb
-              aria-label={t`Peso dimensión ${String(index + 1)}`}
+              aria-label={t`Peso dimensión ${dimensionNumber}`}
               className="block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden"
             />
           </SliderPrimitive.Root>

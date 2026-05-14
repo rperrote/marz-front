@@ -18,11 +18,12 @@ export function ConversationHeader({
 }: ConversationHeaderProps) {
   const { counterpart } = conversation
   const fallback = counterpart.display_name.charAt(0).toUpperCase()
+  const counterpartName = counterpart.display_name
 
   return (
     <TooltipProvider>
       <header
-        aria-label={t`Conversation with ${counterpart.display_name}`}
+        aria-label={t`Conversation with ${counterpartName}`}
         className="flex h-16 shrink-0 items-center gap-3 border-b border-border px-5 py-3"
       >
         {leadingSlot}

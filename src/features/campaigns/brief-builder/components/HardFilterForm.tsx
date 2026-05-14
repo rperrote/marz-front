@@ -43,44 +43,47 @@ export function HardFilterForm({ filters, onChange }: HardFilterFormProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {filters.map((filter, idx) => (
-        <div key={filter.id} className="flex items-start gap-2">
-          <Select
-            value={filter.filter_type}
-            onValueChange={(val) =>
-              updateFilter(idx, { ...filter, filter_type: val })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={t`Tipo de filtro`} />
-            </SelectTrigger>
-            <SelectContent>
-              {FILTER_TYPE_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            value={filter.filter_value}
-            onChange={(e) =>
-              updateFilter(idx, { ...filter, filter_value: e.target.value })
-            }
-            placeholder={t`Valor`}
-            className="flex-1"
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => removeFilter(idx)}
-            aria-label={t`Eliminar filtro ${String(idx + 1)}`}
-          >
-            <Trash2 className="size-4 text-destructive" />
-          </Button>
-        </div>
-      ))}
+      {filters.map((filter, idx) => {
+        const filterNumber = String(idx + 1)
+        return (
+          <div key={filter.id} className="flex items-start gap-2">
+            <Select
+              value={filter.filter_type}
+              onValueChange={(val) =>
+                updateFilter(idx, { ...filter, filter_type: val })
+              }
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t`Tipo de filtro`} />
+              </SelectTrigger>
+              <SelectContent>
+                {FILTER_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              value={filter.filter_value}
+              onChange={(e) =>
+                updateFilter(idx, { ...filter, filter_value: e.target.value })
+              }
+              placeholder={t`Valor`}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => removeFilter(idx)}
+              aria-label={t`Eliminar filtro ${filterNumber}`}
+            >
+              <Trash2 className="size-4 text-destructive" />
+            </Button>
+          </div>
+        )
+      })}
       <Button
         type="button"
         variant="outline"

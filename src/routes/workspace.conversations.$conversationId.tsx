@@ -63,7 +63,10 @@ function ConversationRoute() {
       : undefined
   const uploadLabel =
     uploadDeliverable && uploadDeliverable.current_version != null
-      ? t`Upload draft v${uploadDeliverable.current_version + 1}`
+      ? (() => {
+          const nextVersion = uploadDeliverable.current_version + 1
+          return t`Upload draft v${nextVersion}`
+        })()
       : t`Upload draft`
   const uploadDeliverableIndex =
     uploadDeliverable && deliverablesData

@@ -161,6 +161,9 @@ function buildChartSummary(buckets: ChartBucket[], totalAmount: number) {
   const highestBucket = buckets.reduce((highest, bucket) =>
     bucket.amount > highest.amount ? bucket : highest,
   )
+  const total = moneyFormatter.format(totalAmount)
+  const highestMonth = highestBucket.label
+  const highestAmount = highestBucket.formattedAmount
 
-  return t`Monthly earnings total ${moneyFormatter.format(totalAmount)}. Highest month ${highestBucket.label} with ${highestBucket.formattedAmount}.`
+  return t`Monthly earnings total ${total}. Highest month ${highestMonth} with ${highestAmount}.`
 }

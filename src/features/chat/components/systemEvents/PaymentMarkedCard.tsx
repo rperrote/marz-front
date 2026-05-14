@@ -42,7 +42,8 @@ function buildNote(snapshot: PaymentMarkedSnapshot) {
       year: 'numeric',
     },
   )
-  return t`${snapshot.deliverable_display_label} · ${declaredDate}`
+  const deliverableLabel = snapshot.deliverable_display_label
+  return t`${deliverableLabel} · ${declaredDate}`
 }
 
 export function PaymentMarkedCard({

@@ -1,4 +1,3 @@
-/* eslint-disable lingui/no-unlocalized-strings */
 import { useCallback, useMemo, useRef } from 'react'
 import { t } from '@lingui/core/macro'
 

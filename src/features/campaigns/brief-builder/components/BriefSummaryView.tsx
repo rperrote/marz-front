@@ -19,11 +19,13 @@ function getGenderLabels(): Record<string, string> {
   }
 }
 
+/* eslint-disable lingui/no-unlocalized-strings -- Platform brand names are not translatable UI copy. */
 const PLATFORM_LABELS: Record<string, string> = {
   youtube: 'YouTube',
   instagram: 'Instagram',
   tiktok: 'TikTok',
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 interface BriefSummaryViewProps {
   draft: BriefDraft

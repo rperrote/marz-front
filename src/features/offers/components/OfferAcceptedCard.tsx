@@ -30,7 +30,6 @@ export function OfferAcceptedCard(props: OfferAcceptedCardProps) {
       tone="success"
       kicker={t`Offer accepted`}
       icon={Check}
-       
       headerVariant="solid"
     >
       {props.audience === 'creator' ? (
@@ -56,7 +55,7 @@ export function OfferAcceptedCard(props: OfferAcceptedCardProps) {
           {(() => {
             const creatorName = props.creatorName
             const firstName = props.creatorName.split(' ')[0]
-            const deadline = props.deadline
+            const offerDeadline = props.deadline
             return (
               <>
                 <h3 className="text-lg font-semibold text-foreground">
@@ -64,7 +63,8 @@ export function OfferAcceptedCard(props: OfferAcceptedCardProps) {
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   <Trans>
-                    {firstName} is preparing the draft. Deadline is {deadline}.
+                    {firstName} is preparing the draft. Deadline is{' '}
+                    {offerDeadline}.
                   </Trans>
                 </p>
               </>

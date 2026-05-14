@@ -77,8 +77,10 @@ export function BriefBuilderWizard() {
     )
   }
 
-  const percent = ((currentIndex + 1) / PHASES.length) * 100
-  const stepLabel = t`Fase ${currentIndex + 1} de ${PHASES.length}`
+  const currentPhase = currentIndex + 1
+  const totalPhases = PHASES.length
+  const percent = (currentPhase / totalPhases) * 100
+  const stepLabel = t`Fase ${currentPhase} de ${totalPhases}`
   const isLastPhase = currentIndex === PHASES.length - 1
   const isProgressPhase = currentIndex === 1
   const isConfirmPhase = isLastPhase

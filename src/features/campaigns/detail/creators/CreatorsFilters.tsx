@@ -47,11 +47,13 @@ const platformOptions: ReadonlyArray<{
   value: ListCampaignParticipantsPlatform
   label: string
 }> = [
+  /* eslint-disable lingui/no-unlocalized-strings -- Platform brand names are not translatable UI copy. */
   { value: 'youtube', label: 'YouTube' },
   { value: 'instagram', label: 'Instagram' },
   { value: 'tiktok', label: 'TikTok' },
   { value: 'x', label: 'X' },
   { value: 'twitch', label: 'Twitch' },
+  /* eslint-enable lingui/no-unlocalized-strings */
 ]
 
 export function CreatorsFilters({

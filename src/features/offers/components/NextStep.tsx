@@ -162,12 +162,14 @@ function getNextStepMeta(
 
 const EMPTY_DELIVERABLES: DeliverableDTO[] = []
 
+/* eslint-disable lingui/no-unlocalized-strings -- Tailwind class map is not translatable UI copy. */
 const toneClass: Record<NextStepTone, string> = {
   action: 'bg-info/10 text-info',
   waiting: 'bg-warning/15 text-warning',
   success: 'bg-success/10 text-success',
   error: 'bg-destructive/10 text-destructive',
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 export function NextStep({
   offer,

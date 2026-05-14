@@ -168,7 +168,8 @@ export function useSendMessageMutation(conversationId: string) {
       }
 
       if (error instanceof ApiError && error.status === 422) {
-        toast.error(t`No se pudo enviar el mensaje: ${error.message}`)
+        const errorMessage = error.message
+        toast.error(t`No se pudo enviar el mensaje: ${errorMessage}`)
         queryClient.setQueryData<MessagesInfiniteData>(messagesKey, (old) => {
           if (!old || !context?.clientMessageId)
             return context?.previousMessages ?? old

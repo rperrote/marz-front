@@ -7,6 +7,7 @@ interface WeightSumIndicatorProps {
 
 export function WeightSumIndicator({ sum }: WeightSumIndicatorProps) {
   const isValid = sum === 100
+  const total = String(sum)
 
   return (
     <div
@@ -18,7 +19,7 @@ export function WeightSumIndicator({ sum }: WeightSumIndicatorProps) {
           : 'border-destructive/30 bg-destructive/10 text-destructive',
       )}
     >
-      {t`Total ${String(sum)} / 100`}
+      {t`Total ${total} / 100`}
     </div>
   )
 }

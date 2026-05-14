@@ -70,6 +70,7 @@ function CounterpartAvatar({
   fallback,
   size,
 }: CounterpartAvatarProps) {
+  /* eslint-disable-next-line lingui/no-unlocalized-strings -- Tailwind size classes are not translatable UI copy. */
   const sizeClass = size === 'lg' ? 'size-14 text-xl' : 'size-10 text-sm'
 
   return (

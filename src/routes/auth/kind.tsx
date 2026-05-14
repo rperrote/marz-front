@@ -89,6 +89,7 @@ function KindPage() {
               <circle cx={27} cy={25} r={2.5} fill="var(--background)" />
             </svg>
           </div>
+          {/* eslint-disable-next-line lingui/no-unlocalized-strings -- Product brand name is not translated. */}
           <span className="text-base font-bold tracking-tight text-foreground">
             Marz
           </span>

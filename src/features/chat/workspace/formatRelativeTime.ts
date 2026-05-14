@@ -26,15 +26,18 @@ export function formatRelativeTime(isoDate: string, now = Date.now()): string {
   const diff = now - date.getTime()
 
   if (diff < HOUR) {
-    return t`${Math.max(1, Math.floor(diff / MINUTE))}m`
+    const minutes = Math.max(1, Math.floor(diff / MINUTE))
+    return t`${minutes}m`
   }
 
   if (diff < DAY) {
-    return t`${Math.floor(diff / HOUR)}h`
+    const hours = Math.floor(diff / HOUR)
+    return t`${hours}h`
   }
 
   if (diff < 7 * DAY) {
-    return t`${Math.floor(diff / DAY)}d`
+    const days = Math.floor(diff / DAY)
+    return t`${days}d`
   }
 
   const month = getMonthLabels()[date.getMonth()]

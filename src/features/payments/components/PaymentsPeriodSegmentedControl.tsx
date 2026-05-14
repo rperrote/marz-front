@@ -10,12 +10,16 @@ interface PaymentsPeriodSegmentedControlProps {
   onChange: (value: PaymentsPeriod) => void
 }
 
-const periodOptions: Array<{ value: PaymentsPeriod; label: string }> = [
-  { value: '30d', label: '30d' },
-  { value: '90d', label: '90d' },
-  { value: '12m', label: '12m' },
-  { value: 'all', label: 'All' },
-]
+function getPeriodOptions(): Array<{ value: PaymentsPeriod; label: string }> {
+  return [
+    /* eslint-disable lingui/no-unlocalized-strings -- Search parameter enum values are not translatable UI copy. */
+    { value: '30d', label: t`30d` },
+    { value: '90d', label: t`90d` },
+    { value: '12m', label: t`12m` },
+    { value: 'all', label: t`All` },
+    /* eslint-enable lingui/no-unlocalized-strings */
+  ]
+}
 
 export function PaymentsPeriodSegmentedControl({
   value,
@@ -27,7 +31,7 @@ export function PaymentsPeriodSegmentedControl({
       aria-label={t`Periodo de gastos`}
       className="flex items-center gap-1 rounded-full bg-muted p-1"
     >
-      {periodOptions.map((option) => {
+      {getPeriodOptions().map((option) => {
         const selected = option.value === value
         return (
           <button

@@ -28,6 +28,7 @@ export function EarningsPaymentsTable({
 }: EarningsPaymentsTableProps) {
   const navigateFromEarnings = useNavigate({ from: '/earnings' })
   const [showTruncatedBanner, setShowTruncatedBanner] = useState(false)
+  const totalVisible = payments.total_visible
 
   function handleRowClick(payment: CreatorEarningsPaymentRow) {
     trackEarningsPaymentOpened({
@@ -117,7 +118,7 @@ export function EarningsPaymentsTable({
 
         <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
-            <Trans>{payments.total_visible} pagos visibles</Trans>
+            <Trans>{totalVisible} pagos visibles</Trans>
           </p>
           {payments.has_more ? (
             <Button
@@ -276,7 +277,8 @@ function PaymentStatusBadge({
 function paymentRowLabel(payment: CreatorEarningsPaymentRow) {
   const brand = payment.brand_name ?? t`marca sin nombre`
   const campaign = payment.campaign_name ?? t`campaña sin nombre`
-  return t`Abrir conversación de ${brand}, ${campaign}, ${payment.deliverable_label}`
+  const deliverableLabel = payment.deliverable_label
+  return t`Abrir conversación de ${brand}, ${campaign}, ${deliverableLabel}`
 }
 
 const paymentDateFormatter = new Intl.DateTimeFormat('es-AR', {

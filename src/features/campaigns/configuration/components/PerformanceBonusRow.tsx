@@ -42,7 +42,8 @@ export function PerformanceBonusRow({
   onRemove,
 }: PerformanceBonusRowProps) {
   const hasError = Boolean(viewsError ?? windowHoursError ?? bonusError)
-  const rowLabel = t`Milestone ${String(index + 1)}`
+  const itemNumber = String(index + 1)
+  const rowLabel = t`Milestone ${itemNumber}`
 
   return (
     <div
@@ -67,7 +68,7 @@ export function PerformanceBonusRow({
 
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:w-[520px]">
         <label className="flex flex-col gap-1">
-          <span className="sr-only">{t`Views milestone ${String(index + 1)}`}</span>
+          <span className="sr-only">{t`Views milestone ${itemNumber}`}</span>
           <div className="flex items-center rounded-xl border border-input bg-muted/60 px-2">
             <Input
               value={views === 0 ? '' : views}
@@ -79,7 +80,7 @@ export function PerformanceBonusRow({
               inputMode="numeric"
               min={1}
               aria-invalid={viewsError ? true : undefined}
-              aria-label={t`Views milestone ${String(index + 1)}`}
+              aria-label={t`Views milestone ${itemNumber}`}
               className="h-9 border-0 bg-transparent px-1 font-mono shadow-none focus-visible:ring-0"
             />
             <span className="text-xs text-muted-foreground">{t`views`}</span>
@@ -92,9 +93,7 @@ export function PerformanceBonusRow({
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="sr-only">
-            {t`Horas milestone ${String(index + 1)}`}
-          </span>
+          <span className="sr-only">{t`Horas milestone ${itemNumber}`}</span>
           <div className="flex items-center rounded-xl border border-input bg-muted/60 px-2">
             <Input
               value={windowHours === 0 ? '' : windowHours}
@@ -107,7 +106,7 @@ export function PerformanceBonusRow({
               min={1}
               max={720}
               aria-invalid={windowHoursError ? true : undefined}
-              aria-label={t`Horas milestone ${String(index + 1)}`}
+              aria-label={t`Horas milestone ${itemNumber}`}
               className="h-9 border-0 bg-transparent px-1 font-mono shadow-none focus-visible:ring-0"
             />
             <span className="text-xs text-muted-foreground">{t`hs`}</span>
@@ -133,7 +132,7 @@ export function PerformanceBonusRow({
           size="icon-sm"
           className="self-start text-muted-foreground hover:text-destructive"
           onClick={onRemove}
-          aria-label={t`Eliminar milestone ${String(index + 1)}`}
+          aria-label={t`Eliminar milestone ${itemNumber}`}
         >
           <Trash2 className="size-4" aria-hidden="true" />
         </Button>

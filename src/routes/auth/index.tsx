@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { Trans } from '@lingui/react/macro'
 
 import { MagicLinkRequestForm } from '#/features/identity/auth/components/MagicLinkRequestForm'
 import { useAuthGuard } from '#/features/identity/auth/hooks/useAuthGuard'
@@ -28,6 +29,7 @@ function AuthPage() {
         <div className="flex w-full max-w-[440px] flex-col items-center gap-7 rounded-2xl border border-border bg-card p-10">
           <div className="flex items-center gap-2.5">
             <MarzLogo />
+            {/* eslint-disable-next-line lingui/no-unlocalized-strings -- Product brand name is not translated. */}
             <span className="text-2xl font-bold tracking-tight text-foreground">
               Marz
             </span>
@@ -35,17 +37,19 @@ function AuthPage() {
 
           <div className="flex w-full flex-col items-center gap-2">
             <h1 className="text-center text-3xl font-semibold tracking-tight text-foreground">
-              Entrá a Marz
+              <Trans>Entrá a Marz</Trans>
             </h1>
             <p className="text-center text-sm leading-relaxed text-muted-foreground">
-              Campañas con creadores, sin agencias ni vueltas.
+              <Trans>Campañas con creadores, sin agencias ni vueltas.</Trans>
             </p>
           </div>
 
           <MagicLinkRequestForm />
 
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-            Al continuar aceptás los Términos y la Política de privacidad.
+            <Trans>
+              Al continuar aceptás los Términos y la Política de privacidad.
+            </Trans>
           </p>
         </div>
       </div>

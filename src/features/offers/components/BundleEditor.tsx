@@ -24,11 +24,10 @@ import { sortBonusTerms } from '../utils/bonusTerms'
 
 function getPlatformOptions() {
   return [
-     
     { value: 'youtube', label: t`YouTube` },
-     
+
     { value: 'instagram', label: t`Instagram` },
-     
+
     { value: 'tiktok', label: t`TikTok` },
   ] as const
 }
@@ -39,20 +38,18 @@ function getFormatOptionsByPlatform(): Record<
 > {
   return {
     youtube: [
-       
       { value: 'yt_long', label: t`Long Video` },
-       
+
       { value: 'yt_short', label: t`Short` },
     ],
     instagram: [
-       
       { value: 'ig_reel', label: t`Reel` },
-       
+
       { value: 'ig_story', label: t`Story` },
-       
+
       { value: 'ig_post', label: t`Post` },
     ],
-     
+
     tiktok: [{ value: 'tiktok_post', label: t`Post` }],
   }
 }
@@ -240,7 +237,6 @@ function BundleDeliverablesSection({
                         listeners={{
                           onChange: () => {
                             form.setFieldValue(
-                              // eslint-disable-next-line lingui/no-unlocalized-strings
                               `deliverables[${index}].format`,
                               '',
                             )
@@ -469,7 +465,6 @@ export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
     [campaigns, selectedCampaignId],
   )
 
-   
   const currency = selectedCampaign?.budget_currency ?? 'USD'
   const budgetRemaining = selectedCampaign
     ? parseFloat(selectedCampaign.budget_remaining)
@@ -520,7 +515,6 @@ export function BundleEditor({ onClose, dirtyRef }: BundleEditorProps) {
           label={t`Total`}
           amount={parsedTotal > 0 ? parsedTotal.toFixed(2) : '0.00'}
           currency={currency}
-           
           emphasis="strong"
         />
       </div>

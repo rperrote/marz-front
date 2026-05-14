@@ -58,6 +58,7 @@ function getStatusLabel(status: ListCampaignParticipantsStatus) {
   return labels[status]()
 }
 
+/* eslint-disable lingui/no-unlocalized-strings -- Static class names and platform brand names are not translatable UI copy. */
 const statusClassNames: Record<ListCampaignParticipantsStatus, string> = {
   invited: 'border-border bg-background text-muted-foreground',
   active: 'bg-primary text-primary-foreground',
@@ -76,6 +77,7 @@ const platformMeta: Record<
   x: { label: 'X', icon: X },
   twitch: { label: 'Twitch', icon: Twitch },
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 export function CampaignCreatorsTable({
   scope,

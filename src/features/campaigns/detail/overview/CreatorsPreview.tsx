@@ -70,7 +70,9 @@ function CreatorRow({ preview }: { preview: CampaignCreatorPreview }) {
   const platform = creator.primary_platform
     ? formatPlatform(creator.primary_platform.platform)
     : t`Sin plataforma`
-  const deliverables = t`${preview.deliverables_completed}/${preview.deliverables_expected} entregables`
+  const deliverablesCompleted = preview.deliverables_completed
+  const deliverablesExpected = preview.deliverables_expected
+  const deliverables = t`${deliverablesCompleted}/${deliverablesExpected} entregables`
 
   return (
     <article className="flex items-center justify-between gap-4 px-4 py-3">

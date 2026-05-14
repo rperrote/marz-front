@@ -34,6 +34,8 @@ const fractionalUsdFormatter = new Intl.NumberFormat('en-US', {
 })
 
 export function StatsBlock({ overview }: StatsBlockProps) {
+  const budgetSpent = formatUsd(overview.budget_spent_usd)
+
   return (
     <section aria-label={t`Estadísticas de campaña`}>
       <div className="grid grid-cols-3 gap-3">
@@ -47,7 +49,7 @@ export function StatsBlock({ overview }: StatsBlockProps) {
         <StatCard
           label={t`Budget`}
           value={formatUsd(overview.budget_total_usd)}
-          helper={t`${formatUsd(overview.budget_spent_usd)} usados`}
+          helper={t`${budgetSpent} usados`}
           icon={DollarSign}
           tone="success"
         />

@@ -263,6 +263,7 @@ export function getCsvFilename(
   const yyyy = String(now.getFullYear())
   const mm = String(now.getMonth() + 1).padStart(2, '0')
   const dd = String(now.getDate()).padStart(2, '0')
+  /* eslint-disable-next-line lingui/no-unlocalized-strings -- Generated export filename is not translatable UI copy. */
   return `marz-payments-${workspaceId}-${yyyy}${mm}${dd}.csv`
 }
 

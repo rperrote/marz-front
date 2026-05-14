@@ -12,6 +12,7 @@ interface CampaignSpendDonutProps {
   totalAmount: string
 }
 
+/* eslint-disable lingui/no-unlocalized-strings -- CSS variable tokens are not translatable UI copy. */
 const chartColors = [
   'var(--chart-1)',
   'var(--chart-2)',
@@ -20,6 +21,7 @@ const chartColors = [
   'var(--chart-5)',
   'var(--muted)',
 ]
+/* eslint-enable lingui/no-unlocalized-strings */
 
 const radius = 54
 const circumference = 2 * Math.PI * radius

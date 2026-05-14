@@ -32,6 +32,8 @@ export function PendingBonusCard({ bonus }: PendingBonusCardProps) {
   const brandName = bonus.brand_name ?? t`Brand`
   const campaignName = bonus.campaign_name ?? t`Campaign`
   const deliverableLabel = bonus.deliverable_label ?? t`Deliverable`
+  const windowHours = formatHours(bonus.window_hours)
+  const bonusPercent = formatPercent(bonus.bonus_pct)
   const isUrgent = secondsRemaining <= urgentCountdownThresholdSeconds
 
   function handleOpenBonus() {
@@ -75,8 +77,8 @@ export function PendingBonusCard({ bonus }: PendingBonusCardProps) {
 
       <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
         <Trans>
-          Publish in the next {formatHours(bonus.window_hours)} to earn a{' '}
-          {formatPercent(bonus.bonus_pct)} speed bonus.
+          Publish in the next {windowHours} to earn a {bonusPercent} speed
+          bonus.
         </Trans>
       </p>
 
@@ -145,12 +147,14 @@ function formatCountdown(seconds: number) {
   const secondsPart = seconds % 60
 
   if (days > 0) {
-    return `${days}d ${hours.toString().padStart(2, '0')}h`
+    const hoursLabel = hours.toString().padStart(2, '0')
+    return t`${days}d ${hoursLabel}h`
   }
 
-  return `${hours.toString().padStart(2, '0')}h ${minutes
-    .toString()
-    .padStart(2, '0')}m ${secondsPart.toString().padStart(2, '0')}s`
+  const hoursLabel = hours.toString().padStart(2, '0')
+  const minutesLabel = minutes.toString().padStart(2, '0')
+  const secondsLabel = secondsPart.toString().padStart(2, '0')
+  return t`${hoursLabel}h ${minutesLabel}m ${secondsLabel}s`
 }
 
 function formatMoney(amount: string) {

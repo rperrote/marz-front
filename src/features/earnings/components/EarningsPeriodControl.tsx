@@ -5,10 +5,12 @@ import type { CreatorEarningsPeriod } from '#/shared/api/generated/model'
 import { trackEarningsPeriodChanged } from '../analytics'
 
 const periodOptions = [
+  /* eslint-disable lingui/no-unlocalized-strings -- API period enum values are not translatable UI copy. */
   { value: '30d', label: () => t`30d` },
   { value: '90d', label: () => t`90d` },
   { value: '12m', label: () => t`12m` },
   { value: 'all', label: () => t`All time` },
+  /* eslint-enable lingui/no-unlocalized-strings */
 ] as const satisfies ReadonlyArray<{
   value: CreatorEarningsPeriod
   label: () => string

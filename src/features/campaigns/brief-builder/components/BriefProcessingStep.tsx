@@ -18,12 +18,14 @@ const STATUS_ICON: Record<ProcessingStepStatus, React.ReactNode> = {
   failed: <X className="size-5 text-destructive" aria-hidden="true" />,
 }
 
+/* eslint-disable lingui/no-unlocalized-strings -- Tailwind class map is not translatable UI copy. */
 const STATUS_TEXT_CLASS: Record<ProcessingStepStatus, string> = {
   pending: 'text-muted-foreground',
   active: 'text-foreground font-medium',
   completed: 'text-foreground',
   failed: 'text-destructive',
 }
+/* eslint-enable lingui/no-unlocalized-strings */
 
 export function BriefProcessingStep({
   label,

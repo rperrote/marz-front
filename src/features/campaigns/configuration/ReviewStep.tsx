@@ -330,14 +330,13 @@ function ReviewItems({ items }: { items: ReviewItem[] }) {
 
 function buildTargetingItems(config: CampaignConfiguration): ReviewItem[] {
   const targeting = config.operational_targeting
+  const countryCount = targeting.countries.length
 
   return [
     {
       label: t`Países`,
       value:
-        targeting.countries.length > 0
-          ? t`${targeting.countries.length} seleccionados`
-          : t`Sin países`,
+        countryCount > 0 ? t`${countryCount} seleccionados` : t`Sin países`,
     },
     {
       label: t`Tier`,
@@ -373,19 +372,22 @@ function BonusSummary({ config }: { config: CampaignConfiguration }) {
       {speedWindows.length > 0 ? (
         <BonusGroup
           title={t`Speed Bonus`}
-          items={speedWindows.map(
-            (window) =>
-              t`≤ ${window.window_hours} hs · ${formatBonusAmount(window.bonus)}`,
-          )}
+          items={speedWindows.map((window) => {
+            const windowHours = window.window_hours
+            const bonusAmount = formatBonusAmount(window.bonus)
+            return t`≤ ${windowHours} hs · ${bonusAmount}`
+          })}
         />
       ) : null}
       {performanceMilestones.length > 0 ? (
         <BonusGroup
           title={t`Performance Bonus`}
-          items={performanceMilestones.map(
-            (milestone) =>
-              t`${formatNumber(milestone.views)} views en ${formatHours(milestone.window_hours)} · ${formatBonusAmount(milestone.bonus)}`,
-          )}
+          items={performanceMilestones.map((milestone) => {
+            const views = formatNumber(milestone.views)
+            const hours = formatHours(milestone.window_hours)
+            const bonusAmount = formatBonusAmount(milestone.bonus)
+            return t`${views} views en ${hours} · ${bonusAmount}`
+          })}
         />
       ) : null}
     </div>
@@ -409,7 +411,11 @@ function BonusGroup({ title, items }: { title: string; items: string[] }) {
 
 function buildBriefSummary(config: CampaignConfiguration) {
   const brief = config.brief_summary
-  return t`${OBJECTIVE_LABELS[brief.objective]()} — ${brief.scoring_dimensions_count} dimensiones de scoring · ${brief.hard_filters_count} hard filters · ${brief.disqualifiers_count} descalificadores`
+  const objective = OBJECTIVE_LABELS[brief.objective]()
+  const scoringDimensionsCount = brief.scoring_dimensions_count
+  const hardFiltersCount = brief.hard_filters_count
+  const disqualifiersCount = brief.disqualifiers_count
+  return t`${objective} — ${scoringDimensionsCount} dimensiones de scoring · ${hardFiltersCount} hard filters · ${disqualifiersCount} descalificadores`
 }
 
 function formatTier(
@@ -421,10 +427,13 @@ function formatTier(
 function formatRange(min: number | null, max: number | null) {
   if (min == null && max == null) return t`Sin rango`
   if (min == null) {
-    return max == null ? t`Sin rango` : t`Hasta ${formatNumber(max)}`
+    const formattedMax = max == null ? null : formatNumber(max)
+    return formattedMax == null ? t`Sin rango` : t`Hasta ${formattedMax}`
   }
-  if (max == null) return t`Desde ${formatNumber(min)}`
-  return t`${formatNumber(min)} – ${formatNumber(max)}`
+  const formattedMin = formatNumber(min)
+  if (max == null) return t`Desde ${formattedMin}`
+  const formattedMax = formatNumber(max)
+  return t`${formattedMin} – ${formattedMax}`
 }
 
 function formatAgeRange(min: number | null, max: number | null) {

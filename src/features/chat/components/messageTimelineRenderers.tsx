@@ -233,6 +233,7 @@ function extractBrandWorkspaceId(
   )
 }
 
+/* eslint-disable lingui/no-unlocalized-strings -- Backend system event type constants are not translatable UI copy. */
 const DELIVERABLE_SYSTEM_EVENT_TYPES = [
   'DraftSubmitted',
   'DraftApproved',
@@ -241,6 +242,7 @@ const DELIVERABLE_SYSTEM_EVENT_TYPES = [
   'LinkApproved',
   'LinkChangesRequested',
 ] as const
+/* eslint-enable lingui/no-unlocalized-strings */
 
 type DeliverableSystemEventType =
   (typeof DELIVERABLE_SYSTEM_EVENT_TYPES)[number]
@@ -250,8 +252,10 @@ function parseDeliverableSystemEventType(
 ): DeliverableSystemEventType | null {
   if (!eventType) return null
   // Backend a veces emite 'DraftChangesRequested' como alias de 'ChangesRequested'.
+  /* eslint-disable lingui/no-unlocalized-strings -- Backend system event alias is not translatable UI copy. */
   const normalized =
     eventType === 'DraftChangesRequested' ? 'ChangesRequested' : eventType
+  /* eslint-enable lingui/no-unlocalized-strings */
   const knownEventTypes: readonly string[] = DELIVERABLE_SYSTEM_EVENT_TYPES
   return knownEventTypes.includes(normalized)
     ? (normalized as DeliverableSystemEventType)

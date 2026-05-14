@@ -88,10 +88,11 @@ export function createPhase3Schema() {
         0,
       )
       if (sum !== 100) {
+        const currentSum = String(sum)
         ctx.addIssue({
           code: 'custom',
           path: ['brief', 'scoring_dimensions'],
-          message: t`Los pesos deben sumar 100 (actual: ${String(sum)}).`,
+          message: t`Los pesos deben sumar 100 (actual: ${currentSum}).`,
         })
       }
     })

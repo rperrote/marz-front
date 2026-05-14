@@ -72,9 +72,8 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
         bonus_terms: null,
         description: '',
         deliverable: {
-           
           platform: 'multistage',
-           
+
           format: 'multistage',
         },
         stages: value.stages.map((s, index) => ({
@@ -115,7 +114,6 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
     [campaigns, selectedCampaignId],
   )
 
-   
   const currency = selectedCampaign?.budget_currency ?? 'USD'
   const budgetRemaining = selectedCampaign
     ? parseFloat(selectedCampaign.budget_remaining)
@@ -155,7 +153,6 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
     return map
   })
   const handleAddStage = () => {
-     
     form.setFieldValue('stages', [
       ...stages,
       {
@@ -211,7 +208,6 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
                 stages.length > 1
                   ? () => {
                       form.setFieldValue(
-                         
                         'stages',
                         stages.filter((_, i) => i !== index),
                       )
@@ -219,19 +215,15 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
                   : undefined
               }
               onChangeName={(v) =>
-                // eslint-disable-next-line lingui/no-unlocalized-strings
                 form.setFieldValue(`stages[${index}].name`, v)
               }
               onChangeDescription={(v) =>
-                // eslint-disable-next-line lingui/no-unlocalized-strings
                 form.setFieldValue(`stages[${index}].description`, v)
               }
               onChangeDeadline={(v) =>
-                // eslint-disable-next-line lingui/no-unlocalized-strings
                 form.setFieldValue(`stages[${index}].deadline`, v)
               }
               onChangeAmount={(v) =>
-                // eslint-disable-next-line lingui/no-unlocalized-strings
                 form.setFieldValue(`stages[${index}].amount`, v)
               }
             />
@@ -268,7 +260,6 @@ export function MultiStageEditor({ onClose, dirtyRef }: MultiStageEditorProps) {
           label={t`Total`}
           amount={totalAmount > 0 ? totalAmount.toFixed(2) : '0.00'}
           currency={currency}
-           
           emphasis="strong"
         />
       </div>
