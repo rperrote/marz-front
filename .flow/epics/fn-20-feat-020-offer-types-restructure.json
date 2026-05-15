@@ -12,7 +12,7 @@
   "plan_review_status": "unknown",
   "plan_reviewed_at": null,
   "spec_path": ".flow/specs/fn-20-feat-020-offer-types-restructure.md",
-  "status": "open",
+  "status": "done",
   "title": "FEAT-020 Offer types restructure \u2014 frontend",
-  "updated_at": "2026-05-15T08:03:11.084992Z"
+  "updated_at": "2026-05-15T10:45:25.422696Z"
 }
