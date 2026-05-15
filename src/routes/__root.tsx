@@ -73,7 +73,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if (import.meta.env.DEV) {
+    if (import.meta.env.DEV && !import.meta.env.VITE_E2E) {
       void import('react-grab')
     }
   }, [])
@@ -94,7 +94,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           </AppI18nProvider>
           <Toaster position="bottom-center" />
         </ClerkProvider>
-        {import.meta.env.DEV ? (
+        {import.meta.env.DEV && !import.meta.env.VITE_E2E ? (
           <TanStackDevtools
             config={{ position: 'bottom-right' }}
             plugins={[

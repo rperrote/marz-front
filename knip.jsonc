@@ -4,6 +4,7 @@
   // App boot files and TanStack Router route modules are runtime roots.
   "entry": [
     "src/start.ts",
+    "src/server.ts",
     "src/router.tsx",
     "src/routes/**/*.tsx",
     "src/styles.css",
@@ -29,6 +30,7 @@
       "types",
       "duplicates",
     ],
+    "src/shared/api/test-mutator.ts": ["exports"],
     "src/components/ui/**": ["exports", "types"],
   },
 

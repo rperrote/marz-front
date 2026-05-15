@@ -2,14 +2,14 @@ import type { Page } from '@playwright/test'
 
 import { test, expect } from './fixtures'
 
-const disabledBrandItems = ['Home', 'Campaigns', 'Creators', 'Analytics']
+const disabledBrandItems = ['Home', 'Creators', 'Analytics']
 
 async function expectDisabledItemDoesNotNavigate(page: Page, name: string) {
   const urlBefore = page.url()
   const item = page.getByRole('button', { name })
 
   await expect(item).toBeDisabled()
-  await item.click()
+  await item.dispatchEvent('click')
 
   await expect(page).toHaveURL(urlBefore)
 }

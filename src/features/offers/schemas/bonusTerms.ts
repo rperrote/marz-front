@@ -26,8 +26,4 @@ function createOfferBonusTermsSchemas() {
   return { offerBonusTermsFormSchema }
 }
 
-export type OfferBonusTermsFormSchema = ReturnType<
-  typeof createOfferBonusTermsSchemas
->['offerBonusTermsFormSchema']
-
 export { createOfferBonusTermsSchemas }

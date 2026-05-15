@@ -266,7 +266,16 @@ function briefBuilderWSReducer(
       return {
         ...state,
         status: action.payload.status,
-        briefDraft: action.payload.brief_draft,
+        briefDraft: {
+          ...action.payload.brief_draft,
+          campaign: action.payload.brief_draft.campaign ?? {
+            name: '',
+            objective: '',
+            budget_amount: null,
+            budget_currency: '',
+            deadline: '',
+          },
+        },
         steps: state.steps.map((step) =>
           step.status === 'active' || step.status === 'pending'
             ? { ...step, status: 'completed' }

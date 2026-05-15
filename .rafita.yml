@@ -1,0 +1,72 @@
+# Rafita v3 + Skinner contract for marz-front.
+# Schema docs: springfield/docs/rafita-v3-design.md cap 3
+#
+# Edits to this file affect:
+#   - rafita: which commands run as gates, derives, lifecycle hooks
+#   - skinner: orval patching, env materialization, dev server lifecycle
+
+schema_version: 1
+
+project:
+  name: marz-front
+  type: frontend
+
+capabilities:
+  - consumes_openapi
+  - has_dev_server
+
+commands:
+  # Required built-ins.
+  install:   "pnpm install --frozen-lockfile"
+  format:    "pnpm prettier --write . && pnpm eslint --fix ."
+  typecheck: "pnpm tsc --noEmit"
+  lint:      "pnpm lint"
+
+  # Tests.
+  test:      "pnpm test"
+
+  # Derive: regenerate Orval client. Idempotent.
+  # Runs after `commands.api_client_target_file` has been patched by skinner
+  # to point at the live back agent.
+  derive:    "pnpm api:generate"
+
+  # Custom gates.
+  react_doctor:       "pnpm react-doctor"
+  check_api_direct:   "pnpm check:api-direct"
+  check_i18n:         "pnpm check:i18n-standards"
+  test_e2e:           "pnpm test:e2e"
+
+  # Dev server (consumed by skinner when has_dev_server).
+  # The package.json `dev` script hardcodes --port 3000; we bypass it
+  # invoking vite directly so ${PORT} (assigned by skinner's port allocator)
+  # is respected.
+  run_dev:   "NODE_OPTIONS='--import ./instrument.server.mjs' pnpm exec vite dev --port ${PORT}"
+
+  # Paths consumed by skinner.
+  api_client_target_file: "orval.config.ts"
+  env_template:           ".env.dev-flow.template"
+
+lifecycle:
+  # Baseline derive at the start: types must exist before DEV writes code,
+  # otherwise it tries to invent its own types.
+  pre: [derive]
+
+flow:
+  dev:
+    post_derive: false                 # back's openapi rarely changes mid-epic
+    quality_gates: [typecheck, lint, test]
+    review: true
+  closer:
+    post_derive: false
+    quality_gates:
+      - typecheck
+      - lint
+      - test
+      - react_doctor
+      - check_api_direct
+      - check_i18n
+      - test_e2e
+    review: true
+
+verify:
+  quality_gates: []                    # closer carries the heavy gates

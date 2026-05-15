@@ -123,20 +123,15 @@ export function useWebSocket({
 
     dispatchStatus('connecting')
     void (async () => {
-      // cancelled is mutated by the effect cleanup; the linter's flow
-      // analysis can't see across the async boundary.
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (cancelled) return
-      const tokenPromise = getTokenRef.current()
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (cancelled) return
-      const token = await tokenPromise
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (cancelled) return
+      const token = await getTokenRef.current()
       if (!token) {
         console.warn('[ws] no Clerk token available; not connecting')
         return
       }
+      // cancelled is mutated by the effect cleanup; the linter's flow
+      // analysis can't see across the async boundary.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (cancelled) return
       // Backend reads the JWT from the Sec-WebSocket-Protocol header
       // (the only header the browser exposes on a WS handshake).
       // Format agreed with backend: ['bearer', <jwt>].

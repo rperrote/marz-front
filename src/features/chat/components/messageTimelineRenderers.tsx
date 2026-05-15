@@ -30,7 +30,7 @@ interface RenderTimelineMessageContentArgs {
   viewerRole?: MarkAsPaidViewerRole
 }
 
-export function renderTimelineMessageContent({
+export function TimelineMessageContent({
   message,
   currentAccountId,
   conversationId,

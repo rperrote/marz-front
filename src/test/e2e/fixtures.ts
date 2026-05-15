@@ -1,6 +1,7 @@
 import { test as base, expect } from '@playwright/test'
 import { clerk } from '@clerk/testing/playwright'
 import type { Browser, Page } from '@playwright/test'
+import { createHash } from 'node:crypto'
 
 import {
   createTestAccount,
@@ -20,6 +21,8 @@ import type {
 
 const CLERK_SECRET = process.env.CLERK_SECRET_KEY
 const CLERK_API_URL = 'https://api.clerk.com/v1'
+const E2E_RUN_ID =
+  process.env.E2E_RUN_ID ?? `${Date.now().toString(36)}${process.pid}`
 
 interface ClerkUser {
   id: string
@@ -229,7 +232,7 @@ async function getCompletedDeliverableId(
 
 async function createChatPair(
   browser: Browser,
-  workerIndex: number,
+  userKey: string,
   seedMessages?: SeedMessagesInput,
   options?: {
     requireCompletedDeliverable?: boolean
@@ -237,13 +240,13 @@ async function createChatPair(
   },
 ): Promise<{ pair: ChatPair; cleanup: () => Promise<void> }> {
   const brand = new TestUser(
-    `e2e_brand_${workerIndex}`,
-    `e2e.brand${workerIndex}+clerk_test@example.com`,
+    `e2e_brand_${userKey}`,
+    `e2e.brand.${userKey}+clerk_test@example.com`,
     'E2E Brand',
   )
   const creator = new TestUser(
-    `e2e_creator_${workerIndex}`,
-    `e2e.creator${workerIndex}+clerk_test@example.com`,
+    `e2e_creator_${userKey}`,
+    `e2e.creator.${userKey}+clerk_test@example.com`,
     'E2E Creator',
   )
 
@@ -351,6 +354,14 @@ function buildCompletedDeliverableSeedMessages(count: number): SeedMessagesInput
   }
 }
 
+function buildUserKey(testInfo: { testId: string; workerIndex: number }): string {
+  const testHash = createHash('sha1')
+    .update(testInfo.testId)
+    .digest('hex')
+    .slice(0, 8)
+  return `${testInfo.workerIndex}.${E2E_RUN_ID}.${testHash}`
+}
+
 export const test = base.extend<{
   testUser: TestUser
   brandOnboardingUser: TestUser
@@ -365,12 +376,13 @@ export const test = base.extend<{
 }>({
   // eslint-disable-next-line no-empty-pattern
   testUser: async ({}, run, testInfo) => {
+    const userKey = buildUserKey(testInfo)
     const user = new TestUser(
-      `e2e_worker_${testInfo.workerIndex}`,
+      `e2e_worker_${userKey}`,
       // The `+clerk_test` suffix makes Clerk treat this as a test email:
       // signup/signin work without sending OTP and don't consume the 100/mo
       // dev-instance email quota. See https://clerk.com/docs/testing/test-emails
-      `e2e.worker${testInfo.workerIndex}+clerk_test@example.com`,
+      `e2e.worker.${userKey}+clerk_test@example.com`,
       'E2E Test User',
     )
     await user.ensureExists()
@@ -404,7 +416,7 @@ export const test = base.extend<{
   chatPair: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
-      testInfo.workerIndex,
+      buildUserKey(testInfo),
     )
     await run(pair)
     await cleanup()
@@ -413,7 +425,7 @@ export const test = base.extend<{
   chatPairWithHistory: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
-      testInfo.workerIndex,
+      buildUserKey(testInfo),
       {
         count: 60,
         alternating_authors: true,
@@ -426,7 +438,7 @@ export const test = base.extend<{
   chatPairWithCompletedDeliverable: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
-      testInfo.workerIndex,
+      buildUserKey(testInfo),
       buildCompletedDeliverableSeedMessages(2),
       { requireCompletedDeliverable: true },
     )
@@ -441,7 +453,7 @@ export const test = base.extend<{
   ) => {
     const { pair, cleanup } = await createChatPair(
       browser,
-      testInfo.workerIndex,
+      buildUserKey(testInfo),
       buildCompletedDeliverableSeedMessages(60),
       { requireCompletedDeliverable: true },
     )
@@ -452,7 +464,7 @@ export const test = base.extend<{
   chatPairOfferReady: async ({ browser }, run, testInfo) => {
     const { pair, cleanup } = await createChatPair(
       browser,
-      testInfo.workerIndex,
+      buildUserKey(testInfo),
       undefined,
       {
         seedOfferReady: {

@@ -114,8 +114,8 @@ async function runSelfTestCase(
   const results = await eslint.lintFiles([filePath])
   const actualRules = collectI18nStandardsViolations(results)
     .map((v) => v.ruleId)
-    .sort()
-  const expectedRules = [...testCase.expectedRules].sort()
+    .toSorted()
+  const expectedRules = testCase.expectedRules.toSorted()
 
   if (actualRules.join('|') === expectedRules.join('|')) {
     return null
@@ -198,8 +198,10 @@ export async function runI18nStandardsSelfTest(
   mkdirSync(selfTestDir, { recursive: true })
 
   try {
-    for (const testCase of cases) {
-      const failure = await runSelfTestCase(eslint, testCase, selfTestDir)
+    const results = await Promise.all(
+      cases.map((testCase) => runSelfTestCase(eslint, testCase, selfTestDir)),
+    )
+    for (const failure of results) {
       if (failure) failures.push(failure)
     }
   } finally {

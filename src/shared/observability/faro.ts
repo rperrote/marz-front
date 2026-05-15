@@ -34,19 +34,3 @@ export function initFaro(): Faro | null {
   })
   return faroInstance
 }
-
-export function getFaro(): Faro | null {
-  return faroInstance
-}
-
-export function setFaroUser(user: {
-  id: string
-  username?: string
-  attributes?: Record<string, string>
-}) {
-  faroInstance?.api.setUser(user)
-}
-
-export function clearFaroUser() {
-  faroInstance?.api.resetUser()
-}

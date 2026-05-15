@@ -28,7 +28,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm dev',
+    command: 'VITE_E2E=1 pnpm dev',
     url: BASE_URL,
     reuseExistingServer: true,
     timeout: 120_000,

@@ -20,7 +20,7 @@ import { groupByDayGrouped } from '../utils/groupByDay'
 import { DaySeparator } from './DaySeparator'
 import {
   getPaymentMarkedDeclaredPaymentId,
-  renderTimelineMessageContent,
+  TimelineMessageContent,
 } from './messageTimelineRenderers'
 import {
   ConversationBeginningPill,
@@ -399,17 +399,17 @@ function MessageRow({
       data-message-id={row.message.id}
       className={`${getTimelineSpacingClass(row.prev, row.message)} px-4`}
     >
-      {renderTimelineMessageContent({
-        message: row.message,
-        currentAccountId,
-        conversationId,
-        counterpartDisplayName,
-        highlightPaymentId,
-        onMarkAsPaid,
-        onUploadDraft,
-        sessionKind,
-        viewerRole,
-      })}
+      <TimelineMessageContent
+        message={row.message}
+        currentAccountId={currentAccountId}
+        conversationId={conversationId}
+        counterpartDisplayName={counterpartDisplayName}
+        highlightPaymentId={highlightPaymentId}
+        onMarkAsPaid={onMarkAsPaid}
+        onUploadDraft={onUploadDraft}
+        sessionKind={sessionKind}
+        viewerRole={viewerRole}
+      />
     </div>
   )
 }

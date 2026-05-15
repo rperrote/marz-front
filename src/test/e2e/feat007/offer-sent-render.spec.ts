@@ -74,7 +74,9 @@ test.describe('OfferSent system_event rendering', () => {
     ).toBe(true)
 
     const creatorCard = creatorPage
-      .getByRole('article', { name: /campaign offer received/i })
+      .getByRole('article', {
+        name: /oferta de campaña recibida|campaign offer received/i,
+      })
       .first()
     await expect(creatorCard).toBeVisible({ timeout: 10_000 })
     await expect(creatorCard).toContainText('E2E OfferSent Campaign')
