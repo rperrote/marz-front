@@ -10,7 +10,8 @@ import { ConversationOffersPanel } from '#/features/offers/components/Conversati
 import { SendOfferSidesheet } from '#/features/offers/components/SendOfferSidesheet'
 import { useCanSendOffer } from '#/features/offers/hooks/useCanSendOffer'
 import { useSendOfferSheetStore } from '#/features/offers/store/sendOfferSheetStore'
-import { MarkAsPaidSidesheet } from '#/features/payments/markAsPaid'
+import { MarkAsPaidDialog } from '#/features/payments/components/MarkAsPaidDialog'
+import type { MarkAsPaidOffer } from '#/shared/payments/markAsPaidEligibility'
 import { SubmitLinkSidesheet } from '#/features/deliverables/components/SubmitLinkSidesheet'
 import { UploadDraftDialog } from '#/features/deliverables/components/UploadDraftDialog'
 import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
@@ -41,9 +42,7 @@ function ConversationRoute() {
   const deliverablesQuery = useGetConversationDeliverablesQuery(conversationId)
   const openSheet = useSendOfferSheetStore((s) => s.open)
 
-  const [paymentDeliverableId, setPaymentDeliverableId] = useState<
-    string | null
-  >(null)
+  const [paymentOffer, setPaymentOffer] = useState<MarkAsPaidOffer | null>(null)
   const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
     null,
   )
@@ -112,7 +111,6 @@ function ConversationRoute() {
           currentAccountId={accountId}
           sessionKind={sessionKind}
           viewerRole={viewerRole}
-          onMarkAsPaid={setPaymentDeliverableId}
           onUploadDraft={setUploadDeliverableId}
           highlightPaymentId={highlightPaymentId}
         />
@@ -122,7 +120,7 @@ function ConversationRoute() {
         sessionKind={sessionKind}
         viewerRole={viewerRole}
         onUploadDraft={setUploadDeliverableId}
-        onMarkAsPaid={setPaymentDeliverableId}
+        onMarkAsPaid={setPaymentOffer}
         onSubmitLink={handleSubmitLink}
         canSendOffer={isBrand ? canSendOffer : undefined}
         onSendOffer={isBrand ? () => openSheet(conversationId) : undefined}
@@ -135,14 +133,16 @@ function ConversationRoute() {
           ) : null
         }
       />
-      <MarkAsPaidSidesheet
-        open={paymentDeliverableId !== null}
-        deliverableId={paymentDeliverableId}
-        creatorName={creatorName}
-        onOpenChange={(open) => {
-          if (!open) setPaymentDeliverableId(null)
-        }}
-      />
+      {paymentOffer ? (
+        <MarkAsPaidDialog
+          open
+          offer={paymentOffer}
+          conversationId={conversationId}
+          onOpenChange={(open) => {
+            if (!open) setPaymentOffer(null)
+          }}
+        />
+      ) : null}
       {uploadDeliverableId && (
         <UploadDraftDialog
           open={!!uploadDeliverableId}

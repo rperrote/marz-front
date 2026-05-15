@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { t } from '@lingui/core/macro'
-import { Send } from 'lucide-react'
+import { Send, X } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
@@ -10,7 +10,10 @@ import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
 import type { OfferStatus } from '#/features/offers/types'
 import type { DeliverableDTO, StageDTO } from '#/features/deliverables/types'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
+import { canMarkOfferAsPaid } from '#/shared/payments/markAsPaidEligibility'
+import type { MarkAsPaidOffer } from '#/shared/payments/markAsPaidEligibility'
 import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
+import { CancelOfferDialog } from './CancelOfferDialog'
 import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
 import { OfferDeliverablesList } from './OfferDeliverablesList'
@@ -66,7 +69,7 @@ interface CurrentOfferBlockProps {
   sessionKind: 'brand' | 'creator'
   viewerRole?: MarkAsPaidViewer['role']
   onUploadDraft: (deliverableId: string) => void
-  onMarkAsPaid?: (deliverableId: string) => void
+  onMarkAsPaid?: (offer: MarkAsPaidOffer) => void
   onSubmitLink?: (deliverableId: string, isResubmission: boolean) => void
   canSendOffer?: CanSendOfferMeta
   onSendOffer?: () => void
@@ -116,6 +119,7 @@ export function CurrentOfferBlock({
   onSendOffer,
 }: CurrentOfferBlockProps) {
   const trackedRef = useRef(false)
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const { accept, reject } = useOfferActions({ conversationId })
 
   useEffect(() => {
@@ -138,96 +142,141 @@ export function CurrentOfferBlock({
   // RAFITA:BLOCKER currency no expuesto en OfferDTO — asumir USD hasta que backend lo agregue
 
   const currency = 'USD'
+  const paymentOffer: MarkAsPaidOffer = {
+    id: offer.id,
+    amount: offer.amount,
+    status: offer.status,
+    deliverables: deliverables.map((deliverable) => ({
+      status: deliverable.status,
+    })),
+  }
+  const canMarkAsPaid = canMarkOfferAsPaid(paymentOffer)
+  const canShowBrandOfferActions =
+    sessionKind === 'brand' &&
+    (offer.status === 'sent' || offer.status === 'accepted')
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <header className="flex items-center gap-2">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="text-xs font-semibold text-foreground">
-            {t`Oferta actual`}
-          </span>
-          <span className="truncate font-mono text-[11px] text-muted-foreground">
-            #{offer.id.slice(0, 8)}
-          </span>
-        </div>
-        <Badge
-          variant={badge.variant}
-          className="shrink-0 rounded-full text-[11px]"
-        >
-          {badge.label}
-        </Badge>
-      </header>
+    <>
+      <div className="rounded-xl border border-border bg-card p-4">
+        <header className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="text-xs font-semibold text-foreground">
+              {t`Oferta actual`}
+            </span>
+            <span className="truncate font-mono text-[11px] text-muted-foreground">
+              #{offer.id.slice(0, 8)}
+            </span>
+          </div>
+          <Badge
+            variant={badge.variant}
+            className="shrink-0 rounded-full text-[11px]"
+          >
+            {badge.label}
+          </Badge>
+        </header>
 
-      <dl className="mt-3 space-y-1.5">
-        <div className="flex items-baseline justify-between gap-4">
-          <dt className="text-xs text-muted-foreground">{t`Presupuesto`}</dt>
-          <dd className="font-mono text-xs font-semibold text-foreground">
-            {formatOfferAmount(offer.amount, currency)}
-          </dd>
-        </div>
-        {offer.deadline ? (
+        <dl className="mt-3 space-y-1.5">
           <div className="flex items-baseline justify-between gap-4">
-            <dt className="text-xs text-muted-foreground">{t`Deadline`}</dt>
-            <dd className="text-xs font-medium text-foreground">
-              {formatOfferDeadline(offer.deadline)}
+            <dt className="text-xs text-muted-foreground">{t`Presupuesto`}</dt>
+            <dd className="font-mono text-xs font-semibold text-foreground">
+              {formatOfferAmount(offer.amount, currency)}
             </dd>
           </div>
-        ) : null}
-        {bonusLabel ? (
-          <div className="flex items-baseline justify-between gap-4">
-            <dt className="text-xs text-muted-foreground">{t`Bonus por rapidez`}</dt>
-            <dd className="font-mono text-xs font-medium text-success">
-              {bonusLabel}
-            </dd>
+          {offer.deadline ? (
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-xs text-muted-foreground">{t`Deadline`}</dt>
+              <dd className="text-xs font-medium text-foreground">
+                {formatOfferDeadline(offer.deadline)}
+              </dd>
+            </div>
+          ) : null}
+          {bonusLabel ? (
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-xs text-muted-foreground">{t`Bonus por rapidez`}</dt>
+              <dd className="font-mono text-xs font-medium text-success">
+                {bonusLabel}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+
+        <OfferDeliverablesList
+          offer={offer}
+          deliverables={deliverables}
+          stages={stages}
+          sessionKind={sessionKind}
+          viewerRole={viewerRole}
+          actorKind={actorKind}
+          onUploadDraft={onUploadDraft}
+          onSubmitLink={onSubmitLink}
+        />
+
+        {canShowBrandOfferActions ? (
+          <div className="mt-3 flex gap-2">
+            {offer.status === 'accepted' && onMarkAsPaid ? (
+              <Button
+                size="sm"
+                className="flex-1"
+                disabled={!canMarkAsPaid}
+                onClick={() => onMarkAsPaid(paymentOffer)}
+              >
+                {t`Mark as paid`}
+              </Button>
+            ) : null}
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1"
+              onClick={() => setCancelDialogOpen(true)}
+            >
+              <X className="size-4" aria-hidden="true" />
+              {offer.status === 'accepted'
+                ? t`Cancelar oferta aceptada`
+                : t`Cancelar oferta`}
+            </Button>
           </div>
         ) : null}
-      </dl>
 
-      <OfferDeliverablesList
+        {sessionKind === 'creator' && offer.status === 'sent' ? (
+          <div className="mt-3 flex gap-2">
+            <Button
+              size="sm"
+              className="flex-1"
+              disabled={accept.isPending || reject.isPending}
+              onClick={() =>
+                accept.mutate({
+                  offerId: offer.id,
+                  sentAt: offer.sent_at ?? offer.created_at,
+                  offerType: offer.type,
+                })
+              }
+            >
+              {accept.isPending ? t`Aceptando…` : t`Aceptar oferta`}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1"
+              disabled={accept.isPending || reject.isPending}
+              onClick={() =>
+                reject.mutate({
+                  offerId: offer.id,
+                  sentAt: offer.sent_at ?? offer.created_at,
+                  offerType: offer.type,
+                })
+              }
+            >
+              {reject.isPending ? t`Rechazando…` : t`Rechazar`}
+            </Button>
+          </div>
+        ) : null}
+      </div>
+      <CancelOfferDialog
         offer={offer}
-        deliverables={deliverables}
-        stages={stages}
-        sessionKind={sessionKind}
-        viewerRole={viewerRole}
-        actorKind={actorKind}
-        onUploadDraft={onUploadDraft}
-        onMarkAsPaid={onMarkAsPaid}
-        onSubmitLink={onSubmitLink}
+        conversationId={conversationId}
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
       />
-
-      {sessionKind === 'creator' && offer.status === 'sent' ? (
-        <div className="mt-3 flex gap-2">
-          <Button
-            size="sm"
-            className="flex-1"
-            disabled={accept.isPending || reject.isPending}
-            onClick={() =>
-              accept.mutate({
-                offerId: offer.id,
-                sentAt: offer.sent_at ?? offer.created_at,
-                offerType: offer.type,
-              })
-            }
-          >
-            {accept.isPending ? t`Aceptando…` : t`Aceptar oferta`}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1"
-            disabled={accept.isPending || reject.isPending}
-            onClick={() =>
-              reject.mutate({
-                offerId: offer.id,
-                sentAt: offer.sent_at ?? offer.created_at,
-                offerType: offer.type,
-              })
-            }
-          >
-            {reject.isPending ? t`Rechazando…` : t`Rechazar`}
-          </Button>
-        </div>
-      ) : null}
-    </div>
+    </>
   )
 }

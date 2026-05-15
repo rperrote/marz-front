@@ -6,6 +6,7 @@ import { useConversationOffersPaginated } from '#/features/offers/hooks/useConve
 import { useGetConversationDeliverablesQuery } from '#/features/deliverables/api/conversationDeliverables'
 import { useMe } from '#/shared/api/generated/accounts/accounts'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
+import type { MarkAsPaidOffer } from '#/shared/payments/markAsPaidEligibility'
 import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 import { CurrentOfferBlock } from './CurrentOfferBlock'
 import { NextStep } from './NextStep'
@@ -16,7 +17,7 @@ interface ConversationOffersPanelProps {
   sessionKind: 'brand' | 'creator'
   viewerRole?: MarkAsPaidViewer['role']
   onUploadDraft: (deliverableId: string) => void
-  onMarkAsPaid?: (deliverableId: string) => void
+  onMarkAsPaid?: (offer: MarkAsPaidOffer) => void
   onSubmitLink?: (deliverableId: string, isResubmission: boolean) => void
   headerSlot?: ReactNode
   canSendOffer?: CanSendOfferMeta

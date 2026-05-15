@@ -58,9 +58,8 @@ Modales shadcn `Dialog` con CTA destructiva (cancel) y CTA primary (mark paid). 
 - [ ] Sin `new Date()` ni `Date.now()` en JSX.
 
 ## Done summary
-
-_To be filled at task completion._
-
+BC cross-imports resueltos via shared/payments/markAsPaidEligibility.ts, new Date() inyectable por prop con tests controlados, todos los acceptance criteria cubiertos.
 ## Evidence
-
-_To be filled at task completion._
+- Commits:
+- Tests:
+- PRs:
