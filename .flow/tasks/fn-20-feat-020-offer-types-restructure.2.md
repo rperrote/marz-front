@@ -58,9 +58,8 @@ Schema Zod alineado a `CreateOfferRequest` v3:
 - [ ] `pnpm tsc --noEmit` verde.
 
 ## Done summary
-
-_To be filled at task completion._
-
+Schema y store alineados al contrato generado. Todos los acceptance criteria cubiertos, typecheck y tests verdes.
 ## Evidence
-
-_To be filled at task completion._
+- Commits:
+- Tests:
+- PRs:
