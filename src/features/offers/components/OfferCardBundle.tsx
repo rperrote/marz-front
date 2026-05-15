@@ -106,7 +106,6 @@ export function OfferCardBundle({
                 label={t`Total`}
                 amount={snapshot.total_amount}
                 currency={snapshot.currency}
-                 
                 emphasis="strong"
               />
             </div>

@@ -31,18 +31,17 @@ export function OfferArchiveItem({ item }: OfferArchiveItemProps) {
   const badge = getBadgeConfig()[offer.status]
   const offerTypeLabel = getOfferTypeBadgeLabel(item.type)
   // RAFITA:BLOCKER currency no expuesto en OfferDTO — asumir USD hasta que backend lo agregue
-   
+
   const currency = 'USD'
   // RAFITA:BLOCKER campaign_name no expuesto en OfferDTO — usar id corto hasta que backend lo agregue
   const campaignLabel = offer.campaign_id.slice(0, 8)
   const sentAt = offer.sent_at ?? offer.created_at
-   
+
   const sentDate = new Date(sentAt).toLocaleDateString('en-US', {
-     
     month: 'short',
-     
+
     day: 'numeric',
-     
+
     year: 'numeric',
   })
 

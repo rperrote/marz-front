@@ -17,6 +17,11 @@ import type { BriefDraft, HardFilter, ScoringDimension } from '../store'
 interface CreateCampaignParams {
   idempotencyKey: string
   draft: BriefDraft
+  source: {
+    websiteUrl: string
+    descriptionText: string
+    pdfS3Key?: string | null
+  }
 }
 
 function toApiHardFilter(filter: HardFilter): BriefHardFilter {
@@ -36,9 +41,14 @@ function toApiScoringDimension(
   }
 }
 
-function toApiBrief(draft: BriefDraft): CampaignBriefInput {
+function toApiBrief(
+  draft: BriefDraft,
+  source: CreateCampaignParams['source'],
+): CampaignBriefInput {
   return {
-    brief_source_url: '',
+    brief_source_url: source.websiteUrl,
+    brief_source_text: source.descriptionText || null,
+    brief_pdf_s3_key: source.pdfS3Key ?? null,
     icp_description: draft.brief.icp_description,
     icp_age_min: draft.brief.icp_age_min,
     icp_age_max: draft.brief.icp_age_max,
@@ -59,14 +69,14 @@ export function useCreateCampaign() {
 
   return useMutation({
     mutationFn: async (params: CreateCampaignParams) => {
-      const { draft, idempotencyKey } = params
+      const { draft, idempotencyKey, source } = params
       const body: CreateCampaignRequest = {
         name: draft.campaign.name,
         objective: draft.campaign.objective as CreateCampaignRequestObjective,
         budget_amount: String(draft.campaign.budget_amount ?? ''),
         budget_currency: draft.campaign.budget_currency,
         deadline: draft.campaign.deadline || undefined,
-        brief: toApiBrief(draft),
+        brief: toApiBrief(draft, source),
       }
       const result = (await createCampaign(
         body,

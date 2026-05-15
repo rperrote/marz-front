@@ -48,7 +48,7 @@ export function CreatorHeaderCard({
         </div>
         {onToggle ? (
           <IconButton
-            shape="circle"  
+            shape="circle"
             aria-label={t`Toggle creator details`}
             onClick={onToggle}
           >

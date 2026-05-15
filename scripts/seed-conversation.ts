@@ -86,6 +86,7 @@ const conversationPath = `/workspace/conversations/${conv.conversation_id}`
 console.log('4. Lanzar browsers headed (brand + creator)...')
 const browser = await chromium.launch({
   headless: false,
+  args: ['--remote-debugging-port=9222'],
   handleSIGINT: false,
   handleSIGTERM: false,
   handleSIGHUP: false,

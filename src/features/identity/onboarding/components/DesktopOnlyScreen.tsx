@@ -12,7 +12,7 @@ export function DesktopOnlyScreen() {
 
   useEffect(() => {
     if (!isMobile) {
-      const returnTo = sessionStorage.getItem(SESSION_KEY) || '/auth'  
+      const returnTo = sessionStorage.getItem(SESSION_KEY) || '/auth'
       sessionStorage.removeItem(SESSION_KEY)
       void navigate({ to: returnTo })
     }

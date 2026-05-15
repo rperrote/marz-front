@@ -50,22 +50,19 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
       const snapshot = queryClient.getQueryData(offersQueryKey)
       queryClient.setQueryData(offersQueryKey, (old: unknown) => {
         if (!Array.isArray(old)) return old
-         
+
         return old.map((offer: Record<string, unknown>) =>
           offer.id === offerId ? { ...offer, status: 'accepted' } : offer,
         )
-         
       })
       return { snapshot }
     },
     onSuccess: (_data, variables) => {
-       
       trackOfferEvent('offer_accepted', {
         actor_kind: 'creator',
         offer_type: variables.offerType,
         time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
       })
-       
     },
     onError: (error, _vars, context) => {
       if (context?.snapshot !== undefined) {
@@ -96,22 +93,19 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
       const snapshot = queryClient.getQueryData(offersQueryKey)
       queryClient.setQueryData(offersQueryKey, (old: unknown) => {
         if (!Array.isArray(old)) return old
-         
+
         return old.map((offer: Record<string, unknown>) =>
           offer.id === offerId ? { ...offer, status: 'rejected' } : offer,
         )
-         
       })
       return { snapshot }
     },
     onSuccess: (_data, variables) => {
-       
       trackOfferEvent('offer_rejected', {
         actor_kind: 'creator',
         offer_type: variables.offerType,
         time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
       })
-       
     },
     onError: (error, _vars, context) => {
       if (context?.snapshot !== undefined) {

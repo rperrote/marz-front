@@ -15,7 +15,7 @@ export function B1IdentityScreen() {
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      store.setField('name', e.target.value)  
+      store.setField('name', e.target.value)
     },
     [store],
   )
@@ -24,7 +24,7 @@ export function B1IdentityScreen() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value
       setUrlInput(val)
-      store.setField('website_url', val || null)  
+      store.setField('website_url', val || null)
       // Brand enrichment fuera del MVP: no debouncing porque no hay fetch.
       // if (timerRef.current) clearTimeout(timerRef.current)
       // timerRef.current = setTimeout(() => setDebouncedUrl(val), 500)
@@ -36,9 +36,9 @@ export function B1IdentityScreen() {
     const trimmed = urlInput.trim()
     if (!trimmed) return
     if (/^https?:\/\//i.test(trimmed)) return
-    const normalized = `https://${trimmed}`  
+    const normalized = `https://${trimmed}`
     setUrlInput(normalized)
-    store.setField('website_url', normalized)  
+    store.setField('website_url', normalized)
   }, [urlInput, store])
 
   // Brand enrichment fuera del MVP — bloque completo deshabilitado.

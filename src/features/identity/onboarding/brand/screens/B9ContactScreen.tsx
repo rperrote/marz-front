@@ -18,7 +18,7 @@ export function B9ContactScreen() {
   const handleWhatsAppChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const formatted = formatE164(e.target.value)
-      store.setField('contact_whatsapp_e164', formatted)  
+      store.setField('contact_whatsapp_e164', formatted)
     },
     [store],
   )
@@ -45,7 +45,7 @@ export function B9ContactScreen() {
               <Input
                 {...aria}
                 value={store.contact_name ?? ''}
-                onChange={(e) => store.setField('contact_name', e.target.value)}  
+                onChange={(e) => store.setField('contact_name', e.target.value)}
                 placeholder={t`María`}
                 maxLength={200}
               />
@@ -56,8 +56,8 @@ export function B9ContactScreen() {
               <Input
                 {...aria}
                 value={store.contact_title ?? ''}
-                onChange={
-                  (e) => store.setField('contact_title', e.target.value)  
+                onChange={(e) =>
+                  store.setField('contact_title', e.target.value)
                 }
                 placeholder={t`Growth Lead`}
                 maxLength={200}

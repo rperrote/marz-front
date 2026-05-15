@@ -138,7 +138,6 @@ export function OfferCardCollapsed({
       </Badge>
       <IconButton
         size="sm"
-         
         shape="circle"
         aria-label={t`Expand offer`}
         onClick={onExpand}

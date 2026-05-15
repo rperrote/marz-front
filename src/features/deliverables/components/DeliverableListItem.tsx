@@ -39,7 +39,6 @@ const platformIcon: Record<string, LucideIcon> = {
   twitter_x: Twitter,
 }
 
- 
 const nonUploadableStatuses: ReadonlySet<DeliverableDTO['status']> = new Set([
   'draft_approved',
   'link_submitted',
@@ -47,7 +46,6 @@ const nonUploadableStatuses: ReadonlySet<DeliverableDTO['status']> = new Set([
   'completed',
   'paid',
 ])
- 
 
 export interface DeliverableListItemProps {
   deliverable: DeliverableDTO

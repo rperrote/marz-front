@@ -20,7 +20,7 @@ export function StageOpenedBubble({ snapshot, side }: StageOpenedBubbleProps) {
 
   return (
     <div role="status" data-testid="stage-opened-bubble">
-      { }
+      {}
       <EventBubble severity="success" direction={side} icon={Flag}>
         {text}
       </EventBubble>

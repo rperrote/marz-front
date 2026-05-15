@@ -65,7 +65,7 @@ export function WizardShell({
       {progressSlot}
       <main
         className={cn(
-          'flex flex-1 flex-col items-center overflow-y-auto px-24 py-12',
+          'flex flex-1 flex-col items-center overflow-y-auto px-24 pt-12 pb-24',
           className,
         )}
       >

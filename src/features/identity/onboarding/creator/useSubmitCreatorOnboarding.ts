@@ -14,7 +14,6 @@ import type { FieldErrors } from './store'
 import { useCreatorOnboardingStore } from './store'
 import { getStepIndex } from './steps'
 
- 
 const FIELD_TO_STEP: Record<string, string> = {
   display_name: 'name-handle',
   handle: 'name-handle',
@@ -32,7 +31,6 @@ const FIELD_TO_STEP: Record<string, string> = {
   referral_text: 'referral',
   avatar_s3_key: 'avatar',
 }
- 
 
 export function useSubmitCreatorOnboarding() {
   const navigate = useNavigate()
@@ -87,7 +85,7 @@ export function useSubmitCreatorOnboarding() {
         onSuccess: () => {
           reset()
           void queryClient.invalidateQueries({ queryKey: getMeQueryKey() })
-          track('onboarding_completed', { kind: 'creator' })  
+          track('onboarding_completed', { kind: 'creator' })
           void navigate({ to: '/offers' })
         },
         onError: (error) => {
@@ -102,12 +100,12 @@ export function useSubmitCreatorOnboarding() {
               store.setFieldErrors({
                 avatar_s3_key: t`Subí la foto de nuevo`,
               })
-              const idx = getStepIndex('avatar')  
+              const idx = getStepIndex('avatar')
               if (idx >= 0) {
                 store.goTo(idx)
                 void navigate({
                   to: '/onboarding/creator/$step',
-                  params: { step: 'avatar' },  
+                  params: { step: 'avatar' },
                 })
               }
               return
@@ -147,12 +145,12 @@ export function useSubmitCreatorOnboarding() {
               store.setFieldErrors({
                 handle: error.message || t`Este handle ya está en uso`,
               })
-              const idx = getStepIndex('name-handle')  
+              const idx = getStepIndex('name-handle')
               if (idx >= 0) {
                 store.goTo(idx)
                 void navigate({
                   to: '/onboarding/creator/$step',
-                  params: { step: 'name-handle' },  
+                  params: { step: 'name-handle' },
                 })
               }
               return

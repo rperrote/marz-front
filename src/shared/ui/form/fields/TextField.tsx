@@ -13,11 +13,13 @@ interface TextFieldProps extends Omit<
 > {
   label?: ReactNode
   hint?: ReactNode
+  required?: boolean
 }
 
 export function TextField({
   label,
   hint,
+  required,
   type = 'text',
   className,
   ...inputProps
@@ -30,7 +32,7 @@ export function TextField({
     : undefined
 
   return (
-    <FieldRow label={label} hint={hint} error={error}>
+    <FieldRow label={label} hint={hint} error={error} required={required}>
       {(aria) => (
         <Input
           {...aria}

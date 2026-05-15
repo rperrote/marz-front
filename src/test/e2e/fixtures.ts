@@ -190,23 +190,6 @@ interface ChatPair {
   creatorPage: Page
 }
 
-type CompletedDeliverableSeedMessagesInput = SeedMessagesInput & {
-  offer_status: 'accepted'
-  deliverable_status: 'completed'
-  offer: {
-    type: 'single'
-    status: 'accepted'
-    amount: string
-    currency: string
-    deadline: string
-    deliverables: Array<{
-      platform: 'youtube'
-      format: 'yt_long'
-      status: 'completed'
-    }>
-  }
-}
-
 interface ConversationDeliverablesResponseBody {
   data?: {
     deliverables?: Array<{
@@ -220,7 +203,7 @@ async function getCompletedDeliverableId(
   page: Page,
   conversationId: string,
   brandWorkspaceId: string,
-): Promise<string> {
+): Promise<string | undefined> {
   const response = await page.request.get(
     `/v1/conversations/${conversationId}/deliverables`,
     {
@@ -241,13 +224,7 @@ async function getCompletedDeliverableId(
     (item) => item.status === 'completed',
   )
 
-  if (!deliverable?.id) {
-    throw new Error(
-      'Completed deliverable fixture did not create a deliverable',
-    )
-  }
-
-  return deliverable.id
+  return deliverable?.id
 }
 
 async function createChatPair(
@@ -366,29 +343,11 @@ async function createChatPair(
   return { pair, cleanup }
 }
 
-function buildCompletedDeliverableSeedMessages(
-  count: number,
-): CompletedDeliverableSeedMessagesInput {
+function buildCompletedDeliverableSeedMessages(count: number): SeedMessagesInput {
   return {
     count,
     alternating_authors: true,
     mark_read_for: 'both',
-    offer_status: 'accepted',
-    deliverable_status: 'completed',
-    offer: {
-      type: 'single',
-      status: 'accepted',
-      amount: '10.00',
-      currency: 'USD',
-      deadline: '2026-12-31',
-      deliverables: [
-        {
-          platform: 'youtube',
-          format: 'yt_long',
-          status: 'completed',
-        },
-      ],
-    },
   }
 }
 

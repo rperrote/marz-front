@@ -50,7 +50,7 @@ function emptyChannel(platform: string): CreatorChannel {
 }
 
 function emptyRateCard(format: string): CreatorRateCard {
-  return { format, rate_amount: '', rate_currency: 'USD' }  
+  return { format, rate_amount: '', rate_currency: 'USD' }
 }
 
 function hasAmount(rc: CreatorRateCard): boolean {

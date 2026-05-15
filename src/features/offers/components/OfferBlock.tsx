@@ -32,7 +32,7 @@ export function OfferBlock({
   title,
   offerId,
   statusLabel,
-   
+
   statusVariant = 'default',
   terms,
   sectionLabel,
@@ -53,7 +53,6 @@ export function OfferBlock({
           {onToggle ? (
             <IconButton
               size="sm"
-               
               shape="circle"
               aria-label={t`Collapse offer`}
               onClick={onToggle}

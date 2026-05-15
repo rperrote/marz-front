@@ -13,11 +13,13 @@ interface SwitchFieldProps extends Omit<
 > {
   label?: ReactNode
   hint?: ReactNode
+  required?: boolean
 }
 
 export function SwitchField({
   label,
   hint,
+  required,
   className,
   ...switchProps
 }: SwitchFieldProps) {
@@ -29,7 +31,7 @@ export function SwitchField({
     : undefined
 
   return (
-    <FieldRow label={label} hint={hint} error={error}>
+    <FieldRow label={label} hint={hint} error={error} required={required}>
       {(aria) => (
         <Switch
           {...aria}

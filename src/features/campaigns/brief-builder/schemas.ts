@@ -77,16 +77,17 @@ export function createPhase3Schema() {
         icp_countries: z.array(z.string().length(2)),
         icp_platforms: z.array(z.enum(['youtube', 'instagram', 'tiktok'])),
         icp_interests: z.array(z.string()),
-        scoring_dimensions: z.array(scoringDimensionSchema).min(1).max(4),
+        scoring_dimensions: z.array(scoringDimensionSchema).max(4),
         hard_filters: z.array(hardFilterSchema),
         disqualifiers: z.array(z.string()),
       }),
     })
     .superRefine((v, ctx) => {
-      const sum = v.brief.scoring_dimensions.reduce(
-        (a, d) => a + d.weight_pct,
-        0,
-      )
+      const dims = v.brief.scoring_dimensions
+      // Empty scoring is allowed (partial brief when AI failed). Only enforce
+      // the 100% rule if the user added dimensions.
+      if (dims.length === 0) return
+      const sum = dims.reduce((a, d) => a + d.weight_pct, 0)
       if (sum !== 100) {
         const currentSum = String(sum)
         ctx.addIssue({

@@ -26,7 +26,7 @@ export function useCreateSingleOffer() {
       const amount = parseFloat(variables.amount)
       const hasBonusTerms =
         (variables.bonus_terms?.speed_bonus_windows.length ?? 0) > 0
-       
+
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'single',
@@ -35,7 +35,6 @@ export function useCreateSingleOffer() {
         total_amount_bucket: toAmountBucket(amount, 'USD'),
         deadline_days_from_now: daysFromNow(variables.deadline),
       })
-       
     },
   })
 }

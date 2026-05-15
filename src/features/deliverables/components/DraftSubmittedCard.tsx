@@ -1,4 +1,3 @@
- 
 import { useEffect, useMemo, useRef } from 'react'
 import { Upload, Film, Timer } from 'lucide-react'
 import { t } from '@lingui/core/macro'

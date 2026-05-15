@@ -3,7 +3,6 @@ import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
 import { useBrandSession } from '#/features/identity/session/BrandSessionContext'
 import { useAppForm } from '#/shared/ui/form'
-import { WizardSectionTitle } from '#/shared/ui/wizard'
 import { useBriefBuilderStore } from '../store'
 import { createFormInputSchema, createWebsiteUrlFieldSchema } from '../schemas'
 import { useRegisterStepValidator } from '../validation'
@@ -97,10 +96,6 @@ export function P1Input() {
 
   return (
     <div className="flex w-full flex-col items-center gap-8">
-      <WizardSectionTitle
-        title={t`Contanos sobre tu producto`}
-        subtitle={t`Ingresá la web del producto, describí qué hace o subí un PDF para generar el brief.`}
-      />
       <div className="flex w-full max-w-[440px] flex-col gap-6">
         <form.AppField
           name="websiteUrl"
@@ -116,40 +111,29 @@ export function P1Input() {
           }}
         >
           {(field) => (
-            <div className="flex flex-col gap-2">
-              <field.TextField
-                label={t`Sitio web del producto`}
-                placeholder="https://miproducto.com"
-                maxLength={500}
-              />
-              {brandWorkspace.website_url && (
-                <button
-                  type="button"
-                  className="self-start text-[length:var(--font-size-xs)] text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-                  onClick={() => {
-                    form.setFieldValue(
-                      'websiteUrl',
-                      brandWorkspace.website_url ?? '',
-                    )
-                  }}
-                >
-                  {t`Usar el de la marca`}
-                </button>
-              )}
-            </div>
+            <field.TextField
+              label={t`URL de la campaña`}
+              placeholder="https://ejemplo.com/campana"
+              maxLength={500}
+              required
+            />
           )}
         </form.AppField>
         <form.AppField name="descriptionText">
           {(field) => (
             <field.TextareaField
-              label={t`Descripción del producto o servicio`}
-              hint={t`Opcional si subís un PDF.`}
-              placeholder={t`Describí brevemente qué hace tu marca, a quién le vende y qué tipo de campaña necesitás.`}
+              label={t`Descripción del brief`}
+              placeholder={t`Describí tu campaña, público objetivo, objetivos…`}
               maxLength={2000}
               rows={4}
             />
           )}
         </form.AppField>
+        <div className="flex items-center gap-3 text-[length:var(--font-size-xs)] text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span>{t`o adjuntá un PDF en lugar de la descripción`}</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
         <PDFUploadField file={values.pdfFile} onFileChange={handlePdfChange} />
       </div>
       {submitError && (
@@ -162,7 +146,7 @@ export function P1Input() {
       )}
       {!hasInput && (
         <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
-          {t`Completa al menos uno de los campos para continuar.`}
+          {t`Necesitás texto o un PDF para continuar`}
         </p>
       )}
     </div>

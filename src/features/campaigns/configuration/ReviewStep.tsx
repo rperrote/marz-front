@@ -427,13 +427,14 @@ function formatTier(
 function formatRange(min: number | null, max: number | null) {
   if (min == null && max == null) return t`Sin rango`
   if (min == null) {
-    const formattedMax = max == null ? null : formatNumber(max)
-    return formattedMax == null ? t`Sin rango` : t`Hasta ${formattedMax}`
+    if (max == null) return t`Sin rango`
+    const maxFmt = formatNumber(max)
+    return t`Hasta ${maxFmt}`
   }
-  const formattedMin = formatNumber(min)
-  if (max == null) return t`Desde ${formattedMin}`
-  const formattedMax = formatNumber(max)
-  return t`${formattedMin} – ${formattedMax}`
+  const minFmt = formatNumber(min)
+  if (max == null) return t`Desde ${minFmt}`
+  const maxFmt = formatNumber(max)
+  return t`${minFmt} – ${maxFmt}`
 }
 
 function formatAgeRange(min: number | null, max: number | null) {

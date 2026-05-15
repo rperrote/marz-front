@@ -71,6 +71,11 @@ describe('useCreateCampaign', () => {
     result.current.mutate({
       idempotencyKey: 'idem-1',
       draft: makeDraft(),
+      source: {
+        websiteUrl: 'https://x.test',
+        descriptionText: '',
+        pdfS3Key: null,
+      },
     })
     await waitFor(() => {
       expect(mockCreateCampaign).toHaveBeenCalled()
@@ -88,6 +93,11 @@ describe('useCreateCampaign', () => {
     result.current.mutate({
       idempotencyKey: 'idem-3',
       draft: makeDraft(),
+      source: {
+        websiteUrl: 'https://x.test',
+        descriptionText: '',
+        pdfS3Key: null,
+      },
     })
     await waitFor(() => {
       expect(mockCreateCampaign).toHaveBeenCalled()
@@ -103,6 +113,11 @@ describe('useCreateCampaign', () => {
     result.current.mutate({
       idempotencyKey: 'idem-xyz',
       draft: makeDraft(),
+      source: {
+        websiteUrl: 'https://x.test',
+        descriptionText: '',
+        pdfS3Key: null,
+      },
     })
     await waitFor(() => {
       expect(mockCreateCampaign).toHaveBeenCalled()

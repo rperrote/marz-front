@@ -12,7 +12,7 @@ export function C7ChannelsScreen() {
 
   const updateChannels = useCallback(
     (next: CreatorChannel[]) => {
-      store.setField('channels', next)  
+      store.setField('channels', next)
     },
     [store],
   )
@@ -38,7 +38,7 @@ export function C7ChannelsScreen() {
           className="text-[length:var(--font-size-sm)] text-destructive"
           role="alert"
         >
-          { }
+          {}
           {errors.includes('exactly_one_primary_required')
             ? t`Seleccioná exactamente un canal como principal.`
             : errors.includes('duplicate_format_in_channel')
@@ -46,7 +46,7 @@ export function C7ChannelsScreen() {
               : errors.includes('format_not_valid_for_platform')
                 ? t`Hay formatos inválidos para la plataforma seleccionada.`
                 : null}
-          { }
+          {}
         </p>
       )}
       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">

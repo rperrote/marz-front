@@ -1,5 +1,15 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+src/test/**
+test-results/**
+playwright-report/**
+node_modules/**
+dist/**
+LOST_COMMITS.md
 .rafita/**
 .flow/**

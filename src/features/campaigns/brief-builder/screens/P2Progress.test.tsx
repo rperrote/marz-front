@@ -20,6 +20,11 @@ vi.mock('@lingui/core/macro', () => ({
   ),
 }))
 
+const mockRouterNavigate = vi.fn()
+vi.mock('@tanstack/react-router', () => ({
+  useRouter: () => ({ navigate: mockRouterNavigate }),
+}))
+
 type MutateOptions = {
   onError?: (error: unknown) => void
   onSuccess?: () => void

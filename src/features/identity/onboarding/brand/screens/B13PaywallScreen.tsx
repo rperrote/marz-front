@@ -148,7 +148,7 @@ function getRecommendedPlan(budget: MonthlyBudgetRange | undefined): PlanId {
 export function B13PaywallScreen() {
   const navigate = useNavigate()
   const store = useBrandOnboardingStore()
-  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly')  
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly')
 
   const plans = getPlans()
   const recommended = getRecommendedPlan(store.monthly_budget_range)

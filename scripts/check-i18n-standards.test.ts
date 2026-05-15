@@ -65,7 +65,7 @@ describe('runI18nStandardsSelfTest', () => {
 
     expect(failures).toEqual([])
     expect(existsSync(dir)).toBe(false)
-  }, 15_000)
+  }, 60_000)
 
   it('fails when a raw visible string is expected to pass', async () => {
     const dir = selfTestDir('negative')

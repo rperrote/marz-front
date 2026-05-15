@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useCallback } from 'react'
+import { useEffect, useReducer, useRef, useCallback, useState } from 'react'
 import { t } from '@lingui/core/macro'
 import type { DomainEventEnvelope, EventHandler } from '#/shared/ws/events'
 import { SubscribeError, useWebSocket } from '#/shared/ws/useWebSocket'
@@ -70,6 +70,10 @@ export function useBriefBuilderWS(
   const tokenRef = useRef(processingToken)
   tokenRef.current = processingToken
   const subscribedTokenRef = useRef<string | null>(null)
+  // Bumped when a subscribe attempt fails transiently (not_connected /
+  // already_subscribing under React StrictMode double-mount) so the effect
+  // re-runs and retries on the now-open socket.
+  const [subscribeAttempt, setSubscribeAttempt] = useState(0)
 
   const handleStepCompleted: EventHandler = useCallback(
     (envelope: DomainEventEnvelope) => {
@@ -87,6 +91,18 @@ export function useBriefBuilderWS(
       if (payload.processing_token !== tokenRef.current) return
 
       const incoming = payload.brief_draft
+      // The backend only emits the AI-generated `brief` portion; the user fills
+      // `campaign` in P4. Initialize it with empty defaults so P3Review can
+      // render before the user has touched it.
+      if (!incoming.campaign) {
+        incoming.campaign = {
+          name: '',
+          objective: '',
+          budget_amount: null,
+          budget_currency: 'USD',
+          deadline: '',
+        }
+      }
       incoming.brief.scoring_dimensions = incoming.brief.scoring_dimensions.map(
         (d) => ({
           ...d,
@@ -139,16 +155,31 @@ export function useBriefBuilderWS(
 
     subscribedTokenRef.current = processingToken
     let cancelled = false
+    let didSubscribe = false
     void subscribe('brief-builder', { processing_token: processingToken })
       .then(() => {
         if (cancelled) return
         if (tokenRef.current !== processingToken) return
+        didSubscribe = true
         dispatch({ type: 'subscribed', subscribed: true })
       })
       .catch((err: unknown) => {
         if (cancelled) return
         if (tokenRef.current !== processingToken) return
         const code = err instanceof SubscribeError ? err.code : 'internal'
+        // not_connected/already_subscribing are transient under React StrictMode
+        // double-mount in dev: the first effect mounts before the socket finishes
+        // opening, fails, and we'd surface a fatal UI error. Clear the ref and
+        // bump the attempt counter so the effect re-runs against the now-open
+        // socket on the next tick.
+        if (code === 'not_connected' || code === 'already_subscribing') {
+          subscribedTokenRef.current = null
+          setTimeout(() => {
+            if (cancelled) return
+            setSubscribeAttempt((n) => n + 1)
+          }, 50)
+          return
+        }
         dispatch({
           type: 'subscribeFailed',
           code,
@@ -159,9 +190,11 @@ export function useBriefBuilderWS(
     return () => {
       cancelled = true
       subscribedTokenRef.current = null
-      unsubscribe('brief-builder')
+      if (didSubscribe) {
+        unsubscribe('brief-builder')
+      }
     }
-  }, [wsStatus, processingToken, subscribe, unsubscribe])
+  }, [wsStatus, processingToken, subscribe, unsubscribe, subscribeAttempt])
 
   return {
     steps: state.steps,

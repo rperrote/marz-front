@@ -9,7 +9,7 @@ export function C16ReferralScreen() {
 
   const updateReferralFromInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      store.setField('referral_text', e.target.value || null)  
+      store.setField('referral_text', e.target.value || null)
     },
     [store],
   )

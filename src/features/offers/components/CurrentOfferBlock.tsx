@@ -121,7 +121,7 @@ export function CurrentOfferBlock({
   useEffect(() => {
     if (offer && !trackedRef.current) {
       trackedRef.current = true
-       
+
       trackOfferEvent('offer_panel_viewed', {
         actor_kind: actorKind,
         offer_state: offer.status,
@@ -136,7 +136,7 @@ export function CurrentOfferBlock({
   const badge = getOfferBadge(offer, deliverables)
   const bonusLabel = formatBonusWindowsLabel(offer.bonus_terms)
   // RAFITA:BLOCKER currency no expuesto en OfferDTO — asumir USD hasta que backend lo agregue
-   
+
   const currency = 'USD'
 
   return (

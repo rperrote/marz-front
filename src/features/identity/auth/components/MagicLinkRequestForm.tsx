@@ -49,7 +49,7 @@ export function MagicLinkRequestForm() {
     validators: { onChange: getEmailSchema(), onSubmit: getEmailSchema() },
     onSubmit: async ({ value, formApi }) => {
       const email = value.email.trim()
-      const verificationUrl = `${window.location.origin}/auth/callback`  
+      const verificationUrl = `${window.location.origin}/auth/callback`
 
       try {
         const signInCreate = await signIn.create({ identifier: email })
@@ -75,7 +75,7 @@ export function MagicLinkRequestForm() {
           if (sendLink.error) throw sendLink.error
         }
 
-        track('magic_link_requested', { email })  
+        track('magic_link_requested', { email })
 
         void router.navigate({
           to: '/auth/check-email',
@@ -83,7 +83,6 @@ export function MagicLinkRequestForm() {
         })
       } catch (err) {
         formApi.setFieldMeta('email', (prev) => ({
-           
           ...prev,
           errorMap: { ...prev.errorMap, onServer: clerkErrorMessage(err) },
           isTouched: true,

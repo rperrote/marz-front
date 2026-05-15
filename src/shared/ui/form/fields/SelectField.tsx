@@ -20,6 +20,7 @@ interface SelectOption {
 interface SelectFieldProps {
   label?: ReactNode
   hint?: ReactNode
+  required?: boolean
   placeholder?: string
   options: ReadonlyArray<SelectOption>
   className?: string
@@ -29,6 +30,7 @@ interface SelectFieldProps {
 export function SelectField({
   label,
   hint,
+  required,
   placeholder,
   options,
   className,
@@ -42,7 +44,13 @@ export function SelectField({
     : undefined
 
   return (
-    <FieldRow label={label} hint={hint} error={error} className={className}>
+    <FieldRow
+      label={label}
+      hint={hint}
+      error={error}
+      required={required}
+      className={className}
+    >
       {(aria) => (
         <Select
           name={field.name}

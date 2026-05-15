@@ -71,9 +71,11 @@ describe('P3Review', () => {
   it('renders campaign fields pre-filled from store', () => {
     useBriefBuilderStore.setState({ briefDraft: makeDraft() })
     renderWithValidation(<P3Review />)
-    expect(screen.getAllByLabelText(/^nombre$/i)[0]!).toHaveValue(
-      'Campaña test',
-    )
+    const nameInput = screen.getByPlaceholderText(
+      /lanzamiento verano/i,
+    ) as HTMLInputElement
+    expect(nameInput).toBeTruthy()
+    expect(nameInput).toHaveValue('Campaña test')
   })
 
   it('shows weight sum indicator in real time', () => {
@@ -186,16 +188,17 @@ describe('P3Review', () => {
     useBriefBuilderStore.setState({ briefDraft: null })
     renderWithValidation(<P3Review />)
     expect(
-      screen.getByText(/no fue suficiente para generar el brief/i),
+      screen.getByText(/algunos campos no se pudieron generar automáticamente/i),
     ).toBeInTheDocument()
   })
 
   it('preserves data when going back and re-entering', () => {
     useBriefBuilderStore.setState({ briefDraft: makeDraft() })
     const { unmount } = renderWithValidation(<P3Review />)
-    expect(screen.getAllByLabelText(/^nombre$/i)[0]!).toHaveValue(
-      'Campaña test',
-    )
+    const nameInput = screen.getByPlaceholderText(
+      /lanzamiento verano/i,
+    ) as HTMLInputElement
+    expect(nameInput).toHaveValue('Campaña test')
 
     unmount()
 
@@ -204,9 +207,9 @@ describe('P3Review', () => {
     expect(stored?.brief.scoring_dimensions).toHaveLength(2)
 
     renderWithValidation(<P3Review />)
-    expect(screen.getAllByLabelText(/^nombre$/i)[0]!).toHaveValue(
-      'Campaña test',
-    )
+    expect(
+      screen.getByPlaceholderText(/lanzamiento verano/i) as HTMLInputElement,
+    ).toHaveValue('Campaña test')
   })
 
   it('can add a new dimension', async () => {

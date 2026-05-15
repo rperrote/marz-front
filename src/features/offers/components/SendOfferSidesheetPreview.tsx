@@ -39,12 +39,7 @@ export function SendOfferSidesheetPreview({
             <Trans>To {creatorName}</Trans>
           </p>
         </div>
-        <IconButton
-           
-          shape="circle"
-          aria-label={t`Close`}
-          onClick={onCancel}
-        >
+        <IconButton shape="circle" aria-label={t`Close`} onClick={onCancel}>
           <XIcon />
         </IconButton>
       </header>

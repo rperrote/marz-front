@@ -857,7 +857,11 @@ function DeliverablesShowcaseGroup({
   )
 }
 
-function DraftCardsShowcaseGroup({ showcaseNowIso }: { showcaseNowIso: string }) {
+function DraftCardsShowcaseGroup({
+  showcaseNowIso,
+}: {
+  showcaseNowIso: string
+}) {
   return (
     <>
       <ShowcaseGroup
@@ -1159,10 +1163,7 @@ function OffersShowcaseGroup() {
         </div>
       </ShowcaseGroup>
 
-      <ShowcaseGroup
-        title="Offer card · collapsed"
-        context="features/offers"
-      >
+      <ShowcaseGroup title="Offer card · collapsed" context="features/offers">
         <div className="max-w-md space-y-2">
           <OfferCardCollapsed offerId="OFR-2847" status="accepted" />
           <OfferCardCollapsed offerId="OFR-2848" status="sent" />

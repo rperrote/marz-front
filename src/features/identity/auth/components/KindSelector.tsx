@@ -23,14 +23,14 @@ const cards: Array<{
   disabled: boolean
 }> = [
   {
-    kind: 'brand',  
+    kind: 'brand',
     icon: Building2,
     title: () => t`Soy una marca`,
     description: () => t`Quiero correr campañas con creadores.`,
     disabled: false,
   },
   {
-    kind: 'creator',  
+    kind: 'creator',
     icon: User,
     title: () => t`Soy creador`,
     description: () =>
@@ -38,7 +38,7 @@ const cards: Array<{
     disabled: false,
   },
   {
-    kind: 'agency',  
+    kind: 'agency',
     icon: Briefcase,
     title: () => t`Soy una agencia`,
     description: () => t`Manejo campañas para varias marcas.`,
@@ -63,13 +63,13 @@ export function KindSelector() {
       { data: { kind } },
       {
         onSuccess: async (response) => {
-          track('kind_selected', { kind })  
+          track('kind_selected', { kind })
 
           await queryClient.refetchQueries({
             queryKey: getMeQueryKey(),
           })
 
-          const fallback = `/onboarding/${kind}`  
+          const fallback = `/onboarding/${kind}`
           const destination =
             response.status === 200
               ? (response.data.redirect_to ?? fallback)

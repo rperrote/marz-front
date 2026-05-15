@@ -31,7 +31,7 @@ export function useCreateBundleOffer() {
       const amount = parseFloat(variables.amount)
       const hasBonusTerms =
         (variables.bonus_terms?.speed_bonus_windows.length ?? 0) > 0
-       
+
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'bundle',
@@ -41,7 +41,6 @@ export function useCreateBundleOffer() {
         total_amount_bucket: toAmountBucket(amount, 'USD'),
         deadline_days_from_now: daysFromNow(variables.deadline),
       })
-       
     },
   })
 }

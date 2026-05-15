@@ -28,7 +28,7 @@ export function ApproveDraftButton({
   const resolvedCurrentVersion = currentVersion ?? version
   const isStale = version !== resolvedCurrentVersion
   const isPending = approveDraft.isPending
-  const tooltipId = `approve-draft-tooltip-${deliverableId}`  
+  const tooltipId = `approve-draft-tooltip-${deliverableId}`
 
   const approveCurrentDraft = useCallback(() => {
     if (isStale) return

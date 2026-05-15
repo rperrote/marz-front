@@ -36,12 +36,14 @@ function useNextDisabled(phaseIndex: number): boolean {
     if (!draft) return true
     const dims = draft.brief.scoring_dimensions
     const weightSum = dims.reduce((a, d) => a + d.weight_pct, 0)
+    // If the user added scoring dimensions they must sum to 100; an empty
+    // list is allowed (the AI may have returned partial draft and we don't
+    // want to block the user from continuing manually).
+    if (dims.length > 0 && weightSum !== 100) return true
     return (
       draft.campaign.name.trim().length === 0 ||
       !draft.campaign.objective ||
-      !draft.campaign.budget_amount ||
-      dims.length === 0 ||
-      weightSum !== 100
+      !draft.campaign.budget_amount
     )
   }
 
@@ -68,6 +70,36 @@ export function BriefBuilderWizard() {
       useBriefBuilderStore.getState().reset()
     }
   }, [])
+
+  // Guard: post-input phases require source data (URL, description, PDF, or
+  // an existing briefDraft). Land users that deep-link straight to a later
+  // phase back at phase 1 instead of letting them submit an empty brief.
+  // Skip the guard when a campaign was just created (campaignId !== null) —
+  // the success path of P4Confirm is navigating away and we don't want a
+  // store-reset race to bounce us back to /campaigns/new/input.
+  useEffect(() => {
+    if (currentIndex <= 0) return
+    if (store.campaignId !== null) return
+    const hasSource =
+      store.formInput.websiteUrl.trim().length > 0 ||
+      store.formInput.descriptionText.trim().length > 0 ||
+      store.pdfFile !== null ||
+      store.briefDraft !== null
+    if (hasSource) return
+    void router.navigate({
+      to: '/campaigns/new/$phase',
+      params: { phase: getPhaseSlug(0) },
+      replace: true,
+    })
+  }, [
+    currentIndex,
+    store.formInput.websiteUrl,
+    store.formInput.descriptionText,
+    store.pdfFile,
+    store.briefDraft,
+    store.campaignId,
+    router,
+  ])
 
   if (currentIndex === -1) {
     return (

@@ -252,11 +252,7 @@ export function C20ConfirmationScreen() {
                             </span>
                             {valid && (
                               <span className="ml-1.5 font-semibold">
-                                {
-                                  amount.toLocaleString(
-                                    'es-AR',
-                                  )  
-                                }{' '}
+                                {amount.toLocaleString('es-AR')}{' '}
                                 {rc.rate_currency}
                               </span>
                             )}

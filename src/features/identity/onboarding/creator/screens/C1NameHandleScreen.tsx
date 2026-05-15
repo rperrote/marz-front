@@ -11,7 +11,7 @@ export function C1NameHandleScreen() {
 
   const handleNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      store.setField('display_name', e.target.value)  
+      store.setField('display_name', e.target.value)
     },
     [store],
   )
@@ -19,7 +19,7 @@ export function C1NameHandleScreen() {
   const handleHandleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       store.setField(
-        'handle',  
+        'handle',
         e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''),
       )
     },

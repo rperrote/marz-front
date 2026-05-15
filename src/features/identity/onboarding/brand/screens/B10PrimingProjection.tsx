@@ -74,7 +74,7 @@ export function B10PrimingProjection() {
   const cpc = clicks > 0 ? budgetUsd / clicks : 0
 
   const highlight: 'views' | 'clicks' =
-    objective === 'performance' ? 'clicks' : 'views'  
+    objective === 'performance' ? 'clicks' : 'views'
 
   const budgetLabel = BUDGET_LABEL[budget]()
   const objectiveLabel = OBJECTIVE_LABEL[objective]()

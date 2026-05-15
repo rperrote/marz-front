@@ -33,7 +33,6 @@ export function StageEditor({
   onRemove,
   deadlineError,
 }: StageEditorProps) {
-   
   const deadlineErrorId = `stage-${stageNumber}-deadline-error`
 
   return (
@@ -95,7 +94,6 @@ export function StageEditor({
             className={deadlineError ? 'border-destructive' : ''}
             aria-invalid={deadlineError ? true : undefined}
             aria-describedby={
-               
               deadlineError ? `stage-${stageNumber}-deadline-error` : undefined
             }
           />

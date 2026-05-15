@@ -52,11 +52,11 @@ export function C11BirthdayScreen() {
         }
         if (next.year && next.month && next.day) {
           store.setField(
-            'birthday',  
+            'birthday',
             `${next.year}-${next.month.padStart(2, '0')}-${next.day.padStart(2, '0')}`,
           )
         } else {
-          store.setField('birthday', '')  
+          store.setField('birthday', '')
         }
         return next
       })

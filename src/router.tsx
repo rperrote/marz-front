@@ -3,9 +3,11 @@ import {
   createRouter as createTanStackRouter,
 } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
+import * as Sentry from '@sentry/tanstackstart-react'
 
 import { routeTree } from './routeTree.gen'
 import { getContext } from './integrations/tanstack-query/root-provider'
+import { initFaro } from '#/shared/observability/faro'
 
 function DefaultNotFound() {
   return (
@@ -35,6 +37,21 @@ export function getRouter() {
     defaultPreloadStaleTime: 0,
     defaultNotFoundComponent: DefaultNotFound,
   })
+
+  if (!router.isServer) {
+    if (import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.init({
+        dsn: import.meta.env.VITE_SENTRY_DSN,
+        environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
+        release: import.meta.env.VITE_SENTRY_RELEASE,
+        tracesSampleRate: Number(
+          import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE ?? '1.0',
+        ),
+        sendDefaultPii: true,
+      })
+    }
+    initFaro()
+  }
 
   setupRouterSsrQueryIntegration({
     router,

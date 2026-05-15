@@ -10,7 +10,7 @@ export function formatOfferDeadline(deadline: string): string {
   const raw = deadline.includes('T') ? deadline : `${deadline}T00:00:00`
   const date = new Date(raw)
   if (Number.isNaN(date.getTime())) return ''
-   
+
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 

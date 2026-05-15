@@ -20,30 +20,25 @@ export function OfferExpiredBubble({
   sentAt,
   actorKind,
 }: OfferExpiredBubbleProps) {
-   
   const direction = viewerSide === 'actor' ? 'out' : 'in'
   const bubbleRef = useRef<HTMLDivElement>(null)
 
   useViewedOnce(bubbleRef, () => {
     if (!offerId || !sentAt) return
-     
+
     if (!markOfferSeen(offerId, 'offer_expired_seen')) return
     const offerAgeDays = Math.floor(
       (Date.now() - new Date(sentAt).getTime()) / (1000 * 60 * 60 * 24),
     )
-    trackOfferEvent(
-       
-      'offer_expired_seen',
-      {
-        actor_kind: actorKind,
-        offer_age_days_at_seen: offerAgeDays,
-      },
-    )
+    trackOfferEvent('offer_expired_seen', {
+      actor_kind: actorKind,
+      offer_age_days_at_seen: offerAgeDays,
+    })
   })
 
   return (
     <div ref={bubbleRef} role="status" aria-label={t`Offer expired`}>
-      { }
+      {}
       <EventBubble severity="warning" direction={direction}>
         {t`Offer expired`}
       </EventBubble>

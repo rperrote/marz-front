@@ -8,8 +8,7 @@ async function expectDisabledItemDoesNotNavigate(page: Page, name: string) {
   const urlBefore = page.url()
   const item = page.getByRole('button', { name })
 
-  await item.focus()
-  await expect(page.getByRole('tooltip')).toHaveText('Próximamente')
+  await expect(item).toBeDisabled()
   await item.click()
 
   await expect(page).toHaveURL(urlBefore)

@@ -44,9 +44,9 @@ export function MagicSentScreen({ email }: { email: string }) {
       await signIn.create({ identifier: email })
       await signIn.emailLink.sendLink({
         emailAddress: email,
-        verificationUrl: `${window.location.origin}/auth/callback`,  
+        verificationUrl: `${window.location.origin}/auth/callback`,
       })
-      track('magic_link_requested', { email })  
+      track('magic_link_requested', { email })
       startCooldown()
     } catch {
       // Clerk error — silent for now, user can retry

@@ -18,7 +18,6 @@ const badgeByStatus: Record<
   rejected: { label: () => t`Rejected`, variant: 'destructive' },
 }
 
- 
 export function LinkItem({ url, status = 'pending', href }: LinkItemProps) {
   const statusMeta = badgeByStatus[status]
   return (

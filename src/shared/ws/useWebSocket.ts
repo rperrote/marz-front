@@ -131,6 +131,8 @@ export function useWebSocket({
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (cancelled) return
       const token = await tokenPromise
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (cancelled) return
       if (!token) {
         console.warn('[ws] no Clerk token available; not connecting')
         return
@@ -139,6 +141,15 @@ export function useWebSocket({
       // (the only header the browser exposes on a WS handshake).
       // Format agreed with backend: ['bearer', <jwt>].
       ws = new WebSocket(baseUrl, ['bearer', token])
+      // Under React StrictMode dev double-mount the cleanup may have already
+      // run before we got here. Don't overwrite socketRef if a later effect
+      // already owns it, and immediately close the stillborn socket so we
+      // don't leak an open WS the rest of the hook will never see.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (cancelled) {
+        ws.close()
+        return
+      }
       socketRef.current = ws
 
       ws.addEventListener('open', handleOpen)
@@ -152,7 +163,12 @@ export function useWebSocket({
       ws?.removeEventListener('close', handleClose)
       ws?.removeEventListener('message', handleMessage)
       ws?.close()
-      socketRef.current = null
+      // Only clear socketRef if this effect owned it. A later mount may have
+      // already replaced it with a fresh socket; clobbering it here causes
+      // subscribe() to see a null socket even though one is open.
+      if (ws !== null && socketRef.current === ws) {
+        socketRef.current = null
+      }
       for (const [, pending] of pendingSubscribesRef.current) {
         clearTimeout(pending.timer)
         pending.reject(new SubscribeError('disconnected'))

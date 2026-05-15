@@ -38,11 +38,14 @@ test('brief → configuración: handoff sin fricción hasta el primer step', asy
   const confirmar = page.getByRole('button', { name: /^confirmar/i })
   await expect(confirmar).toBeEnabled({ timeout: 5_000 })
 
-  // P4 monta y dispara POST /v1/campaigns automáticamente. El handoff
-  // navega directo a /campaigns/{id}/configuration/{step} cuando el POST
-  // resuelve OK. Esperamos esa URL como señal de éxito en lugar de
-  // sniffear el response del network (sensible a retries de auth).
+  // P4 monta y dispara POST /v1/campaigns automáticamente. El handoff ahora
+  // requiere confirmación explícita desde la pantalla de campaña creada.
   await confirmar.click()
+
+  await expect(page.getByText(/campaña creada/i)).toBeVisible({
+    timeout: 60_000,
+  })
+  await page.getByRole('button', { name: /configurar campaña/i }).click()
 
   await expect(page).toHaveURL(
     /\/campaigns\/[0-9a-f-]{36}\/configuration\/(content_type|pricing_model|targeting|bonus|review)/i,

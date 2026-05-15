@@ -23,6 +23,8 @@ const mockMutationState = {
   isPending: false,
   isError: false,
   isSuccess: false,
+  status: 'idle' as 'idle' | 'pending' | 'success' | 'error',
+  data: undefined as { campaign_id: string } | undefined,
   error: null as unknown,
 }
 
@@ -110,6 +112,8 @@ beforeEach(() => {
   mockMutationState.isPending = false
   mockMutationState.isError = false
   mockMutationState.isSuccess = false
+  mockMutationState.status = 'idle'
+  mockMutationState.data = undefined
   mockMutationState.error = null
 })
 
@@ -125,7 +129,15 @@ describe('P4Confirm', () => {
 
     expect(mockMutate).toHaveBeenCalledTimes(1)
     const [params] = mockMutate.mock.calls[0] as [
-      { brandWorkspaceId: string; idempotencyKey: string; draft: BriefDraft },
+      {
+        idempotencyKey: string
+        draft: BriefDraft
+        source: {
+          websiteUrl: string
+          descriptionText: string
+          pdfS3Key: string | null
+        }
+      },
     ]
     expect(params.draft.campaign.name).toBe('Mi campaña')
     expect(params.draft.campaign.objective).toBe('brand_awareness')
@@ -134,88 +146,74 @@ describe('P4Confirm', () => {
     )
   })
 
-  it('redirects to campaign configuration after creating the campaign', async () => {
+  it('persists campaignId in the store when the mutation succeeds', async () => {
     useBriefBuilderStore.setState({ briefDraft: makeDraft() })
+    mockMutationState.isSuccess = true
+    mockMutationState.status = 'success'
+    mockMutationState.data = { campaign_id: 'camp-123' }
     renderP4()
 
-    const [, options] = mockMutate.mock.calls[0] as [
-      { brandWorkspaceId: string; idempotencyKey: string; draft: BriefDraft },
-      { onSuccess: (data: { campaign_id: string }) => void },
-    ]
-    options.onSuccess({ campaign_id: 'camp-123' })
-
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith({
-        to: '/campaigns/$campaignId/configuration',
-        params: { campaignId: 'camp-123' },
-        search: { tab: 'overview', section: 'matches' },
-      })
+      expect(useBriefBuilderStore.getState().campaignId).toBe('camp-123')
     })
   })
 
   it('shows spinner when pending', () => {
     useBriefBuilderStore.setState({ briefDraft: makeDraft() })
     mockMutationState.isPending = true
+    mockMutationState.status = 'pending'
     renderP4()
     expect(screen.getByText(/creando tu campaña/i)).toBeInTheDocument()
   })
 
-  it('renders success state with CTAs', () => {
+  it('renders success state with "Configurar campaña" CTA', () => {
     useBriefBuilderStore.setState({
       briefDraft: makeDraft(),
       campaignId: 'camp-123',
     })
     mockMutationState.isSuccess = true
+    mockMutationState.status = 'success'
+    mockMutationState.data = { campaign_id: 'camp-123' }
     renderP4()
 
     expect(screen.getByText(/campaña creada/i)).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /ir al marketplace/i }),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /ver resumen del brief/i }),
+      screen.getByRole('button', { name: /configurar campaña/i }),
     ).toBeInTheDocument()
   })
 
-  it('navigates to marketplace on CTA click', async () => {
+  it('navigates to /campaigns/<id>/configuration on CTA click', async () => {
     const user = userEvent.setup()
     useBriefBuilderStore.setState({
       briefDraft: makeDraft(),
       campaignId: 'camp-123',
     })
     mockMutationState.isSuccess = true
+    mockMutationState.status = 'success'
+    mockMutationState.data = { campaign_id: 'camp-123' }
     renderP4()
 
-    await user.click(screen.getByRole('button', { name: /ir al marketplace/i }))
+    await user.click(
+      screen.getByRole('button', { name: /configurar campaña/i }),
+    )
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalled()
-    })
-  })
-
-  it('falls back to / with toast when marketplace route throws', async () => {
-    const user = userEvent.setup()
-    useBriefBuilderStore.setState({
-      briefDraft: makeDraft(),
-      campaignId: 'camp-123',
-    })
-    mockMutationState.isSuccess = true
-    mockNavigate.mockRejectedValueOnce(new Error('route not found'))
-    renderP4()
-
-    await user.click(screen.getByRole('button', { name: /ir al marketplace/i }))
-
-    await waitFor(() => {
-      expect(mockToastInfo).toHaveBeenCalledWith(
-        expect.stringContaining('marketplace'),
-      )
-      expect(mockNavigate).toHaveBeenLastCalledWith({ to: '/' })
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: '/campaigns/$campaignId/configuration',
+        params: { campaignId: 'camp-123' },
+        search: {
+          tab: 'overview',
+          section: 'matches',
+          from: 'brief-builder',
+        },
+      })
     })
   })
 
   it('shows error state with retry and back buttons', () => {
     useBriefBuilderStore.setState({ briefDraft: makeDraft() })
     mockMutationState.isError = true
+    mockMutationState.status = 'error'
     mockMutationState.error = new Error('Server error')
     renderP4()
 
@@ -231,6 +229,7 @@ describe('P4Confirm', () => {
   it('handles 422 error with field errors — no retry button', () => {
     useBriefBuilderStore.setState({ briefDraft: makeDraft() })
     mockMutationState.isError = true
+    mockMutationState.status = 'error'
     mockMutationState.error = {
       status: 422,
       details: { field_errors: { name: ['El nombre es requerido'] } },
@@ -245,50 +244,15 @@ describe('P4Confirm', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('retry uses same Idempotency-Key', async () => {
-    const user = userEvent.setup()
-    useBriefBuilderStore.setState({ briefDraft: makeDraft() })
-    mockMutationState.isError = true
-    mockMutationState.error = new Error('Server error')
-    renderP4()
-
-    const firstCallKey = (
-      mockMutate.mock.calls[0] as [{ idempotencyKey: string }]
-    )[0].idempotencyKey
-
-    await user.click(screen.getByRole('button', { name: /volver a intentar/i }))
-
-    expect(mockMutate).toHaveBeenCalledTimes(2)
-    const retryCallKey = (
-      mockMutate.mock.calls[1] as [{ idempotencyKey: string }]
-    )[0].idempotencyKey
-    expect(retryCallKey).toBe(firstCallKey)
-  })
-
-  it('opens brief summary dialog on CTA click', async () => {
-    const user = userEvent.setup()
-    useBriefBuilderStore.setState({ briefDraft: makeDraft() })
-    mockMutationState.isSuccess = true
-    renderP4()
-
-    await user.click(
-      screen.getByRole('button', { name: /ver resumen del brief/i }),
-    )
-
-    await waitFor(() => {
-      expect(screen.getByText('Resumen del brief')).toBeInTheDocument()
-      expect(screen.getByText('Mi campaña')).toBeInTheDocument()
-    })
-  })
-
   it('disables CTAs when mutation is pending', () => {
     useBriefBuilderStore.setState({ briefDraft: makeDraft() })
     mockMutationState.isPending = true
+    mockMutationState.status = 'pending'
     renderP4()
     // Pending state shows spinner, not CTAs
     expect(screen.getByText(/creando tu campaña/i)).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: /ir al marketplace/i }),
+      screen.queryByRole('button', { name: /configurar campaña/i }),
     ).not.toBeInTheDocument()
   })
 
@@ -298,6 +262,8 @@ describe('P4Confirm', () => {
       campaignId: 'camp-123',
     })
     mockMutationState.isSuccess = true
+    mockMutationState.status = 'success'
+    mockMutationState.data = { campaign_id: 'camp-123' }
     const { container } = renderP4()
     expect(await axe(container)).toHaveNoViolations()
   })

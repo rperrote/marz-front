@@ -13,11 +13,13 @@ interface NumberFieldProps extends Omit<
 > {
   label?: ReactNode
   hint?: ReactNode
+  required?: boolean
 }
 
 export function NumberField({
   label,
   hint,
+  required,
   className,
   ...inputProps
 }: NumberFieldProps) {
@@ -29,7 +31,7 @@ export function NumberField({
     : undefined
 
   return (
-    <FieldRow label={label} hint={hint} error={error}>
+    <FieldRow label={label} hint={hint} error={error} required={required}>
       {(aria) => (
         <Input
           {...aria}

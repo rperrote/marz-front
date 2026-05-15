@@ -100,19 +100,19 @@ export function CountryMultiSelect({
               )
             })}
             {customCodes.map((code) => (
-                <Button
-                  key={code}
-                  type="button"
-                  variant="default"
-                  size="sm"
-                  className="rounded-full text-primary-foreground"
-                  onClick={() => removeCountry(code)}
-                  aria-label={t`Quitar país ${code}`}
-                >
-                  {code}
-                  <X className="size-3" aria-hidden="true" />
-                </Button>
-              ))}
+              <Button
+                key={code}
+                type="button"
+                variant="default"
+                size="sm"
+                className="rounded-full text-primary-foreground"
+                onClick={() => removeCountry(code)}
+                aria-label={t`Quitar país ${code}`}
+              >
+                {code}
+                <X className="size-3" aria-hidden="true" />
+              </Button>
+            ))}
           </div>
         </div>
       )}

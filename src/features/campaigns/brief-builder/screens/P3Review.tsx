@@ -214,7 +214,7 @@ function InsufficientBanner() {
       role="alert"
       className="rounded-lg border border-amber-500/30 bg-amber-50 px-4 py-3 text-[length:var(--font-size-sm)] text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
     >
-      {t`La información proporcionada no fue suficiente para generar el brief completo. Llená los campos manualmente.`}
+      {t`Algunos campos no se pudieron generar automáticamente. Completalos a mano antes de continuar.`}
     </div>
   )
 }
@@ -267,7 +267,7 @@ function ScoringSection({
 
       {dimensions.length === 0 && <InsufficientFieldHint />}
 
-      <WeightSumIndicator sum={weightSum} />
+      {dimensions.length > 0 && <WeightSumIndicator sum={weightSum} />}
 
       {dimensions.map((dim, idx) => (
         <ScoringDimensionCard
@@ -369,6 +369,7 @@ export function P3Review() {
             label={t`Nombre`}
             placeholder={t`Ej: Lanzamiento verano 2026`}
             maxLength={150}
+            required
           />
         )}
       </form.AppField>
@@ -381,6 +382,7 @@ export function P3Review() {
               value: o.value,
               label: o.label(),
             }))}
+            required
           />
         )}
       </form.AppField>
@@ -391,6 +393,7 @@ export function P3Review() {
               label={t`Presupuesto (USD)`}
               placeholder="5000"
               min={1}
+              required
             />
           )}
         </form.AppField>

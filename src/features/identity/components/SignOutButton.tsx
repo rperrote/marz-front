@@ -17,7 +17,7 @@ export function SignOutButton({ collapsed = false }: { collapsed?: boolean }) {
   const navigate = useNavigate()
 
   const handleSignOut = useCallback(async () => {
-    track('sign_out')  
+    track('sign_out')
     queryClient.clear()
     useBrandOnboardingStore.getState().reset()
     useCreatorOnboardingStore.getState().reset()

@@ -20,7 +20,6 @@ interface StageCardProps {
   children?: ReactNode
 }
 
- 
 const statusMeta: Record<
   StageStatus,
   {
@@ -45,7 +44,6 @@ const statusMeta: Record<
     kickerTone: 'text-muted-foreground',
   },
 }
- 
 
 export function StageCard({
   stageNumber,
@@ -85,7 +83,7 @@ export function StageCard({
           {onToggle ? (
             <IconButton
               size="sm"
-              shape="circle"  
+              shape="circle"
               aria-label={t`Toggle stage`}
               onClick={onToggle}
             >

@@ -13,11 +13,13 @@ interface TextareaFieldProps extends Omit<
 > {
   label?: ReactNode
   hint?: ReactNode
+  required?: boolean
 }
 
 export function TextareaField({
   label,
   hint,
+  required,
   className,
   ...textareaProps
 }: TextareaFieldProps) {
@@ -29,7 +31,7 @@ export function TextareaField({
     : undefined
 
   return (
-    <FieldRow label={label} hint={hint} error={error}>
+    <FieldRow label={label} hint={hint} error={error} required={required}>
       {(aria) => (
         <Textarea
           {...aria}

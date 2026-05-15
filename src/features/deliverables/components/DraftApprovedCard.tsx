@@ -1,4 +1,3 @@
- 
 import { useMemo } from 'react'
 import { Check } from 'lucide-react'
 import { t } from '@lingui/core/macro'

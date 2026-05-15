@@ -100,7 +100,7 @@ function MultistageList({
   // la misma cardinalidad. Cuando marz-api agregue `id` a OfferStageDTO, este
   // join se vuelve un Map<id, StageDTO> de 2 líneas.
   // RAFITA:BLOCKER currency no expuesto en OfferDTO — asumir USD hasta que backend lo agregue
-   
+
   const currency = 'USD'
   const offerStages = offer.type === 'multistage' ? offer.stages : []
   const stagesByIndex: (StageDTO | undefined)[] = offerStages.map(
@@ -123,18 +123,14 @@ function MultistageList({
       return out
     })
     if (next) {
-      trackOfferEvent(
-         
-        'stage_expanded',
-        {
-          actor_kind: actorKind,
-           
-          offer_type: 'multistage',
-          stage_index: i,
-           
-          surface: 'panel',
-        },
-      )
+      trackOfferEvent('stage_expanded', {
+        actor_kind: actorKind,
+
+        offer_type: 'multistage',
+        stage_index: i,
+
+        surface: 'panel',
+      })
     }
   }
 
@@ -215,7 +211,6 @@ function StageGroup({
   onMarkAsPaid,
   onSubmitLink,
 }: StageGroupProps) {
-   
   const stageStatus: StageStatus = stage.status ?? 'locked'
   const badge = getStageBadge()[stageStatus]
   const isLocked = stageStatus === 'locked'
@@ -291,7 +286,6 @@ function getDefaultExpanded(
 ): boolean[] {
   const expanded = stages.map(() => false)
   if (offerStatus === 'sent') {
-     
     const i = stages.findIndex((s) => (s.status ?? 'locked') !== 'approved')
     if (i !== -1) expanded[i] = true
   } else if (offerStatus === 'accepted') {

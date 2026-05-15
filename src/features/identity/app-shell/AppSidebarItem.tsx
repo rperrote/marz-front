@@ -54,7 +54,7 @@ export function AppSidebarItem({
       </TooltipPrimitive.Trigger>
       <TooltipPrimitive.Portal>
         <TooltipPrimitive.Content
-          side="right"  
+          side="right"
           sideOffset={10}
           collisionPadding={8}
           className="z-50 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-950 shadow-[0_4px_16px_rgba(0,0,0,0.2)]"

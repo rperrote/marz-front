@@ -1,78 +1,82 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { t } from '@lingui/core/macro'
-import { campaignDetailSearchDefaults } from '#/features/campaigns/configuration/hooks'
-import {
-  Check,
-  Loader2,
-  RotateCcw,
-  ArrowLeft,
-  ArrowRight,
-  Eye,
-} from 'lucide-react'
+import { Check, Loader2, RotateCcw, ArrowLeft, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { WizardSectionTitle } from '#/shared/ui/wizard'
 import { Button } from '#/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '#/components/ui/dialog'
 import { generateIdempotencyKey } from '#/shared/api/idempotency'
+import { campaignDetailSearchDefaults } from '#/features/campaigns/configuration/hooks'
 import { useBriefBuilderStore } from '../store'
 import {
   useCreateCampaign,
   getCreateCampaignFieldErrors,
 } from '../hooks/useCreateCampaign'
-import { BriefSummaryView } from '../components/BriefSummaryView'
 
 export function P4Confirm() {
-  const store = useBriefBuilderStore()
+  // Select only the draft from the store so unrelated store changes don't
+  // re-render this component and re-fire effects (which would otherwise cause
+  // an infinite setState loop when setField('campaignId', ...) runs below).
+  const draft = useBriefBuilderStore((s) => s.briefDraft)
   const router = useRouter()
-  const draft = store.briefDraft
 
   const idempotencyKeyRef = useRef(generateIdempotencyKey())
-  const hasTriggeredRef = useRef(false)
-  const [summaryOpen, setSummaryOpen] = useState(false)
 
   const mutation = useCreateCampaign()
-  const mutateRef = useRef(mutation.mutate)
-  mutateRef.current = mutation.mutate
+  const mutate = mutation.mutate
+  const mutationStatus = mutation.status
+  const mutationData = mutation.data
+  const navigatedRef = useRef(false)
 
+  // Each useMutation call creates its own observer with isolated state.
+  // Under React StrictMode dev the component mounts twice, so a single-shot
+  // ref would skip dispatch on the second mount and leave that observer
+  // forever idle. We dispatch on every mount where the observer is still
+  // idle; the backend's Idempotency-Key (refed so it survives remount)
+  // protects against duplicate side effects.
   useEffect(() => {
-    if (!draft || hasTriggeredRef.current) return
-    hasTriggeredRef.current = true
+    if (!draft) return
+    if (mutationStatus !== 'idle') return
 
-    mutateRef.current(
-      {
-        idempotencyKey: idempotencyKeyRef.current,
-        draft,
-      },
-      {
-        onSuccess: (data) => {
-          store.setField('campaignId', data.campaign_id)
-          void router.navigate({
-            to: '/campaigns/$campaignId/configuration',
-            params: { campaignId: data.campaign_id },
-            search: campaignDetailSearchDefaults,
-          })
-        },
-        onError: (error) => {
-          const fieldErrors = getCreateCampaignFieldErrors(error)
-          if (fieldErrors) {
-            const messages = Object.values(fieldErrors).flat()
-            toast.error(
-              messages[0] ?? t`Error de validación. Revisá los campos.`,
-            )
-          } else {
-            toast.error(t`No se pudo crear la campaña. Intentá de nuevo.`)
-          }
-        },
-      },
-    )
-  }, [draft, store])
+    // Read transient form input via getState() so this effect doesn't depend
+    // on every store update.
+    const { formInput } = useBriefBuilderStore.getState()
+    const sourceSnapshot = {
+      websiteUrl: formInput.websiteUrl,
+      descriptionText: formInput.descriptionText,
+      pdfS3Key: null,
+    }
+
+    mutate({
+      idempotencyKey: idempotencyKeyRef.current,
+      draft,
+      source: sourceSnapshot,
+    })
+  }, [draft, mutate, mutationStatus])
+
+  // Success: persist campaignId so the success screen can offer "Ir a
+  // configuración". Run at most once (navigatedRef name kept for continuity)
+  // to break the setField → store change → effect re-run loop.
+  useEffect(() => {
+    if (!mutationData) return
+    if (navigatedRef.current) return
+    navigatedRef.current = true
+    useBriefBuilderStore
+      .getState()
+      .setField('campaignId', mutationData.campaign_id)
+  }, [mutationData])
+
+  // Error: toast user-facing message.
+  useEffect(() => {
+    if (!mutation.isError) return
+    const fieldErrors = getCreateCampaignFieldErrors(mutation.error)
+    if (fieldErrors) {
+      const messages = Object.values(fieldErrors).flat()
+      toast.error(messages[0] ?? t`Error de validación. Revisá los campos.`)
+    } else {
+      toast.error(t`No se pudo crear la campaña. Intentá de nuevo.`)
+    }
+  }, [mutation.isError, mutation.error])
 
   if (!draft) {
     return (
@@ -113,7 +117,7 @@ export function P4Confirm() {
           <Button
             variant="outline"
             onClick={() => {
-              store.goTo(3)
+              useBriefBuilderStore.getState().goTo(3)
               void router.navigate({
                 to: '/campaigns/new/$phase',
                 params: { phase: 'review' },
@@ -126,9 +130,15 @@ export function P4Confirm() {
           {!fieldErrors && (
             <Button
               onClick={() => {
+                const { formInput } = useBriefBuilderStore.getState()
                 mutation.mutate({
                   idempotencyKey: idempotencyKeyRef.current,
                   draft,
+                  source: {
+                    websiteUrl: formInput.websiteUrl,
+                    descriptionText: formInput.descriptionText,
+                    pdfS3Key: null,
+                  },
                 })
               }}
             >
@@ -141,20 +151,17 @@ export function P4Confirm() {
     )
   }
 
-  const handleGoToMarketplace = async () => {
-    const campaignId = store.campaignId
-    try {
-      // TODO(fn-X): cuando exista la ruta /marketplace, tipar correctamente
-      await router.navigate({
-        to: '/marketplace',
-        ...(campaignId ? { search: { campaignId } } : {}),
-      } as Parameters<typeof router.navigate>[0])
-    } catch {
-      toast.info(
-        t`El marketplace no está disponible aún. Te llevamos al inicio.`,
-      )
-      void router.navigate({ to: '/' })
-    }
+  const handleGoToConfiguration = () => {
+    const campaignId = useBriefBuilderStore.getState().campaignId
+    if (!campaignId) return
+    void router.navigate({
+      to: '/campaigns/$campaignId/configuration',
+      params: { campaignId },
+      search: {
+        ...campaignDetailSearchDefaults,
+        from: 'brief-builder',
+      },
+    })
   }
 
   return (
@@ -167,35 +174,15 @@ export function P4Confirm() {
 
       <WizardSectionTitle
         title={t`Campaña creada`}
-        subtitle={t`Tu campaña fue creada con éxito. Podés ir al marketplace o revisar el brief.`}
+        subtitle={t`Tu campaña fue creada con éxito. Configurá los detalles para activarla.`}
       />
 
       <div className="flex gap-3">
-        <Button
-          variant="outline"
-          onClick={() => setSummaryOpen(true)}
-          disabled={mutation.isPending}
-        >
-          <Eye className="size-4" />
-          {t`Ver resumen del brief`}
-        </Button>
-        <Button onClick={handleGoToMarketplace} disabled={mutation.isPending}>
-          {t`Ir al marketplace`}
+        <Button onClick={handleGoToConfiguration} disabled={mutation.isPending}>
+          {t`Configurar campaña`}
           <ArrowRight className="size-4" />
         </Button>
       </div>
-
-      <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t`Resumen del brief`}</DialogTitle>
-            <DialogDescription>
-              {t`Detalle completo de la campaña y brief creados.`}
-            </DialogDescription>
-          </DialogHeader>
-          <BriefSummaryView draft={draft} />
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

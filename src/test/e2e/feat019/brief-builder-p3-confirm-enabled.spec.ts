@@ -12,7 +12,7 @@ test('P3: Confirmar becomes enabled and clickable after required fields are fill
 
   await page.goto('/campaigns/new')
 
-  await page.getByLabel(/sitio web/i).fill('https://marz.com')
+  await page.getByLabel(/url de la campaña/i).fill('https://marz.com')
   await page
     .getByLabel(/descripci/i)
     .fill('Marca de bebidas saludables para Gen Z')
@@ -72,7 +72,11 @@ test('P3: Confirmar becomes enabled and clickable after required fields are fill
   const res = await createRes
 
   if (res.ok()) {
-    // Success: P4 navigates to /campaigns/{id}/configuration.
+    // Success: P4 shows the created state and waits for an explicit handoff.
+    await expect(page.getByText(/campaña creada/i)).toBeVisible({
+      timeout: 15_000,
+    })
+    await page.getByRole('button', { name: /configurar campaña/i }).click()
     await expect(page).toHaveURL(/\/campaigns\/[^/]+\/configuration/i, {
       timeout: 15_000,
     })

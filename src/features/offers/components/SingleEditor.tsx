@@ -22,11 +22,9 @@ import { sortBonusTerms } from '../utils/bonusTerms'
 
 function getPlatformOptions() {
   return [
-     
     { value: 'youtube', label: t`YouTube` },
     { value: 'instagram', label: t`Instagram` },
     { value: 'tiktok', label: t`TikTok` },
-     
   ] as const
 }
 
@@ -34,7 +32,6 @@ function getFormatOptionsByPlatform(): Record<
   string,
   Array<{ value: string; label: string }>
 > {
-   
   return {
     youtube: [
       { value: 'yt_long', label: t`Long Video` },
@@ -47,7 +44,6 @@ function getFormatOptionsByPlatform(): Record<
     ],
     tiktok: [{ value: 'tiktok_post', label: t`Post` }],
   }
-   
 }
 
 function createSendOfferSchemas() {
@@ -174,7 +170,6 @@ export function SingleEditor({ onClose, dirtyRef }: SingleEditorProps) {
     [campaigns, selectedCampaignId],
   )
 
-   
   const currency = selectedCampaign?.budget_currency ?? 'USD'
   const budgetRemaining = selectedCampaign
     ? parseFloat(selectedCampaign.budget_remaining)
@@ -233,7 +228,6 @@ export function SingleEditor({ onClose, dirtyRef }: SingleEditorProps) {
           name="platform"
           listeners={{
             onChange: () => {
-               
               form.setFieldValue('format', '')
             },
           }}
@@ -340,7 +334,6 @@ export function SingleEditor({ onClose, dirtyRef }: SingleEditorProps) {
           label={t`Total`}
           amount={totalAmount > 0 ? totalAmount.toFixed(2) : '0.00'}
           currency={currency}
-           
           emphasis="strong"
         />
       </div>

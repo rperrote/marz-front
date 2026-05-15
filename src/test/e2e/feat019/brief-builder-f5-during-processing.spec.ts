@@ -15,7 +15,7 @@ test('F5 on P2 while processing is in_progress keeps progress visible', async ({
   await onboardedBrandUser.signIn(page)
 
   await page.goto('/campaigns/new')
-  await page.getByLabel(/sitio web/i).fill('https://marz.com')
+  await page.getByLabel(/url de la campaña/i).fill('https://marz.com')
   await page
     .getByLabel(/descripci/i)
     .fill('Marca de bebidas saludables para Gen Z')

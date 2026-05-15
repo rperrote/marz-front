@@ -1,5 +1,9 @@
 import type { BriefDraft } from '#/features/campaigns/brief-builder/store'
 
+type BackendBriefDraft = Omit<BriefDraft, 'campaign'> & {
+  campaign?: BriefDraft['campaign']
+}
+
 export type BriefProcessingStepName =
   | 'reading_website'
   | 'processing_description'
@@ -21,7 +25,7 @@ export interface BriefProcessingStepCompleted {
 export interface BriefProcessingCompleted {
   processing_token: string
   status: 'completed' | 'partial' | 'failed'
-  brief_draft: BriefDraft
+  brief_draft: BackendBriefDraft
   fields_filled_count: number
   fields_empty_count: number
   processing_sec: number

@@ -31,7 +31,7 @@ export function useCreateMultistageOffer() {
         (sum, s) => sum + parseFloat(s.amount),
         0,
       )
-       
+
       trackOfferEvent('offer_sent', {
         actor_kind: 'brand',
         offer_type: 'multistage',
@@ -43,7 +43,6 @@ export function useCreateMultistageOffer() {
           variables.stages.map((stage) => stage.deadline),
         ),
       })
-       
     },
   })
 }

@@ -13,6 +13,7 @@ interface FieldRowProps {
   label?: ReactNode
   hint?: ReactNode
   error?: string
+  required?: boolean
   children: (aria: FieldRowAriaProps) => ReactNode
   className?: string
 }
@@ -21,6 +22,7 @@ export function FieldRow({
   label,
   hint,
   error,
+  required,
   children,
   className,
 }: FieldRowProps) {
@@ -41,6 +43,11 @@ export function FieldRow({
           className="text-[length:var(--font-size-sm)] font-medium text-muted-foreground"
         >
           {label}
+          {required ? (
+            <span className="ml-0.5 text-destructive" aria-hidden="true">
+              *
+            </span>
+          ) : null}
         </Label>
       ) : null}
       {children({

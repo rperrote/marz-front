@@ -44,18 +44,14 @@ function StageCard({ stage, currency, stageIndex, actorKind }: StageCardProps) {
     const next = !expanded
     setExpanded(next)
     if (next) {
-      trackOfferEvent(
-         
-        'stage_expanded',
-        {
-          actor_kind: actorKind,
-           
-          offer_type: 'multistage',
-          stage_index: stageIndex,
-           
-          surface: 'card',
-        },
-      )
+      trackOfferEvent('stage_expanded', {
+        actor_kind: actorKind,
+
+        offer_type: 'multistage',
+        stage_index: stageIndex,
+
+        surface: 'card',
+      })
     }
   }
 
@@ -133,7 +129,7 @@ export function OfferCardMultiStage({
   const badgeLabel = badge.label
   const kicker = side === 'out' ? t`Offer sent` : t`New campaign offer`
   const icon = side === 'out' ? Timer : Sparkles
-   
+
   const actorKind = side === 'out' ? 'brand' : 'creator'
 
   return (

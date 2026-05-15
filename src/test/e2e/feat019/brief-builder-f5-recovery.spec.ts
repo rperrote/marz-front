@@ -12,7 +12,7 @@ test('F5 after processing completes hydrates draft and lands on P3', async ({
   await onboardedBrandUser.signIn(page)
 
   await page.goto('/campaigns/new')
-  await page.getByLabel(/sitio web/i).fill('https://marz.com')
+  await page.getByLabel(/url de la campaña/i).fill('https://marz.com')
   await page
     .getByLabel(/descripci/i)
     .fill('Marca de bebidas saludables para Gen Z')

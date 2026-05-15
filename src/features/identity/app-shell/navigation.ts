@@ -1,7 +1,5 @@
 import { t } from '@lingui/core/macro'
 
- 
-
 export interface ShellNavigationItem {
   id: string
   label: () => string

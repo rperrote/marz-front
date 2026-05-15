@@ -39,7 +39,7 @@ export function CallbackScreen() {
           return
         }
 
-        track('magic_link_succeeded')  
+        track('magic_link_succeeded')
 
         const meResponse = await queryClient.fetchQuery({
           queryKey: getMeQueryKey(),
@@ -49,10 +49,10 @@ export function CallbackScreen() {
 
         if (meResponse.status === 200) {
           const { onboarding_status, kind, redirect_to } = meResponse.data
-          track('sign_in_succeeded', { onboarding_status, kind })  
+          track('sign_in_succeeded', { onboarding_status, kind })
 
           const destination =
-            redirect_to ?? (kind === 'brand' ? '/campaigns' : '/offers')  
+            redirect_to ?? (kind === 'brand' ? '/campaigns' : '/offers')
 
           void navigate({ to: destination })
         } else {

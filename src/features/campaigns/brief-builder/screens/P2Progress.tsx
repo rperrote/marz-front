@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from '@tanstack/react-router'
 import { AlertCircle } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { WizardSectionTitle } from '#/shared/ui/wizard'
 import { Button } from '#/components/ui/button'
 import { useBriefBuilderStore } from '../store'
+import { getPhaseSlug } from '../phases'
 import { trackBriefBuilderStarted } from '../analytics/brief-builder-analytics'
 import { useBriefBuilderWS } from '../hooks/useBriefBuilderWS'
 import { useProcessBrief, isProcessConflict } from '../hooks/useProcessBrief'
 import { BriefProcessingStep } from '../components/BriefProcessingStep'
 
 export function P2Progress() {
+  const router = useRouter()
   const processingToken = useBriefBuilderStore((s) => s.processingToken)
   const setField = useBriefBuilderStore((s) => s.setField)
   const goTo = useBriefBuilderStore((s) => s.goTo)
@@ -61,8 +64,12 @@ export function P2Progress() {
     ) {
       setField('briefDraft', ws.briefDraft)
       goTo(3)
+      void router.navigate({
+        to: '/campaigns/new/$phase',
+        params: { phase: getPhaseSlug(2) },
+      })
     }
-  }, [ws.status, ws.briefDraft, setField, goTo])
+  }, [ws.status, ws.briefDraft, setField, goTo, router])
 
   if (dispatchError) {
     return (

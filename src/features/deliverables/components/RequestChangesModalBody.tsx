@@ -1,4 +1,3 @@
- 
 import { t } from '@lingui/core/macro'
 import { Play, X } from 'lucide-react'
 import { Button } from '#/components/ui/button'

@@ -6,7 +6,9 @@ import { test, expect } from './fixtures'
  * those — we click the trigger and pick the option from the listbox.
  */
 async function pickOption(page: Page, label: RegExp, optionName: string) {
-  await page.getByLabel(label).click()
+  const trigger = page.getByRole('combobox', { name: label })
+  await trigger.click()
+  await expect(page.getByRole('listbox')).toBeVisible()
   await page.getByRole('option', { name: optionName, exact: true }).click()
 }
 

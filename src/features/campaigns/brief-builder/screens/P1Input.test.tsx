@@ -77,7 +77,7 @@ function createPdfFile(name = 'test.pdf', size = 1024): File {
 describe('P1Input', () => {
   it('renders URL, description, and PDF upload fields', () => {
     renderWithValidation(<P1Input />)
-    expect(screen.getByLabelText(/sitio web/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/url de la campa/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/descripci/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/documento pdf/i)).toBeInTheDocument()
   })
@@ -88,7 +88,7 @@ describe('P1Input', () => {
     // listener leaves it alone) but is not a valid URL pattern.
     const user = userEvent.setup()
     renderWithValidation(<P1Input />)
-    const urlInput = screen.getByLabelText(/sitio web/i)
+    const urlInput = screen.getByLabelText(/url de la campa/i)
     await user.type(urlInput, 'http://')
     await user.tab()
     expect(await screen.findByText(/url v.lida/i)).toBeInTheDocument()
@@ -96,14 +96,14 @@ describe('P1Input', () => {
 
   it('shows hint when no input is provided', () => {
     renderWithValidation(<P1Input />)
-    expect(screen.getByText(/completa al menos uno/i)).toBeInTheDocument()
+    expect(screen.getByText(/necesitás texto o un pdf/i)).toBeInTheDocument()
   })
 
   it('hides hint when URL is filled', async () => {
     const user = userEvent.setup()
     renderWithValidation(<P1Input />)
-    await user.type(screen.getByLabelText(/sitio web/i), 'https://a.com')
-    expect(screen.queryByText(/completa al menos uno/i)).not.toBeInTheDocument()
+    await user.type(screen.getByLabelText(/url de la campa/i), 'https://a.com')
+    expect(screen.queryByText(/necesitás texto o un pdf/i)).not.toBeInTheDocument()
   })
 
   it('hides hint when PDF is uploaded', async () => {
@@ -115,7 +115,7 @@ describe('P1Input', () => {
     fireEvent.change(fileInput, { target: { files: [pdfFile] } })
     await waitFor(() => {
       expect(
-        screen.queryByText(/completa al menos uno/i),
+        screen.queryByText(/necesitás texto o un pdf/i),
       ).not.toBeInTheDocument()
     })
   })

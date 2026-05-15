@@ -6,7 +6,6 @@ import { Input } from '#/components/ui/input'
 import { useCreatorOnboardingStore } from '../store'
 import type { BestVideo } from '#/shared/api/generated/model/bestVideo'
 
- 
 const DEFAULT_VIDEOS: BestVideo[] = [
   { url: '', kind: 'organic' },
   { url: '', kind: 'organic' },
@@ -20,7 +19,6 @@ const BEST_VIDEO_SLOT_IDS = [
 ] as const
 
 type Provider = 'youtube' | 'tiktok' | 'instagram'
- 
 
 const YT_SHORT_RE = /^https?:\/\/(www\.)?youtube\.com\/shorts\/([\w-]{6,})/i
 const TIKTOK_RE =
@@ -28,9 +26,9 @@ const TIKTOK_RE =
 const IG_REEL_RE = /^https?:\/\/(www\.)?instagram\.com\/(reel|reels)\/[\w-]+/i
 
 function detectValidProvider(url: string): Provider | null {
-  if (YT_SHORT_RE.test(url)) return 'youtube'  
-  if (TIKTOK_RE.test(url)) return 'tiktok'  
-  if (IG_REEL_RE.test(url)) return 'instagram'  
+  if (YT_SHORT_RE.test(url)) return 'youtube'
+  if (TIKTOK_RE.test(url)) return 'tiktok'
+  if (IG_REEL_RE.test(url)) return 'instagram'
   return null
 }
 
@@ -63,7 +61,7 @@ export function C10BestVideosScreen() {
   const updateVideo = useCallback(
     (index: number, patch: Partial<BestVideo>) => {
       const next = videos.map((v, i) => (i === index ? { ...v, ...patch } : v))
-      store.setField('best_videos', next)  
+      store.setField('best_videos', next)
     },
     [store, videos],
   )
@@ -83,7 +81,7 @@ export function C10BestVideosScreen() {
         {videos.map((video, i) => {
           const url = video.url.trim()
           const provider = url.length > 0 ? detectValidProvider(url) : null
-          const slotId = BEST_VIDEO_SLOT_IDS[i] ?? `video-${i + 1}`  
+          const slotId = BEST_VIDEO_SLOT_IDS[i] ?? `video-${i + 1}`
           return (
             <div
               key={slotId}

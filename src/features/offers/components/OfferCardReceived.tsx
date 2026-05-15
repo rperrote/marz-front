@@ -43,21 +43,15 @@ export function OfferCardReceived({
   const cardRef = useRef<HTMLDivElement>(null)
 
   useViewedOnce(cardRef, () => {
-     
     if (!markOfferSeen(snapshot.offer_id, 'offer_received_seen')) return
     const offerAgeSeconds = Math.floor(
       (Date.now() - new Date(snapshot.sent_at).getTime()) / 1000,
     )
-    trackOfferEvent(
-       
-      'offer_received_seen',
-      {
-         
-        actor_kind: 'creator',
-        offer_type: snapshot.type,
-        offer_age_seconds: offerAgeSeconds,
-      },
-    )
+    trackOfferEvent('offer_received_seen', {
+      actor_kind: 'creator',
+      offer_type: snapshot.type,
+      offer_age_seconds: offerAgeSeconds,
+    })
   })
 
   return (

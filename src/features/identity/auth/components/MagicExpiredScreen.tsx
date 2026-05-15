@@ -14,7 +14,7 @@ const reasons = () => [
 
 export function MagicExpiredScreen() {
   useEffect(() => {
-    track('magic_link_failed')  
+    track('magic_link_failed')
   }, [])
 
   return (

@@ -80,7 +80,7 @@ export function B6BudgetScreen() {
             if (val != null) {
               const budget = BUDGET_SNAPS[val]
               if (budget) {
-                store.setField('monthly_budget_range', budget)  
+                store.setField('monthly_budget_range', budget)
               }
             }
           }}

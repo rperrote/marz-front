@@ -102,7 +102,7 @@ test.describe('Campaign configuration wizard', () => {
     page,
     onboardedBrandUser,
   }) => {
-    await page.route('**/v1/campaigns?**', (route) =>
+    await page.route(/\/v1\/campaigns(?:\?.*)?$/, (route) =>
       route.fulfill({
         json: {
           data: [
@@ -419,7 +419,7 @@ test.describe('Campaign configuration wizard', () => {
     })
 
     await onboardedBrandUser.signIn(page)
-    await page.goto(`/campaigns/${campaignId}/configuration`)
+    await page.goto(`/campaigns/${campaignId}/configuration/content_type`)
 
     await expect(page).toHaveURL(
       new RegExp(`/campaigns/${campaignId}/configuration/content_type$`),

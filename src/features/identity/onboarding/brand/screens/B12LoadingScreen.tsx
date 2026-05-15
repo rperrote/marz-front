@@ -129,10 +129,10 @@ export function B12LoadingScreen() {
         {steps.map((label, i) => {
           const status: 'done' | 'current' | 'pending' =
             i < completedCount
-              ? 'done'  
+              ? 'done'
               : i === completedCount
-                ? 'current'  
-                : 'pending'  
+                ? 'current'
+                : 'pending'
           return (
             <li
               key={label}

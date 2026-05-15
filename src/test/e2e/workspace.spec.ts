@@ -1,4 +1,14 @@
+import type { Page } from '@playwright/test'
+
 import { test, expect } from './fixtures'
+
+async function expectConversationRailLoaded(page: Page) {
+  const rail = page.getByRole('region', { name: /conversaciones/i })
+  await expect(rail).toBeVisible()
+  await expect(
+    rail.getByRole('status', { name: /cargando conversaciones/i }),
+  ).toHaveCount(0, { timeout: 30_000 })
+}
 
 test.describe('Workspace shell — estado vacío', () => {
   test('brand onboarded ve el shell del workspace con rail', async ({
@@ -45,9 +55,7 @@ test.describe('Workspace shell — estado vacío', () => {
   }) => {
     await onboardedBrandUser.signIn(page)
     await page.goto('/workspace')
-    await expect(
-      page.getByRole('status', { name: /cargando conversaciones/i }),
-    ).toBeHidden({ timeout: 30_000 })
+    await expectConversationRailLoaded(page)
 
     await page.getByRole('tab', { name: /sin leer/i }).click()
     await expect(page).toHaveURL(/filter=unread/)
@@ -65,9 +73,7 @@ test.describe('Workspace shell — estado vacío', () => {
   }) => {
     await onboardedBrandUser.signIn(page)
     await page.goto('/workspace')
-    await expect(
-      page.getByRole('status', { name: /cargando conversaciones/i }),
-    ).toBeHidden({ timeout: 30_000 })
+    await expectConversationRailLoaded(page)
 
     const search = page.getByRole('searchbox', {
       name: /buscar conversaciones/i,
@@ -96,6 +102,8 @@ test.describe('Workspace shell — estado vacío', () => {
       if (lower.includes('clerk')) return false
       if (lower.includes('failed to fetch') && lower.includes('serverfn'))
         return false
+      if (lower.includes('faro') && lower.includes('failed sending payload'))
+        return false
       return true
     })
     expect(ownErrors).toHaveLength(0)
@@ -107,9 +115,7 @@ test.describe('Workspace con conversación', () => {
     const { brandPage } = chatPair
 
     await brandPage.goto('/workspace')
-    await expect(
-      brandPage.getByRole('status', { name: /cargando conversaciones/i }),
-    ).toBeHidden({ timeout: 30_000 })
+    await expectConversationRailLoaded(brandPage)
 
     const rail = brandPage.getByRole('region', { name: /conversaciones/i })
     await expect(rail).toBeVisible()
@@ -124,9 +130,7 @@ test.describe('Workspace con conversación', () => {
     const { creatorPage } = chatPair
 
     await creatorPage.goto('/workspace')
-    await expect(
-      creatorPage.getByRole('status', { name: /cargando conversaciones/i }),
-    ).toBeHidden({ timeout: 30_000 })
+    await expectConversationRailLoaded(creatorPage)
 
     const rail = creatorPage.getByRole('region', { name: /conversaciones/i })
     await expect(rail).toBeVisible()

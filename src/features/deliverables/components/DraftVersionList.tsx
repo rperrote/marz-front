@@ -1,4 +1,3 @@
- 
 import { useState } from 'react'
 import { Play } from 'lucide-react'
 import { t } from '@lingui/core/macro'

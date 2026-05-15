@@ -8,14 +8,13 @@ import type { AvatarPresignRequestContentType } from '#/shared/api/generated/mod
 import { useCreatorOnboardingStore } from '../store'
 
 const MAX_BYTES = 5 * 1024 * 1024
- 
+
 const ACCEPTED_TYPES: Record<string, AvatarPresignRequestContentType> = {
   'image/jpeg': 'image/jpeg',
   'image/png': 'image/png',
   'image/webp': 'image/webp',
 }
 const PREVIEW_STORAGE_KEY = 'marz-creator-onboarding-avatar-preview'
- 
 
 function readStoredPreview(): string | null {
   if (typeof window === 'undefined') return null
@@ -88,7 +87,7 @@ export function C17AvatarScreen() {
           body: file,
         })
 
-        store.setField('avatar_s3_key', result.s3_key)  
+        store.setField('avatar_s3_key', result.s3_key)
 
         const dataUrl = await fileToDataUrl(file)
         sessionStorage.setItem(PREVIEW_STORAGE_KEY, dataUrl)
@@ -112,7 +111,7 @@ export function C17AvatarScreen() {
   )
 
   const handleRemove = useCallback(() => {
-    store.setField('avatar_s3_key', '')  
+    store.setField('avatar_s3_key', '')
     sessionStorage.removeItem(PREVIEW_STORAGE_KEY)
     setPreview(null)
   }, [store])
