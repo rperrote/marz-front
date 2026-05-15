@@ -7,8 +7,17 @@ import type {
   ConversationOffersResponse,
   OfferDTO,
 } from '#/shared/api/generated/model'
+import type {
+  ArchivedOfferDetailItem,
+  OfferDetailDTO,
+} from '#/features/offers/types'
 
-export type { ArchivedOfferItem, OfferDTO }
+export type {
+  ArchivedOfferItem,
+  OfferDTO,
+  ArchivedOfferDetailItem,
+  OfferDetailDTO,
+}
 
 async function fetchConversationOffers(
   conversationId: string,
@@ -34,9 +43,10 @@ export function useConversationOffersPaginated(conversationId: string) {
     staleTime: 30_000,
   })
 
-  const current = infiniteQuery.data?.pages[0]?.current ?? null
+  const current: OfferDetailDTO | null =
+    infiniteQuery.data?.pages[0]?.current ?? null
 
-  const archiveItems = useMemo(() => {
+  const archiveItems: ArchivedOfferDetailItem[] = useMemo(() => {
     if (!infiniteQuery.data?.pages) return []
     return infiniteQuery.data.pages.flatMap((page) => page.archive)
   }, [infiniteQuery.data?.pages])

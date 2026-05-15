@@ -1,6 +1,32 @@
-import type { OfferBonusTerms } from '#/shared/api/generated/model'
+import type {
+  ArchivedOfferItem,
+  OfferBonusTerms,
+  OfferDTO,
+} from '#/shared/api/generated/model'
 
 export type OfferStatus = 'sent' | 'accepted' | 'rejected' | 'expired'
+
+export type OfferMode = 'same_content' | 'per_platform'
+
+export type OfferCancellationPhase = 'pre' | 'post'
+
+export type OfferDetailStatus = OfferStatus | 'cancelled'
+
+export type OfferDetailDTO = Omit<OfferDTO, 'status'> & {
+  status: OfferDetailStatus
+  offer_mode?: OfferMode | null
+  tentative_publish_date?: string | null
+  offer_deadline?: string | null
+  platforms?: string[] | null
+  currency?: string | null
+  paid_at?: string | null
+  cancelled_at?: string | null
+  cancellation_phase?: OfferCancellationPhase | null
+}
+
+export type ArchivedOfferDetailItem = Omit<ArchivedOfferItem, 'offer'> & {
+  offer: OfferDetailDTO
+}
 
 export interface OfferSnapshot {
   offer_id: string

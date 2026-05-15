@@ -9,15 +9,14 @@ import { ExpectedDeliverableSlot } from '#/features/deliverables/components/Expe
 import type { DeliverableDTO, StageDTO } from '#/features/deliverables/types'
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
-import type { OfferStatus } from '#/features/offers/types'
+import type { OfferDetailDTO, OfferStatus } from '#/features/offers/types'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
-import type { OfferDTO } from '../hooks/useConversationOffers'
 import type { OfferStageDTO } from '#/shared/api/generated/model'
 import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
 
 interface OfferDeliverablesListProps {
-  offer: OfferDTO
+  offer: OfferDetailDTO
   deliverables: DeliverableDTO[]
   stages: StageDTO[]
   sessionKind: 'brand' | 'creator'
@@ -36,6 +35,13 @@ export function OfferDeliverablesList(props: OfferDeliverablesListProps) {
   }
 
   return <FlatList {...props} />
+}
+
+function toExpectedDeliverableOfferStatus(
+  status: OfferDetailDTO['status'],
+): OfferStatus {
+  // ExpectedDeliverableSlot no conoce 'cancelled'; tratar como expired para mostrar el slot en estado final sin acción.
+  return status === 'cancelled' ? 'expired' : status
 }
 
 function FlatList({
@@ -63,7 +69,7 @@ function FlatList({
             platform={offer.deliverable.platform}
             format={offer.deliverable.format}
             sessionKind={sessionKind}
-            offerStatus={offer.status}
+            offerStatus={toExpectedDeliverableOfferStatus(offer.status)}
           />
         ) : (
           deliverables.map((deliverable) => (
@@ -110,7 +116,10 @@ function MultistageList({
   const deliverableById = new Map(deliverables.map((d) => [d.id, d]))
 
   const [openMap, setOpenMap] = useState<boolean[]>(() =>
-    getDefaultExpanded(offerStages, offer.status),
+    getDefaultExpanded(
+      offerStages,
+      toExpectedDeliverableOfferStatus(offer.status),
+    ),
   )
 
   if (offer.type !== 'multistage') return null

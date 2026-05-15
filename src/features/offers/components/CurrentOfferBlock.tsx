@@ -4,16 +4,20 @@ import { Send, X } from 'lucide-react'
 
 import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
-import type { OfferDTO } from '#/features/offers/hooks/useConversationOffers'
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
-import type { OfferStatus } from '#/features/offers/types'
+import type {
+  OfferDetailDTO,
+  OfferDetailStatus,
+  OfferMode,
+} from '#/features/offers/types'
 import type { DeliverableDTO, StageDTO } from '#/features/deliverables/types'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import { canMarkOfferAsPaid } from '#/shared/payments/markAsPaidEligibility'
 import type { MarkAsPaidOffer } from '#/shared/payments/markAsPaidEligibility'
 import type { CanSendOfferMeta } from '#/shared/types/offerMeta'
 import { CancelOfferDialog } from './CancelOfferDialog'
+import { OfferCountdown } from './OfferCountdown'
 import { trackOfferEvent } from '../analytics'
 import type { ActorKind } from '../analytics'
 import { OfferDeliverablesList } from './OfferDeliverablesList'
@@ -21,7 +25,7 @@ import { formatBonusWindowsLabel } from '../utils/bonusTerms'
 import { useOfferActions } from '#/features/offers/hooks/useOfferActions'
 
 function getStatusConfig(): Record<
-  OfferStatus,
+  OfferDetailStatus,
   {
     label: string
     variant: 'default' | 'secondary' | 'destructive' | 'outline'
@@ -32,6 +36,7 @@ function getStatusConfig(): Record<
     accepted: { label: t`Aceptada`, variant: 'default' },
     rejected: { label: t`Rechazada`, variant: 'destructive' },
     expired: { label: t`Expirada`, variant: 'outline' },
+    cancelled: { label: t`Cancelada`, variant: 'destructive' },
   }
 }
 
@@ -42,7 +47,7 @@ function getPaymentProgress(deliverables: DeliverableDTO[]) {
   return { paidCount, total }
 }
 
-function getOfferBadge(offer: OfferDTO, deliverables: DeliverableDTO[]) {
+function getOfferBadge(offer: OfferDetailDTO, deliverables: DeliverableDTO[]) {
   const progress = getPaymentProgress(deliverables)
   if (progress.total > 0 && progress.paidCount === progress.total) {
     return { label: t`Pagada en total`, variant: 'default' as const }
@@ -60,8 +65,42 @@ function getOfferBadge(offer: OfferDTO, deliverables: DeliverableDTO[]) {
   return getStatusConfig()[offer.status]
 }
 
+function getOfferMode(offer: OfferDetailDTO): OfferMode {
+  if (offer.offer_mode) return offer.offer_mode
+  return offer.type === 'bundle' ? 'per_platform' : 'same_content'
+}
+
+function getOfferModeLabel(mode: OfferMode) {
+  return mode === 'per_platform' ? t`Por plataforma` : t`Mismo contenido`
+}
+
+function getOfferPlatforms(offer: OfferDetailDTO) {
+  const platforms =
+    offer.platforms && offer.platforms.length > 0
+      ? offer.platforms
+      : offer.type === 'bundle'
+        ? offer.deliverables.map((deliverable) => deliverable.platform)
+        : [offer.deliverable.platform]
+
+  return Array.from(new Set(platforms)).filter(Boolean)
+}
+
+function formatOfferPlatformLabel(platform: string) {
+  const platformLabels: Record<string, string> = {
+    youtube: t`YouTube`,
+    instagram: t`Instagram`,
+    tiktok: t`TikTok`,
+  }
+
+  return platformLabels[platform] ?? platform
+}
+
+function getOfferDeadline(offer: OfferDetailDTO) {
+  return offer.offer_deadline ?? offer.deadline
+}
+
 interface CurrentOfferBlockProps {
-  offer: OfferDTO | null
+  offer: OfferDetailDTO | null
   actorKind: ActorKind
   conversationId?: string
   deliverables: DeliverableDTO[]
@@ -139,9 +178,11 @@ export function CurrentOfferBlock({
 
   const badge = getOfferBadge(offer, deliverables)
   const bonusLabel = formatBonusWindowsLabel(offer.bonus_terms)
-  // RAFITA:BLOCKER currency no expuesto en OfferDTO — asumir USD hasta que backend lo agregue
-
-  const currency = 'USD'
+  const currency = offer.currency ?? 'USD'
+  const offerMode = getOfferMode(offer)
+  const platforms = getOfferPlatforms(offer)
+  const deadline = getOfferDeadline(offer)
+  const tentativePublishDate = offer.tentative_publish_date
   const paymentOffer: MarkAsPaidOffer = {
     id: offer.id,
     amount: offer.amount,
@@ -177,19 +218,47 @@ export function CurrentOfferBlock({
 
         <dl className="mt-3 space-y-1.5">
           <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">{t`Modo`}</dt>
+            <dd className="text-xs font-medium text-foreground">
+              {getOfferModeLabel(offerMode)}
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-4">
             <dt className="text-xs text-muted-foreground">{t`Presupuesto`}</dt>
             <dd className="font-mono text-xs font-semibold text-foreground">
               {formatOfferAmount(offer.amount, currency)}
             </dd>
           </div>
-          {offer.deadline ? (
+          {tentativePublishDate ? (
             <div className="flex items-baseline justify-between gap-4">
-              <dt className="text-xs text-muted-foreground">{t`Deadline`}</dt>
+              <dt className="text-xs text-muted-foreground">{t`Publicación tentativa`}</dt>
               <dd className="text-xs font-medium text-foreground">
-                {formatOfferDeadline(offer.deadline)}
+                {formatOfferDeadline(tentativePublishDate)}
               </dd>
             </div>
           ) : null}
+          {deadline ? (
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-xs text-muted-foreground">{t`Offer deadline`}</dt>
+              <dd className="text-xs font-medium text-foreground">
+                {formatOfferDeadline(deadline)}
+              </dd>
+            </div>
+          ) : null}
+          {platforms.length > 0 ? (
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="text-xs text-muted-foreground">{t`Plataformas`}</dt>
+              <dd className="text-right text-xs font-medium text-foreground">
+                {platforms.map(formatOfferPlatformLabel).join(', ')}
+              </dd>
+            </div>
+          ) : null}
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="text-xs text-muted-foreground">{t`Estado`}</dt>
+            <dd className="text-xs font-medium text-foreground">
+              {badge.label}
+            </dd>
+          </div>
           {bonusLabel ? (
             <div className="flex items-baseline justify-between gap-4">
               <dt className="text-xs text-muted-foreground">{t`Bonus por rapidez`}</dt>
@@ -238,37 +307,43 @@ export function CurrentOfferBlock({
         ) : null}
 
         {sessionKind === 'creator' && offer.status === 'sent' ? (
-          <div className="mt-3 flex gap-2">
-            <Button
-              size="sm"
-              className="flex-1"
-              disabled={accept.isPending || reject.isPending}
-              onClick={() =>
-                accept.mutate({
-                  offerId: offer.id,
-                  sentAt: offer.sent_at ?? offer.created_at,
-                  offerType: offer.type,
-                })
-              }
-            >
-              {accept.isPending ? t`Aceptando…` : t`Aceptar oferta`}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1"
-              disabled={accept.isPending || reject.isPending}
-              onClick={() =>
-                reject.mutate({
-                  offerId: offer.id,
-                  sentAt: offer.sent_at ?? offer.created_at,
-                  offerType: offer.type,
-                })
-              }
-            >
-              {reject.isPending ? t`Rechazando…` : t`Rechazar`}
-            </Button>
-          </div>
+          <>
+            <OfferCountdown
+              expiresAt={offer.expires_at}
+              status={offer.status}
+            />
+            <div className="mt-3 flex gap-2">
+              <Button
+                size="sm"
+                className="flex-1"
+                disabled={accept.isPending || reject.isPending}
+                onClick={() =>
+                  accept.mutate({
+                    offerId: offer.id,
+                    sentAt: offer.sent_at ?? offer.created_at,
+                    offerType: offer.type,
+                  })
+                }
+              >
+                {accept.isPending ? t`Aceptando…` : t`Aceptar`}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                disabled={accept.isPending || reject.isPending}
+                onClick={() =>
+                  reject.mutate({
+                    offerId: offer.id,
+                    sentAt: offer.sent_at ?? offer.created_at,
+                    offerType: offer.type,
+                  })
+                }
+              >
+                {reject.isPending ? t`Rechazando…` : t`Rechazar`}
+              </Button>
+            </div>
+          </>
         ) : null}
       </div>
       <CancelOfferDialog

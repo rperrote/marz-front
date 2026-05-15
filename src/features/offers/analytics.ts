@@ -64,7 +64,7 @@ interface OfferEventMap {
   }
   offer_panel_viewed: {
     actor_kind: ActorKind
-    offer_state: 'sent' | 'accepted' | 'rejected' | 'expired'
+    offer_state: 'sent' | 'accepted' | 'rejected' | 'expired' | 'cancelled'
   }
   offer_archive_expanded: {
     actor_kind: ActorKind

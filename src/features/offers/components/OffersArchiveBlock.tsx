@@ -3,13 +3,13 @@ import { Archive } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
 import { Button } from '#/components/ui/button'
-import type { ArchivedOfferItem } from '#/features/offers/hooks/useConversationOffers'
+import type { ArchivedOfferDetailItem } from '#/features/offers/hooks/useConversationOffers'
 import { OfferArchiveItem } from './OfferArchiveItem'
 import { trackOfferEvent, toArchiveSizeBucket } from '../analytics'
 import type { ActorKind } from '../analytics'
 
 interface OffersArchiveBlockProps {
-  items: ArchivedOfferItem[]
+  items: ArchivedOfferDetailItem[]
   nextCursor: string | null
   onLoadMore?: () => void
   isLoadingMore?: boolean

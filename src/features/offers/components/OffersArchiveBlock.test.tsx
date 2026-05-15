@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event'
 import { axe } from 'vitest-axe'
 
 import { OffersArchiveBlock } from './OffersArchiveBlock'
-import type { ArchivedOfferItem } from '#/features/offers/hooks/useConversationOffers'
+import type { ArchivedOfferDetailItem } from '#/features/offers/hooks/useConversationOffers'
+import type { OfferDetailDTO } from '#/features/offers/types'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -16,10 +17,11 @@ vi.mock('@lingui/core/macro', () => ({
 
 function makeItem(
   id: string,
-  type: ArchivedOfferItem['type'],
-  status: 'sent' | 'accepted' | 'rejected' | 'expired',
+  type: ArchivedOfferDetailItem['type'],
+  status: OfferDetailDTO['status'],
   amount = '2800.00',
-): ArchivedOfferItem {
+  offerOverrides: Partial<OfferDetailDTO> = {},
+): ArchivedOfferDetailItem {
   return {
     type,
     offer: {
@@ -41,11 +43,12 @@ function makeItem(
       sent_at: '2024-09-14T12:00:00Z',
       deliverables: [],
       stages: [],
+      ...offerOverrides,
     },
   }
 }
 
-const archiveItems: ArchivedOfferItem[] = [
+const archiveItems: ArchivedOfferDetailItem[] = [
   makeItem('offer-1-aaaaaaaa', 'bundle', 'sent'),
   makeItem('offer-2-bbbbbbbb', 'multistage', 'accepted', '3200.00'),
 ]
@@ -96,6 +99,37 @@ describe('OffersArchiveBlock', () => {
     await user.click(screen.getByRole('button', { expanded: false }))
     expect(screen.getByText('Pending')).toBeInTheDocument()
     expect(screen.getByText('Accepted')).toBeInTheDocument()
+  })
+
+  it('differentiates accepted paid and cancelled archive badges', async () => {
+    const user = userEvent.setup()
+    render(
+      <OffersArchiveBlock
+        items={[
+          makeItem('offer-paid-aaaaaaaa', 'single', 'accepted', '1000.00', {
+            paid_at: '2026-05-15T12:00:00Z',
+          }),
+          makeItem('offer-cancel-pre', 'single', 'cancelled', '1000.00', {
+            cancellation_phase: 'pre',
+          }),
+          makeItem('offer-cancel-post', 'single', 'cancelled', '1000.00', {
+            cancellation_phase: 'post',
+          }),
+          makeItem('offer-rejected', 'single', 'rejected'),
+          makeItem('offer-expired', 'single', 'expired'),
+        ]}
+        nextCursor={null}
+        actorKind="brand"
+      />,
+    )
+
+    await user.click(screen.getByRole('button', { expanded: false }))
+
+    expect(screen.getByText('Accepted (paid)')).toBeInTheDocument()
+    expect(screen.getByText('Cancelled (pre)')).toBeInTheDocument()
+    expect(screen.getByText('Cancelled (post)')).toBeInTheDocument()
+    expect(screen.getByText('Rejected')).toBeInTheDocument()
+    expect(screen.getByText('Expired')).toBeInTheDocument()
   })
 
   it('rendersTypeBadge', async () => {

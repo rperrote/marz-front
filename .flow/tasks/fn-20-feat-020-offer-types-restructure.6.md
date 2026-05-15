@@ -61,9 +61,8 @@ Tarjeta lateral del workspace. Tokens: badges con colores semánticos (success, 
 - [ ] Validación visual contra Pencil (light + dark).
 
 ## Done summary
-
-_To be filled at task completion._
-
+Dead exports eliminados, comentarios de dominio agregados en los dos mapeos cancelled→expired, getOfferPlatforms corregido por tipo. Sin problemas pendientes.
 ## Evidence
-
-_To be filled at task completion._
+- Commits:
+- Tests:
+- PRs:

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { describe, it, expect, vi } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { axe } from 'vitest-axe'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -137,6 +137,10 @@ const defaultProps = {
 }
 
 describe('CurrentOfferBlock', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders empty state when current is null', () => {
     renderWithQuery(<CurrentOfferBlock offer={null} {...defaultProps} />)
     expect(screen.getByText('Sin oferta activa')).toBeInTheDocument()
@@ -173,15 +177,57 @@ describe('CurrentOfferBlock', () => {
   it('renders offer with sent badge', () => {
     renderWithQuery(<CurrentOfferBlock offer={singleOffer} {...defaultProps} />)
     expect(screen.getByText('Oferta actual')).toBeInTheDocument()
-    expect(screen.getByText('Enviada')).toBeInTheDocument()
+    expect(screen.getAllByText('Enviada')).not.toHaveLength(0)
+    expect(screen.getByText('Mismo contenido')).toBeInTheDocument()
     expect(screen.getByText('$4,500.00')).toBeInTheDocument()
     expect(screen.getByText('Oct 12')).toBeInTheDocument()
+    expect(screen.getByText('YouTube')).toBeInTheDocument()
+  })
+
+  it('renders v3 per-platform fields when present', () => {
+    renderWithQuery(
+      <CurrentOfferBlock
+        offer={{
+          ...bundleOffer,
+          offer_mode: 'per_platform',
+          tentative_publish_date: '2026-05-19',
+          offer_deadline: '2026-05-20',
+          platforms: ['instagram', 'tiktok'],
+          currency: 'USD',
+        }}
+        {...defaultProps}
+      />,
+    )
+
+    expect(screen.getByText('Por plataforma')).toBeInTheDocument()
+    expect(screen.getByText('Publicación tentativa')).toBeInTheDocument()
+    expect(screen.getByText('Offer deadline')).toBeInTheDocument()
+    expect(screen.getByText('Instagram, TikTok')).toBeInTheDocument()
   })
 
   it('renders accepted state with badge', () => {
     const accepted: OfferDTO = { ...singleOffer, status: 'accepted' }
     renderWithQuery(<CurrentOfferBlock offer={accepted} {...defaultProps} />)
-    expect(screen.getByText('Aceptada')).toBeInTheDocument()
+    expect(screen.getAllByText('Aceptada')).not.toHaveLength(0)
+  })
+
+  it('renders creator sent actions with countdown', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-09-04T11:59:58.000Z'))
+
+    renderWithQuery(
+      <CurrentOfferBlock
+        offer={singleOffer}
+        {...defaultProps}
+        actorKind="creator"
+        sessionKind="creator"
+        conversationId="conv-1"
+      />,
+    )
+
+    expect(screen.getByText('0m 02s restantes')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Aceptar' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Rechazar' })).toBeInTheDocument()
   })
 
   it('renders speed bonus windows when present', () => {
@@ -218,7 +264,7 @@ describe('CurrentOfferBlock', () => {
           deliverables={makeDeliverables(statuses as DeliverableStatus[])}
         />,
       )
-      expect(screen.getByText(expectedLabel)).toBeInTheDocument()
+      expect(screen.getAllByText(expectedLabel)).not.toHaveLength(0)
     },
   )
 

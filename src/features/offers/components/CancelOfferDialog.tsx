@@ -10,12 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog'
-import type { OfferDTO } from '#/features/offers/hooks/useConversationOffers'
+import type { OfferDetailDTO } from '#/features/offers/hooks/useConversationOffers'
 import { ApiError } from '#/shared/api/mutator'
 
 import { useCancelOfferMutation } from '../hooks/useCancelOfferMutation'
 
-export type CancelOfferDetail = OfferDTO & {
+export type CancelOfferDetail = OfferDetailDTO & {
   offer_deadline?: string | null
 }
 

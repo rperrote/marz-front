@@ -9,11 +9,11 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { t } from '@lingui/core/macro'
 
-import type { OfferDTO } from '#/features/offers/hooks/useConversationOffers'
+import type { OfferDetailDTO } from '#/features/offers/hooks/useConversationOffers'
 import type { DeliverableDTO } from '#/features/deliverables/types'
 
 interface NextStepProps {
-  offer: OfferDTO | null
+  offer: OfferDetailDTO | null
   sessionKind: 'brand' | 'creator'
   deliverables?: DeliverableDTO[]
 }
@@ -114,7 +114,7 @@ function deriveDeliverableStep(
 }
 
 function getNextStepMeta(
-  offer: OfferDTO,
+  offer: OfferDetailDTO,
   sessionKind: 'brand' | 'creator',
   deliverables: DeliverableDTO[],
 ): NextStepMeta | null {
@@ -143,6 +143,14 @@ function getNextStepMeta(
   if (offer.status === 'expired') {
     return {
       label: t`Oferta expirada`,
+      tone: 'error',
+      icon: Hourglass,
+    }
+  }
+
+  if (offer.status === 'cancelled') {
+    return {
+      label: t`Oferta cancelada`,
       tone: 'error',
       icon: Hourglass,
     }
