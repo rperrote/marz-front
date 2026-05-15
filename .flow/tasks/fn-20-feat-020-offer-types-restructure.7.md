@@ -45,9 +45,8 @@ Borrar archivos legacy y referencias muertas a Stages, `offer_type`, multistage,
 - [ ] `pnpm react-doctor` reporta ≥ 95.
 
 ## Done summary
-
-_To be filled at task completion._
-
+F.7 pausada con RAFITA:BLOCKER documentado correctamente: precondición inválida en spec detectada, blocker escala a gate humano para decisión sobre soporte de multistage. No hay cambios funcionales incorrectos. El loop developer-reviewer no puede resolver esto — la decisión es externa.
 ## Evidence
-
-_To be filled at task completion._
+- Commits:
+- Tests:
+- PRs:

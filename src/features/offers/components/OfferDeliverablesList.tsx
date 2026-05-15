@@ -31,6 +31,7 @@ export function OfferDeliverablesList(props: OfferDeliverablesListProps) {
   const { offer } = props
 
   if (offer.type === 'multistage') {
+    // RAFITA:BLOCKER: Pause F.7 and escalate to the human gate; tech lead/product must decide whether multistage remains supported before this active UI can be removed or excluded from scope.
     return <MultistageList {...props} />
   }
 
