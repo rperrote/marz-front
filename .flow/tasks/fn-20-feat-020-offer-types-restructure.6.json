@@ -1,0 +1,17 @@
+{
+  "assignee": null,
+  "claim_note": "",
+  "claimed_at": null,
+  "created_at": "2026-05-15T08:00:14.087342Z",
+  "depends_on": [
+    "fn-20-feat-020-offer-types-restructure.1",
+    "fn-20-feat-020-offer-types-restructure.5"
+  ],
+  "epic": "fn-20-feat-020-offer-types-restructure",
+  "id": "fn-20-feat-020-offer-types-restructure.6",
+  "priority": null,
+  "spec_path": ".flow/tasks/fn-20-feat-020-offer-types-restructure.6.md",
+  "status": "todo",
+  "title": "F.6 CurrentOfferCard + OfferArchive + OfferCountdown (v3)",
+  "updated_at": "2026-05-15T08:02:42.656989Z"
+}
