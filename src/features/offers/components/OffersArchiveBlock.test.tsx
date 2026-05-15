@@ -58,7 +58,7 @@ describe('OffersArchiveBlock', () => {
     render(
       <OffersArchiveBlock items={[]} nextCursor={null} actorKind="brand" />,
     )
-    expect(screen.getByText('No past offers')).toBeInTheDocument()
+    expect(screen.getByText('Sin ofertas anteriores')).toBeInTheDocument()
   })
 
   it('is collapsed by default', () => {
@@ -97,8 +97,8 @@ describe('OffersArchiveBlock', () => {
       />,
     )
     await user.click(screen.getByRole('button', { expanded: false }))
-    expect(screen.getByText('Pending')).toBeInTheDocument()
-    expect(screen.getByText('Accepted')).toBeInTheDocument()
+    expect(screen.getByText('Pendiente')).toBeInTheDocument()
+    expect(screen.getByText('Aceptada')).toBeInTheDocument()
   })
 
   it('differentiates accepted paid and cancelled archive badges', async () => {
@@ -125,11 +125,11 @@ describe('OffersArchiveBlock', () => {
 
     await user.click(screen.getByRole('button', { expanded: false }))
 
-    expect(screen.getByText('Accepted (paid)')).toBeInTheDocument()
-    expect(screen.getByText('Cancelled (pre)')).toBeInTheDocument()
-    expect(screen.getByText('Cancelled (post)')).toBeInTheDocument()
-    expect(screen.getByText('Rejected')).toBeInTheDocument()
-    expect(screen.getByText('Expired')).toBeInTheDocument()
+    expect(screen.getByText('Aceptada (pagada)')).toBeInTheDocument()
+    expect(screen.getByText('Cancelada (pre)')).toBeInTheDocument()
+    expect(screen.getByText('Cancelada (post)')).toBeInTheDocument()
+    expect(screen.getByText('Rechazada')).toBeInTheDocument()
+    expect(screen.getByText('Expirada')).toBeInTheDocument()
   })
 
   it('rendersTypeBadge', async () => {
@@ -159,7 +159,7 @@ describe('OffersArchiveBlock', () => {
       />,
     )
     await user.click(screen.getByRole('button', { expanded: false }))
-    expect(screen.getAllByText('Pending')).toHaveLength(2)
+    expect(screen.getAllByText('Pendiente')).toHaveLength(2)
     expect(screen.getByText('Bundle')).toBeInTheDocument()
     expect(screen.getByText('Single')).toBeInTheDocument()
   })
@@ -176,7 +176,7 @@ describe('OffersArchiveBlock', () => {
       />,
     )
     await user.click(screen.getByRole('button', { expanded: false }))
-    const loadMoreButton = screen.getByRole('button', { name: /load more/i })
+    const loadMoreButton = screen.getByRole('button', { name: /cargar más/i })
     expect(loadMoreButton).toBeInTheDocument()
     await user.click(loadMoreButton)
     expect(onLoadMore).toHaveBeenCalledOnce()
@@ -193,7 +193,7 @@ describe('OffersArchiveBlock', () => {
     )
     await user.click(screen.getByRole('button', { expanded: false }))
     expect(
-      screen.queryByRole('button', { name: /load more/i }),
+      screen.queryByRole('button', { name: /cargar más/i }),
     ).not.toBeInTheDocument()
   })
 

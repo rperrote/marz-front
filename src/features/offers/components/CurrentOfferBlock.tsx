@@ -239,7 +239,7 @@ export function CurrentOfferBlock({
           ) : null}
           {deadline ? (
             <div className="flex items-baseline justify-between gap-4">
-              <dt className="text-xs text-muted-foreground">{t`Offer deadline`}</dt>
+              <dt className="text-xs text-muted-foreground">{t`Fecha límite`}</dt>
               <dd className="text-xs font-medium text-foreground">
                 {formatOfferDeadline(deadline)}
               </dd>
@@ -289,7 +289,7 @@ export function CurrentOfferBlock({
                 disabled={!canMarkAsPaid}
                 onClick={() => onMarkAsPaid(paymentOffer)}
               >
-                {t`Mark as paid`}
+                {t`Marcar como pagado`}
               </Button>
             ) : null}
             <Button

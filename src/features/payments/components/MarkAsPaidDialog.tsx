@@ -96,7 +96,7 @@ export function MarkAsPaidDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t`Mark as paid`}</DialogTitle>
+          <DialogTitle>{t`Marcar como pagado`}</DialogTitle>
           <DialogDescription>
             {t`Confirmá el monto pagado por esta oferta.`}
           </DialogDescription>
@@ -131,7 +131,9 @@ export function MarkAsPaidDialog({
               type="submit"
               disabled={!amountIsValid || markOfferPaid.isPending}
             >
-              {markOfferPaid.isPending ? t`Confirmando…` : t`Mark as paid`}
+              {markOfferPaid.isPending
+                ? t`Confirmando…`
+                : t`Marcar como pagado`}
             </Button>
           </DialogFooter>
         </form>

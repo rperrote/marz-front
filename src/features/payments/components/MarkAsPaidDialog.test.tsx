@@ -69,7 +69,7 @@ describe('MarkAsPaidDialog', () => {
 
     await user.clear(input)
     await user.type(input, '1250.50')
-    await user.click(screen.getByRole('button', { name: 'Mark as paid' }))
+    await user.click(screen.getByRole('button', { name: 'Marcar como pagado' }))
 
     expect(mockMutate).toHaveBeenCalledWith(
       {
@@ -88,7 +88,7 @@ describe('MarkAsPaidDialog', () => {
     })
     const { onOpenChange } = renderDialog()
 
-    await user.click(screen.getByRole('button', { name: 'Mark as paid' }))
+    await user.click(screen.getByRole('button', { name: 'Marcar como pagado' }))
 
     expect(
       await screen.findByText('Esta oferta ya fue marcada como pagada.'),

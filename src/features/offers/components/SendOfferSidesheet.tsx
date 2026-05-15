@@ -42,6 +42,7 @@ const defaultBonusTerms: OfferBonusTermsFormValues = {
   enabled: true,
   speed_bonus_windows: [
     {
+      _key: 'default-bonus-1',
       window_hours: 24,
       bonus_amount: { type: 'percentage', value: 10 },
     },

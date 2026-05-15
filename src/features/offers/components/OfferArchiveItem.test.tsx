@@ -54,7 +54,7 @@ describe('OfferArchiveItem', () => {
         <OfferArchiveItem item={sentItem} />
       </ul>,
     )
-    expect(screen.getByText('Pending')).toBeInTheDocument()
+    expect(screen.getByText('Pendiente')).toBeInTheDocument()
   })
 
   it('shows Accepted badge for accepted status', () => {
@@ -67,7 +67,7 @@ describe('OfferArchiveItem', () => {
         <OfferArchiveItem item={accepted} />
       </ul>,
     )
-    expect(screen.getByText('Accepted')).toBeInTheDocument()
+    expect(screen.getByText('Aceptada')).toBeInTheDocument()
   })
 
   it('has descriptive aria-label', () => {

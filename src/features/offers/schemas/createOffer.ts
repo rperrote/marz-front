@@ -42,6 +42,7 @@ export function createBonusTermsSchema() {
       enabled: z.boolean(),
       speed_bonus_windows: z.array(
         z.object({
+          _key: z.string().optional(),
           window_hours: z
             .number()
             .int(t`Las horas tienen que ser un número entero`)

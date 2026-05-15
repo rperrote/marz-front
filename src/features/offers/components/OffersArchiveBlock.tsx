@@ -44,11 +44,11 @@ export function OffersArchiveBlock({
         <header className="flex items-center gap-1.5 px-1 text-muted-foreground">
           <Archive className="size-3" />
           <span className="font-mono text-[11px] uppercase tracking-wider">
-            {t`Archived offers`}
+            {t`Ofertas archivadas`}
           </span>
         </header>
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          {t`No past offers`}
+          {t`Sin ofertas anteriores`}
         </p>
       </section>
     )
@@ -64,7 +64,7 @@ export function OffersArchiveBlock({
       >
         <Archive className="size-3" />
         <span className="font-mono text-[11px] uppercase tracking-wider">
-          {t`Archived offers`}
+          {t`Ofertas archivadas`}
         </span>
         <span className="ml-auto font-mono text-[11px]">{items.length}</span>
       </button>
@@ -84,7 +84,7 @@ export function OffersArchiveBlock({
               onClick={onLoadMore}
               disabled={isLoadingMore}
             >
-              {isLoadingMore ? t`Loading...` : t`Load more`}
+              {isLoadingMore ? t`Cargando…` : t`Cargar más`}
             </Button>
           ) : null}
         </div>

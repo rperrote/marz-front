@@ -201,7 +201,7 @@ describe('CurrentOfferBlock', () => {
 
     expect(screen.getByText('Por plataforma')).toBeInTheDocument()
     expect(screen.getByText('Publicación tentativa')).toBeInTheDocument()
-    expect(screen.getByText('Offer deadline')).toBeInTheDocument()
+    expect(screen.getByText('Fecha límite')).toBeInTheDocument()
     expect(screen.getByText('Instagram, TikTok')).toBeInTheDocument()
   })
 

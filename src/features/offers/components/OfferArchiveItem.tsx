@@ -34,7 +34,7 @@ function getBadgeConfig(offer: OfferDetailDTO): {
 } {
   if (offer.status === 'accepted' && offer.paid_at) {
     return {
-      label: t`Accepted (paid)`,
+      label: t`Aceptada (pagada)`,
       variant: 'default',
       className: 'bg-success text-success-foreground',
     }
@@ -43,21 +43,21 @@ function getBadgeConfig(offer: OfferDetailDTO): {
   if (offer.status === 'cancelled') {
     const phase = getCancellationPhase(offer)
     return {
-      label: phase === 'post' ? t`Cancelled (post)` : t`Cancelled (pre)`,
+      label: phase === 'post' ? t`Cancelada (post)` : t`Cancelada (pre)`,
       variant: 'outline',
       className: 'border-warning/40 bg-warning/10 text-warning',
     }
   }
 
   const configs = {
-    sent: { label: t`Pending`, variant: 'secondary' },
+    sent: { label: t`Pendiente`, variant: 'secondary' },
     accepted: {
-      label: t`Accepted`,
+      label: t`Aceptada`,
       variant: 'default',
       className: 'bg-success text-success-foreground',
     },
-    rejected: { label: t`Rejected`, variant: 'destructive' },
-    expired: { label: t`Expired`, variant: 'outline' },
+    rejected: { label: t`Rechazada`, variant: 'destructive' },
+    expired: { label: t`Expirada`, variant: 'outline' },
   } satisfies Record<
     Exclude<OfferDetailDTO['status'], 'cancelled'>,
     {

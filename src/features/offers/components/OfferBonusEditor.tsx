@@ -11,7 +11,14 @@ import type {
   OfferBonusWindowFormValues,
 } from '../schemas/createOffer'
 
+let nextWindowId = 0
+function generateWindowId() {
+  nextWindowId += 1
+  return `bonus-window-${nextWindowId}`
+}
+
 const defaultBonusWindow: OfferBonusWindowFormValues = {
+  _key: generateWindowId(),
   window_hours: 24,
   bonus_amount: { type: 'percentage', value: 10 },
 }
@@ -54,7 +61,7 @@ export function OfferBonusEditor({
 
         return (
           <fieldset
-            key={index}
+            key={window._key}
             className="space-y-3 rounded-xl border border-border bg-background p-3"
           >
             <legend className="sr-only">
@@ -186,7 +193,10 @@ export function OfferBonusEditor({
         onClick={() =>
           onChange({
             ...value,
-            speed_bonus_windows: [...windows, defaultBonusWindow],
+            speed_bonus_windows: [
+              ...windows,
+              { ...defaultBonusWindow, _key: generateWindowId() },
+            ],
           })
         }
         className="w-full rounded-xl"
