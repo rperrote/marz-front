@@ -3,108 +3,35 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<EOF
-Uso: $(basename "$0") <feat-start> [feat-end]
+Uso: $(basename "$0") <ruta-a-archivo.md>
 
-  feat-start  Número de FEAT inicial (ej: 003).
-  feat-end    Número de FEAT final (opcional). Si se omite, corre hasta
-              la última FEAT existente en marz-docs/features/.
+  archivo.md  Ruta (absoluta o relativa) al archivo markdown de solution/spec
+              a pasar a /flow-next:flow-next:plan.
 
-Por cada FEAT en el rango, levanta un claude y corre:
-  /flow-next:flow-next:plan <ruta-absoluta-a-03-solution.md>
+Levanta un claude y corre:
+  /flow-next:flow-next:plan <ruta-absoluta-al-md>
 
-Ejemplos:
-  $(basename "$0") 003
-  $(basename "$0") 003 007
+Ejemplo:
+  $(basename "$0") /abs/path/to/03-solution.md
 EOF
   exit 1
 }
 
-[[ $# -lt 1 || $# -gt 2 ]] && usage
+case "${1:-}" in
+  -h|--help) usage ;;
+esac
 
-FEAT_START_RAW="$1"
-FEAT_END_RAW="${2:-}"
+[[ $# -eq 1 ]] || usage
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKSPACE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-DOCS_ROOT="$WORKSPACE_ROOT/marz-docs"
-FEATURES_DIR="$DOCS_ROOT/features"
+INPUT_PATH="$1"
 
-[[ -d "$FEATURES_DIR" ]] || { echo "features dir no existe: $FEATURES_DIR" >&2; exit 1; }
+[[ -f "$INPUT_PATH" ]] || { echo "no existe archivo: $INPUT_PATH" >&2; exit 1; }
 
-pad() { printf "%03d" "$((10#$1))"; }
+SOLUTION_PATH="$(cd "$(dirname "$INPUT_PATH")" && pwd)/$(basename "$INPUT_PATH")"
 
-START=$(pad "$FEAT_START_RAW")
-
-ALL_FEATS=()
-while IFS= read -r line; do
-  ALL_FEATS+=("$line")
-done < <(
-  find "$FEATURES_DIR" -maxdepth 1 -type d -name 'FEAT-*' \
-    -exec basename {} \; | sort
-)
-
-[[ ${#ALL_FEATS[@]} -gt 0 ]] || { echo "no hay carpetas FEAT-* en $FEATURES_DIR" >&2; exit 1; }
-
-if [[ -n "$FEAT_END_RAW" ]]; then
-  END=$(pad "$FEAT_END_RAW")
-else
-  LAST="${ALL_FEATS[$((${#ALL_FEATS[@]} - 1))]}"
-  END="${LAST#FEAT-}"
-  END="${END%%-*}"
-fi
-
-SELECTED=()
-for dir in "${ALL_FEATS[@]}"; do
-  num="${dir#FEAT-}"
-  num="${num%%-*}"
-  if [[ "$num" > "$START" || "$num" == "$START" ]] && \
-     [[ "$num" < "$END"   || "$num" == "$END"   ]]; then
-    SELECTED+=("$dir")
-  fi
-done
-
-if [[ ${#SELECTED[@]} -eq 0 ]]; then
-  echo "no hay features en el rango FEAT-$START..FEAT-$END" >&2
-  exit 1
-fi
-
-echo "rango:   FEAT-$START..FEAT-$END"
-echo "features:"
-printf '  - %s\n' "${SELECTED[@]}"
+echo "solution: $SOLUTION_PATH"
 echo
 
-for feat in "${SELECTED[@]}"; do
-  SOLUTION_PATH="$FEATURES_DIR/$feat/03-solution.md"
+PROMPT="/flow-next:flow-next:plan $SOLUTION_PATH plan depth standar, no research, no review"
 
-  echo "============================================"
-  echo ">> $feat"
-  echo "============================================"
-
-  if [[ ! -f "$SOLUTION_PATH" ]]; then
-    echo "SKIP: no existe $SOLUTION_PATH" >&2
-    continue
-  fi
-
-  PROMPT="/flow-next:flow-next:plan $SOLUTION_PATH plan depth standar, no research, no review"
-
-  OUTPUT_FILE="$(mktemp -t marz-run-flow-plan.XXXXXX)"
-  trap 'rm -f "$OUTPUT_FILE"' EXIT
-
-  set +e
-  claude -p "$PROMPT" --permission-mode bypassPermissions 2>&1 | tee "$OUTPUT_FILE"
-  CLAUDE_EXIT=${PIPESTATUS[0]}
-  set -e
-
-  rm -f "$OUTPUT_FILE"
-  trap - EXIT
-
-  if [[ $CLAUDE_EXIT -ne 0 ]]; then
-    echo "ABORT: claude exit $CLAUDE_EXIT en $feat" >&2
-    exit $CLAUDE_EXIT
-  fi
-
-  echo ">> $feat OK"
-  echo
-done
-
-echo "done: ${#SELECTED[@]} features procesadas"
+claude -p "$PROMPT" --permission-mode bypassPermissions
