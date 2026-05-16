@@ -122,20 +122,20 @@ export function DraftSubmittedCard({
   const requestChangesAnalytics = useMemo(() => {
     if (
       snapshotVersion == null ||
-      deliverablesQuery.data?.offer_type == null ||
+      deliverablesQuery.data?.offer_mode == null ||
       deliverableIndex < 0
     ) {
       return undefined
     }
 
     return {
-      offerType: deliverablesQuery.data.offer_type,
+      offerMode: deliverablesQuery.data.offer_mode,
       deliverableIndex,
       draftVersion: snapshotVersion,
       roundIndex: (deliverable?.change_requests_count ?? 0) + 1,
     }
   }, [
-    deliverablesQuery.data?.offer_type,
+    deliverablesQuery.data?.offer_mode,
     deliverableIndex,
     snapshotVersion,
     deliverable?.change_requests_count,

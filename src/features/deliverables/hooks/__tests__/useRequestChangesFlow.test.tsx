@@ -234,7 +234,7 @@ describe('useRequestChangesFlow', () => {
       () =>
         useRequestChangesFlow('del-1', 'draft-1', {
           analytics: {
-            offerType: 'single',
+            offerMode: 'same_content',
             deliverableIndex: 0,
             draftVersion: 1,
             roundIndex: 1,
@@ -256,7 +256,7 @@ describe('useRequestChangesFlow', () => {
     })
     expect(mockTrackChangeRequestSubmitted).toHaveBeenCalledWith({
       actor_kind: 'brand',
-      offer_type: 'single',
+      offer_mode: 'same_content',
       deliverable_index: 0,
       draft_version: 1,
       categories: ['other'],

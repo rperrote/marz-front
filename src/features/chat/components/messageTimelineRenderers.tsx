@@ -150,33 +150,40 @@ function renderSystemTimelineMessage({
 
   if (message.event_type === 'PaymentMarked') {
     return (
-      <PaymentMarkedCard
-        message={message}
-        viewer={{ kind: sessionKind }}
-        highlighted={
-          highlightPaymentId !== undefined &&
-          getPaymentMarkedDeclaredPaymentId(message.payload) ===
-            highlightPaymentId
-        }
-      />
+      <div className="flex justify-center py-1">
+        <PaymentMarkedCard
+          message={message}
+          viewer={{ kind: sessionKind }}
+          highlighted={
+            highlightPaymentId !== undefined &&
+            getPaymentMarkedDeclaredPaymentId(message.payload) ===
+              highlightPaymentId
+          }
+        />
+      </div>
     )
   }
 
   if (OFFER_EVENT_TYPES.has(message.event_type ?? '')) {
-    switch (message.event_type) {
-      case 'OfferSent':
-        return <OfferSentCard message={message} />
-      case 'OfferAccepted':
-        return <OfferAcceptedCard message={message} />
-      case 'OfferRejected':
-        return <OfferRejectedCard message={message} />
-      case 'OfferExpired':
-        return <OfferExpiredCard message={message} />
-      case 'OfferCancelled':
-        return <OfferCancelledCard message={message} />
-      default:
-        return null
-    }
+    const offerCard = (() => {
+      switch (message.event_type) {
+        case 'OfferSent':
+          return <OfferSentCard message={message} />
+        case 'OfferAccepted':
+          return <OfferAcceptedCard message={message} />
+        case 'OfferRejected':
+          return <OfferRejectedCard message={message} />
+        case 'OfferExpired':
+          return <OfferExpiredCard message={message} />
+        case 'OfferCancelled':
+          return <OfferCancelledCard message={message} />
+        default:
+          return null
+      }
+    })()
+
+    if (!offerCard) return null
+    return <div className="flex justify-center py-1">{offerCard}</div>
   }
 
   const label =

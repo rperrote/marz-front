@@ -17,7 +17,9 @@ vi.mock('@lingui/core/macro', () => ({
 function makeDraft(overrides?: Partial<DraftDTO>): DraftDTO {
   return {
     id: 'draft-1',
+    deliverable_id: 'del-1',
     version: 1,
+    s3_key: 'drafts/draft-1.mp4',
     original_filename: 'video.mp4',
     file_size_bytes: 1024,
     duration_sec: 120,
@@ -28,6 +30,7 @@ function makeDraft(overrides?: Partial<DraftDTO>): DraftDTO {
     submitted_at: '2026-04-01T00:00:00Z',
     submitted_by_account_id: 'creator-1',
     approved_at: null,
+    status: 'submitted',
     ...overrides,
   }
 }

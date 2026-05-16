@@ -8,45 +8,37 @@ import type {
 export type SendOfferWizardMode = 'same_content' | 'per_platform'
 
 export type SendOfferWizardState = {
+  isOpen: boolean
+  conversationId: string | null
   mode: SendOfferWizardMode
-  sameContent: Partial<CreateOfferFormValues>
-  perPlatform: Partial<CreateOfferFormValues>
+  draft: Partial<CreateOfferFormValues>
   bonusesEnabledGlobal: boolean
   bonusesSnapshot: OfferBonusTermsFormValues | null
+  open: (conversationId: string) => void
+  close: () => void
   setMode: (mode: SendOfferWizardMode) => void
-  patchSameContent: (patch: Partial<CreateOfferFormValues>) => void
-  patchPerPlatform: (patch: Partial<CreateOfferFormValues>) => void
+  patchDraft: (patch: Partial<CreateOfferFormValues>) => void
   setBonusesEnabledGlobal: (enabled: boolean) => void
   setBonusesSnapshot: (snapshot: OfferBonusTermsFormValues | null) => void
   reset: () => void
 }
 
 const getInitialState = () => ({
+  isOpen: false,
+  conversationId: null,
   mode: 'same_content' as const,
-  sameContent: {},
-  perPlatform: {},
+  draft: {},
   bonusesEnabledGlobal: false,
   bonusesSnapshot: null,
 })
 
-function mergeCreateOfferDraft(
-  current: Partial<CreateOfferFormValues>,
-  patch: Partial<CreateOfferFormValues>,
-) {
-  return { ...current, ...patch }
-}
-
 export const useSendOfferWizard = create<SendOfferWizardState>()((set) => ({
   ...getInitialState(),
+  open: (conversationId) => set({ isOpen: true, conversationId }),
+  close: () => set({ isOpen: false, conversationId: null }),
   setMode: (mode) => set({ mode }),
-  patchSameContent: (patch) =>
-    set((state) => ({
-      sameContent: mergeCreateOfferDraft(state.sameContent, patch),
-    })),
-  patchPerPlatform: (patch) =>
-    set((state) => ({
-      perPlatform: mergeCreateOfferDraft(state.perPlatform, patch),
-    })),
+  patchDraft: (patch) =>
+    set((state) => ({ draft: { ...state.draft, ...patch } })),
   setBonusesEnabledGlobal: (enabled) => set({ bonusesEnabledGlobal: enabled }),
   setBonusesSnapshot: (snapshot) => set({ bonusesSnapshot: snapshot }),
   reset: () => set(getInitialState()),

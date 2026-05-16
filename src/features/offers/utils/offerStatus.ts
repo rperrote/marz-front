@@ -22,6 +22,10 @@ export function getStatusConfig(status: OfferStatus): {
       label: t`Expired`,
       className: 'text-muted-foreground border border-border',
     },
+    cancelled: {
+      label: t`Cancelled`,
+      className: 'text-muted-foreground border border-border',
+    },
   }
   return configs[status]
 }

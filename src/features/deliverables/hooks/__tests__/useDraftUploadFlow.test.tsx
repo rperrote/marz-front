@@ -204,7 +204,7 @@ describe('useDraftUploadFlow', () => {
     const { result } = renderHook(
       () =>
         useDraftUploadFlow('del-1', {
-          offerType: 'single',
+          offerMode: 'same_content',
           deliverableIndex: 0,
           deliverableStatus: 'changes_requested',
           currentVersion: 1,
@@ -222,7 +222,7 @@ describe('useDraftUploadFlow', () => {
     await waitFor(() => expect(result.current.status).toBe('uploading'))
     expect(mocks.trackDraftV2UploadStarted).toHaveBeenCalledWith({
       actor_kind: 'creator',
-      offer_type: 'single',
+      offer_mode: 'same_content',
       deliverable_index: 0,
       draft_version: 2,
       time_from_request_to_upload_seconds: 300,
@@ -235,7 +235,7 @@ describe('useDraftUploadFlow', () => {
     const { result } = renderHook(
       () =>
         useDraftUploadFlow('del-1', {
-          offerType: 'single',
+          offerMode: 'same_content',
           deliverableIndex: 0,
           deliverableStatus: 'pending',
           currentVersion: null,

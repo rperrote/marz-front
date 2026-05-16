@@ -4,6 +4,7 @@
 // Use:
 //   pnpm tsx scripts/seed-conversation.ts
 //   pnpm tsx scripts/seed-conversation.ts --brand-email=... --creator-email=...
+//   pnpm tsx scripts/seed-conversation.ts --run-id=debug-1
 //   pnpm tsx scripts/seed-conversation.ts --seed-messages=20
 //
 // Cerrá cualquiera de las dos ventanas para terminar el proceso.
@@ -24,10 +25,14 @@ import {
 
 loadEnvLocal(resolve(import.meta.dirname, '..'))
 
+const seedRunId =
+  arg('run-id') ?? new Date().toISOString().replace(/\D/g, '').slice(0, 14)
+
 const brandEmail =
-  arg('brand-email') ?? 'e2e.manual.brand+clerk_test@example.com'
+  arg('brand-email') ?? `e2e.manual.brand.${seedRunId}+clerk_test@example.com`
 const creatorEmail =
-  arg('creator-email') ?? 'e2e.manual.creator+clerk_test@example.com'
+  arg('creator-email') ??
+  `e2e.manual.creator.${seedRunId}+clerk_test@example.com`
 const seedCountRaw = arg('seed-messages')
 const seedCount = seedCountRaw ? Number(seedCountRaw) : 0
 if (

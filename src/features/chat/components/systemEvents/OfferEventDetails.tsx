@@ -20,7 +20,7 @@ export function OfferEventDetails({ snapshot }: OfferEventDetailsProps) {
           {t`Tipo`}
         </dt>
         <dd className="mt-0.5 font-semibold">
-          {formatOfferMode(snapshot.type)}
+          {formatOfferMode(snapshot.offer_mode)}
         </dd>
       </div>
       <div className="rounded-xl bg-muted px-3 py-2">

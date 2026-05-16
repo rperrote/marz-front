@@ -19,6 +19,7 @@ describe('OfferSummary', () => {
   it('renders base amount and max payout', () => {
     render(
       <OfferSummary
+        offerMode="same_content"
         amount={1000}
         bonusTerms={{
           enabled: true,
@@ -33,6 +34,6 @@ describe('OfferSummary', () => {
     )
 
     expect(screen.getByText('$1,000.00')).toBeInTheDocument()
-    expect(screen.getAllByText('$1,100.00')).toHaveLength(2)
+    expect(screen.getByText('$1,100.00')).toBeInTheDocument()
   })
 })

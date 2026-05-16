@@ -7,39 +7,28 @@ describe('useSendOfferWizard', () => {
     useSendOfferWizard.getState().reset()
   })
 
-  it('preserves both content snapshots when toggling mode', () => {
-    useSendOfferWizard.getState().patchSameContent({
+  it('keeps a single shared draft when toggling mode', () => {
+    useSendOfferWizard.getState().patchDraft({
       campaign_id: 'campaign-1',
       amount: 1000,
     })
     useSendOfferWizard.getState().setMode('per_platform')
-    useSendOfferWizard.getState().patchPerPlatform({
-      campaign_id: 'campaign-2',
-      amount: 2000,
-    })
+    useSendOfferWizard.getState().patchDraft({ amount: 2000 })
     useSendOfferWizard.getState().setMode('same_content')
 
     const state = useSendOfferWizard.getState()
     expect(state.mode).toBe('same_content')
-    expect(state.sameContent).toEqual({
+    expect(state.draft).toEqual({
       campaign_id: 'campaign-1',
-      amount: 1000,
-    })
-    expect(state.perPlatform).toEqual({
-      campaign_id: 'campaign-2',
       amount: 2000,
     })
   })
 
   it('resets to the initial state', () => {
     useSendOfferWizard.getState().setMode('per_platform')
-    useSendOfferWizard.getState().patchSameContent({
+    useSendOfferWizard.getState().patchDraft({
       campaign_id: 'campaign-1',
       amount: 1000,
-    })
-    useSendOfferWizard.getState().patchPerPlatform({
-      campaign_id: 'campaign-2',
-      amount: 2000,
     })
     useSendOfferWizard.getState().setBonusesEnabledGlobal(true)
     useSendOfferWizard.getState().setBonusesSnapshot({
@@ -56,8 +45,7 @@ describe('useSendOfferWizard', () => {
 
     expect(useSendOfferWizard.getState()).toMatchObject({
       mode: 'same_content',
-      sameContent: {},
-      perPlatform: {},
+      draft: {},
       bonusesEnabledGlobal: false,
       bonusesSnapshot: null,
     })

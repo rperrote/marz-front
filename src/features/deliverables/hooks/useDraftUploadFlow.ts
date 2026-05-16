@@ -19,7 +19,8 @@ import {
   trackUploadFailed,
   trackDraftV2UploadStarted,
 } from '#/features/deliverables/analytics'
-import type { DeliverableDTO, OfferType } from '#/features/deliverables/types'
+import type { DeliverableDTO } from '#/features/deliverables/types'
+import type { OfferMode } from '#/features/offers/types'
 
 type UploadStatus =
   | 'idle'
@@ -38,7 +39,7 @@ interface UploadState {
 }
 
 interface DraftV2UploadAnalytics {
-  offerType: OfferType
+  offerMode: OfferMode
   deliverableIndex: number
   deliverableStatus: DeliverableDTO['status']
   currentVersion: number | null
@@ -146,7 +147,7 @@ export function useDraftUploadFlow(
       ) {
         trackDraftV2UploadStarted({
           actor_kind: 'creator',
-          offer_type: analytics.offerType,
+          offer_mode: analytics.offerMode,
           deliverable_index: analytics.deliverableIndex,
           draft_version: (analytics.currentVersion ?? 0) + 1,
           time_from_request_to_upload_seconds: Math.max(

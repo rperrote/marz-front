@@ -3,7 +3,7 @@ import type { RefObject } from 'react'
 
 import { postAnalyticsEvent } from '#/shared/analytics/postEvent'
 import type { ChangeCategory } from './api/requestChanges'
-import type { OfferType } from './types'
+import type { OfferMode } from '#/features/offers/types'
 
 type RoundResolution = 'approved' | 'another_round'
 type FinalOutcome = 'approved' | 'open'
@@ -43,14 +43,9 @@ interface DeliverableEventMap {
     draft_id: string
     version: number
   }
-  multistage_stage_unlocked: {
-    offer_id: string
-    stage_id: string
-    position: number
-  }
   request_changes_modal_opened: {
     actor_kind: 'brand'
-    offer_type: OfferType
+    offer_mode: OfferMode
     deliverable_index: number
     draft_version: number
   }
@@ -60,7 +55,7 @@ interface DeliverableEventMap {
   }
   change_request_submitted: {
     actor_kind: 'brand'
-    offer_type: OfferType
+    offer_mode: OfferMode
     deliverable_index: number
     draft_version: number
     categories: ChangeCategory[]
@@ -74,7 +69,7 @@ interface DeliverableEventMap {
   }
   draft_v2_upload_started: {
     actor_kind: 'creator'
-    offer_type: OfferType
+    offer_mode: OfferMode
     deliverable_index: number
     draft_version: number
     time_from_request_to_upload_seconds: number
@@ -164,12 +159,6 @@ export function trackDraftApproved(
   payload: DeliverableEventMap['draft_approved'],
 ): void {
   postLegacyDeliverableAnalyticsEvent('draft_approved', payload)
-}
-
-export function trackMultistageStageUnlocked(
-  payload: DeliverableEventMap['multistage_stage_unlocked'],
-): void {
-  postLegacyDeliverableAnalyticsEvent('multistage_stage_unlocked', payload)
 }
 
 export function trackRequestChangesModalOpened(

@@ -56,7 +56,7 @@ describe('PaymentMarkedCard', () => {
     mockCustomFetch.mockResolvedValue({ status: 202, data: undefined })
   })
 
-  it('renders the outgoing sent variant for brand viewers', () => {
+  it('renders the bubble for brand viewers', () => {
     render(
       <PaymentMarkedCard
         message={makePaymentMarkedMessage()}
@@ -64,15 +64,14 @@ describe('PaymentMarkedCard', () => {
       />,
     )
 
-    expect(screen.getByRole('article', { name: 'Pago marcado' })).toHaveClass(
-      'justify-end',
-    )
-    expect(screen.getByText('Pago de $4,575.00 marcado.')).toBeInTheDocument()
-    expect(screen.getByText('YouTube, Instagram')).toBeInTheDocument()
-    expect(screen.getByText('2')).toBeInTheDocument()
+    expect(screen.getByTestId('payment-marked-card')).toBeInTheDocument()
+    expect(
+      screen.getByRole('article', { name: 'Pago marcado' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Pago marcado')).toBeInTheDocument()
   })
 
-  it('renders the incoming received variant for creator viewers', () => {
+  it('renders the bubble for creator viewers', () => {
     render(
       <PaymentMarkedCard
         message={makePaymentMarkedMessage()}
@@ -80,9 +79,7 @@ describe('PaymentMarkedCard', () => {
       />,
     )
 
-    expect(screen.getByRole('article', { name: 'Pago marcado' })).toHaveClass(
-      'justify-start',
-    )
+    expect(screen.getByTestId('payment-marked-card')).toBeInTheDocument()
   })
 
   it('is axe-clean', async () => {
@@ -94,40 +91,6 @@ describe('PaymentMarkedCard', () => {
     )
 
     expect(await axe(container)).toHaveNoViolations()
-  })
-
-  it('renders from the self-contained snapshot without aggregate data', () => {
-    render(
-      <PaymentMarkedCard
-        message={makePaymentMarkedMessage({
-          amount: '1200.50',
-          currency: 'USD',
-          platforms: ['Instagram'],
-          deliverables_count: 1,
-          declared_at: '2026-05-09T12:00:00Z',
-        })}
-        viewer={{ kind: 'creator' }}
-      />,
-    )
-
-    expect(screen.getByText('Pago de $1,200.50 marcado.')).toBeInTheDocument()
-    expect(screen.getByText('Instagram')).toBeInTheDocument()
-    expect(screen.getByText('1')).toBeInTheDocument()
-  })
-
-  it('renders when optional platform and count fields are missing', () => {
-    render(
-      <PaymentMarkedCard
-        message={makePaymentMarkedMessage({
-          platforms: undefined,
-          deliverables_count: undefined,
-        })}
-        viewer={{ kind: 'creator' }}
-      />,
-    )
-
-    expect(screen.getByText('Sin plataformas')).toBeInTheDocument()
-    expect(screen.getByText('1')).toBeInTheDocument()
   })
 
   it('tracks payment_card_seen exactly once when a creator card enters the viewport multiple times', () => {

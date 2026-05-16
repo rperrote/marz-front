@@ -15,7 +15,9 @@
     "/health": {
       "get": {
         "operationId": "health",
-        "tags": ["system"],
+        "tags": [
+          "system"
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -33,7 +35,9 @@
     "/api/v1/analytics/events": {
       "post": {
         "operationId": "ingestAnalyticsEvent",
-        "tags": ["analytics"],
+        "tags": [
+          "analytics"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -86,7 +90,9 @@
     "/v1/me": {
       "get": {
         "operationId": "me",
-        "tags": ["accounts"],
+        "tags": [
+          "accounts"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -129,7 +135,9 @@
     "/v1/inbox": {
       "get": {
         "operationId": "listInbox",
-        "tags": ["notifications"],
+        "tags": [
+          "notifications"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -213,7 +221,9 @@
     "/v1/inbox:mark-read": {
       "post": {
         "operationId": "markInboxRead",
-        "tags": ["notifications"],
+        "tags": [
+          "notifications"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -327,7 +337,9 @@
     "/v1/inbox/items/{item_id}:read": {
       "post": {
         "operationId": "markInboxItemRead",
-        "tags": ["notifications"],
+        "tags": [
+          "notifications"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -450,7 +462,9 @@
     "/v1/me/kind": {
       "post": {
         "operationId": "selectKind",
-        "tags": ["accounts"],
+        "tags": [
+          "accounts"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -523,7 +537,9 @@
     "/v1/onboarding/brand:complete": {
       "post": {
         "operationId": "completeBrandOnboarding",
-        "tags": ["onboarding"],
+        "tags": [
+          "onboarding"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -606,7 +622,9 @@
     "/v1/onboarding/creator:complete": {
       "post": {
         "operationId": "completeCreatorOnboarding",
-        "tags": ["onboarding"],
+        "tags": [
+          "onboarding"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -689,7 +707,9 @@
     "/v1/onboarding/brand/enrichment": {
       "get": {
         "operationId": "brandEnrichment",
-        "tags": ["onboarding"],
+        "tags": [
+          "onboarding"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -777,7 +797,9 @@
     "/v1/onboarding/creator/avatar:presign": {
       "post": {
         "operationId": "presignCreatorAvatar",
-        "tags": ["onboarding"],
+        "tags": [
+          "onboarding"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -870,7 +892,9 @@
     "/v1/webhooks/clerk": {
       "post": {
         "operationId": "clerkWebhook",
-        "tags": ["webhooks"],
+        "tags": [
+          "webhooks"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -944,7 +968,9 @@
     "/v1/webhooks/ses": {
       "post": {
         "operationId": "sesWebhook",
-        "tags": ["webhooks"],
+        "tags": [
+          "webhooks"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1012,7 +1038,9 @@
     "/v1/backoffice/email-metrics": {
       "get": {
         "operationId": "getBackofficeEmailMetrics",
-        "tags": ["backoffice"],
+        "tags": [
+          "backoffice"
+        ],
         "description": "Read-only email operational metrics for Grafana. Requires the BACKOFFICE_METRICS_TOKEN service bearer token; Clerk user JWTs are not accepted.",
         "security": [
           {
@@ -1051,7 +1079,9 @@
                 },
                 {
                   "type": "string",
-                  "enum": ["all"]
+                  "enum": [
+                    "all"
+                  ]
                 }
               ],
               "default": "all"
@@ -1123,7 +1153,9 @@
     "/v1/conversations": {
       "get": {
         "operationId": "listConversations",
-        "tags": ["chat"],
+        "tags": [
+          "chat"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1135,7 +1167,11 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "enum": ["all", "unread", "needs_reply"],
+              "enum": [
+                "all",
+                "unread",
+                "needs_reply"
+              ],
               "default": "all"
             }
           },
@@ -1250,7 +1286,9 @@
     "/v1/conversations/{conversation_id}": {
       "get": {
         "operationId": "getConversation",
-        "tags": ["chat"],
+        "tags": [
+          "chat"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1324,7 +1362,9 @@
     "/v1/conversations/{conversation_id}/messages": {
       "post": {
         "operationId": "sendMessage",
-        "tags": ["chat"],
+        "tags": [
+          "chat"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1444,7 +1484,9 @@
       },
       "get": {
         "operationId": "listMessages",
-        "tags": ["chat"],
+        "tags": [
+          "chat"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1545,7 +1587,9 @@
     "/v1/conversations/{conversation_id}/read": {
       "post": {
         "operationId": "markRead",
-        "tags": ["chat"],
+        "tags": [
+          "chat"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1618,8 +1662,10 @@
     },
     "/v1/offers": {
       "post": {
-        "operationId": "createSingleOffer",
-        "tags": ["offers"],
+        "operationId": "createOffer",
+        "tags": [
+          "offers"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1629,12 +1675,12 @@
           {
             "name": "Idempotency-Key",
             "in": "header",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string",
               "format": "uuid"
             },
-            "description": "Optional UUID v4 idempotency key."
+            "description": "Required UUID v4 idempotency key."
           }
         ],
         "requestBody": {
@@ -1653,7 +1699,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OfferDTO"
+                  "$ref": "#/components/schemas/OfferDetailDTO"
                 }
               }
             }
@@ -1663,13 +1709,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OfferDTO"
+                  "$ref": "#/components/schemas/OfferDetailDTO"
                 }
               }
             }
           },
           "400": {
-            "description": "Bad Request. Possible codes: invalid_body, invalid_idempotency_key. See §4.1.8.",
+            "description": "Bad Request. Possible codes: invalid_body, missing_idempotency_key, invalid_idempotency_key. See §4.1.8.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1709,7 +1755,7 @@
             }
           },
           "409": {
-            "description": "Conflict. Possible codes: campaign_not_active. See §4.1.8.",
+            "description": "Conflict. Possible codes: campaign_not_active, idempotency_conflict. See §4.1.8.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1744,7 +1790,9 @@
     "/v1/offers/{id}": {
       "get": {
         "operationId": "getOffer",
-        "tags": ["offers"],
+        "tags": [
+          "offers"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1818,7 +1866,9 @@
     "/v1/offers/{id}/accept": {
       "post": {
         "operationId": "acceptOffer",
-        "tags": ["offers"],
+        "tags": [
+          "offers"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -1902,7 +1952,9 @@
     "/v1/offers/{id}/reject": {
       "post": {
         "operationId": "rejectOffer",
-        "tags": ["offers"],
+        "tags": [
+          "offers"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2009,10 +2061,373 @@
         }
       }
     },
+    "/v1/offers/{id}/cancel": {
+      "post": {
+        "operationId": "cancelOffer",
+        "tags": [
+          "offers"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Brand-Workspace-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferDetailDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: missing_idempotency_key, invalid_idempotency_key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: auth.unauthenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: forbidden_role, forbidden_workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. Possible codes: offer_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Possible codes: offer_not_actionable, idempotency_conflict, offer_not_cancellable_pre_accept, offer_not_cancellable_deadline_pending, offer_not_cancellable_live_links.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: internal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/offers/{id}/mark-paid": {
+      "post": {
+        "operationId": "markOfferPaid",
+        "tags": [
+          "offers"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Brand-Workspace-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkPaidOfferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferDetailDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Possible codes: invalid_body, missing_idempotency_key, invalid_idempotency_key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: auth.unauthenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: forbidden_role, forbidden_workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. Possible codes: offer_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict. Possible codes: offer_not_mark_paid_eligible, offer_already_paid, idempotency_conflict.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: internal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaigns/{id}/offers": {
+      "get": {
+        "operationId": "listCampaignOffers",
+        "tags": [
+          "offers"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignOffersResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Possible codes: auth.unauthenticated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Possible codes: forbidden_role, forbidden_workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found. Possible codes: campaign_not_found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity. Possible codes: validation_error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error. Possible codes: internal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/conversations/{conversation_id}/offers": {
       "get": {
         "operationId": "getConversationOffers",
-        "tags": ["offers"],
+        "tags": [
+          "offers"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2113,7 +2528,9 @@
     "/v1/deliverables/{id}/draft-uploads": {
       "post": {
         "operationId": "requestDraftUpload",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2242,7 +2659,9 @@
     "/v1/deliverables/{id}/draft-uploads/{intent_id}/complete": {
       "post": {
         "operationId": "completeDraftUpload",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2362,7 +2781,9 @@
     "/v1/deliverables/{id}/draft-uploads/{intent_id}": {
       "delete": {
         "operationId": "cancelDraftUpload",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2438,7 +2859,9 @@
     "/v1/deliverables/{id}/approve": {
       "post": {
         "operationId": "approveDraft",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2520,7 +2943,9 @@
     "/v1/deliverables/{id}/request-changes": {
       "post": {
         "operationId": "requestDraftChanges",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2541,7 +2966,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -2622,7 +3048,9 @@
     "/v1/deliverables/{id}/change-requests": {
       "get": {
         "operationId": "listChangeRequests",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2686,7 +3114,9 @@
     "/v1/deliverables/{id}/drafts": {
       "get": {
         "operationId": "listDrafts",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2750,7 +3180,9 @@
     "/v1/conversations/{id}/deliverables": {
       "get": {
         "operationId": "getConversationDeliverables",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2814,7 +3246,9 @@
     "/v1/links": {
       "post": {
         "operationId": "submitLink",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2826,7 +3260,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -2905,7 +3340,9 @@
       },
       "get": {
         "operationId": "listLinks",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2969,7 +3406,9 @@
     "/v1/links/{link_id}/approve": {
       "post": {
         "operationId": "approveLink",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -2990,7 +3429,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -3071,7 +3511,9 @@
     "/v1/links/{link_id}/request-changes": {
       "post": {
         "operationId": "requestLinkChanges",
-        "tags": ["deliverables"],
+        "tags": [
+          "deliverables"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3092,7 +3534,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -3173,7 +3616,9 @@
     "/api/v1/deliverables/{deliverable_id}/payment-suggestion": {
       "get": {
         "operationId": "getPaymentSuggestion",
-        "tags": ["payments"],
+        "tags": [
+          "payments"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3254,114 +3699,12 @@
         }
       }
     },
-    "/api/v1/deliverables/{deliverable_id}/mark-as-paid": {
-      "post": {
-        "operationId": "markDeliverableAsPaid",
-        "tags": ["payments"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "deliverable_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MarkDeliverableAsPaidRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MarkDeliverableAsPaidResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request. Possible codes: invalid_json, validation_failed, invalid_payment_amount. See §4.1.8.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized. Possible codes: token_invalid. See §4.1.8.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden. Possible codes: not_brand_owner. See §4.1.8.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found. Possible codes: deliverable_not_found. See §4.1.8.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict. Possible codes: deliverable_already_paid, deliverable_not_completed, payment_suggestion_not_ready. See §4.1.8.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity. Possible codes: invalid_deliverable_id. See §4.1.8.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/campaigns/brief-builder/init": {
       "post": {
         "operationId": "initBriefBuilder",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3373,7 +3716,10 @@
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": ["brand_workspace_id", "website_url"],
+                "required": [
+                  "brand_workspace_id",
+                  "website_url"
+                ],
                 "properties": {
                   "brand_workspace_id": {
                     "type": "string",
@@ -3473,7 +3819,9 @@
     "/v1/campaigns/brief-builder/process": {
       "post": {
         "operationId": "processBrief",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3566,7 +3914,9 @@
     "/v1/campaigns/brief-builder/processing/{token}": {
       "get": {
         "operationId": "getBriefProcessing",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3631,7 +3981,9 @@
     "/v1/campaigns": {
       "get": {
         "operationId": "listCampaigns",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3739,7 +4091,9 @@
       },
       "post": {
         "operationId": "createCampaign",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3833,7 +4187,9 @@
     "/v1/campaigns/{campaign_id}": {
       "patch": {
         "operationId": "updateCampaign",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -3956,7 +4312,9 @@
     "/v1/campaigns/{campaign_id}:pause": {
       "post": {
         "operationId": "pauseCampaign",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4059,7 +4417,9 @@
     "/v1/campaigns/{campaign_id}:resume": {
       "post": {
         "operationId": "resumeCampaign",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4162,7 +4522,9 @@
     "/v1/campaigns/{campaign_id}:close": {
       "post": {
         "operationId": "closeCampaign",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4265,7 +4627,9 @@
     "/v1/campaigns/{campaign_id}/brief": {
       "get": {
         "operationId": "getCampaignBrief",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4339,7 +4703,9 @@
     "/v1/campaigns/{campaign_id}/configuration": {
       "get": {
         "operationId": "getCampaignConfiguration",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4442,7 +4808,9 @@
     "/v1/campaigns/{campaign_id}/configuration/content_type": {
       "patch": {
         "operationId": "updateCampaignConfigurationContentType",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4473,7 +4841,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
+              "format": "uuid"
             }
           }
         ],
@@ -4574,7 +4942,9 @@
     "/v1/campaigns/{campaign_id}/configuration/pricing_model": {
       "patch": {
         "operationId": "updateCampaignConfigurationPricingModel",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4605,7 +4975,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
+              "format": "uuid"
             }
           }
         ],
@@ -4706,7 +5076,9 @@
     "/v1/campaigns/{campaign_id}/configuration/targeting": {
       "patch": {
         "operationId": "updateCampaignConfigurationTargeting",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4737,7 +5109,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
+              "format": "uuid"
             }
           }
         ],
@@ -4838,7 +5210,9 @@
     "/v1/campaigns/{campaign_id}/configuration/bonus": {
       "patch": {
         "operationId": "updateCampaignConfigurationBonus",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -4869,7 +5243,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
+              "format": "uuid"
             }
           }
         ],
@@ -4970,7 +5344,9 @@
     "/v1/campaigns/{campaign_id}/configuration/activate": {
       "post": {
         "operationId": "activateCampaignConfiguration",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5001,7 +5377,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
+              "format": "uuid"
             }
           }
         ],
@@ -5102,7 +5478,9 @@
     "/v1/campaigns/{campaign_id}/detail": {
       "get": {
         "operationId": "getCampaignDetail",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5195,7 +5573,9 @@
     "/v1/campaigns/{campaign_id}/overview": {
       "get": {
         "operationId": "getCampaignOverview",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5299,7 +5679,9 @@
     "/v1/campaigns/{campaign_id}/videos": {
       "get": {
         "operationId": "getCampaignVideos",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5347,7 +5729,13 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["youtube", "instagram", "tiktok", "x", "twitch"]
+              "enum": [
+                "youtube",
+                "instagram",
+                "tiktok",
+                "x",
+                "twitch"
+              ]
             }
           },
           {
@@ -5446,7 +5834,9 @@
     "/v1/campaigns/{campaign_id}/discovery/summary": {
       "get": {
         "operationId": "getCampaignDiscoverySummary",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5539,7 +5929,9 @@
     "/v1/campaigns/{campaign_id}/discovery/matches": {
       "get": {
         "operationId": "listCampaignDiscoveryMatches",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5604,7 +5996,10 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["asc", "desc"]
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           }
         ],
@@ -5675,7 +6070,9 @@
     "/v1/campaigns/{campaign_id}/discovery/applications": {
       "get": {
         "operationId": "listCampaignDiscoveryApplications",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5725,7 +6122,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["submitted", "accepted", "rejected", "withdrawn"]
+              "enum": [
+                "submitted",
+                "accepted",
+                "rejected",
+                "withdrawn"
+              ]
             }
           }
         ],
@@ -5796,7 +6198,9 @@
     "/v1/campaigns/{campaign_id}/discovery/invites": {
       "get": {
         "operationId": "listCampaignDiscoveryInvites",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -5916,7 +6320,9 @@
     "/v1/campaigns/{campaign_id}/discovery/active": {
       "get": {
         "operationId": "listCampaignDiscoveryActive",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6028,7 +6434,9 @@
     "/v1/campaigns/{campaign_id}/participants": {
       "get": {
         "operationId": "listCampaignParticipants",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6087,7 +6495,13 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["invited", "active", "in_review", "approved", "paid"]
+              "enum": [
+                "invited",
+                "active",
+                "in_review",
+                "approved",
+                "paid"
+              ]
             }
           },
           {
@@ -6096,7 +6510,13 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["youtube", "instagram", "tiktok", "x", "twitch"]
+              "enum": [
+                "youtube",
+                "instagram",
+                "tiktok",
+                "x",
+                "twitch"
+              ]
             }
           }
         ],
@@ -6167,7 +6587,9 @@
     "/v1/campaigns/{campaign_id}/matches/{match_id}:contact": {
       "post": {
         "operationId": "contactCampaignDiscoveryMatch",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6297,7 +6719,9 @@
     "/v1/campaigns/{campaign_id}/applications/{application_id}:accept": {
       "post": {
         "operationId": "acceptCampaignDiscoveryApplication",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6417,7 +6841,9 @@
     "/v1/campaigns/{campaign_id}/applications/{application_id}:reject": {
       "post": {
         "operationId": "rejectCampaignDiscoveryApplication",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6537,7 +6963,9 @@
     "/v1/campaigns/{campaign_id}/invites": {
       "post": {
         "operationId": "createCampaignDiscoveryInvite",
-        "tags": ["campaigns"],
+        "tags": [
+          "campaigns"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6659,7 +7087,9 @@
     "/v1/creator/invitations": {
       "get": {
         "operationId": "listCreatorInvitations",
-        "tags": ["creator"],
+        "tags": [
+          "creator"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6691,7 +7121,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["active", "accepted", "declined", "expired"]
+              "enum": [
+                "active",
+                "accepted",
+                "declined",
+                "expired"
+              ]
             }
           },
           {
@@ -6761,7 +7196,10 @@
     "/v1/creator/campaign-board": {
       "get": {
         "operationId": "listCreatorCampaignBoard",
-        "tags": ["creator", "discovery"],
+        "tags": [
+          "creator",
+          "discovery"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -6814,7 +7252,11 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "enum": ["instagram", "tiktok", "youtube"]
+                "enum": [
+                  "instagram",
+                  "tiktok",
+                  "youtube"
+                ]
               }
             },
             "style": "form",
@@ -6973,7 +7415,10 @@
     "/v1/creator/campaign-board/{campaign_id}": {
       "get": {
         "operationId": "getCreatorCampaignBoardDetail",
-        "tags": ["creator", "discovery"],
+        "tags": [
+          "creator",
+          "discovery"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7077,7 +7522,10 @@
     "/v1/creator/campaign-board/{campaign_id}/applications": {
       "post": {
         "operationId": "submitCreatorCampaignBoardApplication",
-        "tags": ["creator", "discovery"],
+        "tags": [
+          "creator",
+          "discovery"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7099,7 +7547,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "minLength": 1
+              "format": "uuid"
             }
           }
         ],
@@ -7200,7 +7648,10 @@
     "/v1/creators/me/earnings": {
       "get": {
         "operationId": "getCreatorEarnings",
-        "tags": ["creator", "payments"],
+        "tags": [
+          "creator",
+          "payments"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7213,7 +7664,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["30d", "90d", "12m", "all"],
+              "enum": [
+                "30d",
+                "90d",
+                "12m",
+                "all"
+              ],
               "default": "30d"
             }
           },
@@ -7293,7 +7749,10 @@
     "/v1/creators/me/earnings/export.csv": {
       "get": {
         "operationId": "exportCreatorEarningsCSV",
-        "tags": ["creator", "payments"],
+        "tags": [
+          "creator",
+          "payments"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7306,7 +7765,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["30d", "90d", "12m", "all"],
+              "enum": [
+                "30d",
+                "90d",
+                "12m",
+                "all"
+              ],
               "default": "30d"
             }
           },
@@ -7328,7 +7792,9 @@
                 "description": "Present with value true when only the 10000 most recent rows were exported.",
                 "schema": {
                   "type": "string",
-                  "enum": ["true"]
+                  "enum": [
+                    "true"
+                  ]
                 }
               }
             },
@@ -7386,7 +7852,10 @@
     "/v1/brand-workspaces/{brand_workspace_id}/payments/spending": {
       "get": {
         "operationId": "getBrandWorkspacePaymentsSpending",
-        "tags": ["brand", "payments"],
+        "tags": [
+          "brand",
+          "payments"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7408,7 +7877,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["30d", "90d", "12m", "all"],
+              "enum": [
+                "30d",
+                "90d",
+                "12m",
+                "all"
+              ],
               "default": "30d"
             }
           },
@@ -7506,7 +7980,10 @@
     "/v1/brand-workspaces/{brand_workspace_id}/payments/spending/export.csv": {
       "get": {
         "operationId": "exportBrandWorkspacePaymentsSpendingCSV",
-        "tags": ["brand", "payments"],
+        "tags": [
+          "brand",
+          "payments"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7528,7 +8005,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["30d", "90d", "12m", "all"],
+              "enum": [
+                "30d",
+                "90d",
+                "12m",
+                "all"
+              ],
               "default": "30d"
             }
           },
@@ -7568,7 +8050,9 @@
                 "description": "Present with value true when only the 10000 most recent rows were exported.",
                 "schema": {
                   "type": "string",
-                  "enum": ["true"]
+                  "enum": [
+                    "true"
+                  ]
                 }
               }
             },
@@ -7626,7 +8110,9 @@
     "/v1/creator/invitations/{invite_id}": {
       "get": {
         "operationId": "getCreatorInvitation",
-        "tags": ["creator"],
+        "tags": [
+          "creator"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7710,7 +8196,9 @@
     "/v1/creator/invitations/{invite_id}:accept": {
       "post": {
         "operationId": "acceptCreatorInvitation",
-        "tags": ["creator"],
+        "tags": [
+          "creator"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7813,7 +8301,9 @@
     "/v1/creator/invitations/{invite_id}:decline": {
       "post": {
         "operationId": "declineCreatorInvitation",
-        "tags": ["creator"],
+        "tags": [
+          "creator"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -7930,7 +8420,9 @@
     "schemas": {
       "Health": {
         "type": "object",
-        "required": ["status"],
+        "required": [
+          "status"
+        ],
         "properties": {
           "status": {
             "type": "string",
@@ -7993,7 +8485,10 @@
       },
       "InboxCounts": {
         "type": "object",
-        "required": ["action", "waiting"],
+        "required": [
+          "action",
+          "waiting"
+        ],
         "properties": {
           "action": {
             "type": "integer",
@@ -8046,8 +8541,12 @@
           },
           "title": {
             "type": "string",
-            "enum": ["Estás al día"],
-            "x-enum-varnames": ["InboxEmptyStateTitleUpToDate"]
+            "enum": [
+              "Estás al día"
+            ],
+            "x-enum-varnames": [
+              "InboxEmptyStateTitleUpToDate"
+            ]
           },
           "description": {
             "type": "string"
@@ -8072,12 +8571,23 @@
       },
       "InboxSection": {
         "type": "string",
-        "enum": ["action", "waiting"],
-        "x-enum-varnames": ["InboxSectionAction", "InboxSectionWaiting"]
+        "enum": [
+          "action",
+          "waiting"
+        ],
+        "x-enum-varnames": [
+          "InboxSectionAction",
+          "InboxSectionWaiting"
+        ]
       },
       "InboxItemStatus": {
         "type": "string",
-        "enum": ["pending", "read", "resolved", "closed"]
+        "enum": [
+          "pending",
+          "read",
+          "resolved",
+          "closed"
+        ]
       },
       "InboxItemKind": {
         "type": "string",
@@ -8179,8 +8689,12 @@
       },
       "InboxHttpMethod": {
         "type": "string",
-        "enum": ["POST"],
-        "x-enum-varnames": ["InboxHttpMethodPost"]
+        "enum": [
+          "POST"
+        ],
+        "x-enum-varnames": [
+          "InboxHttpMethodPost"
+        ]
       },
       "InboxInlineAction": {
         "type": "object",
@@ -8202,7 +8716,12 @@
           },
           "label": {
             "type": "string",
-            "enum": ["Reply", "Accept", "Reject", "Decline"],
+            "enum": [
+              "Reply",
+              "Accept",
+              "Reject",
+              "Decline"
+            ],
             "x-enum-varnames": [
               "InboxInlineActionLabelReply",
               "InboxInlineActionLabelAccept",
@@ -8227,7 +8746,11 @@
       },
       "InboxNavigationAction": {
         "type": "object",
-        "required": ["type", "label", "href"],
+        "required": [
+          "type",
+          "label",
+          "href"
+        ],
         "properties": {
           "type": {
             "$ref": "#/components/schemas/InboxNavigationActionType"
@@ -8242,7 +8765,10 @@
       },
       "InboxCampaignSummary": {
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -8255,7 +8781,11 @@
       },
       "InboxCounterpart": {
         "type": "object",
-        "required": ["account_id", "display_name", "avatar_url"],
+        "required": [
+          "account_id",
+          "display_name",
+          "avatar_url"
+        ],
         "properties": {
           "account_id": {
             "type": "string",
@@ -8274,7 +8804,11 @@
       },
       "InboxItemMeta": {
         "type": "object",
-        "required": ["primary", "secondary", "timestamp"],
+        "required": [
+          "primary",
+          "secondary",
+          "timestamp"
+        ],
         "properties": {
           "primary": {
             "type": "string"
@@ -8393,13 +8927,18 @@
           },
           "can_mark_read": {
             "type": "boolean",
-            "enum": [true]
+            "enum": [
+              true
+            ]
           }
         }
       },
       "InboxSourceRef": {
         "type": "object",
-        "required": ["type", "id"],
+        "required": [
+          "type",
+          "id"
+        ],
         "properties": {
           "type": {
             "$ref": "#/components/schemas/InboxSourceRefType"
@@ -8415,7 +8954,10 @@
         "properties": {
           "read_reason": {
             "type": "string",
-            "enum": ["manual", "resolved_elsewhere"],
+            "enum": [
+              "manual",
+              "resolved_elsewhere"
+            ],
             "x-enum-varnames": [
               "MarkInboxItemReadRequestReadReasonManual",
               "MarkInboxItemReadRequestReadReasonResolvedElsewhere"
@@ -8425,7 +8967,11 @@
       },
       "MarkInboxItemReadResponse": {
         "type": "object",
-        "required": ["item_id", "status", "read_at"],
+        "required": [
+          "item_id",
+          "status",
+          "read_at"
+        ],
         "properties": {
           "item_id": {
             "type": "string",
@@ -8458,7 +9004,11 @@
       },
       "MarkInboxReadResponse": {
         "type": "object",
-        "required": ["marked_count", "sections", "read_at"],
+        "required": [
+          "marked_count",
+          "sections",
+          "read_at"
+        ],
         "properties": {
           "marked_count": {
             "type": "integer",
@@ -8497,7 +9047,10 @@
         "properties": {
           "Type": {
             "type": "string",
-            "enum": ["Notification", "SubscriptionConfirmation"]
+            "enum": [
+              "Notification",
+              "SubscriptionConfirmation"
+            ]
           },
           "MessageId": {
             "type": "string"
@@ -8518,7 +9071,10 @@
           },
           "SignatureVersion": {
             "type": "string",
-            "enum": ["1", "2"]
+            "enum": [
+              "1",
+              "2"
+            ]
           },
           "Signature": {
             "type": "string"
@@ -8542,7 +9098,9 @@
       },
       "SESWebhookResponse": {
         "type": "object",
-        "required": ["ok"],
+        "required": [
+          "ok"
+        ],
         "properties": {
           "ok": {
             "type": "boolean"
@@ -8572,7 +9130,11 @@
       },
       "EmailMetricsGranularity": {
         "type": "string",
-        "enum": ["hour", "day", "month"],
+        "enum": [
+          "hour",
+          "day",
+          "month"
+        ],
         "default": "day"
       },
       "BackofficeEmailMetricsResponse": {
@@ -8816,11 +9378,18 @@
       },
       "AccountKind": {
         "type": "string",
-        "enum": ["brand", "creator"]
+        "enum": [
+          "brand",
+          "creator"
+        ]
       },
       "OnboardingStatus": {
         "type": "string",
-        "enum": ["kind_pending", "onboarding_pending", "onboarded"]
+        "enum": [
+          "kind_pending",
+          "onboarding_pending",
+          "onboarded"
+        ]
       },
       "CreatorProfile": {
         "type": "object",
@@ -9001,7 +9570,11 @@
       "BrandWorkspaceSummary": {
         "type": "object",
         "description": "Active brand workspace for the authenticated account. Present only when\nkind=brand and onboarding is complete. The frontend uses `id` to populate\nthe X-Brand-Workspace-Id header on every request.\nMVP assumes 1 brand account = 1 workspace; once multi-workspace lands,\na dedicated /v1/brand-workspaces endpoint will replace this embedding.\n",
-        "required": ["id", "name", "plan"],
+        "required": [
+          "id",
+          "name",
+          "plan"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -9027,7 +9600,9 @@
       },
       "KindSelectionRequest": {
         "type": "object",
-        "required": ["kind"],
+        "required": [
+          "kind"
+        ],
         "properties": {
           "kind": {
             "$ref": "#/components/schemas/AccountKind"
@@ -9131,23 +9706,47 @@
       },
       "MarketingObjective": {
         "type": "string",
-        "enum": ["awareness", "performance", "launch", "community"]
+        "enum": [
+          "awareness",
+          "performance",
+          "launch",
+          "community"
+        ]
       },
       "CreatorExperience": {
         "type": "string",
-        "enum": ["never", "scaling", "tried_without_results"]
+        "enum": [
+          "never",
+          "scaling",
+          "tried_without_results"
+        ]
       },
       "CreatorSourcingIntent": {
         "type": "string",
-        "enum": ["already_have", "discover_in_marz", "both"]
+        "enum": [
+          "already_have",
+          "discover_in_marz",
+          "both"
+        ]
       },
       "MonthlyBudgetRange": {
         "type": "string",
-        "enum": ["under_10k", "10k_to_25k", "25k_to_50k", "50k_plus", "zero"]
+        "enum": [
+          "under_10k",
+          "10k_to_25k",
+          "25k_to_50k",
+          "50k_plus",
+          "zero"
+        ]
       },
       "Timing": {
         "type": "string",
-        "enum": ["launch_now", "one_to_two_weeks", "this_month", "exploring"]
+        "enum": [
+          "launch_now",
+          "one_to_two_weeks",
+          "this_month",
+          "exploring"
+        ]
       },
       "Attribution": {
         "oneOf": [
@@ -9174,11 +9773,16 @@
       },
       "AttributionReferral": {
         "type": "object",
-        "required": ["source", "referral_text"],
+        "required": [
+          "source",
+          "referral_text"
+        ],
         "properties": {
           "source": {
             "type": "string",
-            "enum": ["referral"]
+            "enum": [
+              "referral"
+            ]
           },
           "referral_text": {
             "type": "string",
@@ -9188,7 +9792,9 @@
       },
       "AttributionNonReferral": {
         "type": "object",
-        "required": ["source"],
+        "required": [
+          "source"
+        ],
         "properties": {
           "source": {
             "type": "string",
@@ -9279,12 +9885,22 @@
           },
           "gender": {
             "type": "string",
-            "enum": ["male", "female", "non_binary", "prefer_not_say"],
+            "enum": [
+              "male",
+              "female",
+              "non_binary",
+              "prefer_not_say"
+            ],
             "nullable": true
           },
           "experience_level": {
             "type": "string",
-            "enum": ["none", "1_to_5", "6_to_20", "20_plus_primary"]
+            "enum": [
+              "none",
+              "1_to_5",
+              "6_to_20",
+              "20_plus_primary"
+            ]
           },
           "channels": {
             "type": "array",
@@ -9365,7 +9981,11 @@
       },
       "CreatorRateCard": {
         "type": "object",
-        "required": ["format", "rate_amount", "rate_currency"],
+        "required": [
+          "format",
+          "rate_amount",
+          "rate_currency"
+        ],
         "properties": {
           "format": {
             "type": "string",
@@ -9383,7 +10003,10 @@
       },
       "BestVideo": {
         "type": "object",
-        "required": ["url", "kind"],
+        "required": [
+          "url",
+          "kind"
+        ],
         "properties": {
           "url": {
             "type": "string",
@@ -9392,7 +10015,10 @@
           },
           "kind": {
             "type": "string",
-            "enum": ["organic", "branded"]
+            "enum": [
+              "organic",
+              "branded"
+            ]
           }
         }
       },
@@ -9426,7 +10052,10 @@
       },
       "AvatarPresignRequest": {
         "type": "object",
-        "required": ["content_type", "size_bytes"],
+        "required": [
+          "content_type",
+          "size_bytes"
+        ],
         "properties": {
           "filename": {
             "type": "string",
@@ -9435,7 +10064,11 @@
           },
           "content_type": {
             "type": "string",
-            "enum": ["image/jpeg", "image/png", "image/webp"]
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ]
           },
           "size_bytes": {
             "type": "integer",
@@ -9485,7 +10118,11 @@
       },
       "RequestDraftUploadRequest": {
         "type": "object",
-        "required": ["filename", "size_bytes", "content_type"],
+        "required": [
+          "filename",
+          "size_bytes",
+          "content_type"
+        ],
         "properties": {
           "filename": {
             "type": "string",
@@ -9500,7 +10137,11 @@
           },
           "content_type": {
             "type": "string",
-            "enum": ["video/mp4", "video/quicktime", "video/webm"]
+            "enum": [
+              "video/mp4",
+              "video/quicktime",
+              "video/webm"
+            ]
           }
         }
       },
@@ -9625,7 +10266,10 @@
           },
           "status": {
             "type": "string",
-            "enum": ["submitted", "approved"]
+            "enum": [
+              "submitted",
+              "approved"
+            ]
           }
         }
       },
@@ -9672,7 +10316,13 @@
           },
           "platform": {
             "type": "string",
-            "enum": ["youtube", "instagram", "tiktok", "x", "twitch"]
+            "enum": [
+              "youtube",
+              "instagram",
+              "tiktok",
+              "x",
+              "twitch"
+            ]
           },
           "format": {
             "type": "string"
@@ -9710,41 +10360,12 @@
           }
         }
       },
-      "OfferStageRefDTO": {
-        "type": "object",
-        "required": ["id", "position", "name", "status", "deliverable_ids"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "position": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "deadline": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "enum": ["locked", "open", "approved"]
-          },
-          "deliverable_ids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        }
-      },
       "ApproveDraftResponse": {
         "type": "object",
-        "required": ["deliverable", "draft"],
+        "required": [
+          "deliverable",
+          "draft"
+        ],
         "properties": {
           "deliverable": {
             "$ref": "#/components/schemas/DeliverableDTO"
@@ -9756,7 +10377,9 @@
       },
       "ListDraftsResponse": {
         "type": "object",
-        "required": ["drafts"],
+        "required": [
+          "drafts"
+        ],
         "properties": {
           "drafts": {
             "type": "array",
@@ -9768,28 +10391,29 @@
       },
       "ConversationDeliverablesResponse": {
         "type": "object",
-        "required": ["offer_id", "offer_type", "deliverables", "stages"],
+        "required": [
+          "offer_id",
+          "offer_mode",
+          "deliverables"
+        ],
         "properties": {
           "offer_id": {
             "type": "string",
             "format": "uuid",
             "nullable": true
           },
-          "offer_type": {
+          "offer_mode": {
             "type": "string",
-            "enum": ["single", "bundle", "multistage"],
+            "enum": [
+              "same_content",
+              "per_platform"
+            ],
             "nullable": true
           },
           "deliverables": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DeliverableDTO"
-            }
-          },
-          "stages": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OfferStageRefDTO"
             }
           }
         }
@@ -9938,7 +10562,10 @@
           },
           "target_kind": {
             "type": "string",
-            "enum": ["draft", "link"]
+            "enum": [
+              "draft",
+              "link"
+            ]
           },
           "requested_by_account_id": {
             "type": "string",
@@ -9962,7 +10589,10 @@
       },
       "SubmitLinkRequest": {
         "type": "object",
-        "required": ["deliverable_id", "url"],
+        "required": [
+          "deliverable_id",
+          "url"
+        ],
         "properties": {
           "deliverable_id": {
             "type": "string",
@@ -9975,7 +10605,11 @@
       },
       "SubmitLinkResponse": {
         "type": "object",
-        "required": ["link", "is_resubmission", "idempotent_replay"],
+        "required": [
+          "link",
+          "is_resubmission",
+          "idempotent_replay"
+        ],
         "properties": {
           "link": {
             "$ref": "#/components/schemas/PublishedLinkDTO"
@@ -9990,7 +10624,9 @@
       },
       "ApproveLinkRequest": {
         "type": "object",
-        "required": ["deliverable_id"],
+        "required": [
+          "deliverable_id"
+        ],
         "properties": {
           "deliverable_id": {
             "type": "string",
@@ -10000,7 +10636,11 @@
       },
       "ApproveLinkResponse": {
         "type": "object",
-        "required": ["link", "deliverable_id", "idempotent_replay"],
+        "required": [
+          "link",
+          "deliverable_id",
+          "idempotent_replay"
+        ],
         "properties": {
           "link": {
             "$ref": "#/components/schemas/PublishedLinkDTO"
@@ -10016,7 +10656,10 @@
       },
       "RequestLinkChangesRequest": {
         "type": "object",
-        "required": ["deliverable_id", "categories"],
+        "required": [
+          "deliverable_id",
+          "categories"
+        ],
         "properties": {
           "deliverable_id": {
             "type": "string",
@@ -10060,7 +10703,10 @@
       },
       "ListLinksResponse": {
         "type": "object",
-        "required": ["links", "current_link_id"],
+        "required": [
+          "links",
+          "current_link_id"
+        ],
         "properties": {
           "links": {
             "type": "array",
@@ -10077,7 +10723,9 @@
       },
       "RequestDraftChangesRequest": {
         "type": "object",
-        "required": ["categories"],
+        "required": [
+          "categories"
+        ],
         "properties": {
           "categories": {
             "type": "array",
@@ -10116,7 +10764,9 @@
       },
       "ListChangeRequestsResponse": {
         "type": "object",
-        "required": ["change_requests"],
+        "required": [
+          "change_requests"
+        ],
         "properties": {
           "change_requests": {
             "type": "array",
@@ -10128,7 +10778,10 @@
       },
       "PaymentSuggestionSpeedBonus": {
         "type": "object",
-        "required": ["includes", "reason"],
+        "required": [
+          "includes",
+          "reason"
+        ],
         "properties": {
           "includes": {
             "type": "boolean"
@@ -10139,7 +10792,6 @@
               "included",
               "not_declared",
               "not_applied_deadline_missed",
-              "not_applicable_multistage",
               "prorated_bundle"
             ]
           },
@@ -10157,7 +10809,12 @@
       },
       "PaymentSuggestionDeliverable": {
         "type": "object",
-        "required": ["id", "status", "platform", "format"],
+        "required": [
+          "id",
+          "status",
+          "platform",
+          "format"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -10181,7 +10838,10 @@
       },
       "PaymentSuggestionCreator": {
         "type": "object",
-        "required": ["id", "full_name"],
+        "required": [
+          "id",
+          "full_name"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -10194,7 +10854,12 @@
       },
       "PaymentSuggestionOffer": {
         "type": "object",
-        "required": ["id", "type", "total_amount", "currency"],
+        "required": [
+          "id",
+          "type",
+          "total_amount",
+          "currency"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -10202,7 +10867,10 @@
           },
           "type": {
             "type": "string",
-            "enum": ["single", "bundle", "multistage"]
+            "enum": [
+              "single",
+              "bundle"
+            ]
           },
           "total_amount": {
             "type": "string",
@@ -10251,7 +10919,9 @@
       },
       "Money": {
         "type": "object",
-        "required": ["amount"],
+        "required": [
+          "amount"
+        ],
         "properties": {
           "amount": {
             "type": "string",
@@ -10261,7 +10931,12 @@
       },
       "CreatorEarningsPeriod": {
         "type": "string",
-        "enum": ["30d", "90d", "12m", "all"]
+        "enum": [
+          "30d",
+          "90d",
+          "12m",
+          "all"
+        ]
       },
       "CreatorEarningsKPI": {
         "type": "object",
@@ -10283,7 +10958,11 @@
           },
           "next_payout": {
             "type": "object",
-            "required": ["amount", "estimated_date", "date_available"],
+            "required": [
+              "amount",
+              "estimated_date",
+              "date_available"
+            ],
             "properties": {
               "amount": {
                 "type": "string",
@@ -10303,7 +10982,10 @@
       },
       "MonthlyEarningsBucket": {
         "type": "object",
-        "required": ["month", "amount"],
+        "required": [
+          "month",
+          "amount"
+        ],
         "properties": {
           "month": {
             "type": "string",
@@ -10344,7 +11026,9 @@
           },
           "type": {
             "type": "string",
-            "enum": ["speed"]
+            "enum": [
+              "speed"
+            ]
           },
           "offer_id": {
             "type": "string",
@@ -10409,11 +11093,16 @@
           },
           "action": {
             "type": "object",
-            "required": ["label", "href"],
+            "required": [
+              "label",
+              "href"
+            ],
             "properties": {
               "label": {
                 "type": "string",
-                "enum": ["Ver oferta"]
+                "enum": [
+                  "Ver oferta"
+                ]
               },
               "href": {
                 "type": "string"
@@ -10424,7 +11113,11 @@
       },
       "CreatorPendingBonuses": {
         "type": "object",
-        "required": ["items", "next_cursor", "has_more"],
+        "required": [
+          "items",
+          "next_cursor",
+          "has_more"
+        ],
         "properties": {
           "items": {
             "type": "array",
@@ -10468,15 +11161,24 @@
           },
           "kind": {
             "type": "string",
-            "enum": ["declared_payment", "payment_obligation"]
+            "enum": [
+              "declared_payment",
+              "payment_obligation"
+            ]
           },
           "status": {
             "type": "string",
-            "enum": ["paid", "pending"]
+            "enum": [
+              "paid",
+              "pending"
+            ]
           },
           "visible_status_label": {
             "type": "string",
-            "enum": ["Pagado", "Por cobrar"]
+            "enum": [
+              "Pagado",
+              "Por cobrar"
+            ]
           },
           "occurred_at": {
             "type": "string",
@@ -10528,7 +11230,12 @@
       },
       "CreatorEarningsPayments": {
         "type": "object",
-        "required": ["items", "next_cursor", "has_more", "total_visible"],
+        "required": [
+          "items",
+          "next_cursor",
+          "has_more",
+          "total_visible"
+        ],
         "properties": {
           "items": {
             "type": "array",
@@ -10633,7 +11340,11 @@
           },
           "next_debit": {
             "type": "object",
-            "required": ["amount", "estimated_date", "date_available"],
+            "required": [
+              "amount",
+              "estimated_date",
+              "date_available"
+            ],
             "properties": {
               "amount": {
                 "type": "string",
@@ -10654,7 +11365,10 @@
       },
       "BrandPaymentsSpendingBucket": {
         "type": "object",
-        "required": ["month", "amount"],
+        "required": [
+          "month",
+          "amount"
+        ],
         "properties": {
           "month": {
             "type": "string",
@@ -10669,7 +11383,12 @@
       },
       "BrandPaymentsSpendingCampaign": {
         "type": "object",
-        "required": ["campaign_id", "campaign_name", "amount", "percentage"],
+        "required": [
+          "campaign_id",
+          "campaign_name",
+          "amount",
+          "percentage"
+        ],
         "properties": {
           "campaign_id": {
             "type": "string",
@@ -10702,7 +11421,12 @@
         "properties": {
           "period": {
             "type": "string",
-            "enum": ["30d", "90d", "12m", "all"]
+            "enum": [
+              "30d",
+              "90d",
+              "12m",
+              "all"
+            ]
           },
           "campaign_id": {
             "type": "string",
@@ -10802,7 +11526,12 @@
       },
       "BrandPaymentsSpendingPayments": {
         "type": "object",
-        "required": ["items", "next_cursor", "has_more", "total_visible"],
+        "required": [
+          "items",
+          "next_cursor",
+          "has_more",
+          "total_visible"
+        ],
         "properties": {
           "items": {
             "type": "array",
@@ -10859,7 +11588,9 @@
       "OfferBonusTerms": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["speed_bonus_windows"],
+        "required": [
+          "speed_bonus_windows"
+        ],
         "properties": {
           "speed_bonus_windows": {
             "type": "array",
@@ -10872,7 +11603,10 @@
       "OfferSpeedBonusWindow": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["window_hours", "bonus_pct"],
+        "required": [
+          "window_hours",
+          "bonus_pct"
+        ],
         "properties": {
           "window_hours": {
             "type": "integer",
@@ -10884,27 +11618,99 @@
           }
         }
       },
-      "MarkDeliverableAsPaidRequest": {
+      "BonusAmount": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "value"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "percentage"
+                ]
+              },
+              "value": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "amount"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "fixed"
+                ]
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 3
+              }
+            }
+          }
+        ]
+      },
+      "BonusTerms": {
         "type": "object",
-        "required": ["amount"],
+        "additionalProperties": false,
+        "required": [
+          "enabled",
+          "speed_bonus_windows"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "speed_bonus_windows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "window_hours",
+                "bonus_amount"
+              ],
+              "properties": {
+                "window_hours": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "bonus_amount": {
+                  "$ref": "#/components/schemas/BonusAmount"
+                }
+              }
+            }
+          }
+        }
+      },
+      "MarkPaidOfferRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "amount"
+        ],
         "properties": {
           "amount": {
             "type": "string",
             "pattern": "^\\d+\\.\\d{2}$"
-          }
-        }
-      },
-      "MarkDeliverableAsPaidResponse": {
-        "type": "object",
-        "required": ["declared_payment_id", "declared_at"],
-        "properties": {
-          "declared_payment_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "declared_at": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       },
@@ -10927,7 +11733,9 @@
         "properties": {
           "event_type": {
             "type": "string",
-            "enum": ["DraftSubmitted"]
+            "enum": [
+              "DraftSubmitted"
+            ]
           },
           "deliverable_id": {
             "type": "string",
@@ -11011,7 +11819,9 @@
         "properties": {
           "event_type": {
             "type": "string",
-            "enum": ["DraftApproved"]
+            "enum": [
+              "DraftApproved"
+            ]
           },
           "deliverable_id": {
             "type": "string",
@@ -11075,7 +11885,9 @@
         "properties": {
           "event_type": {
             "type": "string",
-            "enum": ["PaymentMarked"]
+            "enum": [
+              "PaymentMarked"
+            ]
           },
           "declared_payment_id": {
             "type": "string",
@@ -11102,7 +11914,10 @@
           },
           "offer": {
             "type": "object",
-            "required": ["id", "type"],
+            "required": [
+              "id",
+              "type"
+            ],
             "properties": {
               "id": {
                 "type": "string",
@@ -11110,14 +11925,21 @@
               },
               "type": {
                 "type": "string",
-                "enum": ["single", "bundle", "multistage"]
+                "enum": [
+                  "single",
+                  "bundle"
+                ]
               }
             }
           },
           "stage": {
             "type": "object",
             "nullable": true,
-            "required": ["id", "position", "name"],
+            "required": [
+              "id",
+              "position",
+              "name"
+            ],
             "properties": {
               "id": {
                 "type": "string",
@@ -11133,7 +11955,10 @@
           },
           "brand_workspace": {
             "type": "object",
-            "required": ["id", "name"],
+            "required": [
+              "id",
+              "name"
+            ],
             "properties": {
               "id": {
                 "type": "string",
@@ -11146,7 +11971,10 @@
           },
           "creator": {
             "type": "object",
-            "required": ["id", "full_name"],
+            "required": [
+              "id",
+              "full_name"
+            ],
             "properties": {
               "id": {
                 "type": "string",
@@ -11172,7 +12000,10 @@
           },
           "suggested": {
             "type": "object",
-            "required": ["amount", "includes_bonus"],
+            "required": [
+              "amount",
+              "includes_bonus"
+            ],
             "properties": {
               "amount": {
                 "type": "string",
@@ -11265,7 +12096,10 @@
       },
       "DeliverableChangedWSPayload": {
         "type": "object",
-        "required": ["conversation_id", "deliverable"],
+        "required": [
+          "conversation_id",
+          "deliverable"
+        ],
         "properties": {
           "conversation_id": {
             "type": "string",
@@ -11276,57 +12110,27 @@
           }
         }
       },
-      "StageApprovedWSPayload": {
-        "type": "object",
-        "required": [
-          "conversation_id",
-          "offer_id",
-          "stage_id",
-          "position",
-          "total_stages",
-          "approved_at"
-        ],
-        "properties": {
-          "conversation_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "offer_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "stage_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "position": {
-            "type": "integer"
-          },
-          "total_stages": {
-            "type": "integer"
-          },
-          "approved_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "DomainEventEnvelope": {
         "type": "object",
-        "required": ["type", "schema_version", "data"],
+        "required": [
+          "type",
+          "schema_version",
+          "data"
+        ],
         "properties": {
           "type": {
             "type": "string",
             "enum": [
               "deliverables.draft.submitted",
               "deliverables.draft.approved",
-              "deliverables.item.changed",
-              "offers.stage.approved"
+              "deliverables.item.changed"
             ]
           },
           "schema_version": {
             "type": "string",
-            "enum": ["v1"]
+            "enum": [
+              "v1"
+            ]
           },
           "data": {
             "oneOf": [
@@ -11338,9 +12142,6 @@
               },
               {
                 "$ref": "#/components/schemas/DeliverableChangedWSPayload"
-              },
-              {
-                "$ref": "#/components/schemas/StageApprovedWSPayload"
               }
             ]
           }
@@ -11348,11 +12149,16 @@
       },
       "Error": {
         "type": "object",
-        "required": ["error"],
+        "required": [
+          "error"
+        ],
         "properties": {
           "error": {
             "type": "object",
-            "required": ["code", "message"],
+            "required": [
+              "code",
+              "message"
+            ],
             "properties": {
               "code": {
                 "type": "string"
@@ -11362,13 +12168,18 @@
               },
               "details": {
                 "type": "object",
-                "required": ["fields"],
+                "required": [
+                  "fields"
+                ],
                 "properties": {
                   "fields": {
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": ["field", "reason"],
+                      "required": [
+                        "field",
+                        "reason"
+                      ],
                       "properties": {
                         "field": {
                           "type": "string"
@@ -11387,7 +12198,9 @@
       },
       "BriefBuilderInitResponse": {
         "type": "object",
-        "required": ["processing_token"],
+        "required": [
+          "processing_token"
+        ],
         "properties": {
           "processing_token": {
             "type": "string",
@@ -11401,7 +12214,9 @@
       },
       "BriefBuilderProcessRequest": {
         "type": "object",
-        "required": ["processing_token"],
+        "required": [
+          "processing_token"
+        ],
         "properties": {
           "processing_token": {
             "type": "string",
@@ -11411,7 +12226,9 @@
       },
       "BriefBuilderProcessResponse": {
         "type": "object",
-        "required": ["processing_token"],
+        "required": [
+          "processing_token"
+        ],
         "properties": {
           "processing_token": {
             "type": "string",
@@ -11422,7 +12239,10 @@
       "BriefProcessingStateResponse": {
         "type": "object",
         "description": "State of a brief-builder processing token. `brief_draft`,\n`fields_filled_count` and `fields_empty_count` are populated only when\n`state` is `completed` or `partial`; null/zero otherwise.\n",
-        "required": ["processing_token", "state"],
+        "required": [
+          "processing_token",
+          "state"
+        ],
         "properties": {
           "processing_token": {
             "type": "string",
@@ -11430,7 +12250,12 @@
           },
           "state": {
             "type": "string",
-            "enum": ["pending", "in_progress", "completed", "partial"]
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "partial"
+            ]
           },
           "brief_draft": {
             "nullable": true,
@@ -11448,7 +12273,9 @@
       },
       "BriefDraftEnvelope": {
         "type": "object",
-        "required": ["brief"],
+        "required": [
+          "brief"
+        ],
         "properties": {
           "brief": {
             "$ref": "#/components/schemas/BriefDraft"
@@ -11554,7 +12381,10 @@
       },
       "BriefScoringDimension": {
         "type": "object",
-        "required": ["name", "weight_pct"],
+        "required": [
+          "name",
+          "weight_pct"
+        ],
         "properties": {
           "name": {
             "type": "string",
@@ -11569,7 +12399,11 @@
       },
       "BriefHardFilter": {
         "type": "object",
-        "required": ["field", "operator", "value"],
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
         "properties": {
           "field": {
             "type": "string",
@@ -11587,7 +12421,10 @@
       },
       "CampaignBriefInput": {
         "type": "object",
-        "required": ["brief_source_url", "hard_filters"],
+        "required": [
+          "brief_source_url",
+          "hard_filters"
+        ],
         "properties": {
           "tone": {
             "type": "string",
@@ -11718,7 +12555,12 @@
           },
           "objective": {
             "type": "string",
-            "enum": ["brand_awareness", "conversion", "engagement", "reach"]
+            "enum": [
+              "brand_awareness",
+              "conversion",
+              "engagement",
+              "reach"
+            ]
           },
           "budget_amount": {
             "type": "string",
@@ -11740,7 +12582,12 @@
       },
       "CreateCampaignResponse": {
         "type": "object",
-        "required": ["campaign_id", "status", "created_at", "brief"],
+        "required": [
+          "campaign_id",
+          "status",
+          "created_at",
+          "brief"
+        ],
         "properties": {
           "campaign_id": {
             "type": "string",
@@ -11769,7 +12616,12 @@
       },
       "CampaignConfigurationStatus": {
         "type": "string",
-        "enum": ["draft", "active", "paused", "completed"]
+        "enum": [
+          "draft",
+          "active",
+          "paused",
+          "completed"
+        ]
       },
       "CampaignListItem": {
         "type": "object",
@@ -11792,14 +12644,22 @@
           },
           "objective": {
             "type": "string",
-            "enum": ["brand_awareness", "conversion", "engagement", "reach"]
+            "enum": [
+              "brand_awareness",
+              "conversion",
+              "engagement",
+              "reach"
+            ]
           },
           "status": {
             "$ref": "#/components/schemas/CampaignConfigurationStatus"
           },
           "budget": {
             "type": "object",
-            "required": ["amount", "currency"],
+            "required": [
+              "amount",
+              "currency"
+            ],
             "properties": {
               "amount": {
                 "type": "string"
@@ -11819,12 +12679,20 @@
           "content_type": {
             "type": "string",
             "nullable": true,
-            "enum": ["influencer_posts", "ugc_videos", null]
+            "enum": [
+              "influencer_posts",
+              "ugc_videos",
+              null
+            ]
           },
           "pricing_model": {
             "type": "string",
             "nullable": true,
-            "enum": ["fixed_per_video", "per_views", null]
+            "enum": [
+              "fixed_per_video",
+              "per_views",
+              null
+            ]
           },
           "created_at": {
             "type": "string",
@@ -11838,7 +12706,9 @@
       },
       "CampaignListResponse": {
         "type": "object",
-        "required": ["data"],
+        "required": [
+          "data"
+        ],
         "properties": {
           "data": {
             "type": "array",
@@ -11871,7 +12741,11 @@
       },
       "CampaignLifecycleResponse": {
         "type": "object",
-        "required": ["campaign_id", "status", "updated_at"],
+        "required": [
+          "campaign_id",
+          "status",
+          "updated_at"
+        ],
         "properties": {
           "campaign_id": {
             "type": "string",
@@ -11912,11 +12786,17 @@
       },
       "CampaignContentType": {
         "type": "string",
-        "enum": ["influencer_posts", "ugc_videos"]
+        "enum": [
+          "influencer_posts",
+          "ugc_videos"
+        ]
       },
       "CampaignPricingModel": {
         "type": "string",
-        "enum": ["fixed_per_video", "per_views"]
+        "enum": [
+          "fixed_per_video",
+          "per_views"
+        ]
       },
       "CampaignOperationalTargetingTier": {
         "type": "string",
@@ -12001,7 +12881,10 @@
           },
           "source": {
             "type": "string",
-            "enum": ["brief_prefill", "manual"]
+            "enum": [
+              "brief_prefill",
+              "manual"
+            ]
           },
           "adjusted_from_brief": {
             "type": "boolean"
@@ -12010,7 +12893,11 @@
       },
       "CampaignBonusConfig": {
         "type": "object",
-        "required": ["enabled", "speed_bonus", "performance_bonus"],
+        "required": [
+          "enabled",
+          "speed_bonus",
+          "performance_bonus"
+        ],
         "properties": {
           "enabled": {
             "type": "boolean"
@@ -12025,7 +12912,10 @@
       },
       "CampaignSpeedBonusConfig": {
         "type": "object",
-        "required": ["enabled", "windows"],
+        "required": [
+          "enabled",
+          "windows"
+        ],
         "properties": {
           "enabled": {
             "type": "boolean"
@@ -12040,7 +12930,11 @@
       },
       "CampaignSpeedBonusWindow": {
         "type": "object",
-        "required": ["window_id", "window_hours", "bonus"],
+        "required": [
+          "window_id",
+          "window_hours",
+          "bonus"
+        ],
         "properties": {
           "window_id": {
             "type": "string",
@@ -12058,7 +12952,10 @@
       },
       "CampaignPerformanceBonusConfig": {
         "type": "object",
-        "required": ["enabled", "milestones"],
+        "required": [
+          "enabled",
+          "milestones"
+        ],
         "properties": {
           "enabled": {
             "type": "boolean"
@@ -12073,7 +12970,12 @@
       },
       "CampaignPerformanceBonusMilestone": {
         "type": "object",
-        "required": ["milestone_id", "views", "window_hours", "bonus"],
+        "required": [
+          "milestone_id",
+          "views",
+          "window_hours",
+          "bonus"
+        ],
         "properties": {
           "milestone_id": {
             "type": "string",
@@ -12096,11 +12998,16 @@
       "CampaignBonusAmount": {
         "type": "object",
         "description": "Bonus amount discriminated by `type`. When `type` is `percentage`, the\n`percentage` field is required and must be between 1 and 100. When\n`type` is `fixed`, `amount` and `currency` are required; `currency`\nmust match the campaign's `budget_currency`.\n",
-        "required": ["type"],
+        "required": [
+          "type"
+        ],
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["percentage", "fixed"]
+            "enum": [
+              "percentage",
+              "fixed"
+            ]
           },
           "percentage": {
             "type": "integer",
@@ -12143,7 +13050,12 @@
           },
           "objective": {
             "type": "string",
-            "enum": ["brand_awareness", "conversion", "engagement", "reach"]
+            "enum": [
+              "brand_awareness",
+              "conversion",
+              "engagement",
+              "reach"
+            ]
           },
           "icp_description": {
             "type": "string",
@@ -12202,7 +13114,10 @@
         "properties": {
           "workspace_plan": {
             "type": "string",
-            "enum": ["free", "paid"]
+            "enum": [
+              "free",
+              "paid"
+            ]
           },
           "allows_campaign_board": {
             "type": "boolean"
@@ -12307,7 +13222,10 @@
       },
       "UpdateCampaignContentTypeRequest": {
         "type": "object",
-        "required": ["configuration_version", "content_type"],
+        "required": [
+          "configuration_version",
+          "content_type"
+        ],
         "properties": {
           "configuration_version": {
             "type": "integer",
@@ -12320,7 +13238,10 @@
       },
       "UpdateCampaignPricingModelRequest": {
         "type": "object",
-        "required": ["configuration_version", "pricing_model"],
+        "required": [
+          "configuration_version",
+          "pricing_model"
+        ],
         "properties": {
           "configuration_version": {
             "type": "integer",
@@ -12333,7 +13254,10 @@
       },
       "UpdateCampaignTargetingRequest": {
         "type": "object",
-        "required": ["configuration_version", "operational_targeting"],
+        "required": [
+          "configuration_version",
+          "operational_targeting"
+        ],
         "properties": {
           "configuration_version": {
             "type": "integer",
@@ -12394,7 +13318,10 @@
       },
       "UpdateCampaignBonusRequest": {
         "type": "object",
-        "required": ["configuration_version", "bonus_config"],
+        "required": [
+          "configuration_version",
+          "bonus_config"
+        ],
         "properties": {
           "configuration_version": {
             "type": "integer",
@@ -12402,7 +13329,9 @@
           },
           "bonus_config": {
             "type": "object",
-            "required": ["enabled"],
+            "required": [
+              "enabled"
+            ],
             "properties": {
               "enabled": {
                 "type": "boolean"
@@ -12419,7 +13348,10 @@
       },
       "UpdateCampaignSpeedBonusConfig": {
         "type": "object",
-        "required": ["enabled", "windows"],
+        "required": [
+          "enabled",
+          "windows"
+        ],
         "properties": {
           "enabled": {
             "type": "boolean"
@@ -12428,7 +13360,10 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["window_hours", "bonus"],
+              "required": [
+                "window_hours",
+                "bonus"
+              ],
               "properties": {
                 "window_id": {
                   "type": "string",
@@ -12449,7 +13384,10 @@
       },
       "UpdateCampaignPerformanceBonusConfig": {
         "type": "object",
-        "required": ["enabled", "milestones"],
+        "required": [
+          "enabled",
+          "milestones"
+        ],
         "properties": {
           "enabled": {
             "type": "boolean"
@@ -12458,7 +13396,11 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["views", "window_hours", "bonus"],
+              "required": [
+                "views",
+                "window_hours",
+                "bonus"
+              ],
               "properties": {
                 "milestone_id": {
                   "type": "string",
@@ -12483,7 +13425,9 @@
       },
       "ActivateCampaignConfigurationRequest": {
         "type": "object",
-        "required": ["configuration_version"],
+        "required": [
+          "configuration_version"
+        ],
         "properties": {
           "configuration_version": {
             "type": "integer",
@@ -12509,7 +13453,9 @@
           },
           "status": {
             "type": "string",
-            "enum": ["active"]
+            "enum": [
+              "active"
+            ]
           },
           "activated_at": {
             "type": "string",
@@ -12533,7 +13479,10 @@
       },
       "ConversationListResponse": {
         "type": "object",
-        "required": ["items", "total_visible"],
+        "required": [
+          "items",
+          "total_visible"
+        ],
         "properties": {
           "items": {
             "type": "array",
@@ -12590,11 +13539,18 @@
       },
       "ConversationCounterpart": {
         "type": "object",
-        "required": ["kind", "id", "display_name"],
+        "required": [
+          "kind",
+          "id",
+          "display_name"
+        ],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": ["brand_workspace", "creator_profile"]
+            "enum": [
+              "brand_workspace",
+              "creator_profile"
+            ]
           },
           "id": {
             "type": "string",
@@ -12615,11 +13571,20 @@
       },
       "ConversationLastMessagePreview": {
         "type": "object",
-        "required": ["kind", "text", "author_is_self"],
+        "required": [
+          "kind",
+          "text",
+          "author_is_self"
+        ],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": ["text", "system_event", "attachment", "empty"]
+            "enum": [
+              "text",
+              "system_event",
+              "attachment",
+              "empty"
+            ]
           },
           "text": {
             "type": "string"
@@ -12918,7 +13883,11 @@
       },
       "CampaignVideoListResponse": {
         "type": "object",
-        "required": ["data", "next_cursor", "total_visible"],
+        "required": [
+          "data",
+          "next_cursor",
+          "total_visible"
+        ],
         "properties": {
           "data": {
             "type": "array",
@@ -12995,7 +13964,13 @@
           },
           "platform": {
             "type": "string",
-            "enum": ["youtube", "instagram", "tiktok", "x", "twitch"]
+            "enum": [
+              "youtube",
+              "instagram",
+              "tiktok",
+              "x",
+              "twitch"
+            ]
           },
           "format": {
             "type": "string"
@@ -13016,7 +13991,11 @@
       },
       "CampaignDiscoverySummaryResponse": {
         "type": "object",
-        "required": ["counts", "default_section", "availability"],
+        "required": [
+          "counts",
+          "default_section",
+          "availability"
+        ],
         "properties": {
           "counts": {
             "$ref": "#/components/schemas/CampaignDiscoveryCounts"
@@ -13031,7 +14010,12 @@
       },
       "CampaignDiscoveryCounts": {
         "type": "object",
-        "required": ["matches", "applications", "active", "invited"],
+        "required": [
+          "matches",
+          "applications",
+          "active",
+          "invited"
+        ],
         "properties": {
           "matches": {
             "type": "integer"
@@ -13073,7 +14057,10 @@
       },
       "CampaignMatchListResponse": {
         "type": "object",
-        "required": ["data", "next_cursor"],
+        "required": [
+          "data",
+          "next_cursor"
+        ],
         "properties": {
           "data": {
             "type": "array",
@@ -13131,7 +14118,10 @@
       },
       "CampaignMatchReason": {
         "type": "object",
-        "required": ["summary", "signals"],
+        "required": [
+          "summary",
+          "signals"
+        ],
         "properties": {
           "summary": {
             "type": "string"
@@ -13146,7 +14136,12 @@
       },
       "CampaignMatchMetrics": {
         "type": "object",
-        "required": ["followers", "engagement_pct", "cpm_amount", "fee_amount"],
+        "required": [
+          "followers",
+          "engagement_pct",
+          "cpm_amount",
+          "fee_amount"
+        ],
         "properties": {
           "followers": {
             "type": "integer",
@@ -13169,7 +14164,10 @@
       },
       "CampaignApplicationListResponse": {
         "type": "object",
-        "required": ["data", "next_cursor"],
+        "required": [
+          "data",
+          "next_cursor"
+        ],
         "properties": {
           "data": {
             "type": "array",
@@ -13233,7 +14231,10 @@
       },
       "CampaignInviteListResponse": {
         "type": "object",
-        "required": ["data", "next_cursor"],
+        "required": [
+          "data",
+          "next_cursor"
+        ],
         "properties": {
           "data": {
             "type": "array",
@@ -13267,7 +14268,10 @@
           },
           "mode": {
             "type": "string",
-            "enum": ["email", "in_platform"]
+            "enum": [
+              "email",
+              "in_platform"
+            ]
           },
           "invited_email": {
             "type": "string",
@@ -13306,7 +14310,10 @@
       },
       "CampaignActiveListResponse": {
         "type": "object",
-        "required": ["data", "next_cursor"],
+        "required": [
+          "data",
+          "next_cursor"
+        ],
         "properties": {
           "data": {
             "type": "array",
@@ -13365,7 +14372,11 @@
       },
       "CampaignParticipantListResponse": {
         "type": "object",
-        "required": ["data", "next_cursor", "total_visible"],
+        "required": [
+          "data",
+          "next_cursor",
+          "total_visible"
+        ],
         "properties": {
           "data": {
             "type": "array",
@@ -13432,7 +14443,10 @@
       },
       "CampaignNetDeliverables": {
         "type": "object",
-        "required": ["completed", "expected"],
+        "required": [
+          "completed",
+          "expected"
+        ],
         "properties": {
           "completed": {
             "type": "integer"
@@ -13444,7 +14458,10 @@
       },
       "CampaignParticipantActions": {
         "type": "object",
-        "required": ["open_workspace", "invite_creator"],
+        "required": [
+          "open_workspace",
+          "invite_creator"
+        ],
         "properties": {
           "open_workspace": {
             "type": "boolean"
@@ -13503,7 +14520,11 @@
       },
       "CreatorPlatformListItem": {
         "type": "object",
-        "required": ["platform", "handle", "followers"],
+        "required": [
+          "platform",
+          "handle",
+          "followers"
+        ],
         "properties": {
           "platform": {
             "type": "string"
@@ -13520,7 +14541,9 @@
       },
       "CampaignMoneyAmount": {
         "type": "object",
-        "required": ["amount"],
+        "required": [
+          "amount"
+        ],
         "properties": {
           "amount": {
             "type": "string"
@@ -13557,26 +14580,42 @@
       },
       "InviteMode": {
         "type": "string",
-        "enum": ["email", "in_platform"],
+        "enum": [
+          "email",
+          "in_platform"
+        ],
         "example": "in_platform"
       },
       "InviteStatus": {
         "type": "string",
-        "enum": ["sent", "accepted", "declined", "expired"],
+        "enum": [
+          "sent",
+          "accepted",
+          "declined",
+          "expired"
+        ],
         "example": "sent"
       },
       "InviteFeeModel": {
         "type": "string",
-        "enum": ["fixed_per_video", "per_views"],
+        "enum": [
+          "fixed_per_video",
+          "per_views"
+        ],
         "example": "fixed_per_video"
       },
       "DiscoveryEmailInviteRequest": {
         "type": "object",
-        "required": ["mode", "email"],
+        "required": [
+          "mode",
+          "email"
+        ],
         "properties": {
           "mode": {
             "type": "string",
-            "enum": ["email"],
+            "enum": [
+              "email"
+            ],
             "example": "email"
           },
           "email": {
@@ -13596,11 +14635,16 @@
       },
       "DiscoveryInPlatformInviteRequest": {
         "type": "object",
-        "required": ["mode", "creator_account_id"],
+        "required": [
+          "mode",
+          "creator_account_id"
+        ],
         "properties": {
           "mode": {
             "type": "string",
-            "enum": ["in_platform"],
+            "enum": [
+              "in_platform"
+            ],
             "example": "in_platform"
           },
           "creator_account_id": {
@@ -13639,7 +14683,12 @@
       },
       "CreateCampaignInviteResponse": {
         "type": "object",
-        "required": ["invite_id", "mode", "status", "expires_at"],
+        "required": [
+          "invite_id",
+          "mode",
+          "status",
+          "expires_at"
+        ],
         "properties": {
           "invite_id": {
             "type": "string",
@@ -13684,7 +14733,11 @@
       },
       "DiscoveryContactMatchResponse": {
         "type": "object",
-        "required": ["match_id", "status", "contacted_at"],
+        "required": [
+          "match_id",
+          "status",
+          "contacted_at"
+        ],
         "properties": {
           "match_id": {
             "type": "string",
@@ -13705,7 +14758,11 @@
       },
       "DiscoveryApplicationDecisionResponse": {
         "type": "object",
-        "required": ["application_id", "status", "decided_at"],
+        "required": [
+          "application_id",
+          "status",
+          "decided_at"
+        ],
         "properties": {
           "application_id": {
             "type": "string",
@@ -13713,7 +14770,10 @@
           },
           "status": {
             "type": "string",
-            "enum": ["accepted", "rejected"]
+            "enum": [
+              "accepted",
+              "rejected"
+            ]
           },
           "decided_at": {
             "type": "string",
@@ -13727,7 +14787,9 @@
       },
       "DiscoveryConversationInfo": {
         "type": "object",
-        "required": ["id"],
+        "required": [
+          "id"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -13761,7 +14823,11 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["instagram", "tiktok", "youtube"]
+              "enum": [
+                "instagram",
+                "tiktok",
+                "youtube"
+              ]
             }
           },
           "deliverables": {
@@ -13892,7 +14958,11 @@
       },
       "CreatorCampaignBoardCounts": {
         "type": "object",
-        "required": ["total_visible", "recommended", "matching_filters"],
+        "required": [
+          "total_visible",
+          "recommended",
+          "matching_filters"
+        ],
         "properties": {
           "total_visible": {
             "type": "integer"
@@ -13907,7 +14977,10 @@
       },
       "CreatorCampaignBoardFilters": {
         "type": "object",
-        "required": ["applied", "available"],
+        "required": [
+          "applied",
+          "available"
+        ],
         "properties": {
           "applied": {
             "$ref": "#/components/schemas/CreatorCampaignBoardAppliedFilters"
@@ -13919,7 +14992,9 @@
       },
       "CreatorCampaignBoardAppliedFilters": {
         "type": "object",
-        "required": ["recommended_only"],
+        "required": [
+          "recommended_only"
+        ],
         "properties": {
           "q": {
             "type": "string"
@@ -14141,7 +15216,11 @@
           },
           "band": {
             "type": "string",
-            "enum": ["high", "medium", "low"]
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
           },
           "recommended": {
             "type": "boolean"
@@ -14168,11 +15247,21 @@
       },
       "CreatorCampaignBoardApplication": {
         "type": "object",
-        "required": ["status", "application_id", "submitted_at", "can_apply"],
+        "required": [
+          "status",
+          "application_id",
+          "submitted_at",
+          "can_apply"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["none", "submitted", "accepted", "rejected"]
+            "enum": [
+              "none",
+              "submitted",
+              "accepted",
+              "rejected"
+            ]
           },
           "application_id": {
             "type": "string",
@@ -14191,7 +15280,9 @@
       },
       "SubmitCampaignApplicationRequest": {
         "type": "object",
-        "required": ["message"],
+        "required": [
+          "message"
+        ],
         "properties": {
           "message": {
             "type": "string",
@@ -14202,7 +15293,10 @@
       },
       "SubmitCampaignApplicationResponse": {
         "type": "object",
-        "required": ["application", "idempotent_replay"],
+        "required": [
+          "application",
+          "idempotent_replay"
+        ],
         "properties": {
           "application": {
             "$ref": "#/components/schemas/SubmittedCampaignApplication"
@@ -14232,7 +15326,9 @@
           },
           "status": {
             "type": "string",
-            "enum": ["submitted"]
+            "enum": [
+              "submitted"
+            ]
           },
           "message": {
             "type": "string",
@@ -14247,7 +15343,12 @@
       },
       "CreatorInvitationListResponse": {
         "type": "object",
-        "required": ["cards", "counts", "next_cursor", "server_time"],
+        "required": [
+          "cards",
+          "counts",
+          "next_cursor",
+          "server_time"
+        ],
         "properties": {
           "cards": {
             "type": "array",
@@ -14306,7 +15407,11 @@
       },
       "AcceptCreatorInvitationResponse": {
         "type": "object",
-        "required": ["invite", "decision", "idempotent_replay"],
+        "required": [
+          "invite",
+          "decision",
+          "idempotent_replay"
+        ],
         "properties": {
           "invite": {
             "$ref": "#/components/schemas/CreatorInvitationCard"
@@ -14328,7 +15433,11 @@
       },
       "DeclineCreatorInvitationResponse": {
         "type": "object",
-        "required": ["invite", "decision", "idempotent_replay"],
+        "required": [
+          "invite",
+          "decision",
+          "idempotent_replay"
+        ],
         "properties": {
           "invite": {
             "$ref": "#/components/schemas/CreatorInvitationCard"
@@ -14353,7 +15462,10 @@
       },
       "CreatorInvitationAcceptedConversation": {
         "type": "object",
-        "required": ["id", "reused"],
+        "required": [
+          "id",
+          "reused"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -14387,7 +15499,13 @@
           },
           "status": {
             "type": "string",
-            "enum": ["active", "accepted", "declined", "expired", "sent"]
+            "enum": [
+              "active",
+              "accepted",
+              "declined",
+              "expired",
+              "sent"
+            ]
           },
           "brand": {
             "$ref": "#/components/schemas/InviteBrandSnapshot"
@@ -14423,7 +15541,9 @@
           },
           "mode": {
             "type": "string",
-            "enum": ["in_platform"]
+            "enum": [
+              "in_platform"
+            ]
           },
           "invited_handle": {
             "type": "string",
@@ -14433,7 +15553,10 @@
       },
       "CreatorInvitationCounts": {
         "type": "object",
-        "required": ["total", "filtered"],
+        "required": [
+          "total",
+          "filtered"
+        ],
         "properties": {
           "total": {
             "type": "integer"
@@ -14455,7 +15578,13 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["active", "accepted", "declined", "expired", "sent"]
+            "enum": [
+              "active",
+              "accepted",
+              "declined",
+              "expired",
+              "sent"
+            ]
           },
           "accepted_at": {
             "type": "string",
@@ -14501,7 +15630,10 @@
       },
       "CampaignMoney": {
         "type": "object",
-        "required": ["amount", "currency"],
+        "required": [
+          "amount",
+          "currency"
+        ],
         "properties": {
           "amount": {
             "type": "string"
@@ -14513,7 +15645,9 @@
       },
       "CampaignAudience": {
         "type": "object",
-        "required": ["description"],
+        "required": [
+          "description"
+        ],
         "properties": {
           "description": {
             "type": "string",
@@ -14523,7 +15657,10 @@
       },
       "CampaignCommercial": {
         "type": "object",
-        "required": ["content_model", "pricing_model"],
+        "required": [
+          "content_model",
+          "pricing_model"
+        ],
         "properties": {
           "content_model": {
             "type": "string",
@@ -14564,7 +15701,12 @@
       },
       "CampaignActionFlags": {
         "type": "object",
-        "required": ["can_edit", "can_activate", "can_pause", "can_resume"],
+        "required": [
+          "can_edit",
+          "can_activate",
+          "can_pause",
+          "can_resume"
+        ],
         "properties": {
           "can_edit": {
             "type": "boolean"
@@ -14804,7 +15946,10 @@
       },
       "MessageSendRequest": {
         "type": "object",
-        "required": ["text", "client_message_id"],
+        "required": [
+          "text",
+          "client_message_id"
+        ],
         "properties": {
           "text": {
             "type": "string",
@@ -14885,7 +16030,9 @@
           },
           "type": {
             "type": "string",
-            "enum": ["text"]
+            "enum": [
+              "text"
+            ]
           },
           "author_account_id": {
             "type": "string",
@@ -14905,7 +16052,13 @@
       },
       "SystemEventMessageListItem": {
         "type": "object",
-        "required": ["id", "type", "event_type", "created_at", "read_by_self"],
+        "required": [
+          "id",
+          "type",
+          "event_type",
+          "created_at",
+          "read_by_self"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -14913,7 +16066,9 @@
           },
           "type": {
             "type": "string",
-            "enum": ["system_event"]
+            "enum": [
+              "system_event"
+            ]
           },
           "event_type": {
             "type": "string",
@@ -14934,7 +16089,10 @@
       },
       "MessageListResponse": {
         "type": "object",
-        "required": ["items", "has_more"],
+        "required": [
+          "items",
+          "has_more"
+        ],
         "properties": {
           "items": {
             "type": "array",
@@ -14953,7 +16111,9 @@
       },
       "MarkReadResponse": {
         "type": "object",
-        "required": ["marked_count"],
+        "required": [
+          "marked_count"
+        ],
         "properties": {
           "marked_count": {
             "type": "integer"
@@ -14961,93 +16121,19 @@
         }
       },
       "CreateOfferRequest": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/CreateSingleOfferRequest"
-          },
-          {
-            "$ref": "#/components/schemas/CreateBundleOfferRequest"
-          },
-          {
-            "$ref": "#/components/schemas/CreateMultiStageOfferRequest"
-          }
-        ],
-        "discriminator": {
-          "propertyName": "type",
-          "mapping": {
-            "single": "#/components/schemas/CreateSingleOfferRequest",
-            "bundle": "#/components/schemas/CreateBundleOfferRequest",
-            "multistage": "#/components/schemas/CreateMultiStageOfferRequest"
-          }
-        }
-      },
-      "CreateSingleOfferRequest": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "type",
           "campaign_id",
           "conversation_id",
+          "offer_mode",
           "amount",
-          "deadline",
-          "description",
-          "deliverable"
-        ],
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["single"]
-          },
-          "campaign_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "conversation_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "amount": {
-            "type": "string",
-            "pattern": "^\\d+\\.\\d{2}$"
-          },
-          "currency": {
-            "type": "string",
-            "maxLength": 3,
-            "description": "Ignored when sent; currency is inherited from the campaign."
-          },
-          "deadline": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "bonus_terms": {
-            "$ref": "#/components/schemas/OfferBonusTerms"
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 5000
-          },
-          "deliverable": {
-            "$ref": "#/components/schemas/OfferDeliverableDTO"
-          }
-        }
-      },
-      "CreateBundleOfferRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "type",
-          "campaign_id",
-          "conversation_id",
-          "amount",
-          "deadline",
+          "tentative_publish_date",
+          "offer_deadline",
           "description",
           "deliverables"
         ],
         "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["bundle"]
-          },
           "campaign_id": {
             "type": "string",
             "format": "uuid"
@@ -15055,107 +16141,57 @@
           "conversation_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "offer_mode": {
+            "type": "string",
+            "enum": [
+              "same_content",
+              "per_platform"
+            ]
           },
           "amount": {
             "type": "string",
             "pattern": "^\\d+\\.\\d{2}$"
           },
-          "currency": {
+          "tentative_publish_date": {
             "type": "string",
-            "maxLength": 3,
-            "description": "Ignored when sent; currency is inherited from the campaign."
+            "format": "date"
           },
-          "deadline": {
+          "offer_deadline": {
             "type": "string",
-            "format": "date-time"
-          },
-          "bonus_terms": {
-            "$ref": "#/components/schemas/OfferBonusTerms"
+            "format": "date"
           },
           "description": {
             "type": "string",
             "maxLength": 5000
-          },
-          "deliverable": {
-            "$ref": "#/components/schemas/OfferDeliverableDTO",
-            "description": "Optional summary deliverable; defaults to the first deliverable when omitted."
-          },
-          "deliverables": {
-            "type": "array",
-            "minItems": 2,
-            "items": {
-              "$ref": "#/components/schemas/OfferBundleDeliverableDTO"
-            }
-          }
-        }
-      },
-      "CreateMultiStageOfferRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "type",
-          "campaign_id",
-          "conversation_id",
-          "description",
-          "deliverable",
-          "stages"
-        ],
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["multistage"]
-          },
-          "campaign_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "conversation_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "currency": {
-            "type": "string",
-            "maxLength": 3,
-            "description": "Ignored when sent; currency is inherited from the campaign."
           },
           "bonus_terms": {
             "$ref": "#/components/schemas/OfferBonusTerms",
-            "nullable": true,
-            "description": "Must be null or omitted for multistage offers."
+            "nullable": true
           },
-          "description": {
-            "type": "string",
-            "maxLength": 5000
-          },
-          "deliverable": {
-            "$ref": "#/components/schemas/OfferDeliverableDTO"
-          },
-          "stages": {
+          "platforms": {
             "type": "array",
-            "minItems": 2,
+            "minItems": 1,
             "items": {
-              "$ref": "#/components/schemas/OfferStageDTO"
+              "type": "string",
+              "maxLength": 50
+            }
+          },
+          "deliverables": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/OfferDeliverableDTO"
             }
           }
         }
       },
       "OfferDeliverableDTO": {
         "type": "object",
-        "required": ["platform", "format"],
-        "properties": {
-          "platform": {
-            "type": "string",
-            "maxLength": 50
-          },
-          "format": {
-            "type": "string",
-            "maxLength": 50
-          }
-        }
-      },
-      "OfferBundleDeliverableDTO": {
-        "type": "object",
-        "required": ["position", "platform", "format", "quantity"],
+        "required": [
+          "platform",
+          "format"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -15189,57 +16225,12 @@
           }
         }
       },
-      "OfferStageDTO": {
-        "type": "object",
-        "required": ["position", "name", "description", "deadline", "amount"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "readOnly": true
-          },
-          "position": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 120
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 5000
-          },
-          "deadline": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "amount": {
-            "type": "string",
-            "pattern": "^\\d+\\.\\d{2}$"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["locked", "open", "approved"],
-            "readOnly": true
-          },
-          "opened_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          },
-          "approved_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "readOnly": true
-          }
-        }
-      },
       "OfferSpeedBonus": {
         "type": "object",
-        "required": ["early_deadline", "bonus_amount"],
+        "required": [
+          "early_deadline",
+          "bonus_amount"
+        ],
         "properties": {
           "early_deadline": {
             "type": "string",
@@ -15256,28 +16247,7 @@
           }
         }
       },
-      "OfferSnapshot": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/OfferSnapshotSingle"
-          },
-          {
-            "$ref": "#/components/schemas/OfferSnapshotBundle"
-          },
-          {
-            "$ref": "#/components/schemas/OfferSnapshotMultiStage"
-          }
-        ],
-        "discriminator": {
-          "propertyName": "type",
-          "mapping": {
-            "single": "#/components/schemas/OfferSnapshotSingle",
-            "bundle": "#/components/schemas/OfferSnapshotBundle",
-            "multistage": "#/components/schemas/OfferSnapshotMultiStage"
-          }
-        }
-      },
-      "OfferSnapshotBase": {
+      "OfferDTO": {
         "type": "object",
         "required": [
           "id",
@@ -15285,14 +16255,17 @@
           "brand_workspace_id",
           "creator_account_id",
           "created_by_account_id",
-          "type",
+          "conversation_id",
+          "offer_mode",
           "status",
           "amount",
-          "bonus_terms",
-          "deadline",
+          "currency",
+          "tentative_publish_date",
+          "offer_deadline",
           "expires_at",
           "description",
-          "deliverable",
+          "deliverables",
+          "platforms",
           "created_at",
           "updated_at"
         ],
@@ -15317,26 +16290,43 @@
             "type": "string",
             "format": "uuid"
           },
-          "type": {
+          "conversation_id": {
             "type": "string",
-            "enum": ["single", "bundle", "multistage"]
+            "format": "uuid"
+          },
+          "offer_mode": {
+            "type": "string",
+            "enum": [
+              "same_content",
+              "per_platform"
+            ]
           },
           "status": {
             "type": "string",
-            "enum": ["sent", "accepted", "rejected", "expired"]
+            "enum": [
+              "sent",
+              "accepted",
+              "rejected",
+              "expired",
+              "cancelled"
+            ]
           },
           "amount": {
             "type": "string",
             "pattern": "^\\d+\\.\\d{2}$"
           },
-          "bonus_terms": {
-            "$ref": "#/components/schemas/OfferBonusTerms",
-            "nullable": true
-          },
-          "deadline": {
+          "currency": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "tentative_publish_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "offer_deadline": {
+            "type": "string",
+            "format": "date"
           },
           "expires_at": {
             "type": "string",
@@ -15345,8 +16335,93 @@
           "description": {
             "type": "string"
           },
-          "deliverable": {
-            "$ref": "#/components/schemas/OfferDeliverableDTO"
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 50
+            }
+          },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfferDeliverableDTO"
+            }
+          },
+          "bonus_terms": {
+            "$ref": "#/components/schemas/OfferBonusTerms",
+            "nullable": true
+          },
+          "bonus_terms_source": {
+            "type": "string",
+            "enum": [
+              "inherited",
+              "overridden",
+              "empty"
+            ],
+            "nullable": true
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "accepted_by_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "rejected_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rejected_by_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "reject_reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "expired_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cancellation_phase": {
+            "type": "string",
+            "enum": [
+              "pre_accept",
+              "post_accept"
+            ],
+            "nullable": true
+          },
+          "cancelled_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cancelled_by_account_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "paid_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "declared_payment_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           },
           "created_at": {
             "type": "string",
@@ -15355,215 +16430,61 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "sent_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           }
         }
       },
-      "OfferSnapshotSingle": {
+      "OfferDetailDTO": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/OfferSnapshotBase"
-          },
-          {
-            "type": "object",
-            "required": ["type", "deliverables", "stages"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["single"]
-              },
-              "deliverables": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OfferBundleDeliverableDTO"
-                }
-              },
-              "stages": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OfferStageDTO"
-                }
-              }
-            }
+            "$ref": "#/components/schemas/OfferDTO"
           }
         ]
       },
-      "OfferSnapshotBundle": {
+      "OfferListItemDTO": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/OfferSnapshotBase"
-          },
-          {
-            "type": "object",
-            "required": ["type", "deliverables", "stages"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["bundle"]
-              },
-              "deliverables": {
-                "type": "array",
-                "minItems": 2,
-                "items": {
-                  "$ref": "#/components/schemas/OfferBundleDeliverableDTO"
-                }
-              },
-              "stages": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OfferStageDTO"
-                }
-              }
-            }
+            "$ref": "#/components/schemas/OfferDTO"
           }
         ]
       },
-      "OfferSnapshotMultiStage": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/OfferSnapshotBase"
-          },
-          {
-            "type": "object",
-            "required": ["type", "deliverables", "stages"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["multistage"]
-              },
-              "deliverables": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OfferBundleDeliverableDTO"
-                }
-              },
-              "stages": {
-                "type": "array",
-                "minItems": 2,
-                "items": {
-                  "$ref": "#/components/schemas/OfferStageDTO"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "OfferAcceptedSnap": {
+      "CampaignOffersResponse": {
         "type": "object",
-        "required": ["accepted_at", "accepted_by_account_id"],
+        "required": [
+          "items",
+          "has_more"
+        ],
         "properties": {
-          "accepted_at": {
-            "type": "string",
-            "format": "date-time"
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfferListItemDTO"
+            }
           },
-          "accepted_by_account_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "OfferRejectedSnap": {
-        "type": "object",
-        "required": ["rejected_at", "rejected_by_account_id"],
-        "properties": {
-          "rejected_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "rejected_by_account_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "reason": {
+          "next_cursor": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "OfferExpiredSnap": {
-        "type": "object",
-        "required": ["expired_at"],
-        "properties": {
-          "expired_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "OfferDTO": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/OfferSnapshotBase"
           },
-          {
-            "type": "object",
-            "required": ["deliverables", "stages"],
-            "properties": {
-              "deliverables": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OfferBundleDeliverableDTO"
-                }
-              },
-              "stages": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OfferStageDTO"
-                }
-              },
-              "accepted": {
-                "$ref": "#/components/schemas/OfferAcceptedSnap"
-              },
-              "rejected": {
-                "$ref": "#/components/schemas/OfferRejectedSnap"
-              },
-              "expired": {
-                "$ref": "#/components/schemas/OfferExpiredSnap"
-              }
-            }
+          "has_more": {
+            "type": "boolean"
           }
-        ]
+        }
       },
       "ArchivedOfferItem": {
         "type": "object",
-        "required": ["type", "offer"],
+        "required": [
+          "offer"
+        ],
         "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["single", "bundle", "multistage"]
-          },
           "offer": {
             "$ref": "#/components/schemas/OfferDTO"
           }
         }
       },
-      "StageOpenedSnap": {
-        "type": "object",
-        "required": ["offer_id", "stage", "offer"],
-        "properties": {
-          "offer_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "stage": {
-            "$ref": "#/components/schemas/OfferStageDTO"
-          },
-          "prev_stage_position": {
-            "type": "integer",
-            "nullable": true
-          },
-          "offer": {
-            "$ref": "#/components/schemas/OfferSnapshotMultiStage"
-          }
-        }
-      },
       "ChatMessageCreatedEvent": {
         "type": "object",
-        "required": ["event_type"],
+        "required": [
+          "event_type"
+        ],
         "properties": {
           "event_type": {
             "type": "string",
@@ -15572,8 +16493,7 @@
               "OfferAccepted",
               "OfferRejected",
               "OfferExpired",
-              "StageOpened",
-              "StageApproved",
+              "OfferCancelled",
               "PaymentMarked"
             ]
           }
@@ -15597,7 +16517,9 @@
       },
       "AnalyticsEventIngestRequest": {
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
           "name": {
             "$ref": "#/components/schemas/AnalyticsEventName"
@@ -15622,17 +16544,25 @@
       },
       "AnalyticsEventIngestResponse": {
         "type": "object",
-        "required": ["status"],
+        "required": [
+          "status"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["accepted"]
+            "enum": [
+              "accepted"
+            ]
           }
         }
       },
       "ConversationOffersResponse": {
         "type": "object",
-        "required": ["current", "archive", "has_more"],
+        "required": [
+          "current",
+          "archive",
+          "has_more"
+        ],
         "properties": {
           "current": {
             "nullable": true,
@@ -15659,15 +16589,27 @@
       },
       "PresenceState": {
         "type": "string",
-        "enum": ["online", "offline", "disconnected"]
+        "enum": [
+          "online",
+          "offline",
+          "disconnected"
+        ]
       },
       "ConversationDetailCounterpart": {
         "type": "object",
-        "required": ["kind", "id", "display_name", "is_active"],
+        "required": [
+          "kind",
+          "id",
+          "display_name",
+          "is_active"
+        ],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": ["brand_workspace", "creator_profile"]
+            "enum": [
+              "brand_workspace",
+              "creator_profile"
+            ]
           },
           "id": {
             "type": "string",
@@ -15691,7 +16633,13 @@
       },
       "ConversationDetail": {
         "type": "object",
-        "required": ["id", "counterpart", "presence", "can_send", "created_at"],
+        "required": [
+          "id",
+          "counterpart",
+          "presence",
+          "can_send",
+          "created_at"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -15702,7 +16650,9 @@
           },
           "presence": {
             "type": "object",
-            "required": ["state"],
+            "required": [
+              "state"
+            ],
             "properties": {
               "state": {
                 "$ref": "#/components/schemas/PresenceState"
@@ -15725,7 +16675,10 @@
       },
       "WSEventEnvelope": {
         "type": "object",
-        "required": ["event_type", "payload"],
+        "required": [
+          "event_type",
+          "payload"
+        ],
         "properties": {
           "event_type": {
             "type": "string",
@@ -15748,11 +16701,16 @@
           },
           {
             "type": "object",
-            "required": ["event_type", "payload"],
+            "required": [
+              "event_type",
+              "payload"
+            ],
             "properties": {
               "event_type": {
                 "type": "string",
-                "enum": ["chat.message.created"]
+                "enum": [
+                  "chat.message.created"
+                ]
               },
               "payload": {
                 "$ref": "#/components/schemas/WSMessageCreatedPayload"
@@ -15800,7 +16758,9 @@
           },
           "type": {
             "type": "string",
-            "enum": ["text"]
+            "enum": [
+              "text"
+            ]
           },
           "author_account_id": {
             "type": "string",
@@ -15844,7 +16804,9 @@
           },
           "type": {
             "type": "string",
-            "enum": ["system_event"]
+            "enum": [
+              "system_event"
+            ]
           },
           "author_account_id": {
             "type": "string",
@@ -15872,7 +16834,13 @@
       "WSCampaignEventEnvelope": {
         "type": "object",
         "description": "Emitted to subscribers of `campaign:{campaign_id}` after campaign read-model\nhandlers materialize Discovery, Offer, Deliverable, or Payment lifecycle events.\n",
-        "required": ["event_id", "event", "topic", "occurred_at", "payload"],
+        "required": [
+          "event_id",
+          "event",
+          "topic",
+          "occurred_at",
+          "payload"
+        ],
         "properties": {
           "event_id": {
             "type": "string",
@@ -15910,7 +16878,10 @@
       },
       "WSCampaignRefreshPayload": {
         "type": "object",
-        "required": ["campaign_id", "reason"],
+        "required": [
+          "campaign_id",
+          "reason"
+        ],
         "properties": {
           "campaign_id": {
             "type": "string",
@@ -15937,7 +16908,12 @@
           },
           "source": {
             "type": "string",
-            "enum": ["discovery", "offers", "deliverables", "payments"]
+            "enum": [
+              "discovery",
+              "offers",
+              "deliverables",
+              "payments"
+            ]
           },
           "source_ref_type": {
             "type": "string",

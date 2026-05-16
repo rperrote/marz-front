@@ -11,18 +11,18 @@ import { ApiError } from '#/shared/api/mutator'
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'
 
 import { trackOfferEvent } from '../analytics'
-import type { OfferType } from '../analytics'
+import type { OfferMode } from '../types'
 
 interface AcceptVariables {
   offerId: string
   sentAt: string
-  offerType: OfferType
+  offerMode: OfferMode
 }
 
 interface RejectVariables {
   offerId: string
   sentAt: string
-  offerType: OfferType
+  offerMode: OfferMode
   reason?: string
 }
 
@@ -60,7 +60,7 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
     onSuccess: (_data, variables) => {
       trackOfferEvent('offer_accepted', {
         actor_kind: 'creator',
-        offer_type: variables.offerType,
+        offer_mode: variables.offerMode,
         time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
       })
     },
@@ -103,7 +103,7 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
     onSuccess: (_data, variables) => {
       trackOfferEvent('offer_rejected', {
         actor_kind: 'creator',
-        offer_type: variables.offerType,
+        offer_mode: variables.offerMode,
         time_to_response_seconds: timeToResponseSeconds(variables.sentAt),
       })
     },

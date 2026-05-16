@@ -1,3 +1,9 @@
+import type {
+  ConversationDeliverablesResponse as GeneratedConversationDeliverablesResponse,
+  DeliverableDTO as GeneratedDeliverableDTO,
+  DraftDTO as GeneratedDraftDTO,
+} from '#/shared/api/generated/model'
+
 export type DeliverableStatus =
   | 'pending'
   | 'draft_submitted'
@@ -8,24 +14,7 @@ export type DeliverableStatus =
   | 'completed'
   | 'paid'
 
-export type OfferType = 'single' | 'bundle' | 'multistage'
-
-export type StageStatus = 'locked' | 'open' | 'approved'
-
-export interface DraftDTO {
-  id: string
-  version: number
-  original_filename: string
-  file_size_bytes: number
-  duration_sec: number | null
-  mime_type: string | null
-  thumbnail_url: string | null
-  playback_url: string
-  playback_url_expires_at: string
-  submitted_at: string
-  submitted_by_account_id: string
-  approved_at?: string | null
-}
+export type DraftDTO = GeneratedDraftDTO
 
 export interface ChangeRequestDTO {
   id: string
@@ -36,38 +25,17 @@ export interface ChangeRequestDTO {
   requested_by_account_id: string
 }
 
-export interface DeliverableDTO {
-  id: string
-  offer_id: string
-  offer_stage_id: string | null
-  platform: 'youtube' | 'instagram' | 'tiktok' | 'twitter_x'
-  format: string
-  status: DeliverableStatus
-  deadline: string | null
-  current_version: number | null
-  current_draft: DraftDTO | null
-  drafts_count: number
-  change_requests_count: number
-  latest_change_request: ChangeRequestDTO | null
-  change_requests: ChangeRequestDTO[]
-  created_at: string
-  updated_at: string
+export type DeliverableDTO = GeneratedDeliverableDTO & {
+  change_requests_count?: number
+  latest_change_request?: ChangeRequestDTO | null
+  change_requests?: ChangeRequestDTO[]
 }
 
-export interface StageDTO {
-  id: string
-  position: number
-  name: string
-  deadline: string | null
-  status: StageStatus
-  deliverable_ids: string[]
-}
-
-export interface ConversationDeliverablesResponse {
-  offer_id: string | null
-  offer_type: OfferType | null
+export type ConversationDeliverablesResponse = Omit<
+  GeneratedConversationDeliverablesResponse,
+  'deliverables'
+> & {
   deliverables: DeliverableDTO[]
-  stages: StageDTO[]
 }
 
 export interface DraftTimelineMessage {

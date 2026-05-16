@@ -9,7 +9,7 @@ import { useConversationDetailQuery } from '#/features/chat/queries'
 import { ConversationOffersPanel } from '#/features/offers/components/ConversationOffersPanel'
 import { SendOfferSidesheet } from '#/features/offers/components/SendOfferSidesheet'
 import { useCanSendOffer } from '#/features/offers/hooks/useCanSendOffer'
-import { useSendOfferSheetStore } from '#/features/offers/store/sendOfferSheetStore'
+import { useSendOfferWizard } from '#/features/offers/store/sendOfferWizardStore'
 import { MarkAsPaidDialog } from '#/features/payments/components/MarkAsPaidDialog'
 import type { MarkAsPaidOffer } from '#/shared/payments/markAsPaidEligibility'
 import { SubmitLinkSidesheet } from '#/features/deliverables/components/SubmitLinkSidesheet'
@@ -40,7 +40,7 @@ function ConversationRoute() {
   const canSendOffer = useCanSendOffer({ conversationId })
   const conversationDetail = useConversationDetailQuery(conversationId)
   const deliverablesQuery = useGetConversationDeliverablesQuery(conversationId)
-  const openSheet = useSendOfferSheetStore((s) => s.open)
+  const openSheet = useSendOfferWizard((s) => s.open)
 
   const [paymentOffer, setPaymentOffer] = useState<MarkAsPaidOffer | null>(null)
   const [uploadDeliverableId, setUploadDeliverableId] = useState<string | null>(
@@ -75,10 +75,10 @@ function ConversationRoute() {
       : -1
   const uploadAnalytics =
     uploadDeliverable &&
-    deliverablesData?.offer_type != null &&
+    deliverablesData?.offer_mode != null &&
     uploadDeliverableIndex >= 0
       ? {
-          offerType: deliverablesData.offer_type,
+          offerMode: deliverablesData.offer_mode,
           deliverableIndex: uploadDeliverableIndex,
           deliverableStatus: uploadDeliverable.status,
           currentVersion: uploadDeliverable.current_version,

@@ -45,7 +45,7 @@ function getConflictMessage(error: ApiError) {
 }
 
 function getOfferDeadline(offer: CancelOfferDetail) {
-  return offer.offer_deadline ?? offer.deadline
+  return offer.offer_deadline
 }
 
 function canCancelAcceptedOffer(

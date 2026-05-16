@@ -14,7 +14,7 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 describe('OfferCancelledCard', () => {
-  it('renders an OfferSnapshot v3 happy path', async () => {
+  it('renders the event bubble with pre_accept copy', async () => {
     const { container } = render(
       <OfferCancelledCard
         message={makeOfferSystemMessage('OfferCancelled', {
@@ -27,9 +27,7 @@ describe('OfferCancelledCard', () => {
     expect(
       screen.getByRole('article', { name: 'Oferta cancelada' }),
     ).toBeInTheDocument()
-    expect(
-      screen.getByText('La marca canceló la oferta antes de la aceptación.'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Oferta cancelada')).toBeInTheDocument()
     expect(await axe(container)).toHaveNoViolations()
   })
 
@@ -42,7 +40,7 @@ describe('OfferCancelledCard', () => {
     )
 
     expect(
-      screen.getByText('La marca canceló la oferta aceptada.'),
+      screen.getByText('Oferta cancelada tras aceptación'),
     ).toBeInTheDocument()
   })
 
@@ -56,7 +54,7 @@ describe('OfferCancelledCard', () => {
     )
 
     expect(
-      screen.getByText('La marca canceló la oferta aceptada.'),
+      screen.getByText('Oferta cancelada tras aceptación'),
     ).toBeInTheDocument()
   })
 
@@ -65,21 +63,6 @@ describe('OfferCancelledCard', () => {
       <OfferCancelledCard message={makeOfferSystemMessage('OfferCancelled')} />,
     )
 
-    expect(
-      screen.getByText('La marca canceló la oferta antes de la aceptación.'),
-    ).toBeInTheDocument()
-  })
-
-  it('renders when cancelled_at is missing', () => {
-    render(
-      <OfferCancelledCard
-        message={makeOfferSystemMessage('OfferCancelled')}
-        phase="pre_accept"
-      />,
-    )
-
-    expect(
-      screen.getByText('La marca canceló la oferta antes de la aceptación.'),
-    ).toBeInTheDocument()
+    expect(screen.getAllByText('Oferta cancelada').length).toBeGreaterThan(0)
   })
 })

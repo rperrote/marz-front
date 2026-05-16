@@ -9,16 +9,20 @@ import { clerk } from '@clerk/testing/playwright'
 export type AccountKind = 'brand' | 'creator'
 
 export function loadEnvLocal(rootDir: string): void {
-  try {
-    const raw = readFileSync(resolve(rootDir, '.env.local'), 'utf-8')
-    for (const line of raw.split('\n')) {
-      const m = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/)
-      if (m?.[1] && m[2] !== undefined)
-        process.env[m[1]] ??= m[2].replace(/^['"]|['"]$/g, '')
+  const loadFile = (file: string): boolean => {
+    try {
+      const raw = readFileSync(resolve(rootDir, file), 'utf-8')
+      for (const line of raw.split('\n')) {
+        const m = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/)
+        if (m?.[1] && m[2] !== undefined)
+          process.env[m[1]] ??= m[2].replace(/^['"]|['"]$/g, '')
+      }
+      return true
+    } catch {
+      return false
     }
-  } catch {
-    // .env.local opcional
   }
+  if (!loadFile('.env.local')) loadFile('.env')
   if (
     !process.env.CLERK_PUBLISHABLE_KEY &&
     process.env.VITE_CLERK_PUBLISHABLE_KEY

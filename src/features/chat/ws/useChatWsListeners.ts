@@ -9,14 +9,12 @@ import { buildChatHandlers } from './listeners'
 
 interface UseChatWsListenersOptions extends ChatWsHandlers {
   enabled?: boolean
-  sessionKind?: 'brand' | 'creator'
 }
 
 export function useChatWsListeners(
   conversationId: string,
   {
     enabled = false,
-    sessionKind,
     onMessageCreated,
     onMessageReadBatch,
     onTypingStarted,
@@ -49,10 +47,10 @@ export function useChatWsListeners(
       onPresenceUpdated: (e) => handlersRef.current.onPresenceUpdated?.(e),
     }
     return {
-      ...createWsHandlers(queryClient, sessionKind),
+      ...createWsHandlers(queryClient),
       ...buildChatHandlers(conversationId, proxy),
     }
-  }, [conversationId, queryClient, sessionKind])
+  }, [conversationId, queryClient])
 
   const { status, send } = useWebSocket({
     handlers: stableHandlers,

@@ -1,24 +1,14 @@
 import { t } from '@lingui/core/macro'
 
-import type {
-  OfferSnapshot as GeneratedOfferSnapshotV3,
-  PaymentMarkedSnapshot as GeneratedPaymentMarkedSnapshotV3,
-} from '#/shared/api/generated/model'
+import type { PaymentMarkedSnapshot as GeneratedPaymentMarkedSnapshotV3 } from '#/shared/api/generated/model'
+import type { OfferMode } from '#/features/offers/types'
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
-
-export type OfferSnapshotV3 = GeneratedOfferSnapshotV3 & {
-  offer_mode?: string
-  tentative_publish_date?: string | null
-  offer_deadline?: string | null
-  currency?: string
-  campaign_name?: string
-}
 
 export type OfferCancelledPhase = 'pre_accept' | 'post_accept'
 
 export interface OfferEventSnapshotV3 {
   id: string
-  type: 'single' | 'bundle' | 'multistage'
+  offer_mode: OfferMode
   amount: string
   currency?: string
   deadline: string | null
@@ -68,11 +58,10 @@ export function extractOfferSnapshotV3(
   if (!snapshot) return null
 
   const id = getString(snapshot['id']) ?? getString(snapshot['offer_id'])
-  const type =
-    getOfferType(snapshot['offer_mode']) ?? getOfferType(snapshot['type'])
+  const offerMode = getOfferMode(snapshot['offer_mode'])
   const amount =
     getString(snapshot['amount']) ?? getString(snapshot['total_amount'])
-  if (!id || !type || !amount) return null
+  if (!id || !offerMode || !amount) return null
 
   const deliverables = getRecords(snapshot['deliverables'])
   const platformsFromField = getStrings(snapshot['platforms'])
@@ -87,7 +76,7 @@ export function extractOfferSnapshotV3(
 
   return {
     id,
-    type,
+    offer_mode: offerMode,
     amount,
     currency: getString(snapshot['currency']) ?? undefined,
     deadline:
@@ -138,10 +127,9 @@ export function formatSnapshotDate(iso: string) {
   return eventDateFormatter.format(new Date(iso))
 }
 
-export function formatOfferMode(type: OfferEventSnapshotV3['type']) {
-  if (type === 'single') return t`Individual`
-  if (type === 'bundle') return t`Bundle`
-  return t`Por etapas`
+export function formatOfferMode(mode: OfferMode) {
+  if (mode === 'same_content') return t`Un contenido`
+  return t`Por plataforma`
 }
 
 export function formatPlatforms(platforms: string[]) {
@@ -158,8 +146,8 @@ function resolveDeliverablesCount(
   return fallback
 }
 
-function getOfferType(value: unknown): OfferEventSnapshotV3['type'] | null {
-  if (value === 'single' || value === 'bundle' || value === 'multistage') {
+function getOfferMode(value: unknown): OfferMode | null {
+  if (value === 'same_content' || value === 'per_platform') {
     return value
   }
   return null

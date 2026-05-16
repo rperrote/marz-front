@@ -93,7 +93,7 @@ function mockDeliverablesResponse(
   return {
     data: {
       offer_id: 'offer-1',
-      offer_type: 'single',
+      offer_mode: 'same_content',
       deliverables: [
         {
           id: 'del-1',
@@ -115,7 +115,6 @@ function mockDeliverablesResponse(
           updated_at: '2026-04-27T12:00:00Z',
         },
       ],
-      stages: [],
     },
   }
 }

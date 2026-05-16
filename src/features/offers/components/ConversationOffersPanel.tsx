@@ -50,7 +50,6 @@ export function ConversationOffersPanel({
     meQuery.data?.status === 200 ? meQuery.data.data.kind : undefined
 
   const deliverables = deliverablesQuery.data?.deliverables ?? []
-  const stages = deliverablesQuery.data?.stages ?? []
 
   return (
     <ContextPanel
@@ -69,7 +68,6 @@ export function ConversationOffersPanel({
             actorKind={actorKind}
             conversationId={conversationId}
             deliverables={deliverables}
-            stages={stages}
             sessionKind={sessionKind}
             viewerRole={viewerRole}
             onUploadDraft={onUploadDraft}

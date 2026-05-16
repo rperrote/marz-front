@@ -14,7 +14,7 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 describe('OfferSentCard', () => {
-  it('renders an OfferSnapshot v3 happy path', async () => {
+  it('renders the event bubble', async () => {
     const { container } = render(
       <OfferSentCard message={makeOfferSystemMessage('OfferSent')} />,
     )
@@ -22,26 +22,20 @@ describe('OfferSentCard', () => {
     expect(
       screen.getByRole('article', { name: 'Oferta enviada' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('La marca envió una oferta.')).toBeInTheDocument()
-    expect(screen.getByText('$4,575.00')).toBeInTheDocument()
-    expect(screen.getByText('Instagram, TikTok')).toBeInTheDocument()
-    expect(screen.getAllByText(/20/)[0]).toBeInTheDocument()
+    expect(screen.getByText('Oferta enviada')).toBeInTheDocument()
     expect(await axe(container)).toHaveNoViolations()
   })
 
-  it('renders when optional date and platform fields are missing', () => {
-    render(
+  it('returns null when snapshot cannot be extracted', () => {
+    const { container } = render(
       <OfferSentCard
         message={makeOfferSystemMessage('OfferSent', {
-          deadline: null,
-          expires_at: null,
-          deliverable: null,
-          deliverables: [],
+          id: undefined,
+          offer_mode: undefined,
         })}
       />,
     )
 
-    expect(screen.getAllByText('Sin fecha')).toHaveLength(2)
-    expect(screen.getByText('Sin plataformas')).toBeInTheDocument()
+    expect(container).toBeEmptyDOMElement()
   })
 })

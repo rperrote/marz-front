@@ -8,16 +8,18 @@ import { parse as parseYaml } from 'yaml'
 // RAFITA:BLOCKER: pnpm api:sync cannot run in this sandbox because tsx fails opening its IPC pipe with listen EPERM; the Node strip-types bypass reaches the script, but API_URL=http://localhost:8080 still cannot fetch /openapi.yaml, so the generated API client cannot be regenerated here.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
-// load .env.local if present
-try {
-  const envLocal = readFileSync(resolve(root, '.env.local'), 'utf-8')
-  for (const line of envLocal.split('\n')) {
-    const match = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/)
-    if (match?.[1] && match[2] !== undefined)
-      process.env[match[1]] ??= match[2].replace(/^['"]|['"]$/g, '')
+// load .env.local first, then fall back to .env
+for (const envFile of ['.env.local', '.env']) {
+  try {
+    const contents = readFileSync(resolve(root, envFile), 'utf-8')
+    for (const line of contents.split('\n')) {
+      const match = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/)
+      if (match?.[1] && match[2] !== undefined)
+        process.env[match[1]] ??= match[2].replace(/^['"]|['"]$/g, '')
+    }
+  } catch {
+    // file missing, continue
   }
-} catch {
-  // no .env.local, continue
 }
 
 const apiUrl = process.env.API_URL ?? process.env.VITE_API_URL

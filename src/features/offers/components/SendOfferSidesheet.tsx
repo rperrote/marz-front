@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
-import { ChevronDown, X } from 'lucide-react'
+import {
+  Ban,
+  Calendar as CalendarIcon,
+  Check,
+  ChevronUp,
+  X,
+  Zap,
+} from 'lucide-react'
 
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
@@ -30,13 +37,13 @@ import type {
   CreateOfferFormValues,
   OfferBonusTermsFormValues,
 } from '../schemas/createOffer'
-import { useSendOfferSheetStore } from '../store/sendOfferSheetStore'
 import { useSendOfferWizard } from '../store/sendOfferWizardStore'
 import type { SendOfferWizardMode } from '../store/sendOfferWizardStore'
 import { OfferBonusEditor } from './OfferBonusEditor'
 import { OfferSummary } from './OfferSummary'
 
 const platformOptions = ['instagram', 'tiktok', 'youtube'] as const
+type PlatformOption = (typeof platformOptions)[number]
 
 const defaultBonusTerms: OfferBonusTermsFormValues = {
   enabled: true,
@@ -82,7 +89,7 @@ function translateApiError(error: ApiError) {
   return error.message
 }
 
-function getPlatformLabel(platform: (typeof platformOptions)[number]) {
+function getPlatformLabel(platform: PlatformOption) {
   if (platform === 'instagram') return t`Instagram`
   if (platform === 'tiktok') return t`TikTok`
   return t`YouTube`
@@ -120,19 +127,18 @@ export function SendOfferSidesheet({
   creatorName,
   creatorAccountId,
 }: SendOfferSidesheetProps) {
-  const { isOpen, conversationId, close } = useSendOfferSheetStore()
   const wizard = useSendOfferWizard()
+  const { isOpen, conversationId, close } = wizard
   const campaignsQuery = useActiveCampaigns()
   const createOfferMutation = useCreateOfferMutation()
   const createOfferSchema = useMemo(() => createCreateOfferSchema(), [])
   const [modeError, setModeError] = useState<string | null>(null)
+  const [bonusesCollapsed, setBonusesCollapsed] = useState(false)
 
-  const activeDraft =
-    wizard.mode === 'same_content' ? wizard.sameContent : wizard.perPlatform
   const form = useAppForm({
     defaultValues: createDefaultValues(
       creatorAccountId,
-      activeDraft,
+      wizard.draft,
       wizard.mode,
     ),
     validators: { onChange: createOfferSchema },
@@ -197,14 +203,17 @@ export function SendOfferSidesheet({
   const amount = useStore(form.store, (state) => state.values.amount)
   const bonusTerms = useStore(form.store, (state) => state.values.bonus_terms)
   const offerMode = useStore(form.store, (state) => state.values.offer_mode)
+  const selectedPlatforms = useStore(
+    form.store,
+    (state) => state.values.platforms,
+  )
+  const activeBonusCount =
+    offerMode === 'same_content' && bonusTerms?.enabled
+      ? bonusTerms.speed_bonus_windows.length
+      : 0
 
   useEffect(() => {
-    if (values.offer_mode === 'same_content') {
-      useSendOfferWizard.getState().patchSameContent(values)
-      return
-    }
-
-    useSendOfferWizard.getState().patchPerPlatform(values)
+    useSendOfferWizard.getState().patchDraft(values)
   }, [values])
 
   useEffect(() => {
@@ -213,34 +222,27 @@ export function SendOfferSidesheet({
     }
   }, [isOpen])
 
-  function rehydrateMode(nextMode: SendOfferWizardMode) {
+  function setMode(nextMode: SendOfferWizardMode) {
     setModeError(null)
-    const state = useSendOfferWizard.getState()
-    if (values.offer_mode === 'same_content') {
-      state.patchSameContent(values)
-    } else {
-      state.patchPerPlatform(values)
+    useSendOfferWizard.getState().setMode(nextMode)
+    form.setFieldValue('offer_mode', nextMode)
+
+    if (nextMode === 'per_platform') {
+      const currentBonusTerms = form.state.values.bonus_terms
+      if (currentBonusTerms?.enabled) {
+        useSendOfferWizard.getState().setBonusesSnapshot(currentBonusTerms)
+      }
+      form.setFieldValue('bonus_terms', {
+        enabled: false,
+        speed_bonus_windows: [],
+      })
+      return
     }
 
-    state.setMode(nextMode)
-    const nextDraft =
-      nextMode === 'same_content' ? state.sameContent : state.perPlatform
-    form.setFieldValue('offer_mode', nextMode)
-    form.setFieldValue('campaign_id', nextDraft.campaign_id ?? '')
-    form.setFieldValue('creator_account_id', creatorAccountId)
-    form.setFieldValue('amount', nextDraft.amount ?? 0)
-    form.setFieldValue(
-      'tentative_publish_date',
-      nextDraft.tentative_publish_date ?? '',
-    )
-    form.setFieldValue('offer_deadline', nextDraft.offer_deadline ?? '')
-    form.setFieldValue('platforms', nextDraft.platforms ?? ['instagram'])
-    form.setFieldValue(
-      'bonus_terms',
-      nextMode === 'same_content'
-        ? (nextDraft.bonus_terms ?? { enabled: false, speed_bonus_windows: [] })
-        : { enabled: false, speed_bonus_windows: [] },
-    )
+    const snapshot = useSendOfferWizard.getState().bonusesSnapshot
+    if (snapshot) {
+      form.setFieldValue('bonus_terms', snapshot)
+    }
   }
 
   function setBonusesEnabled(enabled: boolean) {
@@ -264,7 +266,7 @@ export function SendOfferSidesheet({
     )
   }
 
-  function updatePlatforms(platform: (typeof platformOptions)[number]) {
+  function updatePlatforms(platform: PlatformOption) {
     const selected = form.state.values.platforms
     const next = selected.includes(platform)
       ? selected.filter((item) => item !== platform)
@@ -279,6 +281,8 @@ export function SendOfferSidesheet({
 
   const campaigns = campaignsQuery.data ?? []
   const hasCampaigns = campaigns.length > 0
+  const bonusesEnabled = bonusTerms?.enabled ?? false
+  const showBonusList = bonusesEnabled && !bonusesCollapsed
 
   return (
     <Sheet
@@ -297,18 +301,18 @@ export function SendOfferSidesheet({
           {t`Enviar una oferta a ${creatorName}`}
         </SheetDescription>
 
-        <header className="flex items-center justify-between gap-3 border-b border-border p-5">
-          <div>
-            <h2 className="text-[length:var(--font-size-2xl)] font-semibold text-card-foreground">
+        <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+          <div className="space-y-0.5">
+            <h2 className="text-[length:var(--font-size-2xl)] font-semibold tracking-tight text-card-foreground">
               {t`Enviar oferta`}
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[length:var(--font-size-sm)] text-muted-foreground">
               {t`Para ${creatorName}`}
             </p>
           </div>
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             size="icon-sm"
             aria-label={t`Cerrar`}
             onClick={handleClose}
@@ -348,39 +352,28 @@ export function SendOfferSidesheet({
             }}
           >
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
-              <section className="space-y-3">
-                <p className="text-sm font-semibold text-card-foreground">
-                  {t`Configuración`}
+              <section className="space-y-1">
+                <h3 className="text-[length:var(--font-size-lg)] font-semibold tracking-tight text-card-foreground">
+                  {t`Configuración de la oferta`}
+                </h3>
+                <p className="text-[length:var(--font-size-sm)] text-muted-foreground">
+                  {t`Una oferta · monto y fechas unificados`}
                 </p>
-                <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {t`Un contenido para todas las redes`}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t`Usá el mismo monto y fechas para todas las plataformas.`}
-                    </p>
-                  </div>
-                  <Switch
-                    aria-label={t`Un contenido para todas las redes`}
-                    checked={offerMode === 'same_content'}
-                    onCheckedChange={(checked) =>
-                      rehydrateMode(checked ? 'same_content' : 'per_platform')
-                    }
-                  />
-                </div>
-                {modeError ? (
-                  <p
-                    role="status"
-                    aria-live="polite"
-                    className="text-xs text-destructive"
-                  >
-                    {modeError}
-                  </p>
-                ) : null}
               </section>
 
               <section className="space-y-4 rounded-2xl border border-border bg-muted p-4">
+                <header className="flex items-center justify-between gap-3">
+                  <h4 className="text-[length:var(--font-size-sm)] font-semibold text-card-foreground">
+                    {t`Contenido y plataformas`}
+                  </h4>
+                  <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[length:var(--font-size-xs)] font-medium text-primary-foreground">
+                    {(() => {
+                      const count = selectedPlatforms.length
+                      return count === 1 ? t`${count} red` : t`${count} redes`
+                    })()}
+                  </span>
+                </header>
+
                 <form.AppField name="campaign_id">
                   {(field) => {
                     const error =
@@ -420,19 +413,26 @@ export function SendOfferSidesheet({
                   }}
                 </form.AppField>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <form.AppField name="amount">
-                    {(field) => (
-                      <FieldRow
-                        label={t`Monto`}
-                        error={
-                          field.state.meta.errors.length > 0
-                            ? firstErrorMessage(field.state.meta.errors)
-                            : undefined
-                        }
-                        required
-                      >
-                        {(aria) => (
+                <form.AppField name="amount">
+                  {(field) => (
+                    <FieldRow
+                      label={t`Monto`}
+                      hint={t`Un único monto para las plataformas seleccionadas.`}
+                      error={
+                        field.state.meta.errors.length > 0
+                          ? firstErrorMessage(field.state.meta.errors)
+                          : undefined
+                      }
+                      required
+                    >
+                      {(aria) => (
+                        <div className="relative">
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[length:var(--font-size-sm)] text-muted-foreground"
+                          >
+                            $
+                          </span>
                           <Input
                             {...aria}
                             type="number"
@@ -444,41 +444,19 @@ export function SendOfferSidesheet({
                               field.handleChange(Number(event.target.value))
                             }
                             onBlur={field.handleBlur}
-                            className="h-11 rounded-xl bg-background"
-                            placeholder="4500"
+                            className="h-11 rounded-xl bg-background pl-6 font-mono"
+                            placeholder="2500"
                           />
-                        )}
-                      </FieldRow>
-                    )}
-                  </form.AppField>
-
-                  <form.AppField name="tentative_publish_date">
-                    {(field) => (
-                      <field.TextField
-                        label={t`Publicación tentativa`}
-                        type="date"
-                        required
-                        className="h-11 rounded-xl bg-background"
-                      />
-                    )}
-                  </form.AppField>
-                </div>
-
-                <form.AppField name="offer_deadline">
-                  {(field) => (
-                    <field.TextField
-                      label={t`Fecha límite de respuesta`}
-                      type="date"
-                      required
-                      className="h-11 rounded-xl bg-background"
-                    />
+                        </div>
+                      )}
+                    </FieldRow>
                   )}
                 </form.AppField>
 
                 <form.AppField name="platforms">
                   {(field) => (
                     <FieldRow
-                      label={t`Plataformas`}
+                      label={t`Publicar en`}
                       error={
                         field.state.meta.errors.length > 0
                           ? firstErrorMessage(field.state.meta.errors)
@@ -504,11 +482,17 @@ export function SendOfferSidesheet({
                                 aria-pressed={selected}
                                 onClick={() => updatePlatforms(platform)}
                                 className={cn(
-                                  'rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors',
+                                  'inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-3 py-2 text-[length:var(--font-size-sm)] font-medium text-foreground transition-colors',
                                   selected &&
                                     'border-primary bg-primary text-primary-foreground',
                                 )}
                               >
+                                {selected ? (
+                                  <Check
+                                    className="size-3.5"
+                                    aria-hidden="true"
+                                  />
+                                ) : null}
                                 {getPlatformLabel(platform)}
                               </button>
                             )
@@ -518,30 +502,150 @@ export function SendOfferSidesheet({
                     </FieldRow>
                   )}
                 </form.AppField>
+
+                <div className="space-y-2 rounded-xl border border-border bg-background p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-0.5">
+                      <p className="text-[length:var(--font-size-sm)] font-semibold text-card-foreground">
+                        {t`Un contenido para todas las redes`}
+                      </p>
+                      <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                        {t`Desactivá el switch si cada plataforma necesita contenido y monto propios.`}
+                      </p>
+                    </div>
+                    <Switch
+                      aria-label={t`Un contenido para todas las redes`}
+                      checked={offerMode === 'same_content'}
+                      onCheckedChange={(checked) =>
+                        setMode(checked ? 'same_content' : 'per_platform')
+                      }
+                    />
+                  </div>
+                  {modeError ? (
+                    <p
+                      role="status"
+                      aria-live="polite"
+                      className="text-[length:var(--font-size-xs)] text-destructive"
+                    >
+                      {modeError}
+                    </p>
+                  ) : null}
+                </div>
+              </section>
+
+              <section className="space-y-3 rounded-2xl border border-border bg-muted p-4">
+                <header className="space-y-0.5">
+                  <h4 className="text-[length:var(--font-size-sm)] font-semibold text-card-foreground">
+                    {t`Fechas`}
+                  </h4>
+                  <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+                    {t`Hitos clave de esta oferta.`}
+                  </p>
+                </header>
+
+                <form.AppField name="tentative_publish_date">
+                  {(field) => (
+                    <TimelineDateRow
+                      icon={
+                        <CalendarIcon
+                          className="size-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                      }
+                      title={t`Publicación tentativa`}
+                      hint={t`Día ideal para que el creator publique.`}
+                      value={field.state.value}
+                      onChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                      ariaLabel={t`Publicación tentativa`}
+                      error={
+                        field.state.meta.errors.length > 0
+                          ? firstErrorMessage(field.state.meta.errors)
+                          : undefined
+                      }
+                    />
+                  )}
+                </form.AppField>
+
+                <form.AppField name="offer_deadline">
+                  {(field) => (
+                    <TimelineDateRow
+                      icon={
+                        <CalendarIcon
+                          className="size-4 text-destructive"
+                          aria-hidden="true"
+                        />
+                      }
+                      title={t`Fecha límite`}
+                      hint={t`Último día válido para publicar.`}
+                      value={field.state.value}
+                      onChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                      ariaLabel={t`Fecha límite`}
+                      error={
+                        field.state.meta.errors.length > 0
+                          ? firstErrorMessage(field.state.meta.errors)
+                          : undefined
+                      }
+                    />
+                  )}
+                </form.AppField>
               </section>
 
               {offerMode === 'same_content' ? (
                 <section className="space-y-3 rounded-2xl border border-border bg-muted p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="text-sm font-semibold text-card-foreground">
+                  <header className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        aria-label={t`Bonos de oferta`}
+                        checked={bonusesEnabled}
+                        onCheckedChange={setBonusesEnabled}
+                      />
+                      <Zap
+                        className="size-4 text-[color:var(--color-warning,var(--primary))]"
+                        aria-hidden="true"
+                      />
+                      <h4 className="text-[length:var(--font-size-sm)] font-semibold text-card-foreground">
                         {t`Bonos de oferta`}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {t`Sumá incentivos si el creator entrega antes.`}
-                      </p>
+                      </h4>
                     </div>
-                    <Switch
-                      aria-label={t`Bonos de oferta`}
-                      checked={bonusTerms?.enabled ?? false}
-                      onCheckedChange={setBonusesEnabled}
-                    />
-                  </div>
+                    <div className="flex items-center gap-2">
+                      {activeBonusCount > 0 ? (
+                        <span className="inline-flex items-center rounded-full bg-background px-2 py-0.5 text-[length:var(--font-size-xs)] font-medium text-muted-foreground">
+                          {activeBonusCount === 1
+                            ? t`${activeBonusCount} activo`
+                            : t`${activeBonusCount} activos`}
+                        </span>
+                      ) : null}
+                      {bonusesEnabled ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={
+                            bonusesCollapsed ? t`Expandir` : t`Colapsar`
+                          }
+                          aria-expanded={!bonusesCollapsed}
+                          onClick={() =>
+                            setBonusesCollapsed((value) => !value)
+                          }
+                          className="rounded-full text-muted-foreground"
+                        >
+                          <ChevronUp
+                            className={cn(
+                              'size-4 transition-transform',
+                              bonusesCollapsed && 'rotate-180',
+                            )}
+                          />
+                        </Button>
+                      ) : null}
+                    </div>
+                  </header>
 
                   <div
                     className={cn(
                       'grid transition-[grid-template-rows,opacity] duration-200',
-                      bonusTerms?.enabled
+                      showBonusList
                         ? 'grid-rows-[1fr] opacity-100'
                         : 'grid-rows-[0fr] opacity-0',
                     )}
@@ -568,19 +672,35 @@ export function SendOfferSidesheet({
               ) : null}
 
               <section className="space-y-3 rounded-2xl border border-border bg-muted p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-card-foreground">
-                    {t`Aceptación y cancelación`}
-                  </h3>
-                  <ChevronDown className="size-4 text-muted-foreground" />
-                </div>
-                <ul className="space-y-2 text-xs text-muted-foreground">
-                  <li>{t`La oferta se bloquea hasta que el creator responde.`}</li>
-                  <li>{t`Podés cancelar antes de que sea aceptada.`}</li>
+                <h4 className="text-[length:var(--font-size-sm)] font-semibold text-card-foreground">
+                  {t`Aceptación y cancelación`}
+                </h4>
+                <ul className="space-y-2 text-[length:var(--font-size-xs)] text-muted-foreground">
+                  <RuleRow
+                    icon={
+                      <Check
+                        className="size-3.5 text-primary"
+                        aria-hidden="true"
+                      />
+                    }
+                  >
+                    {t`El creator tiene 72 hs para aceptar. Si expira, la oferta se rechaza automáticamente.`}
+                  </RuleRow>
+                  <RuleRow
+                    icon={
+                      <Ban
+                        className="size-3.5 text-muted-foreground"
+                        aria-hidden="true"
+                      />
+                    }
+                  >
+                    {t`La marca puede cancelar antes de la aceptación. Después, requiere que se venza la fecha límite.`}
+                  </RuleRow>
                 </ul>
               </section>
 
               <OfferSummary
+                offerMode={offerMode}
                 amount={amount}
                 bonusTerms={
                   offerMode === 'same_content' ? bonusTerms : undefined
@@ -609,5 +729,88 @@ export function SendOfferSidesheet({
         )}
       </SheetContent>
     </Sheet>
+  )
+}
+
+interface TimelineDateRowProps {
+  icon: React.ReactNode
+  title: string
+  hint: string
+  value: string
+  onChange: (value: string) => void
+  onBlur: () => void
+  ariaLabel: string
+  error?: string
+}
+
+function TimelineDateRow({
+  icon,
+  title,
+  hint,
+  value,
+  onChange,
+  onBlur,
+  ariaLabel,
+  error,
+}: TimelineDateRowProps) {
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3">
+        <div className="flex items-start gap-3">
+          <span
+            aria-hidden="true"
+            className="mt-0.5 inline-flex size-8 items-center justify-center rounded-lg bg-muted"
+          >
+            {icon}
+          </span>
+          <div className="space-y-0.5">
+            <p className="text-[length:var(--font-size-sm)] font-medium text-card-foreground">
+              {title}
+            </p>
+            <p className="text-[length:var(--font-size-xs)] text-muted-foreground">
+              {hint}
+            </p>
+          </div>
+        </div>
+        <Input
+          type="date"
+          aria-label={ariaLabel}
+          aria-invalid={error ? true : undefined}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
+          className="h-9 w-[10.5rem] rounded-lg bg-input/40 font-mono text-[length:var(--font-size-xs)]"
+        />
+      </div>
+      {error ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="text-[length:var(--font-size-xs)] text-destructive"
+        >
+          {error}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+function RuleRow({
+  icon,
+  children,
+}: {
+  icon: React.ReactNode
+  children: React.ReactNode
+}) {
+  return (
+    <li className="flex items-start gap-2">
+      <span
+        aria-hidden="true"
+        className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center"
+      >
+        {icon}
+      </span>
+      <span>{children}</span>
+    </li>
   )
 }

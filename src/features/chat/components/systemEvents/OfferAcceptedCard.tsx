@@ -2,13 +2,9 @@ import { t } from '@lingui/core/macro'
 import { CheckCircle2 } from 'lucide-react'
 
 import type { MessageItem } from '#/features/chat/types'
-import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import { EventBubble } from '#/shared/ui/EventBubble'
 
-import { OfferEventDetails } from './OfferEventDetails'
-import {
-  extractOfferSnapshotV3,
-  formatSnapshotDate,
-} from './offerEventCardUtils'
+import { extractOfferSnapshotV3 } from './offerEventCardUtils'
 
 interface OfferAcceptedCardProps {
   message: MessageItem
@@ -20,28 +16,9 @@ export function OfferAcceptedCard({ message }: OfferAcceptedCardProps) {
 
   return (
     <article role="article" aria-label={t`Oferta aceptada`}>
-      <SystemEventCard
-        tone="success"
-        kicker={t`Oferta aceptada`}
-        icon={CheckCircle2}
-        headerVariant="solid"
-      >
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-foreground">
-            {snapshot.acceptedAt ? (
-              <>
-                {t`La oferta fue aceptada el `}
-                <time dateTime={snapshot.acceptedAt}>
-                  {formatSnapshotDate(snapshot.acceptedAt)}
-                </time>
-              </>
-            ) : (
-              t`La oferta fue aceptada.`
-            )}
-          </p>
-          <OfferEventDetails snapshot={snapshot} />
-        </div>
-      </SystemEventCard>
+      <EventBubble severity="success" direction="in" icon={CheckCircle2}>
+        {t`Oferta aceptada`}
+      </EventBubble>
     </article>
   )
 }

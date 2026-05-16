@@ -7,7 +7,7 @@ import { generateIdempotencyKey } from '#/shared/api/idempotency'
 import { useRequestChangesMutation } from '#/features/deliverables/api/requestChanges'
 import type { ChangeCategory } from '#/features/deliverables/api/requestChanges'
 import { trackChangeRequestSubmitted } from '#/features/deliverables/analytics'
-import type { OfferType } from '#/features/deliverables/types'
+import type { OfferMode } from '#/features/offers/types'
 
 const NOTES_MAX_LENGTH = 4000
 
@@ -39,7 +39,7 @@ export function useRequestChangesFlow(
     onSuccess?: () => void
     onConflict?: () => void
     analytics?: {
-      offerType: OfferType
+      offerMode: OfferMode
       deliverableIndex: number
       draftVersion: number
       roundIndex: number
@@ -111,7 +111,7 @@ export function useRequestChangesFlow(
         if (options?.analytics) {
           trackChangeRequestSubmitted({
             actor_kind: 'brand',
-            offer_type: options.analytics.offerType,
+            offer_mode: options.analytics.offerMode,
             deliverable_index: options.analytics.deliverableIndex,
             draft_version: options.analytics.draftVersion,
             categories: sortedCategories,

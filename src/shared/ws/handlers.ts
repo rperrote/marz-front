@@ -8,25 +8,17 @@ import type {
 } from '#/features/deliverables/types'
 import {
   trackDeliverableTotalRounds,
-  trackMultistageStageUnlocked,
   trackTimeToResolveRound,
 } from '#/features/deliverables/analytics'
 import { getDeliverableLinksQueryKey } from '#/features/deliverables/hooks/useDeliverableLinks'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
-import {
-  getConversationOffersQueryKey,
-  getOfferQueryKey,
-} from '#/shared/queries/offers'
-
 import type { DomainEventEnvelope, EventHandler } from './events'
 import type {
   ChangesRequestedWSPayload,
   DraftApprovedWSPayload,
   DraftSubmittedWSPayload,
   DeliverableChangedWSPayload,
-  StageApprovedWSPayload,
-  StageOpenedWSPayload,
 } from './types'
 
 const getChangeRequestsQueryKey = (deliverableId: string) =>
@@ -50,7 +42,6 @@ interface SystemEventMessage {
  */
 export function createWsHandlers(
   queryClient: QueryClient,
-  sessionKind?: 'brand' | 'creator',
 ): Record<string, EventHandler> {
   const handleDeliverableUpdated: EventHandler = (envelope) => {
     const payload = (
@@ -71,7 +62,8 @@ export function createWsHandlers(
       if (deliverableAnalytics?.deliverable.latest_change_request) {
         trackTimeToResolveRound({
           deliverable_index: deliverableAnalytics.deliverableIndex,
-          round_index: deliverableAnalytics.deliverable.change_requests_count,
+          round_index:
+            deliverableAnalytics.deliverable.change_requests_count ?? 0,
           resolution: 'another_round',
           round_duration_seconds: secondsBetween(
             deliverableAnalytics.deliverable.latest_change_request.requested_at,
@@ -99,7 +91,8 @@ export function createWsHandlers(
       if (deliverableAnalytics?.deliverable.latest_change_request) {
         trackTimeToResolveRound({
           deliverable_index: deliverableAnalytics.deliverableIndex,
-          round_index: deliverableAnalytics.deliverable.change_requests_count,
+          round_index:
+            deliverableAnalytics.deliverable.change_requests_count ?? 0,
           resolution: 'approved',
           round_duration_seconds: secondsBetween(
             deliverableAnalytics.deliverable.latest_change_request.requested_at,
@@ -110,7 +103,8 @@ export function createWsHandlers(
       if (deliverableAnalytics) {
         trackDeliverableTotalRounds({
           deliverable_index: deliverableAnalytics.deliverableIndex,
-          total_rounds: deliverableAnalytics.deliverable.change_requests_count,
+          total_rounds:
+            deliverableAnalytics.deliverable.change_requests_count ?? 0,
           final_outcome: 'approved',
         })
       }
@@ -154,75 +148,6 @@ export function createWsHandlers(
     'deliverables.item.changed': handleDeliverableUpdated,
 
     'deliverables.item.updated': handleDeliverableUpdated,
-
-    'stage.approved': (envelope) => {
-      const payload = (envelope as DomainEventEnvelope<StageApprovedWSPayload>)
-        .payload
-
-      insertSystemEventMessage(queryClient, {
-        id: envelope.event_id,
-        conversation_id: payload.conversation_id,
-        author_account_id: envelope.actor_account_id ?? null,
-        type: 'system_event',
-        text_content: null,
-        event_type: 'StageApproved',
-        payload: {},
-        created_at: envelope.occurred_at,
-        read_by_self: false,
-      })
-
-      void queryClient.invalidateQueries({
-        queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
-      })
-      void queryClient.invalidateQueries({
-        queryKey: getOfferQueryKey(payload.offer_id),
-      })
-      void queryClient.invalidateQueries({
-        queryKey: getConversationOffersQueryKey(payload.conversation_id),
-      })
-    },
-
-    'stage.opened': (envelope) => {
-      const payload = (envelope as DomainEventEnvelope<StageOpenedWSPayload>)
-        .payload
-
-      if (sessionKind === 'brand') {
-        trackMultistageStageUnlocked({
-          offer_id: payload.offer_id,
-          stage_id: payload.stage_id,
-          position: payload.position,
-        })
-      }
-
-      insertSystemEventMessage(queryClient, {
-        id: envelope.event_id,
-        conversation_id: payload.conversation_id,
-        author_account_id: envelope.actor_account_id ?? null,
-        type: 'system_event',
-        text_content: null,
-        event_type: 'StageOpened',
-        payload: {
-          snapshot: {
-            position: payload.position,
-            total: payload.total_stages,
-            name: payload.name,
-            prev_stage_position: payload.prev_stage_position,
-          },
-        },
-        created_at: envelope.occurred_at,
-        read_by_self: false,
-      })
-
-      void queryClient.invalidateQueries({
-        queryKey: getConversationDeliverablesQueryKey(payload.conversation_id),
-      })
-      void queryClient.invalidateQueries({
-        queryKey: ['deliverable'],
-      })
-      void queryClient.invalidateQueries({
-        queryKey: getConversationOffersQueryKey(payload.conversation_id),
-      })
-    },
   }
 }
 

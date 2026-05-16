@@ -4,14 +4,9 @@ import { CircleDollarSign } from 'lucide-react'
 
 import type { MessageItem } from '#/features/chat/types'
 import { trackCardSeen } from '#/shared/analytics/paymentCardSeen'
-import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import { EventBubble } from '#/shared/ui/EventBubble'
 
-import {
-  extractPaymentMarkedSnapshotV3,
-  formatPlatforms,
-  formatSnapshotAmount,
-  formatSnapshotDate,
-} from './offerEventCardUtils'
+import { extractPaymentMarkedSnapshotV3 } from './offerEventCardUtils'
 
 interface PaymentMarkedCardProps {
   message: MessageItem
@@ -59,64 +54,22 @@ export function PaymentMarkedCard({
   if (!snapshot) return null
 
   const side = viewer.kind === 'brand' ? 'out' : 'in'
-  const formattedAmount = formatSnapshotAmount(
-    snapshot.amount,
-    snapshot.currency,
-  )
-  const deliverablesCount = snapshot.deliverablesCount
 
   return (
     <article
       ref={cardRef}
       role="article"
       aria-label={t`Pago marcado`}
-      className={`flex py-1 ${side === 'out' ? 'justify-end' : 'justify-start'}`}
       data-testid="payment-marked-card"
       data-highlighted={highlighted ? 'true' : undefined}
     >
-      <SystemEventCard
-        tone="success"
-        kicker={t`Pago marcado`}
+      <EventBubble
+        severity="success"
+        direction={side}
         icon={CircleDollarSign}
-        headerVariant="solid"
-        className={
-          highlighted
-            ? 'border-ring bg-accent/40 shadow-[0_0_0_3px_var(--ring)]'
-            : undefined
-        }
       >
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-foreground">
-            {t`Pago de ${formattedAmount} marcado.`}
-          </p>
-          <dl className="grid gap-2 text-sm text-foreground sm:grid-cols-2">
-            <div className="rounded-xl bg-muted px-3 py-2">
-              <dt className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t`Plataformas`}
-              </dt>
-              <dd className="mt-0.5 font-semibold">
-                {formatPlatforms(snapshot.platforms)}
-              </dd>
-            </div>
-            <div className="rounded-xl bg-muted px-3 py-2">
-              <dt className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t`Entregables`}
-              </dt>
-              <dd className="mt-0.5 font-semibold">{deliverablesCount}</dd>
-            </div>
-            <div className="rounded-xl bg-muted px-3 py-2 sm:col-span-2">
-              <dt className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t`Fecha`}
-              </dt>
-              <dd className="mt-0.5 font-semibold">
-                <time dateTime={snapshot.declaredAt}>
-                  {formatSnapshotDate(snapshot.declaredAt)}
-                </time>
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </SystemEventCard>
+        {t`Pago marcado`}
+      </EventBubble>
     </article>
   )
 }

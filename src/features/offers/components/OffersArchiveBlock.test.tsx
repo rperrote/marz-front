@@ -5,7 +5,7 @@ import { axe } from 'vitest-axe'
 
 import { OffersArchiveBlock } from './OffersArchiveBlock'
 import type { ArchivedOfferDetailItem } from '#/features/offers/hooks/useConversationOffers'
-import type { OfferDetailDTO } from '#/features/offers/types'
+import type { OfferDetailDTO, OfferMode } from '#/features/offers/types'
 
 vi.mock('@lingui/core/macro', () => ({
   t: Object.assign(
@@ -17,48 +17,57 @@ vi.mock('@lingui/core/macro', () => ({
 
 function makeItem(
   id: string,
-  type: ArchivedOfferDetailItem['type'],
+  offerMode: OfferMode,
   status: OfferDetailDTO['status'],
   amount = '2800.00',
   offerOverrides: Partial<OfferDetailDTO> = {},
 ): ArchivedOfferDetailItem {
   return {
-    type,
     offer: {
       id,
       campaign_id: 'campaign-1',
       brand_workspace_id: 'ws-1',
       creator_account_id: 'creator-1',
       created_by_account_id: 'creator-1',
-      type,
+      conversation_id: 'conv-1',
+      offer_mode: offerMode,
       status,
       amount,
+      currency: 'USD',
       bonus_terms: null,
-      deadline: null,
+      tentative_publish_date: '2024-09-19',
+      offer_deadline: '2024-09-21',
       expires_at: '2024-09-21T12:00:00Z',
       description: '',
-      deliverable: { platform: 'youtube', format: 'yt_long' },
+      platforms: ['youtube'],
+      deliverables: [
+        {
+          position: 1,
+          platform: 'youtube',
+          format: 'yt_long',
+          quantity: 1,
+          amount,
+        },
+      ],
       created_at: '2024-09-14T12:00:00Z',
       updated_at: '2024-09-14T12:00:00Z',
       sent_at: '2024-09-14T12:00:00Z',
-      deliverables: [],
-      stages: [],
       ...offerOverrides,
     },
   }
 }
 
 const archiveItems: ArchivedOfferDetailItem[] = [
-  makeItem('offer-1-aaaaaaaa', 'bundle', 'sent'),
-  makeItem('offer-2-bbbbbbbb', 'multistage', 'accepted', '3200.00'),
+  makeItem('offer-1-aaaaaaaa', 'per_platform', 'sent'),
+  makeItem('offer-2-bbbbbbbb', 'same_content', 'accepted', '3200.00'),
 ]
 
 describe('OffersArchiveBlock', () => {
-  it('renders empty state when no items', () => {
-    render(
+  it('renders nothing when there are no items', () => {
+    const { container } = render(
       <OffersArchiveBlock items={[]} nextCursor={null} actorKind="brand" />,
     )
-    expect(screen.getByText('Sin ofertas anteriores')).toBeInTheDocument()
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('is collapsed by default', () => {
@@ -106,17 +115,35 @@ describe('OffersArchiveBlock', () => {
     render(
       <OffersArchiveBlock
         items={[
-          makeItem('offer-paid-aaaaaaaa', 'single', 'accepted', '1000.00', {
-            paid_at: '2026-05-15T12:00:00Z',
-          }),
-          makeItem('offer-cancel-pre', 'single', 'cancelled', '1000.00', {
-            cancellation_phase: 'pre',
-          }),
-          makeItem('offer-cancel-post', 'single', 'cancelled', '1000.00', {
-            cancellation_phase: 'post',
-          }),
-          makeItem('offer-rejected', 'single', 'rejected'),
-          makeItem('offer-expired', 'single', 'expired'),
+          makeItem(
+            'offer-paid-aaaaaaaa',
+            'same_content',
+            'accepted',
+            '1000.00',
+            {
+              paid_at: '2026-05-15T12:00:00Z',
+            },
+          ),
+          makeItem(
+            'offer-cancel-pre',
+            'same_content',
+            'cancelled',
+            '1000.00',
+            {
+              cancellation_phase: 'pre_accept',
+            },
+          ),
+          makeItem(
+            'offer-cancel-post',
+            'same_content',
+            'cancelled',
+            '1000.00',
+            {
+              cancellation_phase: 'post_accept',
+            },
+          ),
+          makeItem('offer-rejected', 'same_content', 'rejected'),
+          makeItem('offer-expired', 'same_content', 'expired'),
         ]}
         nextCursor={null}
         actorKind="brand"
@@ -130,38 +157,6 @@ describe('OffersArchiveBlock', () => {
     expect(screen.getByText('Cancelada (post)')).toBeInTheDocument()
     expect(screen.getByText('Rechazada')).toBeInTheDocument()
     expect(screen.getByText('Expirada')).toBeInTheDocument()
-  })
-
-  it('rendersTypeBadge', async () => {
-    const user = userEvent.setup()
-    render(
-      <OffersArchiveBlock
-        items={archiveItems}
-        nextCursor={null}
-        actorKind="brand"
-      />,
-    )
-    await user.click(screen.getByRole('button', { expanded: false }))
-    expect(screen.getByText('Bundle')).toBeInTheDocument()
-    expect(screen.getByText('Multi-stage')).toBeInTheDocument()
-  })
-
-  it('coexistingPendingOffersOfDifferentTypes', async () => {
-    const user = userEvent.setup()
-    render(
-      <OffersArchiveBlock
-        items={[
-          makeItem('offer-bundle-aaaaaaaa', 'bundle', 'sent'),
-          makeItem('offer-single-bbbbbbbb', 'single', 'sent'),
-        ]}
-        nextCursor={null}
-        actorKind="brand"
-      />,
-    )
-    await user.click(screen.getByRole('button', { expanded: false }))
-    expect(screen.getAllByText('Pendiente')).toHaveLength(2)
-    expect(screen.getByText('Bundle')).toBeInTheDocument()
-    expect(screen.getByText('Single')).toBeInTheDocument()
   })
 
   it('shows load more button when next_cursor exists', async () => {

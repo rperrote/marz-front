@@ -3,7 +3,6 @@ import {
   Film,
   Instagram,
   Link as LinkIcon,
-  Lock,
   Music,
   Plus,
   Twitter,
@@ -18,7 +17,6 @@ import { cn } from '#/lib/utils'
 import type {
   DeliverableDTO,
   PublishedLinkStatus,
-  StageStatus,
 } from '#/features/deliverables/types'
 import { useDeliverableLinks } from '#/features/deliverables/hooks/useDeliverableLinks'
 import { useApproveLink } from '#/features/deliverables/hooks/useApproveLink'
@@ -49,7 +47,6 @@ const nonUploadableStatuses: ReadonlySet<DeliverableDTO['status']> = new Set([
 
 export interface DeliverableListItemProps {
   deliverable: DeliverableDTO
-  stageStatus?: StageStatus
   sessionKind: 'brand' | 'creator'
   viewerRole?: MarkAsPaidViewer['role']
   onUploadDraft: (deliverableId: string) => void
@@ -59,7 +56,6 @@ export interface DeliverableListItemProps {
 
 export function DeliverableListItem({
   deliverable,
-  stageStatus,
   sessionKind,
   viewerRole,
   onUploadDraft,
@@ -67,7 +63,6 @@ export function DeliverableListItem({
   onSubmitLink,
 }: DeliverableListItemProps) {
   const PlatformIcon = platformIcon[deliverable.platform] ?? Film
-  const isLocked = stageStatus === 'locked'
   const isNonUploadable = nonUploadableStatuses.has(deliverable.status)
 
   const isCreator = sessionKind === 'creator'
@@ -82,7 +77,6 @@ export function DeliverableListItem({
 
   const canUpload =
     isCreator &&
-    !isLocked &&
     !isNonUploadable &&
     (deliverable.status === 'pending' ||
       deliverable.status === 'changes_requested' ||
@@ -90,7 +84,6 @@ export function DeliverableListItem({
 
   const canSubmitLink =
     isCreator &&
-    !isLocked &&
     (deliverable.status === 'draft_approved' ||
       deliverable.status === 'link_submitted')
   const isLinkResubmission =
@@ -139,7 +132,6 @@ export function DeliverableListItem({
     <div
       className={cn(
         'flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3 transition-colors',
-        isLocked && 'opacity-60',
       )}
     >
       <div className="flex items-center gap-2">
@@ -188,11 +180,6 @@ export function DeliverableListItem({
           <Plus className="size-3.5" />
           {uploadButtonLabel}
         </button>
-      ) : sessionKind === 'creator' && isLocked ? (
-        <div className="flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-transparent px-3 py-2 text-xs font-medium text-muted-foreground opacity-60">
-          <Lock className="size-3.5" />
-          {t`Subir draft`}
-        </div>
       ) : canSubmitLink ? (
         <button
           type="button"

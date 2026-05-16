@@ -190,25 +190,6 @@ export interface DeliverableChangedWSPayload {
   current_link?: PublishedLink | null
 }
 
-export interface StageApprovedWSPayload {
-  conversation_id: string
-  offer_id: string
-  stage_id: string
-  position: number
-  total_stages: number
-  approved_at: string
-}
-
-export interface StageOpenedWSPayload {
-  conversation_id: string
-  offer_id: string
-  stage_id: string
-  position: number
-  total_stages: number
-  name: string
-  prev_stage_position: number | null
-}
-
 export type DomainWsEvent =
   | (DomainEventEnvelope<MessageCreatedPayload> & {
       event_type: 'chat.message.created'
@@ -242,12 +223,6 @@ export type DomainWsEvent =
     })
   | (DomainEventEnvelope<DeliverableChangedWSPayload> & {
       event_type: 'deliverables.item.updated'
-    })
-  | (DomainEventEnvelope<StageApprovedWSPayload> & {
-      event_type: 'stage.approved'
-    })
-  | (DomainEventEnvelope<StageOpenedWSPayload> & {
-      event_type: 'stage.opened'
     })
   | (DomainEventEnvelope<CampaignConfigurationUpdatedPayload> & {
       event_type: 'campaigns.configuration.updated'

@@ -2,12 +2,9 @@ import { t } from '@lingui/core/macro'
 import { Clock3 } from 'lucide-react'
 
 import type { MessageItem } from '#/features/chat/types'
-import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import { EventBubble } from '#/shared/ui/EventBubble'
 
-import {
-  extractOfferSnapshotV3,
-  formatSnapshotDate,
-} from './offerEventCardUtils'
+import { extractOfferSnapshotV3 } from './offerEventCardUtils'
 
 interface OfferExpiredCardProps {
   message: MessageItem
@@ -19,20 +16,9 @@ export function OfferExpiredCard({ message }: OfferExpiredCardProps) {
 
   return (
     <article role="article" aria-label={t`Oferta vencida`}>
-      <SystemEventCard tone="warning" kicker={t`Oferta vencida`} icon={Clock3}>
-        <p className="text-sm font-semibold text-foreground">
-          {snapshot.expiredAt ? (
-            <>
-              {t`La oferta venció el `}
-              <time dateTime={snapshot.expiredAt}>
-                {formatSnapshotDate(snapshot.expiredAt)}
-              </time>
-            </>
-          ) : (
-            t`La oferta venció.`
-          )}
-        </p>
-      </SystemEventCard>
+      <EventBubble severity="warning" direction="in" icon={Clock3}>
+        {t`Oferta vencida`}
+      </EventBubble>
     </article>
   )
 }

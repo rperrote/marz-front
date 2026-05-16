@@ -2,9 +2,8 @@ import { t } from '@lingui/core/macro'
 import { Send } from 'lucide-react'
 
 import type { MessageItem } from '#/features/chat/types'
-import { SystemEventCard } from '#/shared/ui/SystemEventCard'
+import { EventBubble } from '#/shared/ui/EventBubble'
 
-import { OfferEventDetails } from './OfferEventDetails'
 import { extractOfferSnapshotV3 } from './offerEventCardUtils'
 
 interface OfferSentCardProps {
@@ -17,14 +16,9 @@ export function OfferSentCard({ message }: OfferSentCardProps) {
 
   return (
     <article role="article" aria-label={t`Oferta enviada`}>
-      <SystemEventCard tone="info" kicker={t`Oferta enviada`} icon={Send}>
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-foreground">
-            {t`La marca envió una oferta.`}
-          </p>
-          <OfferEventDetails snapshot={snapshot} />
-        </div>
-      </SystemEventCard>
+      <EventBubble severity="info" direction="out" icon={Send}>
+        {t`Oferta enviada`}
+      </EventBubble>
     </article>
   )
 }

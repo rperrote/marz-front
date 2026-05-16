@@ -22,9 +22,9 @@ function formatRemainingTime(remainingMs: number) {
   const seconds = totalSeconds % 60
   const secondsLabel = seconds.toString().padStart(2, '0')
 
-  if (remainingMs >= DAY_MS) return t`${days}d ${hours}h restantes`
-  if (remainingMs >= HOUR_MS) return t`${hours}h ${minutes}m restantes`
-  return t`${minutes}m ${secondsLabel}s restantes`
+  if (remainingMs >= DAY_MS) return t`${days}d ${hours}h`
+  if (remainingMs >= HOUR_MS) return t`${hours}h ${minutes}m`
+  return t`${minutes}m ${secondsLabel}s`
 }
 
 export function OfferCountdown({ expiresAt, status }: OfferCountdownProps) {
@@ -32,25 +32,24 @@ export function OfferCountdown({ expiresAt, status }: OfferCountdownProps) {
 
   if (status !== 'sent') return null
 
+  const renderBadge = (content: React.ReactNode) => (
+    <div className="mt-3 flex items-center gap-1.5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs font-medium text-warning">
+      <Clock className="size-3.5" aria-hidden="true" />
+      <span>{content}</span>
+    </div>
+  )
+
   if (now === null) {
-    return (
-      <div className="mt-3 flex items-center gap-1.5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs font-medium text-warning">
-        <Clock className="size-3.5" aria-hidden="true" />
-        <span>{t`Calculando tiempo restante...`}</span>
-      </div>
-    )
+    return renderBadge(t`Calculando tiempo restante...`)
   }
 
   const remainingMs = Date.parse(expiresAt) - now
-  const label =
-    Number.isNaN(remainingMs) || remainingMs <= 0
-      ? t`Expirando...`
-      : formatRemainingTime(remainingMs)
 
-  return (
-    <div className="mt-3 flex items-center gap-1.5 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-xs font-medium text-warning">
-      <Clock className="size-3.5" aria-hidden="true" />
-      <span>{label}</span>
-    </div>
+  if (Number.isNaN(remainingMs) || remainingMs <= 0) {
+    return renderBadge(t`La oferta está expirando...`)
+  }
+
+  return renderBadge(
+    t`La oferta vence en ${formatRemainingTime(remainingMs)}`,
   )
 }

@@ -5,10 +5,10 @@ import {
   trackRequestChangesModalDismissed,
   trackRequestChangesModalOpened,
 } from '#/features/deliverables/analytics'
-import type { OfferType } from '#/features/deliverables/types'
+import type { OfferMode } from '#/features/offers/types'
 
 export interface RequestChangesModalAnalyticsPayload {
-  offerType: OfferType
+  offerMode: OfferMode
   deliverableIndex: number
   draftVersion: number
   roundIndex: number
@@ -27,7 +27,7 @@ export function useRequestChangesModalAnalytics(
     submittedRef.current = false
     trackRequestChangesModalOpened({
       actor_kind: 'brand',
-      offer_type: analytics.offerType,
+      offer_mode: analytics.offerMode,
       deliverable_index: analytics.deliverableIndex,
       draft_version: analytics.draftVersion,
     })

@@ -14,7 +14,7 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 describe('OfferAcceptedCard', () => {
-  it('renders an OfferSnapshot v3 happy path', async () => {
+  it('renders the event bubble', async () => {
     const { container } = render(
       <OfferAcceptedCard
         message={makeOfferSystemMessage('OfferAccepted', {
@@ -27,20 +27,7 @@ describe('OfferAcceptedCard', () => {
     expect(
       screen.getByRole('article', { name: 'Oferta aceptada' }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/La oferta fue aceptada el/)).toBeInTheDocument()
-    expect(screen.getByText('$4,575.00')).toBeInTheDocument()
+    expect(screen.getByText('Oferta aceptada')).toBeInTheDocument()
     expect(await axe(container)).toHaveNoViolations()
-  })
-
-  it('renders when accepted_at is missing', () => {
-    render(
-      <OfferAcceptedCard
-        message={makeOfferSystemMessage('OfferAccepted', {
-          status: 'accepted',
-        })}
-      />,
-    )
-
-    expect(screen.getByText('La oferta fue aceptada.')).toBeInTheDocument()
   })
 })

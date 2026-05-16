@@ -28,16 +28,20 @@ describe('OfferCountdown', () => {
       />,
     )
 
-    expect(screen.getByText('0m 02s restantes')).toBeInTheDocument()
+    expect(
+      screen.getByText('La oferta vence en 0m 02s'),
+    ).toBeInTheDocument()
 
     await vi.advanceTimersByTimeAsync(1000)
-    expect(screen.getByText('0m 01s restantes')).toBeInTheDocument()
+    expect(
+      screen.getByText('La oferta vence en 0m 01s'),
+    ).toBeInTheDocument()
 
     await vi.advanceTimersByTimeAsync(1000)
-    expect(screen.getByText('Expirando...')).toBeInTheDocument()
+    expect(screen.getByText('La oferta está expirando...')).toBeInTheDocument()
 
     await vi.advanceTimersByTimeAsync(3000)
-    expect(screen.getByText('Expirando...')).toBeInTheDocument()
+    expect(screen.getByText('La oferta está expirando...')).toBeInTheDocument()
   })
 
   it('does not render for non-sent offers', () => {

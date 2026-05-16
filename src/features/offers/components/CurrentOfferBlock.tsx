@@ -6,12 +6,8 @@ import { Badge } from '#/components/ui/badge'
 import { Button } from '#/components/ui/button'
 import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import { formatOfferDeadline } from '#/features/offers/utils/formatOffer'
-import type {
-  OfferDetailDTO,
-  OfferDetailStatus,
-  OfferMode,
-} from '#/features/offers/types'
-import type { DeliverableDTO, StageDTO } from '#/features/deliverables/types'
+import type { OfferDetailDTO, OfferMode } from '#/features/offers/types'
+import type { DeliverableDTO } from '#/features/deliverables/types'
 import type { MarkAsPaidViewer } from '#/shared/payments/markAsPaidPermissions'
 import { canMarkOfferAsPaid } from '#/shared/payments/markAsPaidEligibility'
 import type { MarkAsPaidOffer } from '#/shared/payments/markAsPaidEligibility'
@@ -24,8 +20,10 @@ import { OfferDeliverablesList } from './OfferDeliverablesList'
 import { formatBonusWindowsLabel } from '../utils/bonusTerms'
 import { useOfferActions } from '#/features/offers/hooks/useOfferActions'
 
+type StatusKey = OfferDetailDTO['status']
+
 function getStatusConfig(): Record<
-  OfferDetailStatus,
+  StatusKey,
   {
     label: string
     variant: 'default' | 'secondary' | 'destructive' | 'outline'
@@ -65,22 +63,15 @@ function getOfferBadge(offer: OfferDetailDTO, deliverables: DeliverableDTO[]) {
   return getStatusConfig()[offer.status]
 }
 
-function getOfferMode(offer: OfferDetailDTO): OfferMode {
-  if (offer.offer_mode) return offer.offer_mode
-  return offer.type === 'bundle' ? 'per_platform' : 'same_content'
-}
-
 function getOfferModeLabel(mode: OfferMode) {
   return mode === 'per_platform' ? t`Por plataforma` : t`Mismo contenido`
 }
 
 function getOfferPlatforms(offer: OfferDetailDTO) {
   const platforms =
-    offer.platforms && offer.platforms.length > 0
+    offer.platforms.length > 0
       ? offer.platforms
-      : offer.type === 'bundle'
-        ? offer.deliverables.map((deliverable) => deliverable.platform)
-        : [offer.deliverable.platform]
+      : offer.deliverables.map((deliverable) => deliverable.platform)
 
   return Array.from(new Set(platforms)).filter(Boolean)
 }
@@ -95,16 +86,11 @@ function formatOfferPlatformLabel(platform: string) {
   return platformLabels[platform] ?? platform
 }
 
-function getOfferDeadline(offer: OfferDetailDTO) {
-  return offer.offer_deadline ?? offer.deadline
-}
-
 interface CurrentOfferBlockProps {
   offer: OfferDetailDTO | null
   actorKind: ActorKind
   conversationId?: string
   deliverables: DeliverableDTO[]
-  stages: StageDTO[]
   sessionKind: 'brand' | 'creator'
   viewerRole?: MarkAsPaidViewer['role']
   onUploadDraft: (deliverableId: string) => void
@@ -148,7 +134,6 @@ export function CurrentOfferBlock({
   actorKind,
   conversationId = '',
   deliverables,
-  stages,
   sessionKind,
   viewerRole,
   onUploadDraft,
@@ -177,11 +162,11 @@ export function CurrentOfferBlock({
   }
 
   const badge = getOfferBadge(offer, deliverables)
-  const bonusLabel = formatBonusWindowsLabel(offer.bonus_terms)
-  const currency = offer.currency ?? 'USD'
-  const offerMode = getOfferMode(offer)
+  const bonusLabel = formatBonusWindowsLabel(offer.bonus_terms ?? null)
+  const currency = offer.currency
+  const offerMode = offer.offer_mode
   const platforms = getOfferPlatforms(offer)
-  const deadline = getOfferDeadline(offer)
+  const deadline = offer.offer_deadline
   const tentativePublishDate = offer.tentative_publish_date
   const paymentOffer: MarkAsPaidOffer = {
     id: offer.id,
@@ -272,7 +257,6 @@ export function CurrentOfferBlock({
         <OfferDeliverablesList
           offer={offer}
           deliverables={deliverables}
-          stages={stages}
           sessionKind={sessionKind}
           viewerRole={viewerRole}
           actorKind={actorKind}
@@ -321,7 +305,7 @@ export function CurrentOfferBlock({
                   accept.mutate({
                     offerId: offer.id,
                     sentAt: offer.sent_at ?? offer.created_at,
-                    offerType: offer.type,
+                    offerMode: offer.offer_mode,
                   })
                 }
               >
@@ -336,7 +320,7 @@ export function CurrentOfferBlock({
                   reject.mutate({
                     offerId: offer.id,
                     sentAt: offer.sent_at ?? offer.created_at,
-                    offerType: offer.type,
+                    offerMode: offer.offer_mode,
                   })
                 }
               >

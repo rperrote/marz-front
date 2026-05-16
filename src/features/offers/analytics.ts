@@ -1,6 +1,8 @@
 // Analytics soft-disabled: backend endpoint not yet defined in OpenAPI.
 // Re-enable by routing through the Orval-generated client once the endpoint exists.
 
+import type { OfferMode } from './types'
+
 export type AmountBucket =
   | '<500'
   | '500-1000'
@@ -12,30 +14,16 @@ export type AmountBucket =
 export type ArchiveSizeBucket = '<5' | '5-10' | '10-20' | '20-50' | '>50'
 
 export type ActorKind = 'brand' | 'creator'
-export type OfferType = 'single' | 'bundle' | 'multistage'
-export type StageExpandedSurface = 'card' | 'panel'
 
-interface OfferSentBasePayload {
+interface OfferSentPayload {
   actor_kind: 'brand'
-  offer_type: OfferType
+  offer_mode: OfferMode
   platform_mix: string[]
   has_bonus_terms: boolean
   total_amount_bucket: AmountBucket
   deadline_days_from_now: number
+  deliverables_count?: number
 }
-
-type OfferSentPayload =
-  | (OfferSentBasePayload & {
-      offer_type: 'single'
-    })
-  | (OfferSentBasePayload & {
-      offer_type: 'bundle'
-      deliverables_count?: number
-    })
-  | (OfferSentBasePayload & {
-      offer_type: 'multistage'
-      stages_count?: number
-    })
 
 interface OfferEventMap {
   offer_sidesheet_opened: {
@@ -45,22 +33,22 @@ interface OfferEventMap {
   offer_sent: OfferSentPayload
   offer_received_seen: {
     actor_kind: 'creator'
-    offer_type: OfferType
+    offer_mode: OfferMode
     offer_age_seconds: number
   }
   offer_accepted: {
     actor_kind: 'creator'
-    offer_type: OfferType
+    offer_mode: OfferMode
     time_to_response_seconds: number
   }
   offer_rejected: {
     actor_kind: 'creator'
-    offer_type: OfferType
+    offer_mode: OfferMode
     time_to_response_seconds: number
   }
   offer_expired: {
     actor_kind: ActorKind
-    offer_type: OfferType
+    offer_mode: OfferMode
   }
   offer_panel_viewed: {
     actor_kind: ActorKind
@@ -73,18 +61,6 @@ interface OfferEventMap {
   offer_expired_seen: {
     actor_kind: ActorKind
     offer_age_days_at_seen: number
-  }
-  offer_type_changed_in_sidesheet: {
-    actor_kind: 'brand'
-    from_type: OfferType
-    to_type: OfferType
-    had_data: boolean
-  }
-  stage_expanded: {
-    actor_kind: ActorKind
-    offer_type: 'multistage'
-    stage_index: number
-    surface: StageExpandedSurface
   }
 }
 

@@ -7,7 +7,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ApiError } from '#/shared/api/mutator'
 
 import { SendOfferSidesheet } from './SendOfferSidesheet'
-import { useSendOfferSheetStore } from '../store/sendOfferSheetStore'
 import { useSendOfferWizard } from '../store/sendOfferWizardStore'
 
 vi.mock('@lingui/core/macro', () => ({
@@ -63,13 +62,10 @@ function createWrapper() {
 }
 
 function renderSheet() {
-  useSendOfferSheetStore.setState({
+  useSendOfferWizard.setState({
     isOpen: true,
     conversationId: 'conv-1',
-    offerType: 'single',
-    pendingOfferType: null,
-    pendingOfferTypeHadData: false,
-    isTypeChangeConfirmationOpen: false,
+    mode: 'same_content',
   })
 
   return render(
@@ -92,7 +88,7 @@ async function fillRequiredFields() {
   await user.type(screen.getByLabelText(/monto/i), '1000')
   await user.type(screen.getByLabelText(/publicación tentativa/i), '2099-12-30')
   await user.type(
-    screen.getByLabelText(/fecha límite de respuesta/i),
+    screen.getByLabelText(/fecha límite/i),
     '2099-12-31',
   )
 }
@@ -108,14 +104,6 @@ beforeEach(() => {
       budget_remaining: '5000.00',
     },
   ]
-  useSendOfferSheetStore.setState({
-    isOpen: false,
-    conversationId: null,
-    offerType: 'single',
-    pendingOfferType: null,
-    pendingOfferTypeHadData: false,
-    isTypeChangeConfirmationOpen: false,
-  })
   useSendOfferWizard.getState().reset()
 })
 
@@ -140,23 +128,25 @@ describe('SendOfferSidesheet', () => {
         }),
       )
     })
-    expect(useSendOfferSheetStore.getState().isOpen).toBe(false)
+    expect(useSendOfferWizard.getState().isOpen).toBe(false)
   })
 
-  it('preserves snapshots when switching offer mode', async () => {
+  it('keeps form values when switching offer mode', async () => {
     const user = userEvent.setup()
     renderSheet()
 
     await user.clear(screen.getByLabelText(/monto/i))
     await user.type(screen.getByLabelText(/monto/i), '1200')
     await user.click(screen.getByRole('switch', { name: /un contenido/i }))
-    await user.clear(screen.getByLabelText(/monto/i))
-    await user.type(screen.getByLabelText(/monto/i), '2400')
+
+    expect(screen.getByLabelText(/monto/i)).toHaveValue(1200)
+    expect(useSendOfferWizard.getState().mode).toBe('per_platform')
+
     await user.click(screen.getByRole('switch', { name: /un contenido/i }))
 
     expect(screen.getByLabelText(/monto/i)).toHaveValue(1200)
-    expect(useSendOfferWizard.getState().sameContent.amount).toBe(1200)
-    expect(useSendOfferWizard.getState().perPlatform.amount).toBe(2400)
+    expect(useSendOfferWizard.getState().mode).toBe('same_content')
+    expect(useSendOfferWizard.getState().draft.amount).toBe(1200)
   })
 
   it('hides and ignores bonuses in per-platform mode', async () => {
@@ -164,12 +154,12 @@ describe('SendOfferSidesheet', () => {
     renderSheet()
 
     await user.click(screen.getByRole('switch', { name: /bonos de oferta/i }))
-    expect(screen.getByText(/agregar ventana/i)).toBeInTheDocument()
+    expect(screen.getByText(/agregar bono/i)).toBeInTheDocument()
 
     await user.click(screen.getByRole('switch', { name: /un contenido/i }))
 
-    expect(screen.queryByText(/agregar ventana/i)).not.toBeInTheDocument()
-    expect(useSendOfferWizard.getState().perPlatform.bonus_terms).toEqual({
+    expect(screen.queryByText(/agregar bono/i)).not.toBeInTheDocument()
+    expect(useSendOfferWizard.getState().draft.bonus_terms).toEqual({
       enabled: false,
       speed_bonus_windows: [],
     })

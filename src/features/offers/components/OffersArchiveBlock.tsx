@@ -39,19 +39,7 @@ export function OffersArchiveBlock({
   }, [actorKind, items.length])
 
   if (items.length === 0) {
-    return (
-      <section>
-        <header className="flex items-center gap-1.5 px-1 text-muted-foreground">
-          <Archive className="size-3" />
-          <span className="font-mono text-[11px] uppercase tracking-wider">
-            {t`Ofertas archivadas`}
-          </span>
-        </header>
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          {t`Sin ofertas anteriores`}
-        </p>
-      </section>
-    )
+    return null
   }
 
   return (
@@ -64,7 +52,7 @@ export function OffersArchiveBlock({
       >
         <Archive className="size-3" />
         <span className="font-mono text-[11px] uppercase tracking-wider">
-          {t`Ofertas archivadas`}
+          {t`Ofertas anteriores`}
         </span>
         <span className="ml-auto font-mono text-[11px]">{items.length}</span>
       </button>

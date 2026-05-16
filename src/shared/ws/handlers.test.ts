@@ -15,17 +15,12 @@ import type {
   DraftSubmittedWSPayload,
   DraftApprovedWSPayload,
   DeliverableChangedWSPayload,
-  StageApprovedWSPayload,
-  StageOpenedWSPayload,
 } from './types'
 
-const mockTrackMultistageStageUnlocked = vi.fn()
 const mockTrackTimeToResolveRound = vi.fn()
 const mockTrackDeliverableTotalRounds = vi.fn()
 
 vi.mock('#/features/deliverables/analytics', () => ({
-  trackMultistageStageUnlocked: (...args: unknown[]) =>
-    mockTrackMultistageStageUnlocked(...args),
   trackTimeToResolveRound: (...args: unknown[]) =>
     mockTrackTimeToResolveRound(...args),
   trackDeliverableTotalRounds: (...args: unknown[]) =>
@@ -93,7 +88,6 @@ describe('createWsHandlers', () => {
       defaultOptions: { queries: { staleTime: Infinity } },
     })
     handlers = createWsHandlers(queryClient)
-    mockTrackMultistageStageUnlocked.mockClear()
     mockTrackTimeToResolveRound.mockClear()
     mockTrackDeliverableTotalRounds.mockClear()
   })
@@ -141,7 +135,7 @@ describe('createWsHandlers', () => {
     it('fires time_to_resolve_round analytics from cached deliverable', () => {
       queryClient.setQueryData(['conversation-deliverables', 'conv-1'], {
         offer_id: 'off-1',
-        offer_type: 'single',
+        offer_mode: 'same_content',
         deliverables: [
           makeDeliverable({ id: 'other-del' }),
           makeDeliverable({
@@ -158,7 +152,6 @@ describe('createWsHandlers', () => {
             },
           }),
         ],
-        stages: [],
       } satisfies ConversationDeliverablesResponse)
       const payload: DraftSubmittedWSPayload = {
         conversation_id: 'conv-1',
@@ -235,7 +228,7 @@ describe('createWsHandlers', () => {
     it('fires round resolution and total rounds analytics from cached deliverable', () => {
       queryClient.setQueryData(['conversation-deliverables', 'conv-1'], {
         offer_id: 'off-1',
-        offer_type: 'single',
+        offer_mode: 'same_content',
         deliverables: [
           makeDeliverable({
             id: 'del-1',
@@ -251,7 +244,6 @@ describe('createWsHandlers', () => {
             },
           }),
         ],
-        stages: [],
       } satisfies ConversationDeliverablesResponse)
       const payload: DraftApprovedWSPayload = {
         conversation_id: 'conv-1',
@@ -298,9 +290,8 @@ describe('createWsHandlers', () => {
       })
       const oldData: ConversationDeliverablesResponse = {
         offer_id: 'off-1',
-        offer_type: 'single',
+        offer_mode: 'same_content',
         deliverables: [makeDeliverable({ status: 'pending' })],
-        stages: [],
       }
       queryClient.setQueryData(['conversation-deliverables', 'conv-1'], oldData)
 
@@ -450,197 +441,6 @@ describe('createWsHandlers', () => {
     })
   })
 
-  describe('stage.approved', () => {
-    it('invalidates conversation deliverables, offer, and offers', () => {
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
-      const payload: StageApprovedWSPayload = {
-        conversation_id: 'conv-1',
-        offer_id: 'off-1',
-        stage_id: 'stage-1',
-        position: 1,
-        total_stages: 3,
-        approved_at: new Date().toISOString(),
-      }
-      const envelope = makeEnvelope('stage.approved', payload)
-
-      handlers['stage.approved']!(envelope)
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: ['conversation-deliverables', 'conv-1'],
-      })
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: ['offer', 'off-1'],
-      })
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: ['conversations', 'conv-1', 'offers'],
-      })
-    })
-
-    it('inserts StageApproved message into cache', () => {
-      const payload: StageApprovedWSPayload = {
-        conversation_id: 'conv-1',
-        offer_id: 'off-1',
-        stage_id: 'stage-1',
-        position: 1,
-        total_stages: 3,
-        approved_at: new Date().toISOString(),
-      }
-      const envelope = makeEnvelope('stage.approved', payload)
-
-      queryClient.setQueryData(['conversation-messages', 'conv-1'], {
-        pages: [
-          {
-            data: {
-              data: [],
-              next_before_cursor: null,
-              has_more: false,
-            },
-            status: 200,
-          },
-        ],
-        pageParams: [undefined],
-      })
-
-      handlers['stage.approved']!(envelope)
-
-      const cache = queryClient.getQueryData<{
-        pages: Array<{
-          data: { data: Array<{ id: string; event_type: string | null }> }
-        }>
-      }>(['conversation-messages', 'conv-1'])
-      const messages = cache?.pages[0]?.data.data
-      expect(messages).toHaveLength(1)
-      expect(messages?.[0]?.id).toBe(envelope.event_id)
-      expect(messages?.[0]?.event_type).toBe('StageApproved')
-    })
-  })
-
-  describe('stage.opened', () => {
-    it('invalidates conversation deliverables, deliverable details, and offers', () => {
-      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
-      const payload: StageOpenedWSPayload = {
-        conversation_id: 'conv-1',
-        offer_id: 'off-1',
-        stage_id: 'stage-2',
-        position: 2,
-        total_stages: 3,
-        name: 'Content Creation',
-        prev_stage_position: 1,
-      }
-      const envelope = makeEnvelope('stage.opened', payload)
-
-      handlers['stage.opened']!(envelope)
-
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: ['conversation-deliverables', 'conv-1'],
-      })
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: ['deliverable'],
-      })
-      expect(invalidateSpy).toHaveBeenCalledWith({
-        queryKey: ['conversations', 'conv-1', 'offers'],
-      })
-    })
-
-    it('inserts StageOpened message into cache', () => {
-      const payload: StageOpenedWSPayload = {
-        conversation_id: 'conv-1',
-        offer_id: 'off-1',
-        stage_id: 'stage-2',
-        position: 2,
-        total_stages: 3,
-        name: 'Content Creation',
-        prev_stage_position: 1,
-      }
-      const envelope = makeEnvelope('stage.opened', payload)
-
-      queryClient.setQueryData(['conversation-messages', 'conv-1'], {
-        pages: [
-          {
-            data: {
-              data: [],
-              next_before_cursor: null,
-              has_more: false,
-            },
-            status: 200,
-          },
-        ],
-        pageParams: [undefined],
-      })
-
-      handlers['stage.opened']!(envelope)
-
-      const cache = queryClient.getQueryData<{
-        pages: Array<{
-          data: { data: Array<{ id: string; event_type: string | null }> }
-        }>
-      }>(['conversation-messages', 'conv-1'])
-      const messages = cache?.pages[0]?.data.data
-      expect(messages).toHaveLength(1)
-      expect(messages?.[0]?.id).toBe(envelope.event_id)
-      expect(messages?.[0]?.event_type).toBe('StageOpened')
-    })
-
-    it('fires analytics when sessionKind is brand', () => {
-      mockTrackMultistageStageUnlocked.mockClear()
-      const brandHandlers = createWsHandlers(queryClient, 'brand')
-      const payload: StageOpenedWSPayload = {
-        conversation_id: 'conv-1',
-        offer_id: 'off-1',
-        stage_id: 'stage-2',
-        position: 2,
-        total_stages: 3,
-        name: 'Content Creation',
-        prev_stage_position: 1,
-      }
-      const envelope = makeEnvelope('stage.opened', payload)
-
-      brandHandlers['stage.opened']!(envelope)
-
-      expect(mockTrackMultistageStageUnlocked).toHaveBeenCalledWith({
-        offer_id: 'off-1',
-        stage_id: 'stage-2',
-        position: 2,
-      })
-    })
-
-    it('does not fire analytics when sessionKind is creator', () => {
-      mockTrackMultistageStageUnlocked.mockClear()
-      const creatorHandlers = createWsHandlers(queryClient, 'creator')
-      const payload: StageOpenedWSPayload = {
-        conversation_id: 'conv-1',
-        offer_id: 'off-1',
-        stage_id: 'stage-2',
-        position: 2,
-        total_stages: 3,
-        name: 'Content Creation',
-        prev_stage_position: 1,
-      }
-      const envelope = makeEnvelope('stage.opened', payload)
-
-      creatorHandlers['stage.opened']!(envelope)
-
-      expect(mockTrackMultistageStageUnlocked).not.toHaveBeenCalled()
-    })
-
-    it('does not fire analytics when sessionKind is undefined', () => {
-      mockTrackMultistageStageUnlocked.mockClear()
-      const payload: StageOpenedWSPayload = {
-        conversation_id: 'conv-1',
-        offer_id: 'off-1',
-        stage_id: 'stage-2',
-        position: 2,
-        total_stages: 3,
-        name: 'Content Creation',
-        prev_stage_position: 1,
-      }
-      const envelope = makeEnvelope('stage.opened', payload)
-
-      handlers['stage.opened']!(envelope)
-
-      expect(mockTrackMultistageStageUnlocked).not.toHaveBeenCalled()
-    })
-  })
 
   describe('changes.requested', () => {
     it('invalidates deliverables, messages and change-requests query keys', () => {
@@ -749,9 +549,8 @@ describe('createWsHandlers', () => {
 
       const oldData: ConversationDeliverablesResponse = {
         offer_id: 'off-1',
-        offer_type: 'single',
+        offer_mode: 'same_content',
         deliverables: [makeDeliverable({ status: 'pending' })],
-        stages: [],
       }
       qc1.setQueryData(['conversation-deliverables', 'conv-1'], oldData)
       qc2.setQueryData(['conversation-deliverables', 'conv-1'], oldData)

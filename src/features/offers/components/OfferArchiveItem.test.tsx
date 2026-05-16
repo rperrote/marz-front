@@ -14,26 +14,35 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 const sentItem: ArchivedOfferItem = {
-  type: 'bundle',
   offer: {
     id: 'a1b2c3d4-abcd-1234-abcd-abcdef123456',
     campaign_id: 'campaign-q3-abc',
     brand_workspace_id: 'ws-1',
     creator_account_id: 'creator-1',
     created_by_account_id: 'creator-1',
-    type: 'bundle',
+    conversation_id: 'conv-1',
+    offer_mode: 'per_platform',
     status: 'sent',
     amount: '2800.00',
+    currency: 'USD',
     bonus_terms: null,
-    deadline: null,
+    tentative_publish_date: '2024-09-19',
+    offer_deadline: '2024-09-21',
     expires_at: '2024-09-21T12:00:00Z',
     description: '',
-    deliverable: { platform: 'youtube', format: 'yt_long' },
+    platforms: ['youtube'],
+    deliverables: [
+      {
+        position: 1,
+        platform: 'youtube',
+        format: 'yt_long',
+        quantity: 1,
+        amount: '2800.00',
+      },
+    ],
     created_at: '2024-09-14T12:00:00Z',
     updated_at: '2024-09-14T12:00:00Z',
     sent_at: '2024-09-14T12:00:00Z',
-    deliverables: [],
-    stages: [],
   },
 }
 

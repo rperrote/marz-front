@@ -145,7 +145,6 @@ export function ConversationView({
 
   const { send: wsSend } = useChatWsListeners(conversationId, {
     enabled: true,
-    sessionKind,
     onMessageCreated,
     onTypingStarted,
     onTypingStopped,

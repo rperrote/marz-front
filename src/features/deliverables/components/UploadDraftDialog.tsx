@@ -11,7 +11,8 @@ import {
 } from '#/components/ui/dialog'
 import { useDraftUploadFlow } from '#/features/deliverables/hooks/useDraftUploadFlow'
 import type { Draft } from '#/features/deliverables/api/draftUpload'
-import type { DeliverableDTO, OfferType } from '#/features/deliverables/types'
+import type { DeliverableDTO } from '#/features/deliverables/types'
+import type { OfferMode } from '#/features/offers/types'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import { getMessagesQueryKey } from '#/shared/queries/messages'
 import { UploadProgressOverlay } from './UploadProgressOverlay'
@@ -25,7 +26,7 @@ interface UploadDraftDialogProps {
   onSuccess: (draft: Draft) => void
   title?: string
   analytics?: {
-    offerType: OfferType
+    offerMode: OfferMode
     deliverableIndex: number
     deliverableStatus: DeliverableDTO['status']
     currentVersion: number | null

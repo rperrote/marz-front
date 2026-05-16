@@ -15,7 +15,9 @@
     "/v1/test/accounts": {
       "post": {
         "operationId": "createTestAccount",
-        "tags": ["test"],
+        "tags": [
+          "test"
+        ],
         "description": "Creates a test account or returns an existing one matched by clerk_user_id.\n\nEmail is UNIQUE. If the email already belongs to another `is_test=true`\naccount (zombie from a prior run that crashed before cleanup), the\nzombie is hard-deleted and the slot is reused with the new\nclerk_user_id. If the email belongs to a non-test account the request\nis rejected with 500 (production data is never touched).\n",
         "parameters": [
           {
@@ -84,7 +86,9 @@
     "/v1/test/accounts:purge": {
       "post": {
         "operationId": "purgeTestAccounts",
-        "tags": ["test"],
+        "tags": [
+          "test"
+        ],
         "description": "Hard-deletes every is_test account whose email matches the SQL LIKE\npattern (and cascades to chat / identity dependents per the per-account\npath). Always scoped to is_test=true, so production rows are never\ntouched.\n\nThe pattern must contain at least one SQL wildcard (`%` or `_`) to\nprevent accidental scope blow-up. Returns the number of accounts\ndeleted. Use this as an escape hatch when zombies from prior runs\nblock fresh fixtures.\n",
         "parameters": [
           {
@@ -153,7 +157,9 @@
     "/v1/test/accounts/{clerk_user_id}/onboarding": {
       "post": {
         "operationId": "setTestOnboardingState",
-        "tags": ["test"],
+        "tags": [
+          "test"
+        ],
         "description": "Forces a test account into a specific onboarding state.\n",
         "parameters": [
           {
@@ -240,7 +246,9 @@
     "/v1/test/accounts/{clerk_user_id}/onboard-full": {
       "post": {
         "operationId": "onboardTestAccountFull",
-        "tags": ["test"],
+        "tags": [
+          "test"
+        ],
         "description": "Marks the account as fully onboarded for the requested kind AND seeds\nthe side effects production onboarding would create:\n\n- kind=brand → creates an `identity_brand_workspaces` row + an owner\n  `identity_brand_memberships` row.\n- kind=creator → creates an `identity_creator_profiles` row with\n  minimum valid content (niches=[\"general\"], empty content_types and\n  best_videos).\n\nIdempotent: re-running on an already-onboarded test account does not\nduplicate workspaces or profiles.\n\nUse this endpoint when the test needs an account ready for chat,\noffers, etc. Use the simpler `/onboarding` endpoint when the test\nneeds to assert behavior at a specific onboarding state.\n",
         "parameters": [
           {
@@ -327,7 +335,9 @@
     "/v1/test/conversations": {
       "post": {
         "operationId": "createTestConversation",
-        "tags": ["test"],
+        "tags": [
+          "test"
+        ],
         "description": "Creates (or returns existing) chat conversation for the brand↔creator pair.\nBypasses the production trigger flow (invite/application acceptance).\nOptionally seeds deterministic text messages for history/scroll tests.\n\nIdempotent: if a conversation already exists for the pair it is returned.\nSeed messages, when requested, are appended on top of any existing ones.\n",
         "parameters": [
           {
@@ -416,7 +426,9 @@
     "/v1/test/accounts/{clerk_user_id}": {
       "delete": {
         "operationId": "deleteTestAccount",
-        "tags": ["test"],
+        "tags": [
+          "test"
+        ],
         "description": "Hard-deletes a test account and cascades to brand_workspace_memberships,\nbrand_workspaces (when the account was the last member), creator_profiles,\nchat conversations, and chat messages owned by the account.\n\nIdempotent: returns 204 even when the account does not exist.\n",
         "parameters": [
           {
@@ -468,11 +480,16 @@
     "schemas": {
       "Error": {
         "type": "object",
-        "required": ["error"],
+        "required": [
+          "error"
+        ],
         "properties": {
           "error": {
             "type": "object",
-            "required": ["code", "message"],
+            "required": [
+              "code",
+              "message"
+            ],
             "properties": {
               "code": {
                 "type": "string"
@@ -482,7 +499,10 @@
               },
               "details": {
                 "type": "object",
-                "required": ["field", "reason"],
+                "required": [
+                  "field",
+                  "reason"
+                ],
                 "properties": {
                   "field": {
                     "type": "string"
@@ -498,15 +518,26 @@
       },
       "AccountKind": {
         "type": "string",
-        "enum": ["brand", "creator"]
+        "enum": [
+          "brand",
+          "creator"
+        ]
       },
       "OnboardingStatus": {
         "type": "string",
-        "enum": ["kind_pending", "onboarding_pending", "onboarded"]
+        "enum": [
+          "kind_pending",
+          "onboarding_pending",
+          "onboarded"
+        ]
       },
       "CreateTestAccountRequest": {
         "type": "object",
-        "required": ["clerk_user_id", "email", "full_name"],
+        "required": [
+          "clerk_user_id",
+          "email",
+          "full_name"
+        ],
         "properties": {
           "clerk_user_id": {
             "type": "string",
@@ -524,7 +555,9 @@
       },
       "PurgeTestAccountsRequest": {
         "type": "object",
-        "required": ["email_like"],
+        "required": [
+          "email_like"
+        ],
         "properties": {
           "email_like": {
             "type": "string",
@@ -535,7 +568,9 @@
       },
       "PurgeTestAccountsResponse": {
         "type": "object",
-        "required": ["deleted"],
+        "required": [
+          "deleted"
+        ],
         "properties": {
           "deleted": {
             "type": "integer",
@@ -545,7 +580,9 @@
       },
       "OnboardTestAccountFullRequest": {
         "type": "object",
-        "required": ["kind"],
+        "required": [
+          "kind"
+        ],
         "properties": {
           "kind": {
             "$ref": "#/components/schemas/AccountKind"
@@ -554,7 +591,9 @@
       },
       "SeedMessagesInput": {
         "type": "object",
-        "required": ["count"],
+        "required": [
+          "count"
+        ],
         "properties": {
           "count": {
             "type": "integer",
@@ -569,7 +608,12 @@
           },
           "mark_read_for": {
             "type": "string",
-            "enum": ["brand", "creator", "both", "none"],
+            "enum": [
+              "brand",
+              "creator",
+              "both",
+              "none"
+            ],
             "default": "none",
             "description": "Which side(s) should have read receipts inserted for the seeded\nmessages. A reader never marks their own messages as read.\n"
           }
@@ -577,7 +621,10 @@
       },
       "CreateTestConversationRequest": {
         "type": "object",
-        "required": ["brand_clerk_user_id", "creator_clerk_user_id"],
+        "required": [
+          "brand_clerk_user_id",
+          "creator_clerk_user_id"
+        ],
         "properties": {
           "brand_clerk_user_id": {
             "type": "string",
@@ -597,7 +644,10 @@
       },
       "SeedOfferReadyInput": {
         "type": "object",
-        "required": ["campaign_name", "currency"],
+        "required": [
+          "campaign_name",
+          "currency"
+        ],
         "description": "When present, the endpoint also creates an active campaign in the\nbrand workspace plus an accepted application from the creator,\nleaving the (campaign_id, conversation_id) pair ready for an\nimmediate POST /v1/offers call.\n",
         "properties": {
           "campaign_name": {
@@ -646,7 +696,9 @@
       },
       "SetTestOnboardingRequest": {
         "type": "object",
-        "required": ["status"],
+        "required": [
+          "status"
+        ],
         "properties": {
           "status": {
             "$ref": "#/components/schemas/OnboardingStatus"
@@ -740,7 +792,11 @@
       },
       "BrandWorkspaceSummary": {
         "type": "object",
-        "required": ["id", "name", "plan"],
+        "required": [
+          "id",
+          "name",
+          "plan"
+        ],
         "properties": {
           "id": {
             "type": "string",

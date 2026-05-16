@@ -7,8 +7,8 @@ import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 import type {
   OfferCancellationPhase,
   OfferDetailDTO,
+  OfferMode,
 } from '#/features/offers/types'
-import { getOfferTypeBadgeLabel, OfferTypeBadge } from './OfferTypeBadge'
 
 const archiveDateFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'short',
@@ -20,11 +20,15 @@ function formatArchiveDate(value: string) {
   return archiveDateFormatter.format(Date.parse(value))
 }
 
-function getCancellationPhase(offer: OfferDetailDTO): OfferCancellationPhase {
+function getCancellationPhase(
+  offer: OfferDetailDTO,
+): OfferCancellationPhase | null {
   if (offer.cancellation_phase) return offer.cancellation_phase
-  // Backend may omit cancellation_phase for legacy cancelled offers; treat
-  // unknown phase as pre-acceptance until the API sends an explicit value.
-  return 'pre'
+  return null
+}
+
+function getOfferModeLabel(mode: OfferMode): string {
+  return mode === 'per_platform' ? t`Por plataforma` : t`Un contenido`
 }
 
 function getBadgeConfig(offer: OfferDetailDTO): {
@@ -43,21 +47,22 @@ function getBadgeConfig(offer: OfferDetailDTO): {
   if (offer.status === 'cancelled') {
     const phase = getCancellationPhase(offer)
     return {
-      label: phase === 'post' ? t`Cancelada (post)` : t`Cancelada (pre)`,
+      label:
+        phase === 'post_accept' ? t`Cancelada (post)` : t`Cancelada (pre)`,
       variant: 'outline',
       className: 'border-warning/40 bg-warning/10 text-warning',
     }
   }
 
   const configs = {
-    sent: { label: t`Pendiente`, variant: 'secondary' },
+    sent: { label: t`Pendiente`, variant: 'secondary' as const },
     accepted: {
       label: t`Aceptada`,
-      variant: 'default',
+      variant: 'default' as const,
       className: 'bg-success text-success-foreground',
     },
-    rejected: { label: t`Rechazada`, variant: 'destructive' },
-    expired: { label: t`Expirada`, variant: 'outline' },
+    rejected: { label: t`Rechazada`, variant: 'destructive' as const },
+    expired: { label: t`Expirada`, variant: 'outline' as const },
   } satisfies Record<
     Exclude<OfferDetailDTO['status'], 'cancelled'>,
     {
@@ -77,8 +82,8 @@ interface OfferArchiveItemProps {
 export function OfferArchiveItem({ item }: OfferArchiveItemProps) {
   const offer = item.offer
   const badge = getBadgeConfig(offer)
-  const offerTypeLabel = getOfferTypeBadgeLabel(item.type)
-  const currency = offer.currency ?? 'USD'
+  const modeLabel = getOfferModeLabel(offer.offer_mode)
+  const currency = offer.currency
   // RAFITA:BLOCKER campaign_name no expuesto en OfferDTO — usar id corto hasta que backend lo agregue
   const campaignLabel = offer.campaign_id.slice(0, 8)
   const sentAt = offer.sent_at ?? offer.created_at
@@ -90,7 +95,7 @@ export function OfferArchiveItem({ item }: OfferArchiveItemProps) {
       <button
         type="button"
         className="flex w-full items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-left transition-colors hover:bg-muted/60"
-        aria-label={`${campaignLabel} — ${formatOfferAmount(offer.amount, currency)} — ${offerTypeLabel} — ${badge.label}`}
+        aria-label={`${campaignLabel} — ${formatOfferAmount(offer.amount, currency)} — ${modeLabel} — ${badge.label}`}
       >
         <div className="min-w-0 flex-1">
           <div className="font-mono text-[11px] font-semibold text-foreground">
@@ -101,7 +106,9 @@ export function OfferArchiveItem({ item }: OfferArchiveItemProps) {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          <OfferTypeBadge type={item.type} />
+          <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+            {modeLabel}
+          </span>
           <Badge
             variant={badge.variant}
             className={`shrink-0 rounded-full text-[11px] ${badge.className ?? ''}`}

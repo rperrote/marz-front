@@ -14,7 +14,7 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 describe('OfferRejectedCard', () => {
-  it('renders an OfferSnapshot v3 happy path', async () => {
+  it('renders the event bubble', async () => {
     const { container } = render(
       <OfferRejectedCard
         message={makeOfferSystemMessage('OfferRejected', {
@@ -27,19 +27,7 @@ describe('OfferRejectedCard', () => {
     expect(
       screen.getByRole('article', { name: 'Oferta rechazada' }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/La oferta fue rechazada el/)).toBeInTheDocument()
+    expect(screen.getByText('Oferta rechazada')).toBeInTheDocument()
     expect(await axe(container)).toHaveNoViolations()
-  })
-
-  it('renders when rejected_at is missing', () => {
-    render(
-      <OfferRejectedCard
-        message={makeOfferSystemMessage('OfferRejected', {
-          status: 'rejected',
-        })}
-      />,
-    )
-
-    expect(screen.getByText('La oferta fue rechazada.')).toBeInTheDocument()
   })
 })

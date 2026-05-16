@@ -14,7 +14,7 @@ vi.mock('@lingui/core/macro', () => ({
 }))
 
 describe('OfferExpiredCard', () => {
-  it('renders an OfferSnapshot v3 happy path', async () => {
+  it('renders the event bubble', async () => {
     const { container } = render(
       <OfferExpiredCard
         message={makeOfferSystemMessage('OfferExpired', {
@@ -27,19 +27,7 @@ describe('OfferExpiredCard', () => {
     expect(
       screen.getByRole('article', { name: 'Oferta vencida' }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/La oferta venció el/)).toBeInTheDocument()
+    expect(screen.getByText('Oferta vencida')).toBeInTheDocument()
     expect(await axe(container)).toHaveNoViolations()
-  })
-
-  it('renders when expired_at is missing', () => {
-    render(
-      <OfferExpiredCard
-        message={makeOfferSystemMessage('OfferExpired', {
-          status: 'expired',
-        })}
-      />,
-    )
-
-    expect(screen.getByText('La oferta venció.')).toBeInTheDocument()
   })
 })

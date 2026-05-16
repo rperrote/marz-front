@@ -113,7 +113,7 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal({
       analytics: {
-        offerType: 'single',
+        offerMode: 'same_content',
         deliverableIndex: 0,
         draftVersion: 1,
         roundIndex: 1,
@@ -125,7 +125,7 @@ describe('RequestChangesModal', () => {
 
     expect(mockTrackRequestChangesModalOpened).toHaveBeenCalledWith({
       actor_kind: 'brand',
-      offer_type: 'single',
+      offer_mode: 'same_content',
       deliverable_index: 0,
       draft_version: 1,
     })
@@ -143,7 +143,7 @@ describe('RequestChangesModal', () => {
     const user = userEvent.setup()
     renderModal({
       analytics: {
-        offerType: 'single',
+        offerMode: 'same_content',
         deliverableIndex: 0,
         draftVersion: 1,
         roundIndex: 1,
