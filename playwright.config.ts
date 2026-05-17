@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
   // chatPair fixture creates 2 Clerk users + 2 backend accounts + 2 onboards
   // + conversation + 2 sign-ins. Default 30s is too tight when Clerk is slow.
   timeout: 60_000,
@@ -28,7 +28,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'VITE_E2E=1 pnpm dev',
+    command: `VITE_E2E=1 NODE_OPTIONS='--import ./instrument.server.mjs' vite dev --host localhost --port ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: true,
     timeout: 120_000,

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { customFetch } from '#/shared/api/mutator'
+import { cancelOffer } from '#/shared/api/generated/offers/offers'
 import { generateIdempotencyKey } from '#/shared/api/idempotency'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import {
@@ -13,23 +13,12 @@ export interface CancelOfferVariables {
   conversationId: string
 }
 
-interface CancelOfferResponse {
-  data: unknown
-  status: number
-  headers: Headers
-}
-
-function getCancelOfferUrl(offerId: string) {
-  return `/v1/offers/${offerId}/cancel`
-}
-
 export function useCancelOfferMutation() {
   const queryClient = useQueryClient()
 
-  return useMutation<CancelOfferResponse, Error, CancelOfferVariables>({
-    mutationFn: ({ offerId }) =>
-      customFetch<CancelOfferResponse>(getCancelOfferUrl(offerId), {
-        method: 'POST',
+  return useMutation({
+    mutationFn: ({ offerId }: CancelOfferVariables) =>
+      cancelOffer(offerId, {
         headers: {
           'Idempotency-Key': generateIdempotencyKey(),
         },

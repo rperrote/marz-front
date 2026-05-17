@@ -15,7 +15,7 @@ export function OfferAcceptedCard({ message }: OfferAcceptedCardProps) {
   if (!snapshot) return null
 
   return (
-    <article role="article" aria-label={t`Oferta aceptada`}>
+    <article aria-label={t`Oferta aceptada`}>
       <EventBubble severity="success" direction="in" icon={CheckCircle2}>
         {t`Oferta aceptada`}
       </EventBubble>

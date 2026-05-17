@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createFileRoute, useParams, useRouter } from '@tanstack/react-router'
 import type { ErrorComponentProps } from '@tanstack/react-router'
 import { t } from '@lingui/core/macro'
@@ -25,6 +25,9 @@ export const Route = createFileRoute('/_brand/campaigns/new')({
 
 function CampaignsNewLayout() {
   const router = useRouter()
+  const [hasHydrated, setHasHydrated] = useState(() =>
+    useBriefBuilderStore.persist.hasHydrated(),
+  )
   const params = useParams({ strict: false })
   const phaseSlug = 'phase' in params ? params.phase : undefined
   const currentIndex = phaseSlug ? getPhaseIndex(phaseSlug) : -1
@@ -39,7 +42,17 @@ function CampaignsNewLayout() {
   }, [router])
 
   useEffect(() => {
-    useBriefBuilderStore.persist.rehydrate()
+    let mounted = true
+    const unsubscribe = useBriefBuilderStore.persist.onFinishHydration(() => {
+      if (mounted) setHasHydrated(true)
+    })
+    void Promise.resolve(useBriefBuilderStore.persist.rehydrate()).then(() => {
+      if (mounted) setHasHydrated(true)
+    })
+    return () => {
+      mounted = false
+      unsubscribe()
+    }
   }, [])
 
   return (
@@ -50,7 +63,7 @@ function CampaignsNewLayout() {
         exitLabel={t`Cancelar`}
       />
       <main className="flex flex-1 flex-col overflow-hidden">
-        <BriefBuilderWizard />
+        {hasHydrated ? <BriefBuilderWizard /> : <CampaignsNewPending />}
       </main>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Outlet,
   createFileRoute,
@@ -33,6 +33,9 @@ export const Route = createFileRoute('/onboarding/brand')({
 function BrandOnboardingLayout() {
   const router = useRouter()
   const meQuery = useMe()
+  const [hasHydrated, setHasHydrated] = useState(() =>
+    useBrandOnboardingStore.persist.hasHydrated(),
+  )
 
   const me = meQuery.data
   const onboardingStatus =
@@ -40,7 +43,21 @@ function BrandOnboardingLayout() {
   const kind = me?.status === 200 ? me.data.kind : undefined
 
   useEffect(() => {
-    useBrandOnboardingStore.persist.rehydrate()
+    let mounted = true
+    const unsubscribe = useBrandOnboardingStore.persist.onFinishHydration(
+      () => {
+        if (mounted) setHasHydrated(true)
+      },
+    )
+    void Promise.resolve(useBrandOnboardingStore.persist.rehydrate()).then(
+      () => {
+        if (mounted) setHasHydrated(true)
+      },
+    )
+    return () => {
+      mounted = false
+      unsubscribe()
+    }
   }, [])
 
   const params = useParams({ strict: false })
@@ -101,6 +118,7 @@ function BrandOnboardingLayout() {
   if (meQuery.isLoading) return null
   if (!me || me.status !== 200) return null
   if (kind !== 'brand' || onboardingStatus !== 'onboarding_pending') return null
+  if (!hasHydrated) return null
 
   return (
     <WizardShell

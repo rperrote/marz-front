@@ -192,7 +192,9 @@ describe('CurrentOfferBlock', () => {
       />,
     )
 
-    expect(screen.getByText('0m 02s restantes')).toBeInTheDocument()
+    expect(
+      screen.getByText('La oferta vence en 0m 02s'),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Aceptar' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Rechazar' })).toBeInTheDocument()
   })
@@ -201,7 +203,12 @@ describe('CurrentOfferBlock', () => {
     const withBonus: OfferDTO = {
       ...sameContentOffer,
       bonus_terms: {
-        speed_bonus_windows: [{ window_hours: 24, bonus_pct: '15' }],
+        speed_bonus_windows: [
+          {
+            window_hours: 24,
+            bonus_amount: { type: 'percentage', value: 15 },
+          },
+        ],
       },
     }
     renderWithQuery(<CurrentOfferBlock offer={withBonus} {...defaultProps} />)

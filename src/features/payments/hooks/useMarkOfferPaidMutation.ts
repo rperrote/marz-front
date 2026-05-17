@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { customFetch } from '#/shared/api/mutator'
+import { markOfferPaid } from '#/shared/api/generated/offers/offers'
 import { generateIdempotencyKey } from '#/shared/api/idempotency'
 import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 import {
@@ -14,29 +14,20 @@ export interface MarkOfferPaidVariables {
   amount: string
 }
 
-interface MarkOfferPaidResponse {
-  data: unknown
-  status: number
-  headers: Headers
-}
-
-function getMarkOfferPaidUrl(offerId: string) {
-  return `/v1/offers/${offerId}/mark-as-paid`
-}
-
 export function useMarkOfferPaidMutation() {
   const queryClient = useQueryClient()
 
-  return useMutation<MarkOfferPaidResponse, Error, MarkOfferPaidVariables>({
-    mutationFn: ({ offerId, amount }) =>
-      customFetch<MarkOfferPaidResponse>(getMarkOfferPaidUrl(offerId), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Idempotency-Key': generateIdempotencyKey(),
+  return useMutation({
+    mutationFn: ({ offerId, amount }: MarkOfferPaidVariables) =>
+      markOfferPaid(
+        offerId,
+        { amount },
+        {
+          headers: {
+            'Idempotency-Key': generateIdempotencyKey(),
+          },
         },
-        body: JSON.stringify({ amount }),
-      }),
+      ),
     onSuccess: async (_response, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({

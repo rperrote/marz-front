@@ -26,7 +26,7 @@ export function OfferCancelledCard({
       : t`Oferta cancelada`
 
   return (
-    <article role="article" aria-label={t`Oferta cancelada`}>
+    <article aria-label={t`Oferta cancelada`}>
       <EventBubble severity="destructive" direction="out" icon={Ban}>
         {copy}
       </EventBubble>

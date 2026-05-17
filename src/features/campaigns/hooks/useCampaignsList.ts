@@ -43,18 +43,25 @@ const compactUsdFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 })
 
+type CampaignListItemWithConfiguration = GeneratedCampaignListItem & {
+  configuration_complete?: boolean | null
+  configuration_current_step?: CampaignConfigurationStep | null
+}
+
 function mapCampaignListItem(raw: GeneratedCampaignListItem): CampaignListItem {
+  const campaign = raw as CampaignListItemWithConfiguration
+
   return {
-    id: raw.campaign_id,
-    name: raw.name,
-    status: raw.status,
-    startDate: raw.deadline ?? null,
+    id: campaign.campaign_id,
+    name: campaign.name,
+    status: campaign.status,
+    startDate: campaign.deadline ?? null,
     platforms: [],
     creators: 0,
-    budget: formatBudget(raw.budget.amount, raw.budget.currency),
+    budget: formatBudget(campaign.budget.amount, campaign.budget.currency),
     videos: { done: 0, total: 0 },
-    configurationComplete: null,
-    configurationCurrentStep: null,
+    configurationComplete: campaign.configuration_complete ?? null,
+    configurationCurrentStep: campaign.configuration_current_step ?? null,
   }
 }
 

@@ -49,7 +49,6 @@ export function OfferCountdown({ expiresAt, status }: OfferCountdownProps) {
     return renderBadge(t`La oferta está expirando...`)
   }
 
-  return renderBadge(
-    t`La oferta vence en ${formatRemainingTime(remainingMs)}`,
-  )
+  const remainingTime = formatRemainingTime(remainingMs)
+  return renderBadge(t`La oferta vence en ${remainingTime}`)
 }

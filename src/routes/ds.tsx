@@ -1124,7 +1124,10 @@ function PaymentsShowcaseGroup() {
 function OffersShowcaseGroup() {
   return (
     <>
-      <ShowcaseGroup title="Send offer sidesheet (v3)" context="features/offers">
+      <ShowcaseGroup
+        title="Send offer sidesheet (v3)"
+        context="features/offers"
+      >
         <SendOfferSidesheet
           creatorName="Luminal Studio"
           creatorAccountId="018f9b3f-2394-7a08-9cb8-b4bd3b8d0e12"
@@ -1167,7 +1170,6 @@ function OffersShowcaseGroup() {
           <OfferCardCollapsed offerId="OFR-2850" status="negotiating" />
         </div>
       </ShowcaseGroup>
-
     </>
   )
 }
@@ -1224,7 +1226,6 @@ function IdentityShowcaseGroup() {
           />
         </div>
       </ShowcaseGroup>
-
     </>
   )
 }

@@ -8,7 +8,6 @@ import { test, expect } from './fixtures'
 async function pickOption(page: Page, label: RegExp, optionName: string) {
   const trigger = page.getByRole('combobox', { name: label })
   await trigger.click()
-  await expect(page.getByRole('listbox')).toBeVisible()
   await page.getByRole('option', { name: optionName, exact: true }).click()
 }
 

@@ -41,10 +41,7 @@ function BubbleTail({ direction }: { direction: BubbleDirection }) {
           : '-left-[7px] -scale-x-100 text-muted',
       )}
     >
-      <path
-        fill="currentColor"
-        d="M0 0v13h8c-4-1-7-5-7-9C1 2 .5 1 0 0z"
-      />
+      <path fill="currentColor" d="M0 0v13h8c-4-1-7-5-7-9C1 2 .5 1 0 0z" />
     </svg>
   )
 }

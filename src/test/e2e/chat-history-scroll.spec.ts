@@ -14,19 +14,26 @@ test.describe('chat history scroll', () => {
     await brandPage.waitForSelector('[role="article"]', { timeout: 10_000 })
 
     const timeline = brandPage.locator('[data-testid="message-timeline"]')
-    const initialCount = await timeline.locator('[role="article"]').count()
+    const scroller = brandPage.locator(
+      '[data-testid="message-timeline-scroller"]',
+    )
+    const initialCount = Number(
+      await timeline.getAttribute('data-loaded-message-count'),
+    )
     expect(initialCount).toBeGreaterThan(0)
     expect(initialCount).toBeLessThan(60)
 
-    // Sube el scroll para gatillar startReached → fetchNextPage
-    await timeline.evaluate((el) => {
-      const scrollable = el.querySelector('[data-virtuoso-scroller]') ?? el
-      scrollable.scrollTop = 0
+    // Sube el scroll para gatillar startReached -> fetchNextPage.
+    await scroller.evaluate((el) => {
+      el.scrollTop = 0
+      el.dispatchEvent(new Event('scroll', { bubbles: true }))
     })
 
     // Espera a que aparezcan más mensajes que los iniciales
     await expect
-      .poll(async () => timeline.locator('[role="article"]').count(), {
+      .poll(async () => {
+        return Number(await timeline.getAttribute('data-loaded-message-count'))
+      }, {
         timeout: 10_000,
       })
       .toBeGreaterThan(initialCount)
@@ -40,16 +47,20 @@ test.describe('chat history scroll', () => {
     await brandPage.waitForSelector('[role="article"]', { timeout: 10_000 })
 
     const timeline = brandPage.locator('[data-testid="message-timeline"]')
+    const scroller = brandPage.locator(
+      '[data-testid="message-timeline-scroller"]',
+    )
 
     // Sube hasta agotar la paginación
     for (let i = 0; i < 5; i++) {
-      await timeline.evaluate((el) => {
-        const scrollable = el.querySelector('[data-virtuoso-scroller]') ?? el
-        scrollable.scrollTop = 0
+      await scroller.evaluate((el) => {
+        el.scrollTop = 0
+        el.dispatchEvent(new Event('scroll', { bubbles: true }))
       })
       await brandPage.waitForTimeout(300)
     }
 
+    await expect(timeline).toHaveAttribute('data-has-reached-beginning', 'true')
     await expect(brandPage.getByText(/inicio de la conversación/i)).toBeVisible(
       { timeout: 5_000 },
     )

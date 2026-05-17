@@ -15,7 +15,7 @@ export function OfferSentCard({ message }: OfferSentCardProps) {
   if (!snapshot) return null
 
   return (
-    <article role="article" aria-label={t`Oferta enviada`}>
+    <article aria-label={t`Oferta enviada`}>
       <EventBubble severity="info" direction="out" icon={Send}>
         {t`Oferta enviada`}
       </EventBubble>

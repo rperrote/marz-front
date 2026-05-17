@@ -96,15 +96,6 @@ export interface ChangesRequestedSnapshot {
   requested_by_account_id: string
 }
 
-export interface PaymentMarkedSnapshot {
-  event_type: 'PaymentMarked'
-  deliverable_id: string
-  amount: string
-  currency: string
-  deliverable_display_label: string
-  declared_at: string
-}
-
 export interface LinkSubmittedSnapshot {
   event_type: 'LinkSubmitted'
   deliverable_id: string

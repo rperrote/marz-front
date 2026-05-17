@@ -295,6 +295,8 @@ export function MessageTimeline({
       className="relative flex flex-1 flex-col overflow-hidden"
       style={{ minHeight: 0 }}
       data-testid="message-timeline"
+      data-loaded-message-count={allMessages.length}
+      data-has-reached-beginning={hasReachedBeginning ? 'true' : 'false'}
     >
       {shouldShowHighlightFallback ? <PaymentHighlightFallback /> : null}
       <div
@@ -302,6 +304,7 @@ export function MessageTimeline({
         onScroll={onScroll}
         className="flex-1 overflow-y-auto"
         style={{ minHeight: 0 }}
+        data-testid="message-timeline-scroller"
       >
         {hasReachedBeginning ? <ConversationBeginningPill /> : null}
         <div

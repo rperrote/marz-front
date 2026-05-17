@@ -21,6 +21,7 @@ import { TooltipProvider } from '#/components/ui/tooltip'
 import { AppI18nProvider } from '#/shared/i18n/provider'
 import { resolveLocale } from '#/shared/i18n/server'
 import { loadCatalog } from '#/shared/i18n/setup'
+import { DEFAULT_LOCALE } from '#/shared/i18n/config'
 import type { Messages } from '#/shared/i18n/setup'
 
 import type { QueryClient } from '@tanstack/react-query'
@@ -35,7 +36,7 @@ const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getIte
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async () => {
-    const locale = await resolveLocale()
+    const locale = await resolveInitialLocale()
     const messages = await loadCatalog(locale)
     return { locale, messages }
   },
@@ -58,6 +59,21 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
   shellComponent: RootDocument,
 })
+
+async function resolveInitialLocale() {
+  try {
+    return await resolveLocale()
+  } catch (error) {
+    if (
+      typeof window !== 'undefined' &&
+      error instanceof TypeError &&
+      error.message === 'Failed to fetch'
+    ) {
+      return DEFAULT_LOCALE
+    }
+    throw error
+  }
+}
 
 function ClerkTokenBridge() {
   useClerkTokenProvider()

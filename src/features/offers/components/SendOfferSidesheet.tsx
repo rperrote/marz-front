@@ -626,9 +626,7 @@ export function SendOfferSidesheet({
                             bonusesCollapsed ? t`Expandir` : t`Colapsar`
                           }
                           aria-expanded={!bonusesCollapsed}
-                          onClick={() =>
-                            setBonusesCollapsed((value) => !value)
-                          }
+                          onClick={() => setBonusesCollapsed((value) => !value)}
                           className="rounded-full text-muted-foreground"
                         >
                           <ChevronUp

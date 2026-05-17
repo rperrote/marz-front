@@ -15,7 +15,7 @@ export function OfferRejectedCard({ message }: OfferRejectedCardProps) {
   if (!snapshot) return null
 
   return (
-    <article role="article" aria-label={t`Oferta rechazada`}>
+    <article aria-label={t`Oferta rechazada`}>
       <EventBubble severity="destructive" direction="in" icon={XCircle}>
         {t`Oferta rechazada`}
       </EventBubble>

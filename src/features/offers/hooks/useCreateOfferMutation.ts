@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import type {
+  BonusAmount,
   CreateOfferRequest,
   OfferBonusTerms,
   OfferDeliverableDTO,
@@ -24,27 +25,24 @@ function toDecimalString(value: number): string {
   return value.toFixed(2)
 }
 
-function toBonusPct(
+function toBonusAmount(
   bonusAmount: OfferBonusWindowFormValues['bonus_amount'],
-  baseAmount: number,
-): string {
+): BonusAmount {
   if (bonusAmount.type === 'percentage') {
-    return toDecimalString(bonusAmount.value)
+    return { type: 'percentage', value: bonusAmount.value }
   }
-  const pct = baseAmount > 0 ? (bonusAmount.amount_usd / baseAmount) * 100 : 0
-  return toDecimalString(pct)
+  return { type: 'fixed', amount: toDecimalString(bonusAmount.amount_usd) }
 }
 
 function toBonusTerms(
   bonusTerms: OfferBonusTermsFormValues | undefined,
-  baseAmount: number,
 ): OfferBonusTerms | null {
   if (!bonusTerms?.enabled) return null
 
   return {
     speed_bonus_windows: bonusTerms.speed_bonus_windows.map((window) => ({
       window_hours: window.window_hours,
-      bonus_pct: toBonusPct(window.bonus_amount, baseAmount),
+      bonus_amount: toBonusAmount(window.bonus_amount),
     })),
   }
 }
@@ -71,7 +69,7 @@ function toCreateOfferRequest(
     tentative_publish_date: variables.tentative_publish_date,
     offer_deadline: variables.offer_deadline,
     description: '',
-    bonus_terms: toBonusTerms(variables.bonus_terms, variables.amount),
+    bonus_terms: toBonusTerms(variables.bonus_terms),
     platforms: variables.platforms,
     deliverables: toDeliverables(variables.platforms),
   }

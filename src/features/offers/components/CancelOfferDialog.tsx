@@ -28,7 +28,7 @@ interface CancelOfferDialogProps {
   todayUtcDateString?: string
 }
 
-export function getTodayUtcDateString() {
+function getTodayUtcDateString() {
   return new Date().toISOString().slice(0, 10)
 }
 

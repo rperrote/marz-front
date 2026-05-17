@@ -124,7 +124,10 @@ describe('useCreateOfferMutation', () => {
         expect.objectContaining({
           bonus_terms: {
             speed_bonus_windows: [
-              { window_hours: 24, bonus_pct: '25.00' },
+              {
+                window_hours: 24,
+                bonus_amount: { type: 'percentage', value: 25 },
+              },
             ],
           },
         }),
@@ -133,7 +136,7 @@ describe('useCreateOfferMutation', () => {
     })
   })
 
-  it('converts fixed bonus to percentage relative to amount', async () => {
+  it('forwards fixed bonus amount as decimal string', async () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     })
@@ -167,7 +170,10 @@ describe('useCreateOfferMutation', () => {
           amount: '1000.00',
           bonus_terms: {
             speed_bonus_windows: [
-              { window_hours: 24, bonus_pct: '25.00' },
+              {
+                window_hours: 24,
+                bonus_amount: { type: 'fixed', amount: '250.00' },
+              },
             ],
           },
         }),

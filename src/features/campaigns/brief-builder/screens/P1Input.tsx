@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useStore } from '@tanstack/react-form'
 import { t } from '@lingui/core/macro'
 import { useBrandSession } from '#/features/identity/session/BrandSessionContext'
@@ -35,19 +35,18 @@ export function P1Input() {
   })
 
   const values = useStore(form.store, (s) => s.values)
-  const prevRef = useRef(values)
 
-  useEffect(() => {
-    if (prevRef.current === values) return
-    prevRef.current = values
-    useBriefBuilderStore.setState((prev) => ({
-      formInput: {
-        ...prev.formInput,
-        websiteUrl: values.websiteUrl,
-        descriptionText: values.descriptionText,
-      },
-    }))
-  }, [values])
+  const updateFormInput = useCallback(
+    (patch: Partial<{ websiteUrl: string; descriptionText: string }>) => {
+      useBriefBuilderStore.setState((prev) => ({
+        formInput: {
+          ...prev.formInput,
+          ...patch,
+        },
+      }))
+    },
+    [],
+  )
 
   const handlePdfChange = useCallback(
     (file: File | null) => {
@@ -101,11 +100,17 @@ export function P1Input() {
           name="websiteUrl"
           validators={{ onBlur: websiteUrlFieldSchema }}
           listeners={{
+            onChange: ({ value }) => {
+              updateFormInput({ websiteUrl: value })
+              setSubmitError(null)
+            },
             onBlur: ({ value, fieldApi }) => {
               const trimmed = value.trim()
               if (!trimmed) return
               if (/^https?:\/\//i.test(trimmed)) return
-              fieldApi.setValue(`https://${trimmed}`)
+              const normalized = `https://${trimmed}`
+              fieldApi.setValue(normalized)
+              updateFormInput({ websiteUrl: normalized })
               void fieldApi.validate('blur')
             },
           }}
@@ -119,7 +124,15 @@ export function P1Input() {
             />
           )}
         </form.AppField>
-        <form.AppField name="descriptionText">
+        <form.AppField
+          name="descriptionText"
+          listeners={{
+            onChange: ({ value }) => {
+              updateFormInput({ descriptionText: value })
+              setSubmitError(null)
+            },
+          }}
+        >
           {(field) => (
             <field.TextareaField
               label={t`Descripción del brief`}

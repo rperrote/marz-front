@@ -65,12 +65,6 @@ export function BriefBuilderWizard() {
 
   const { blocker } = useLeaveGuard()
 
-  useEffect(() => {
-    return () => {
-      useBriefBuilderStore.getState().reset()
-    }
-  }, [])
-
   // Guard: post-input phases require source data (URL, description, PDF, or
   // an existing briefDraft). Land users that deep-link straight to a later
   // phase back at phase 1 instead of letting them submit an empty brief.

@@ -1,4 +1,10 @@
-import { expect, test } from '../fixtures'
+import { expect, getClerkSessionToken, test } from '../fixtures'
+
+const API_BASE_URL = (
+  process.env.VITE_API_URL ??
+  process.env.API_URL ??
+  'http://localhost:8080'
+).replace(/\/$/, '')
 
 interface AnalyticsEventBody {
   event_name: string
@@ -84,10 +90,12 @@ test.describe('mark as paid', () => {
 
     test.skip(!deliverableId, 'Skipped: test API no longer seeds completed deliverables')
 
+    const token = await getClerkSessionToken(creatorPage)
     const response = await creatorPage.request.post(
-      `/v1/deliverables/${deliverableId}/mark-as-paid`,
+      `${API_BASE_URL}/v1/deliverables/${deliverableId}/mark-as-paid`,
       {
         data: { amount: '10.00' },
+        headers: { Authorization: `Bearer ${token}` },
       },
     )
 

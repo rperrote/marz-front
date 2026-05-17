@@ -35,7 +35,7 @@ test.describe('creator campaign board', () => {
     await page.getByRole('button', { name: 'Categoría' }).click()
     await page.locator('label').filter({ hasText: 'Beauty' }).click()
 
-    await expect(page).toHaveURL(/niches=beauty/)
+    await expect(page).toHaveURL(/niches=.*beauty/)
     await expect(page.getByText('2 campañas')).toBeVisible()
     await expect(
       page.getByRole('article', { name: 'Glow Lab Routine' }),
@@ -50,8 +50,8 @@ test.describe('creator campaign board', () => {
     await page.getByRole('button', { name: 'Intereses' }).click()
     await page.locator('label').filter({ hasText: 'Skincare' }).click()
 
-    await expect(page).toHaveURL(/niches=beauty/)
-    await expect(page).toHaveURL(/interests=skincare/)
+    await expect(page).toHaveURL(/niches=.*beauty/)
+    await expect(page).toHaveURL(/interests=.*skincare/)
     await expect(page.getByText('2 filtros activos')).toBeVisible()
     await expect(
       page.getByRole('article', { name: 'Glow Lab Routine' }),
@@ -72,7 +72,7 @@ test.describe('creator campaign board', () => {
 
     const secondPage = await context.newPage()
     await secondPage.goto(
-      '/campaigns?niches=beauty&interests=skincare&sort=fee_desc',
+      '/discover/campaigns?niches=beauty&interests=skincare&sort=fee_desc',
     )
 
     const secondPageAuraCard = secondPage.getByRole('article', {

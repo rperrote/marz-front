@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check, Megaphone, Video } from 'lucide-react'
@@ -28,6 +28,7 @@ export function ContentTypeStep({ campaignId, config }: ContentTypeStepProps) {
     title: string
     description: string
     Icon: LucideIcon
+    disabled?: boolean
   }> = [
     {
       value: 'influencer_posts',
@@ -40,19 +41,32 @@ export function ContentTypeStep({ campaignId, config }: ContentTypeStepProps) {
       title: t`UGC Videos`,
       description: t`Creators producen videos para que tu marca use en ads y canales propios.`,
       Icon: Video,
+      disabled: true,
     },
   ]
 
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const mutation = useUpdateContentTypeMutation()
-  const initialContentType = useRef(config.content_type).current
-  const [selected, setSelected] = useState<CampaignContentType | null>(
-    initialContentType,
-  )
+  const [userSelected, setUserSelected] = useState<{
+    base: CampaignContentType | null
+    value: CampaignContentType | null
+  }>({ base: config.content_type, value: config.content_type })
+
+  if (userSelected.base !== config.content_type) {
+    setUserSelected({ base: config.content_type, value: config.content_type })
+  }
+  const selected = userSelected.value
+  const setSelected = (value: CampaignContentType) => {
+    setUserSelected({ base: config.content_type, value })
+  }
 
   const handleContinue = () => {
     if (!selected) return
+    const selectedOption = contentTypeOptions.find(
+      (option) => option.value === selected,
+    )
+    if (selectedOption?.disabled) return
 
     mutation.mutate(
       {
@@ -106,6 +120,7 @@ export function ContentTypeStep({ campaignId, config }: ContentTypeStepProps) {
             description={option.description}
             Icon={option.Icon}
             selected={selected === option.value}
+            disabled={option.disabled}
             onSelect={() => setSelected(option.value)}
           />
         ))}
@@ -114,7 +129,12 @@ export function ContentTypeStep({ campaignId, config }: ContentTypeStepProps) {
         onBack={() => undefined}
         onContinue={handleContinue}
         backDisabled
-        continueDisabled={!selected}
+        continueDisabled={
+          !selected ||
+          contentTypeOptions.some(
+            (option) => option.value === selected && option.disabled,
+          )
+        }
         isPending={mutation.isPending}
       />
     </div>
@@ -126,6 +146,7 @@ interface SelectionCardProps {
   description: string
   Icon: LucideIcon
   selected: boolean
+  disabled?: boolean
   onSelect: () => void
 }
 
@@ -134,6 +155,7 @@ function SelectionCard({
   description,
   Icon,
   selected,
+  disabled = false,
   onSelect,
 }: SelectionCardProps) {
   return (
@@ -142,11 +164,13 @@ function SelectionCard({
       className={cn(
         'flex min-h-44 flex-col items-start gap-4 rounded-3xl border bg-card p-5 text-left transition-colors',
         'hover:border-primary/60 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+        disabled && 'cursor-not-allowed opacity-60 hover:border-border',
         selected
           ? 'border-primary bg-primary/10'
           : 'border-border hover:bg-muted/50',
       )}
       aria-pressed={selected}
+      disabled={disabled}
       onClick={onSelect}
     >
       <div className="flex w-full items-start gap-3">
@@ -159,17 +183,23 @@ function SelectionCard({
           <Icon className="size-4" aria-hidden="true" />
         </span>
         <span className="flex-1" />
-        <span
-          className={cn(
-            'flex size-5 items-center justify-center rounded-full border',
-            selected
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-border bg-muted',
-          )}
-          aria-hidden="true"
-        >
-          {selected ? <Check className="size-3" /> : null}
-        </span>
+        {disabled ? (
+          <span className="rounded-full bg-muted px-2 py-1 text-[11px] font-semibold text-muted-foreground">
+            {t`Próximamente`}
+          </span>
+        ) : (
+          <span
+            className={cn(
+              'flex size-5 items-center justify-center rounded-full border',
+              selected
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border bg-muted',
+            )}
+            aria-hidden="true"
+          >
+            {selected ? <Check className="size-3" /> : null}
+          </span>
+        )}
       </div>
       <span className="flex flex-col gap-2">
         <span className="text-sm font-semibold text-foreground">{title}</span>

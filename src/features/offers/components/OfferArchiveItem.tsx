@@ -63,8 +63,7 @@ function getBadgeConfig(offer: OfferDetailDTO): {
   if (offer.status === 'cancelled') {
     const phase = getCancellationPhase(offer)
     return {
-      label:
-        phase === 'post_accept' ? t`Cancelada (post)` : t`Cancelada (pre)`,
+      label: phase === 'post_accept' ? t`Cancelada (post)` : t`Cancelada (pre)`,
       variant: 'outline',
       className: 'border-warning/40 bg-warning/10 text-warning',
     }
@@ -103,9 +102,7 @@ function getInlineStatusLabel(offer: OfferDetailDTO): string {
   if (offer.status === 'accepted' && offer.paid_at) return t`Pagada`
   if (offer.status === 'cancelled') {
     const phase = getCancellationPhase(offer)
-    return phase === 'post_accept'
-      ? t`Cancelada tras aceptación`
-      : t`Cancelada`
+    return phase === 'post_accept' ? t`Cancelada tras aceptación` : t`Cancelada`
   }
   switch (offer.status) {
     case 'sent':
@@ -125,7 +122,8 @@ function getBonusSummary(offer: OfferDetailDTO): string {
   const windows = offer.bonus_terms?.speed_bonus_windows ?? []
   if (windows.length === 0) return t`Sin bonos`
   if (windows.length === 1) return t`1 bono por velocidad`
-  return t`${windows.length} bonos por velocidad`
+  const count = windows.length
+  return t`${count} bonos por velocidad`
 }
 
 interface DetailRowProps {
@@ -160,7 +158,7 @@ export function OfferArchiveItem({ item }: OfferArchiveItemProps) {
   const sentDate = formatArchiveDate(sentAt)
   const platforms = offer.platforms.length > 0 ? offer.platforms : null
   const bonusSummary = getBonusSummary(offer)
-  const description = offer.description?.trim() || null
+  const description = offer.description.trim() || null
   const cancellationPhase = getCancellationPhase(offer)
   const inlineStatus = getInlineStatusLabel(offer)
 

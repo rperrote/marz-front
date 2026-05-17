@@ -1,10 +1,5 @@
 import { t } from '@lingui/core/macro'
 
-export function deadlineToRFC3339(deadline: string): string {
-  // eslint-disable-next-line lingui/no-unlocalized-strings
-  return `${deadline}T00:00:00Z`
-}
-
 export function formatOfferDeadline(deadline: string): string {
   // eslint-disable-next-line lingui/no-unlocalized-strings
   const raw = deadline.includes('T') ? deadline : `${deadline}T00:00:00`
@@ -31,19 +26,4 @@ export function formatOfferPlatform(platform: string, format: string): string {
   const p = platformLabels[platform] ?? platform
   const f = formatLabels[format] ?? format
   return `${p} ${f}`
-}
-
-export function formatExpiresIn(expiresAt: string, now: Date): string {
-  const diff = new Date(expiresAt).getTime() - now.getTime()
-  if (diff <= 0) return t`Expirada`
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-  if (days > 0) return t`Quedan ${days}d ${hours}h`
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-  if (hours > 0) return t`Quedan ${hours}h ${minutes}m`
-  return t`Quedan ${minutes}m`
-}
-
-export function isOfferExpired(expiresAt: string, now: Date): boolean {
-  return new Date(expiresAt).getTime() <= now.getTime()
 }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { t } from '@lingui/core/macro'
 import {
   Select,
@@ -36,33 +36,37 @@ function parseBirthday(value: string | undefined) {
 }
 
 export function C11BirthdayScreen() {
-  const store = useCreatorOnboardingStore()
+  const birthday = useCreatorOnboardingStore((s) => s.birthday)
+  const birthdayError = useCreatorOnboardingStore((s) => s.fieldErrors.birthday)
+  const setField = useCreatorOnboardingStore((s) => s.setField)
 
   const [{ year, month, day }, setParts] = useState(() =>
-    parseBirthday(store.birthday),
+    parseBirthday(birthday),
   )
 
   const update = useCallback(
     (patch: { y?: string; m?: string; d?: string }) => {
       setParts((prev) => {
-        const next = {
+        return {
           year: patch.y ?? prev.year,
           month: patch.m ?? prev.month,
           day: patch.d ?? prev.day,
         }
-        if (next.year && next.month && next.day) {
-          store.setField(
-            'birthday',
-            `${next.year}-${next.month.padStart(2, '0')}-${next.day.padStart(2, '0')}`,
-          )
-        } else {
-          store.setField('birthday', '')
-        }
-        return next
       })
     },
-    [store],
+    [],
   )
+
+  useEffect(() => {
+    if (year && month && day) {
+      setField(
+        'birthday',
+        `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`,
+      )
+    } else {
+      setField('birthday', '')
+    }
+  }, [day, month, setField, year])
 
   const years = useMemo(() => {
     const current = new Date().getFullYear()
@@ -130,9 +134,9 @@ export function C11BirthdayScreen() {
           )}
         </FieldRow>
       </div>
-      {store.fieldErrors.birthday && (
+      {birthdayError && (
         <p className="text-xs text-destructive" role="alert">
-          {store.fieldErrors.birthday}
+          {birthdayError}
         </p>
       )}
     </div>

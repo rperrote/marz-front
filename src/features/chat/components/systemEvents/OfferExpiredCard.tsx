@@ -15,7 +15,7 @@ export function OfferExpiredCard({ message }: OfferExpiredCardProps) {
   if (!snapshot) return null
 
   return (
-    <article role="article" aria-label={t`Oferta vencida`}>
+    <article aria-label={t`Oferta vencida`}>
       <EventBubble severity="warning" direction="in" icon={Clock3}>
         {t`Oferta vencida`}
       </EventBubble>

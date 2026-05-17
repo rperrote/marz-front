@@ -3,7 +3,7 @@
 
 import type { OfferMode } from './types'
 
-export type AmountBucket =
+type AmountBucket =
   | '<500'
   | '500-1000'
   | '1000-2500'
@@ -66,37 +66,11 @@ interface OfferEventMap {
 
 export type OfferEventName = keyof OfferEventMap
 
-const seenOfferIds = new Set<string>()
-
-export function markOfferSeen(
-  offerId: string,
-  eventName: OfferEventName,
-): boolean {
-  const key = `${eventName}:${offerId}`
-  if (seenOfferIds.has(key)) return false
-  seenOfferIds.add(key)
-  return true
-}
-
 export function trackOfferEvent<TEvent extends OfferEventName>(
   _name: TEvent,
   _payload: OfferEventMap[TEvent],
 ): void {
   // no-op until backend analytics endpoint is defined in OpenAPI
-}
-
-export function toAmountBucket(
-  amount: number,
-  _currency: string,
-): AmountBucket {
-  // RAFITA:TODO: MVP assumes 1:1 FX for non-USD currencies.
-  // Replace with real FX conversion when available.
-  if (amount < 500) return '<500'
-  if (amount < 1000) return '500-1000'
-  if (amount < 2500) return '1000-2500'
-  if (amount < 5000) return '2500-5000'
-  if (amount < 10000) return '5000-10000'
-  return '>10000'
 }
 
 export function toArchiveSizeBucket(size: number): ArchiveSizeBucket {
@@ -105,32 +79,4 @@ export function toArchiveSizeBucket(size: number): ArchiveSizeBucket {
   if (size < 20) return '10-20'
   if (size < 50) return '20-50'
   return '>50'
-}
-
-export function toPlatformMix(
-  deliverables: ReadonlyArray<{ platform: string }>,
-): string[] {
-  return [...new Set(deliverables.map((deliverable) => deliverable.platform))]
-}
-
-export function maxDeadlineFromNow(
-  deadlines: readonly string[],
-  now?: Date,
-): number {
-  const sortedDeadlines = deadlines.toSorted(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
-  )
-  const latestDeadline = sortedDeadlines[0]
-  return latestDeadline ? daysFromNow(latestDeadline, now) : 0
-}
-
-export function daysFromNow(dateString: string, now?: Date): number {
-  const target = new Date(dateString)
-  target.setUTCHours(0, 0, 0, 0)
-
-  const reference = now ? new Date(now.getTime()) : new Date()
-  reference.setUTCHours(0, 0, 0, 0)
-
-  const diffMs = target.getTime() - reference.getTime()
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
 }

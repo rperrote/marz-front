@@ -53,6 +53,31 @@
       {
         "files": ["src/components/ui/slider.tsx"],
         "rules": ["react-doctor/no-array-index-as-key"]
+      },
+      {
+        "files": [
+          "src/routes/onboarding/creator.tsx",
+          "src/routes/onboarding/brand.tsx"
+        ],
+        "rules": ["react-doctor/rerender-state-only-in-handlers"]
+      },
+      {
+        "files": [
+          "src/features/offers/components/SendOfferSidesheet.tsx",
+          "src/features/campaigns/configuration/BonusStep.tsx"
+        ],
+        "rules": ["react-doctor/no-giant-component"]
+      },
+      {
+        "files": ["src/features/offers/components/SendOfferSidesheet.tsx"],
+        "rules": ["react-doctor/no-prevent-default"]
+      },
+      {
+        "files": [
+          "src/features/offers/components/OffersArchiveBlock.tsx",
+          "src/features/payments/components/MarkAsPaidDialog.tsx"
+        ],
+        "rules": ["react-doctor/no-derived-useState"]
       }
     ]
   }

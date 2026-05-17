@@ -140,9 +140,16 @@ describe('ContentTypeStep', () => {
     const continueButton = screen.getByRole('button', { name: /continuar/i })
     expect(continueButton).toBeDisabled()
 
-    await user.click(screen.getByRole('button', { name: /ugc videos/i }))
+    await user.click(screen.getByRole('button', { name: /influencer posts/i }))
 
     expect(continueButton).toBeEnabled()
+  })
+
+  it('shows UGC Videos as coming soon and disabled', () => {
+    renderStep()
+
+    expect(screen.getByRole('button', { name: /ugc videos/i })).toBeDisabled()
+    expect(screen.getByText(/próximamente/i)).toBeInTheDocument()
   })
 
   it('patches selected content type with the current configuration version', async () => {
@@ -150,13 +157,13 @@ describe('ContentTypeStep', () => {
     const response = makeConfig({
       current_step: 'pricing_model',
       completed_steps: ['content_type'],
-      content_type: 'ugc_videos',
+      content_type: 'influencer_posts',
       configuration_version: 4,
     })
     mockCustomFetch.mockResolvedValue({ data: response, status: 200 })
     const { queryClient } = renderStep()
 
-    await user.click(screen.getByRole('button', { name: /ugc videos/i }))
+    await user.click(screen.getByRole('button', { name: /influencer posts/i }))
     await user.click(screen.getByRole('button', { name: /continuar/i }))
 
     await waitFor(() => {
@@ -165,7 +172,7 @@ describe('ContentTypeStep', () => {
         expect.objectContaining({
           method: 'PATCH',
           body: JSON.stringify({
-            content_type: 'ugc_videos',
+            content_type: 'influencer_posts',
             configuration_version: 3,
           }),
         }),

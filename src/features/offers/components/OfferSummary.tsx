@@ -36,7 +36,7 @@ export function getMaxPayout(
   }, amount)
 }
 
-export function formatUsd(amount: number) {
+function formatUsd(amount: number) {
   return usdFormatter.format(Number.isFinite(amount) ? amount : 0)
 }
 

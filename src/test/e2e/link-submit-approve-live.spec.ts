@@ -12,20 +12,14 @@ test.describe('link submit/approve live panel updates', () => {
 
     await brandPage.goto(route)
     await creatorPage.goto(route)
-    await brandPage.waitForSelector('[data-testid="deliverable-list-panel"]', {
+    await brandPage.waitForSelector('[data-testid="message-timeline"]', {
       timeout: 10_000,
     })
-    await creatorPage.waitForSelector(
-      '[data-testid="deliverable-list-panel"]',
-      {
-        timeout: 10_000,
-      },
-    )
+    await creatorPage.waitForSelector('[data-testid="message-timeline"]', {
+      timeout: 10_000,
+    })
 
-    const creatorPanel = creatorPage.locator(
-      '[data-testid="deliverable-list-panel"]',
-    )
-    const submitButton = creatorPanel.getByRole('button', {
+    const submitButton = creatorPage.getByRole('button', {
       name: /^submit link$/i,
     })
     test.skip(
@@ -33,6 +27,10 @@ test.describe('link submit/approve live panel updates', () => {
       'Skipped: chatPair fixture has no draft_approved deliverable yet',
     )
 
+    const creatorPanel = creatorPage.locator(
+      '[data-testid="deliverable-list-panel"]',
+    )
+    await expect(creatorPanel).toBeVisible()
     await submitButton.click()
     const sheet = creatorPage.getByRole('dialog', { name: /submit link/i })
     await sheet.getByLabel(/published url/i).fill(url)
@@ -61,12 +59,9 @@ test.describe('link submit/approve live panel updates', () => {
     await brandPage.waitForSelector('[data-testid="message-timeline"]', {
       timeout: 10_000,
     })
-    await creatorPage.waitForSelector(
-      '[data-testid="deliverable-list-panel"]',
-      {
-        timeout: 10_000,
-      },
-    )
+    await creatorPage.waitForSelector('[data-testid="message-timeline"]', {
+      timeout: 10_000,
+    })
 
     const approveButton = brandPage.getByRole('button', {
       name: /approve link/i,
@@ -76,6 +71,9 @@ test.describe('link submit/approve live panel updates', () => {
       'Skipped: chatPair fixture has no submitted link yet',
     )
 
+    await creatorPage.waitForSelector('[data-testid="deliverable-list-panel"]', {
+      timeout: 10_000,
+    })
     await approveButton.click()
 
     const brandPanel = brandPage.locator(

@@ -11605,16 +11605,15 @@
         "additionalProperties": false,
         "required": [
           "window_hours",
-          "bonus_pct"
+          "bonus_amount"
         ],
         "properties": {
           "window_hours": {
             "type": "integer",
             "minimum": 1
           },
-          "bonus_pct": {
-            "type": "string",
-            "pattern": "^\\d+(\\.\\d{1,2})?$"
+          "bonus_amount": {
+            "$ref": "#/components/schemas/BonusAmount"
           }
         }
       },
@@ -11667,39 +11666,6 @@
             }
           }
         ]
-      },
-      "BonusTerms": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "enabled",
-          "speed_bonus_windows"
-        ],
-        "properties": {
-          "enabled": {
-            "type": "boolean"
-          },
-          "speed_bonus_windows": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "window_hours",
-                "bonus_amount"
-              ],
-              "properties": {
-                "window_hours": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "bonus_amount": {
-                  "$ref": "#/components/schemas/BonusAmount"
-                }
-              }
-            }
-          }
-        }
       },
       "MarkPaidOfferRequest": {
         "type": "object",

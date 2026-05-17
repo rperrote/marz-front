@@ -21,6 +21,11 @@ import type {
 
 const CLERK_SECRET = process.env.CLERK_SECRET_KEY
 const CLERK_API_URL = 'https://api.clerk.com/v1'
+const API_BASE_URL = (
+  process.env.VITE_API_URL ??
+  process.env.API_URL ??
+  'http://localhost:8080'
+).replace(/\/$/, '')
 const E2E_RUN_ID =
   process.env.E2E_RUN_ID ?? `${Date.now().toString(36)}${process.pid}`
 
@@ -89,6 +94,23 @@ async function createClerkUser(params: {
   }
 
   return response
+}
+
+export async function getClerkSessionToken(page: Page): Promise<string> {
+  const token = await page.evaluate(async () => {
+    const clerk = (
+      window as Window & {
+        Clerk?: { session?: { getToken: () => Promise<string | null> } }
+      }
+    ).Clerk
+    return (await clerk?.session?.getToken()) ?? null
+  })
+
+  if (!token) {
+    throw new Error('Expected an active Clerk session token')
+  }
+
+  return token
 }
 
 export class TestUser {
@@ -207,10 +229,12 @@ async function getCompletedDeliverableId(
   conversationId: string,
   brandWorkspaceId: string,
 ): Promise<string | undefined> {
+  const token = await getClerkSessionToken(page)
   const response = await page.request.get(
-    `/v1/conversations/${conversationId}/deliverables`,
+    `${API_BASE_URL}/v1/conversations/${conversationId}/deliverables`,
     {
       headers: {
+        Authorization: `Bearer ${token}`,
         'X-Brand-Workspace-Id': brandWorkspaceId,
       },
     },
@@ -293,7 +317,8 @@ async function createChatPair(
     creatorCtx.newPage(),
   ])
   try {
-    await Promise.all([brand.signIn(brandPage), creator.signIn(creatorPage)])
+    await brand.signIn(brandPage)
+    await creator.signIn(creatorPage)
   } catch (err) {
     await Promise.all([
       brandCtx.close(),

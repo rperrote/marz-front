@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro'
 import { z } from 'zod'
 
-export const OFFER_PLATFORMS = ['instagram', 'tiktok', 'youtube'] as const
+const OFFER_PLATFORMS = ['instagram', 'tiktok', 'youtube'] as const
 
 const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/
 

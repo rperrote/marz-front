@@ -58,16 +58,11 @@ export function PaymentMarkedCard({
   return (
     <article
       ref={cardRef}
-      role="article"
       aria-label={t`Pago marcado`}
       data-testid="payment-marked-card"
       data-highlighted={highlighted ? 'true' : undefined}
     >
-      <EventBubble
-        severity="success"
-        direction={side}
-        icon={CircleDollarSign}
-      >
+      <EventBubble severity="success" direction={side} icon={CircleDollarSign}>
         {t`Pago marcado`}
       </EventBubble>
     </article>

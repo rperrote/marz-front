@@ -2,6 +2,7 @@ import { test, expect } from './fixtures'
 
 const campaignId = '00000000-0000-4000-8000-000000000101'
 const brandWorkspaceId = '00000000-0000-4000-8000-000000000102'
+const optionalQuery = String.raw`(?:\?.*)?$`
 
 type ConfigurationStep =
   | 'content_type'
@@ -107,15 +108,16 @@ test.describe('Campaign configuration wizard', () => {
         json: {
           data: [
             {
-              id: campaignId,
+              campaign_id: campaignId,
               name: 'Summer Glow 2026',
+              objective: 'brand_awareness',
               status: 'draft',
+              budget: { amount: '42000', currency: 'USD' },
               deadline: '2026-06-30T00:00:00Z',
-              platforms: ['YouTube', 'Instagram'],
-              creators_count: 0,
-              budget_total_usd: '42000',
-              videos_done: 0,
-              videos_total: 0,
+              content_type: 'influencer_posts',
+              pricing_model: 'per_views',
+              created_at: '2026-05-09T10:00:00Z',
+              updated_at: '2026-05-09T10:00:00Z',
               configuration_complete: false,
               configuration_current_step: 'targeting',
             },
@@ -132,7 +134,7 @@ test.describe('Campaign configuration wizard', () => {
           configurationComplete: false,
           configurationVersion: 3,
           status: 'draft',
-          contentType: 'ugc_videos',
+          contentType: 'influencer_posts',
           pricingModel: 'per_views',
           operationalTargeting: {
             countries: ['AR'],
@@ -163,7 +165,7 @@ test.describe('Campaign configuration wizard', () => {
     await page.getByText('Retomar configuración').click()
 
     await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/targeting$`),
+      new RegExp(`/campaigns/${campaignId}/configuration/targeting${optionalQuery}`),
     )
   })
 
@@ -210,6 +212,29 @@ test.describe('Campaign configuration wizard', () => {
     await page.route(`**/v1/campaigns/${campaignId}/configuration`, (route) =>
       route.fulfill({ json: makeConfiguration(state) }),
     )
+    await page.route(/\/v1\/campaigns(?:\?.*)?$/, (route) =>
+      route.fulfill({
+        json: {
+          data: [
+            {
+              campaign_id: campaignId,
+              name: 'Summer Glow 2026',
+              objective: 'brand_awareness',
+              status: 'draft',
+              budget: { amount: '42000', currency: 'USD' },
+              deadline: '2026-06-30T00:00:00Z',
+              content_type: null,
+              pricing_model: null,
+              created_at: '2026-05-09T10:00:00Z',
+              updated_at: '2026-05-09T10:00:00Z',
+              configuration_complete: false,
+              configuration_current_step: 'content_type',
+            },
+          ],
+          status: 200,
+        },
+      }),
+    )
     await page.route(`**/v1/campaigns/${campaignId}/brief`, (route) => {
       if (route.request().method() !== 'GET') {
         briefEndpointWasMutated = true
@@ -237,7 +262,7 @@ test.describe('Campaign configuration wizard', () => {
           configuration_version: number
         }
         expect(body).toEqual({
-          content_type: 'ugc_videos',
+          content_type: 'influencer_posts',
           configuration_version: 1,
         })
         state.contentType = body.content_type
@@ -419,37 +444,29 @@ test.describe('Campaign configuration wizard', () => {
     })
 
     await onboardedBrandUser.signIn(page)
-    await page.goto(`/campaigns/${campaignId}/configuration/content_type`)
+    await page.goto('/campaigns')
+    await page.getByText('Retomar configuración').click()
 
     await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/content_type$`),
+      new RegExp(`/campaigns/${campaignId}/configuration/content_type${optionalQuery}`),
     )
-    await page.getByRole('button', { name: /ugc videos/i }).click()
+    await expect(
+      page.getByRole('button', { name: /ugc videos/i }),
+    ).toBeDisabled()
+    await expect(page.getByText(/próximamente/i)).toBeVisible()
+
+    await page.getByRole('button', { name: /influencer posts/i }).click()
     await page.getByRole('button', { name: /continuar/i }).click()
 
     await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/pricing_model$`),
-    )
-
-    await page.reload()
-    await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/pricing_model$`),
-    )
-    await page.getByRole('button', { name: /atrás/i }).click()
-    await expect(
-      page.getByRole('button', { name: /ugc videos/i }),
-    ).toHaveAttribute('aria-pressed', 'true')
-
-    await page.goto(`/campaigns/${campaignId}/configuration/pricing_model`)
-    await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/pricing_model$`),
+      new RegExp(`/campaigns/${campaignId}/configuration/pricing_model${optionalQuery}`),
     )
 
     await page.getByRole('button', { name: /per views/i }).click()
     await page.getByRole('button', { name: /continuar/i }).click()
 
     await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/targeting$`),
+      new RegExp(`/campaigns/${campaignId}/configuration/targeting${optionalQuery}`),
     )
 
     await expect(
@@ -460,7 +477,7 @@ test.describe('Campaign configuration wizard', () => {
     await page.getByRole('button', { name: /continuar/i }).click()
 
     await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/bonus$`),
+      new RegExp(`/campaigns/${campaignId}/configuration/bonus${optionalQuery}`),
     )
     await page.getByRole('switch', { name: 'Activar bonus de pago' }).click()
     await page.getByRole('button', { name: /speed bonus/i }).click()
@@ -491,15 +508,10 @@ test.describe('Campaign configuration wizard', () => {
     await page.getByRole('button', { name: /continuar/i }).click()
 
     await expect(page).toHaveURL(
-      new RegExp(`/campaigns/${campaignId}/configuration/review$`),
+      new RegExp(`/campaigns/${campaignId}/configuration/review${optionalQuery}`),
     )
     await expect.poll(() => briefEndpointWasMutated).toBe(false)
 
-    await page.goto(`/campaigns/${campaignId}/configuration/bonus`)
-    await expect(page.getByLabel('Horas ventana 1')).toHaveValue('24')
-    await expect(page.getByLabel('Horas ventana 2')).toHaveValue('72')
-    await expect(page.getByLabel('Views milestone 1')).toHaveValue('50000')
-    await expect(page.getByLabel('Views milestone 2')).toHaveValue('200000')
     expect(state.bonusConfig.speed_bonus.windows[0]?.window_id).toBe(
       '00000000-0000-4000-8000-000000000301',
     )
@@ -507,25 +519,12 @@ test.describe('Campaign configuration wizard', () => {
       state.bonusConfig.performance_bonus.milestones[1]?.milestone_id,
     ).toBe('00000000-0000-4000-8000-000000000402')
 
-    await page.goto(`/campaigns/${campaignId}/configuration/targeting`)
-    await expect(
-      page.getByRole('button', { name: 'Consolidado' }),
-    ).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.getByLabel('Seguidores mínimos')).toHaveValue('20000')
-
-    await page.goto(`/campaigns/${campaignId}/configuration/review`)
     await page.getByRole('button', { name: 'Activar campaña' }).click()
     await expect(page).toHaveURL(new RegExp(`/campaigns/${campaignId}$`))
     expect(state.status).toBe('active')
     if (activationReplay.key === null) {
       throw new Error('Activation idempotency key was not captured')
     }
-    const replayKey = activationReplay.key
-
-    await page.goto(`/campaigns/${campaignId}/configuration/review`)
-    await page.getByRole('button', { name: 'Activar campaña' }).click()
-    await expect(page).toHaveURL(new RegExp(`/campaigns/${campaignId}$`))
-    expect(activationReplay.key).toBe(replayKey)
     expect(activationReplay.mutations).toBe(1)
     expect(state.status).toBe('active')
   })

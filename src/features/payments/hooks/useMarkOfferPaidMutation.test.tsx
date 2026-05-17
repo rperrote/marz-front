@@ -61,7 +61,7 @@ describe('useMarkOfferPaidMutation', () => {
 
     await waitFor(() => {
       expect(mockCustomFetch).toHaveBeenCalledWith(
-        '/v1/offers/offer-1/mark-as-paid',
+        '/v1/offers/offer-1/mark-paid',
         {
           method: 'POST',
           headers: {

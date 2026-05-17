@@ -10,10 +10,7 @@ const MAX_CONSECUTIVE_TRANSPORT_FAILURES = 3
 
 async function isCollectorReachable(url: string): Promise<boolean> {
   const controller = new AbortController()
-  const timeout = setTimeout(
-    () => controller.abort(),
-    HEALTHCHECK_TIMEOUT_MS,
-  )
+  const timeout = setTimeout(() => controller.abort(), HEALTHCHECK_TIMEOUT_MS)
   try {
     // OPTIONS preflight is cheap and supported by Faro's receiver. Any HTTP
     // response (even 4xx) means the host is up; only network errors disqualify.
@@ -28,6 +25,7 @@ async function isCollectorReachable(url: string): Promise<boolean> {
 
 export async function initFaro(): Promise<Faro | null> {
   if (typeof window === 'undefined') return null
+  if (import.meta.env.VITE_E2E) return null
   if (faroInstance) return faroInstance
   if (initPromise) return initPromise
 

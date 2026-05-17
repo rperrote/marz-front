@@ -1,8 +1,4 @@
-import { t } from '@lingui/core/macro'
-
-import type { PaymentMarkedSnapshot as GeneratedPaymentMarkedSnapshotV3 } from '#/shared/api/generated/model'
 import type { OfferMode } from '#/features/offers/types'
-import { formatOfferAmount } from '#/shared/utils/formatOfferAmount'
 
 export type OfferCancelledPhase = 'pre_accept' | 'post_accept'
 
@@ -23,11 +19,6 @@ export interface OfferEventSnapshotV3 {
   phase?: OfferCancelledPhase
 }
 
-export type PaymentMarkedSnapshotV3 = GeneratedPaymentMarkedSnapshotV3 & {
-  platforms?: string[]
-  deliverables_count?: number
-}
-
 export interface PaymentMarkedEventSnapshotV3 {
   declaredPaymentId: string
   amount: string
@@ -37,13 +28,7 @@ export interface PaymentMarkedEventSnapshotV3 {
   deliverablesCount: number
 }
 
-export const eventDateFormatter = new Intl.DateTimeFormat('es-AR', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-})
-
-export function extractSnapshotRecord(
+function extractSnapshotRecord(
   payload: Record<string, unknown> | null,
 ): Record<string, unknown> | null {
   if (!payload) return null
@@ -116,25 +101,6 @@ export function extractPaymentMarkedSnapshotV3(
     platforms: getStrings(snapshot['platforms']),
     deliverablesCount: resolveDeliverablesCount(snapshot, 1),
   }
-}
-
-export function formatSnapshotAmount(amount: string, currency?: string) {
-  return currency ? formatOfferAmount(amount, currency) : amount
-}
-
-export function formatSnapshotDate(iso: string) {
-  // Snapshot dates are backend ISO strings; this is deterministic formatting, not current-time rendering.
-  return eventDateFormatter.format(new Date(iso))
-}
-
-export function formatOfferMode(mode: OfferMode) {
-  if (mode === 'same_content') return t`Un contenido`
-  return t`Por plataforma`
-}
-
-export function formatPlatforms(platforms: string[]) {
-  if (platforms.length === 0) return t`Sin plataformas`
-  return platforms.join(', ')
 }
 
 function resolveDeliverablesCount(

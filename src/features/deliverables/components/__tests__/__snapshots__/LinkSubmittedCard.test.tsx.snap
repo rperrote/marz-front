@@ -434,6 +434,7 @@ exports[`LinkSubmittedCard > shows link actions only for brand owners when the l
             data-size="default"
             data-slot="button"
             data-variant="default"
+            type="button"
           >
             Aprobar link
           </button>
@@ -442,6 +443,7 @@ exports[`LinkSubmittedCard > shows link actions only for brand owners when the l
             data-size="default"
             data-slot="button"
             data-variant="outline"
+            type="button"
           >
             Solicitar cambios en el link
           </button>

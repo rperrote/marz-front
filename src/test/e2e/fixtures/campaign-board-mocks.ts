@@ -384,7 +384,15 @@ function selectedPlatformValues(payloadText: string) {
 
 function getPayloadText(route: Route) {
   const url = new URL(route.request().url())
-  return url.searchParams.get('payload') ?? ''
+  return `${url.searchParams.get('payload') ?? ''} ${route.request().postData() ?? ''}`
+}
+
+function isCampaignApplicationSubmitPayload(payloadText: string) {
+  return (
+    payloadText.includes('campaignId') &&
+    payloadText.includes('idempotencyKey') &&
+    payloadText.includes('message')
+  )
 }
 
 function isCampaignBoardDetailPayload(payloadText: string) {
@@ -416,7 +424,7 @@ async function fulfillJson(route: Route, body: unknown) {
   await route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify(body),
+    body: JSON.stringify({ result: body }),
   })
 }
 
@@ -433,7 +441,12 @@ export async function installCampaignBoardMocks(
       return
     }
 
-    if (request.method() === 'POST') {
+    const payloadText = getPayloadText(route)
+
+    if (
+      request.method() === 'POST' &&
+      isCampaignApplicationSubmitPayload(payloadText)
+    ) {
       pagesWithInlineSubmittedApplication.add(route.request().frame().page())
       await fulfillJson(route, makeSubmitResponse())
       return
@@ -442,7 +455,6 @@ export async function installCampaignBoardMocks(
     const pageHasSubmittedApplication =
       readModelHasSubmittedApplication ||
       pagesWithInlineSubmittedApplication.has(route.request().frame().page())
-    const payloadText = getPayloadText(route)
     if (isCampaignBoardDetailPayload(payloadText)) {
       const campaignId = findCampaignId(payloadText) ?? campaignBoardIds.aura
       await fulfillJson(
@@ -471,5 +483,5 @@ export async function installCampaignBoardMocks(
 }
 
 export async function gotoCreatorCampaignBoard(page: Page) {
-  await page.goto('/campaigns')
+  await page.goto('/discover/campaigns')
 }

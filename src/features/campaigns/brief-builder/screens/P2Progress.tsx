@@ -11,6 +11,47 @@ import { trackBriefBuilderStarted } from '../analytics/brief-builder-analytics'
 import { useBriefBuilderWS } from '../hooks/useBriefBuilderWS'
 import { useProcessBrief, isProcessConflict } from '../hooks/useProcessBrief'
 import { BriefProcessingStep } from '../components/BriefProcessingStep'
+import { useGetBriefProcessing } from '#/shared/api/generated/campaigns/campaigns'
+import type { BriefDraftEnvelope } from '#/shared/api/generated/model'
+import type { BriefDraft } from '../store'
+
+function normalizeBriefDraft(envelope: BriefDraftEnvelope): BriefDraft {
+  return {
+    campaign: {
+      name: '',
+      objective: '',
+      budget_amount: null,
+      budget_currency: 'USD',
+      deadline: '',
+    },
+    brief: {
+      ...envelope.brief,
+      icp_genders: envelope.brief.icp_genders.filter(
+        (value): value is BriefDraft['brief']['icp_genders'][number] =>
+          value === 'male' || value === 'female' || value === 'non_binary',
+      ),
+      icp_platforms: envelope.brief.icp_platforms.filter(
+        (value): value is BriefDraft['brief']['icp_platforms'][number] =>
+          value === 'youtube' || value === 'instagram' || value === 'tiktok',
+      ),
+      scoring_dimensions: (envelope.brief.scoring_dimensions ?? []).map(
+        (dimension) => ({
+          id: crypto.randomUUID(),
+          name: dimension.name,
+          description: '',
+          weight_pct: dimension.weight_pct,
+          positive_signals: [],
+          negative_signals: [],
+        }),
+      ),
+      hard_filters: envelope.brief.hard_filters.map((filter) => ({
+        id: crypto.randomUUID(),
+        filter_type: filter.field,
+        filter_value: [filter.operator, filter.value].filter(Boolean).join(' '),
+      })),
+    },
+  }
+}
 
 export function P2Progress() {
   const router = useRouter()
@@ -19,6 +60,12 @@ export function P2Progress() {
   const goTo = useBriefBuilderStore((s) => s.goTo)
   const ws = useBriefBuilderWS(processingToken)
   const processBrief = useProcessBrief()
+  const processingQuery = useGetBriefProcessing(processingToken ?? '', {
+    query: {
+      enabled: processingToken !== null,
+      retry: false,
+    },
+  })
 
   const hasTrackedStarted = useRef(false)
   const dispatchedTokenRef = useRef<string | null>(null)
@@ -70,6 +117,33 @@ export function P2Progress() {
       })
     }
   }, [ws.status, ws.briefDraft, setField, goTo, router])
+
+  useEffect(() => {
+    const response = processingQuery.data
+    if (response?.status === 404) {
+      useBriefBuilderStore.getState().reset()
+      goTo(1)
+      void router.navigate({
+        to: '/campaigns/new/$phase',
+        params: { phase: getPhaseSlug(0) },
+        replace: true,
+      })
+      return
+    }
+
+    if (response?.status !== 200) return
+    const state = response.data.state
+    if (state !== 'completed' && state !== 'partial') return
+    if (!response.data.brief_draft) return
+
+    setField('briefDraft', normalizeBriefDraft(response.data.brief_draft))
+    goTo(3)
+    void router.navigate({
+      to: '/campaigns/new/$phase',
+      params: { phase: getPhaseSlug(2) },
+      replace: true,
+    })
+  }, [goTo, processingQuery.data, router, setField])
 
   if (dispatchError) {
     return (
