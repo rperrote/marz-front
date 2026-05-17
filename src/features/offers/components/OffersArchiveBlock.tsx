@@ -14,6 +14,7 @@ interface OffersArchiveBlockProps {
   onLoadMore?: () => void
   isLoadingMore?: boolean
   actorKind: ActorKind
+  defaultOpen?: boolean
 }
 
 export function OffersArchiveBlock({
@@ -22,8 +23,9 @@ export function OffersArchiveBlock({
   onLoadMore,
   isLoadingMore = false,
   actorKind,
+  defaultOpen = false,
 }: OffersArchiveBlockProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)
 
   const handleToggle = useCallback(() => {
     setOpen((prev) => {

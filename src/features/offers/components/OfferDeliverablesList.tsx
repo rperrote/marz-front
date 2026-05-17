@@ -66,6 +66,11 @@ export function OfferDeliverablesList({
             format={expectedFirst.format}
             sessionKind={sessionKind}
             offerStatus={toExpectedDeliverableOfferStatus(offer.status)}
+            onUploadDraft={
+              expectedFirst.id
+                ? () => onUploadDraft(expectedFirst.id as string)
+                : undefined
+            }
           />
         ) : (
           deliverables.map((deliverable) => (

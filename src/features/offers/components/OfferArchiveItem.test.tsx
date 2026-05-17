@@ -47,14 +47,14 @@ const sentItem: ArchivedOfferItem = {
 }
 
 describe('OfferArchiveItem', () => {
-  it('renders item id and amount', () => {
+  it('renders amount and badge', () => {
     render(
       <ul>
         <OfferArchiveItem item={sentItem} />
       </ul>,
     )
-    expect(screen.getByText('#a1b2c3d4')).toBeInTheDocument()
     expect(screen.getByText(/\$2,800\.00/)).toBeInTheDocument()
+    expect(screen.getByText('Pendiente')).toBeInTheDocument()
   })
 
   it('shows Pending badge for sent status', () => {
@@ -88,7 +88,11 @@ describe('OfferArchiveItem', () => {
     const button = screen.getByRole('button')
     expect(button).toHaveAttribute(
       'aria-label',
-      expect.stringContaining('campaign'),
+      expect.stringContaining('$2,800.00'),
+    )
+    expect(button).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Pendiente'),
     )
   })
 

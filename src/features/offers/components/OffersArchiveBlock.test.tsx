@@ -79,7 +79,7 @@ describe('OffersArchiveBlock', () => {
       />,
     )
     expect(screen.getByText('2')).toBeInTheDocument()
-    expect(screen.queryByText('#offer-1-')).not.toBeInTheDocument()
+    expect(screen.queryByText(/\$2,800\.00/)).not.toBeInTheDocument()
   })
 
   it('expands on click and shows items', async () => {
@@ -92,8 +92,21 @@ describe('OffersArchiveBlock', () => {
       />,
     )
     await user.click(screen.getByRole('button', { expanded: false }))
-    expect(screen.getByText('#offer-1-')).toBeInTheDocument()
-    expect(screen.getByText('#offer-2-')).toBeInTheDocument()
+    expect(screen.getByText(/\$2,800\.00/)).toBeInTheDocument()
+    expect(screen.getByText(/\$3,200\.00/)).toBeInTheDocument()
+  })
+
+  it('starts expanded when defaultOpen is true', () => {
+    render(
+      <OffersArchiveBlock
+        items={archiveItems}
+        nextCursor={null}
+        actorKind="brand"
+        defaultOpen
+      />,
+    )
+    expect(screen.getByRole('button', { expanded: true })).toBeInTheDocument()
+    expect(screen.getByText(/\$2,800\.00/)).toBeInTheDocument()
   })
 
   it('shows pending badge for past sent offers', async () => {
@@ -152,11 +165,11 @@ describe('OffersArchiveBlock', () => {
 
     await user.click(screen.getByRole('button', { expanded: false }))
 
-    expect(screen.getByText('Aceptada (pagada)')).toBeInTheDocument()
-    expect(screen.getByText('Cancelada (pre)')).toBeInTheDocument()
-    expect(screen.getByText('Cancelada (post)')).toBeInTheDocument()
-    expect(screen.getByText('Rechazada')).toBeInTheDocument()
-    expect(screen.getByText('Expirada')).toBeInTheDocument()
+    expect(screen.getByText(/Pagada/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Cancelada tras aceptación/)[0]).toBeDefined()
+    expect(screen.getAllByText('Cancelada')[0]).toBeDefined()
+    expect(screen.getByText(/Rechazada/)).toBeInTheDocument()
+    expect(screen.getByText(/Vencida/)).toBeInTheDocument()
   })
 
   it('shows load more button when next_cursor exists', async () => {

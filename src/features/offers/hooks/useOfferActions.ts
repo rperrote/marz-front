@@ -9,6 +9,7 @@ import type {
 } from '#/shared/api/generated/offers/offers'
 import { ApiError } from '#/shared/api/mutator'
 import { getConversationOffersQueryKey } from '#/shared/queries/offers'
+import { getConversationDeliverablesQueryKey } from '#/shared/queries/deliverables'
 
 import { trackOfferEvent } from '../analytics'
 import type { OfferMode } from '../types'
@@ -37,6 +38,8 @@ function timeToResponseSeconds(sentAt: string): number {
 export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
   const queryClient = useQueryClient()
   const offersQueryKey = getConversationOffersQueryKey(conversationId)
+  const deliverablesQueryKey =
+    getConversationDeliverablesQueryKey(conversationId)
 
   const acceptMutation = useMutation<
     acceptOfferResponse,
@@ -77,6 +80,7 @@ export function useOfferActions({ conversationId }: UseOfferActionsOptions) {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: offersQueryKey })
+      void queryClient.invalidateQueries({ queryKey: deliverablesQueryKey })
     },
   })
 

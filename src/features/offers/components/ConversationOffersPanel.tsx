@@ -86,6 +86,7 @@ export function ConversationOffersPanel({
             onLoadMore={fetchNextPage}
             isLoadingMore={isFetchingNextPage}
             actorKind={actorKind}
+            defaultOpen={!current}
           />
         ) : null
       }
