@@ -74,3 +74,10 @@ verify:
 # Activa el step run_auditor de skinner antes de invocar rafita.
 audit:
   enabled: true
+
+profile_extensions:
+  dev:      "profiles/dev.md"
+  review:   "profiles/reviewer.md"
+  closer:   "profiles/closer.md"
+  planner:  "profiles/planner.md"
+  auditor:  "profiles/auditor.md"
